@@ -40,6 +40,12 @@ class CurrentDraftController extends _$CurrentDraftController {
   String _localId = '';
   bool _disposed = false;
 
+  /// True once this session's draft has been removed from the local store or a
+  /// delete has been queued — suppresses every later write (debounced autosave,
+  /// saveNow, dispose flush) so a late flush cannot resurrect the removed draft
+  /// or overwrite the queued delete.
+  bool _closed = false;
+
   // Captured while mounted so [dispose] can flush WITHOUT touching `ref`/`state`
   // (both are illegal during disposal — Riverpod contract, docs/40 §mobile-conv).
   DraftLocalDataSource? _store;
@@ -220,6 +226,7 @@ class CurrentDraftController extends _$CurrentDraftController {
   Future<void> saveNow() async {
     _debounce?.cancel();
     await _persistLocal();
+    if (_disposed) return;
     unawaited(ref.read(draftSyncEngineProvider).syncAll());
   }
 
@@ -239,19 +246,22 @@ class CurrentDraftController extends _$CurrentDraftController {
   Future<void> deleteDraft() async {
     final EditorState? cur = state.asData?.value;
     if (cur == null) return;
+    _debounce?.cancel();
     final DraftLocalDataSource store = ref.read(draftLocalDataSourceProvider);
     if (!cur.draft.isRemote) {
+      _closed = true;
       await store.remove(_localId);
       ref.read(draftSyncEngineProvider).revision.value++;
       return;
     }
-    _debounce?.cancel();
     final Draft queued = cur.draft.copyWith(
       intent: DraftIntent.delete,
       syncState: DraftSyncState.pending,
       localUpdatedAt: DateTime.now().toUtc(),
     );
     await store.write(queued);
+    _setData(cur.copyWith(draft: queued));
+    _closed = true;
     unawaited(ref.read(draftSyncEngineProvider).syncDraftById(_localId));
   }
 
@@ -263,6 +273,7 @@ class CurrentDraftController extends _$CurrentDraftController {
     _debounce?.cancel();
     final DraftLocalDataSource store = ref.read(draftLocalDataSourceProvider);
     if (!cur.draft.isRemote) {
+      _closed = true;
       await store.remove(_localId);
       ref.read(draftSyncEngineProvider).revision.value++;
       return;
@@ -382,17 +393,20 @@ class CurrentDraftController extends _$CurrentDraftController {
 
   Future<void> _persistLocal() async {
     final EditorState? cur = state.asData?.value;
-    if (cur == null) return;
+    if (cur == null || _closed) return;
     _setData(cur.copyWith(autosaving: true));
     final Draft toSave = cur.liveDraft;
     await ref.read(draftLocalDataSourceProvider).write(toSave);
+    if (_disposed || _closed) return;
     ref.read(draftSyncEngineProvider).revision.value++;
+    // Edits or sync reconciles (e.g. a freshly assigned remoteId) may have landed
+    // during the write — fold the save bookkeeping into the CURRENT state, never
+    // the pre-await snapshot. The persisted `content` may lag the live document;
+    // that is the documented model (EditorState.liveDraft re-encodes).
+    final EditorState? after = state.asData?.value;
+    if (after == null) return;
     _setData(
-      cur.copyWith(
-        draft: toSave,
-        autosaving: false,
-        lastSavedAt: toSave.localUpdatedAt,
-      ),
+      after.copyWith(autosaving: false, lastSavedAt: toSave.localUpdatedAt),
     );
   }
 
@@ -400,6 +414,7 @@ class CurrentDraftController extends _$CurrentDraftController {
   /// last edits survive even inside the debounce window. Uses the CAPTURED store +
   /// state — never `ref`/`state`, which are illegal to touch during disposal.
   void _flushSync() {
+    if (_closed) return;
     final DraftLocalDataSource? store = _store;
     final EditorState? cur = _latest;
     if (store == null || cur == null || _localId.isEmpty) return;

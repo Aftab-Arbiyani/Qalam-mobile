@@ -124,5 +124,45 @@ void main() {
       c.read(draftLocalDataSourceProvider).read('loc-1')!.title,
       'Flushed',
     );
+    // saveNow fires an unawaited background drain — settle it before teardown.
+    await c.read(draftSyncEngineProvider).syncAll();
   });
+
+  test('edits landing while a save is in flight are not clobbered', () async {
+    final ProviderContainer c = await container();
+    await c.read(currentDraftControllerProvider('loc-1').future);
+    final CurrentDraftController notifier = c.read(
+      currentDraftControllerProvider('loc-1').notifier,
+    );
+    notifier.setTitle('Before');
+    final Future<void> saving = notifier.saveNow();
+    // Lands after the persist captured its snapshot but before its write returns.
+    notifier.setTitle('During');
+    await saving;
+    final EditorState st = c
+        .read(currentDraftControllerProvider('loc-1'))
+        .asData!
+        .value;
+    expect(st.draft.title, 'During');
+    expect(st.autosaving, isFalse);
+    await c.read(draftSyncEngineProvider).syncAll();
+  });
+
+  test(
+    'a deleted never-synced draft cannot be resurrected by a later save',
+    () async {
+      final ProviderContainer c = await container();
+      await c.read(currentDraftControllerProvider('loc-1').future);
+      final CurrentDraftController notifier = c.read(
+        currentDraftControllerProvider('loc-1').notifier,
+      );
+      notifier.setTitle('Edited then deleted');
+      await notifier.deleteDraft();
+      expect(c.read(draftLocalDataSourceProvider).read('loc-1'), isNull);
+      // A late flush (debounced autosave / dispose flush / saveNow) must be a no-op.
+      await notifier.saveNow();
+      expect(c.read(draftLocalDataSourceProvider).read('loc-1'), isNull);
+      await c.read(draftSyncEngineProvider).syncAll();
+    },
+  );
 }

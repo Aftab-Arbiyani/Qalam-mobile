@@ -65,27 +65,53 @@ class RichTextEditingController extends TextEditingController {
     required bool withComposing,
   }) {
     final TextStyle base = style ?? const TextStyle();
-    // Preserve the platform IME's composing underline while composing; marks
-    // re-appear the moment composition ends.
-    if (withComposing &&
-        !value.composing.isCollapsed &&
-        value.isComposingRangeValid) {
-      return super.buildTextSpan(
-        context: context,
-        style: style,
-        withComposing: withComposing,
-      );
-    }
     final List<StyledRun> runs = marked.runs();
     if (runs.isEmpty) return TextSpan(text: text, style: base);
-    return TextSpan(
-      style: base,
-      children: <InlineSpan>[
-        for (final StyledRun run in runs)
-          TextSpan(text: run.text, style: _applyMarks(base, run.marks)),
-      ],
-    );
+    final bool composing =
+        withComposing &&
+        !value.composing.isCollapsed &&
+        value.isComposingRangeValid;
+    if (!composing) {
+      return TextSpan(
+        style: base,
+        children: <InlineSpan>[
+          for (final StyledRun run in runs)
+            TextSpan(text: run.text, style: _applyMarks(base, run.marks)),
+        ],
+      );
+    }
+    // Keep the marks painted WHILE composing (no flash back to plain on every
+    // word) and overlay the platform IME's composing underline on the segment
+    // inside the composing range.
+    final int cStart = value.composing.start;
+    final int cEnd = value.composing.end;
+    final List<InlineSpan> children = <InlineSpan>[];
+    int offset = 0;
+    for (final StyledRun run in runs) {
+      final TextStyle runStyle = _applyMarks(base, run.marks);
+      final int runEnd = offset + run.text.length;
+      final int mid0 = cStart.clamp(offset, runEnd);
+      final int mid1 = cEnd.clamp(offset, runEnd);
+      void add(int s, int e, TextStyle st) {
+        if (e > s) {
+          children.add(TextSpan(text: text.substring(s, e), style: st));
+        }
+      }
+
+      add(offset, mid0, runStyle);
+      add(mid0, mid1, _underlined(runStyle));
+      add(mid1, runEnd, runStyle);
+      offset = runEnd;
+    }
+    return TextSpan(style: base, children: children);
   }
+
+  static TextStyle _underlined(TextStyle style) => style.copyWith(
+    decoration: TextDecoration.combine(<TextDecoration>[
+      if (style.decoration case final TextDecoration d) d,
+      TextDecoration.underline,
+    ]),
+  );
 
   TextStyle _applyMarks(TextStyle base, Set<TextMark> marks) {
     TextStyle style = base;
