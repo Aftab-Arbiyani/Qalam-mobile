@@ -69,8 +69,29 @@ dev_dependencies:
   riverpod_generator: ^4.0.4
   hive_ce_generator: ^1.11.2
   mocktail: ^1.0.5
+  flutter_launcher_icons: ^0.14.4
 
 flutter:
   uses-material-design: true
   # Generate the localization delegates from lib/l10n/*.arb (see l10n.yaml).
   generate: true
+
+# App launcher icons (dev-only tooling — not a runtime dependency). Generated from
+# the brand mark in assets/branding/ (the isolated qaf ق on warm terracotta). The
+# masters are path-based PNGs rasterized from the deterministic brand SVG, so the
+# icon is font-independent. Regenerate: `dart run flutter_launcher_icons`.
+flutter_launcher_icons:
+  image_path: "assets/branding/qalam_icon.png"
+  android: true
+  min_sdk_android: 21
+  adaptive_icon_background: "#9E4B28"
+  adaptive_icon_foreground: "assets/branding/qalam_icon_foreground.png"
+  adaptive_icon_monochrome: "assets/branding/qalam_icon_foreground.png"
+  ios: true
+  remove_alpha_ios: true
+  background_color_ios: "#9E4B28"
+  web:
+    generate: true
+    image_path: "assets/branding/qalam_icon.png"
+    background_color: "#FAF7F1"
+    theme_color: "#9E4B28"

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../l10n/generated/app_localizations.dart';
 import '../../../../shared/theme/q_tokens.dart';
 import '../../../../shared/theme/tokens/spacing_tokens.dart';
+import '../../../../shared/widgets/branding/q_brand_mark.dart';
 import '../../../../shared/widgets/loading/q_loading_indicator.dart';
 
 /// Splash — shown while the session boot-restore is in flight (docs/40 §11.2).
@@ -21,14 +22,7 @@ class SplashPage extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            Text(
-              'قلم',
-              style: TextStyle(
-                fontSize: 56,
-                color: tokens.colors.accent,
-                height: 1.4,
-              ),
-            ),
+            const QBrandMark(size: 96, semanticLabel: null),
             Gap.v3,
             Text(l10n.appTitle, style: Theme.of(context).textTheme.titleLarge),
             Gap.v6,

@@ -17,6 +17,7 @@ import '../../../../shared/theme/q_tokens.dart';
 import '../../../../shared/theme/tokens/motion_tokens.dart';
 import '../../../../shared/theme/tokens/radius_tokens.dart';
 import '../../../../shared/theme/tokens/spacing_tokens.dart';
+import '../../../../shared/widgets/branding/q_brand_mark.dart';
 import '../../../../shared/widgets/buttons/q_button.dart';
 import '../../../../shared/widgets/haptics/q_haptics.dart';
 import '../../../../shared/widgets/layout/q_scaffold.dart';
@@ -87,14 +88,20 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       showOfflineBanner: false,
       body: Column(
         children: <Widget>[
-          Align(
-            alignment: AlignmentDirectional.centerEnd,
-            child: Padding(
-              padding: const EdgeInsets.all(QSpacing.s2),
-              child: TextButton(
-                onPressed: _finish,
-                child: Text(l10n.onboardingSkip),
-              ),
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: QSpacing.s4,
+              vertical: QSpacing.s2,
+            ),
+            child: Row(
+              children: <Widget>[
+                const QBrandMark(size: 28, semanticLabel: null),
+                const Spacer(),
+                TextButton(
+                  onPressed: _finish,
+                  child: Text(l10n.onboardingSkip),
+                ),
+              ],
             ),
           ),
           Expanded(

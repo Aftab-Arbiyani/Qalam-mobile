@@ -13,6 +13,7 @@ import '../../../../shared/preferences/app_preferences_controllers.dart';
 import '../../../../shared/preferences/default_feed.dart';
 import '../../../../shared/theme/q_tokens.dart';
 import '../../../../shared/widgets/app_bar/q_app_bar.dart';
+import '../../../../shared/widgets/branding/q_brand_mark.dart';
 import '../../../../shared/widgets/layout/q_scaffold.dart';
 import '../../domain/value_objects/feed_query.dart';
 import '../widgets/bookmarks_tab.dart';
@@ -65,6 +66,7 @@ class _FeedScreenState extends ConsumerState<FeedScreen>
     return QScaffold(
       appBar: QAppBar(
         title: 'Qalam',
+        leading: const Center(child: QBrandMark(size: 28, semanticLabel: null)),
         actions: <Widget>[
           IconButton(
             icon: const Icon(Icons.explore_outlined),
