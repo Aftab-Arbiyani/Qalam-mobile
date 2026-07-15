@@ -1,0 +1,146 @@
+/// Dependency injection (docs/40 §9). DI is Riverpod — there is NO service
+/// locator. Every dependency is an overridable provider.
+///
+/// The `*_bootstrap` providers throw until overridden in the composition root
+/// (`bootstrap.dart`) with values that require async init (config, Hive boxes,
+/// connectivity, environment info). Everything else derives from them, so tests
+/// override only what they need.
+library;
+
+import 'package:dio/dio.dart';
+import 'package:hive_ce_flutter/hive_flutter.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+import '../config/app_config.dart';
+import '../config/app_environment_info.dart';
+import '../connectivity/connectivity_service.dart';
+import '../logging/app_logger.dart';
+import '../media/cover_image_picker.dart';
+import '../media/media_url_builder.dart';
+import '../network/api_client.dart';
+import '../network/auth_gateway.dart';
+import '../network/dio_client.dart';
+import '../notifications/local_notification_service.dart';
+import '../notifications/push_messaging_service.dart';
+import '../security/biometric_gate.dart';
+import '../security/certificate_pinning.dart';
+import '../security/device_integrity.dart';
+import '../security/token_store.dart';
+import '../storage/cache_store.dart';
+import '../storage/preferences_store.dart';
+import '../storage/secure_storage.dart';
+
+part 'providers.g.dart';
+
+// ── Bootstrapped singletons (overridden in the composition root) ──────────────
+
+@Riverpod(keepAlive: true)
+AppConfig appConfig(Ref ref) => throw UnimplementedError(
+  'appConfigProvider must be overridden in bootstrap',
+);
+
+@Riverpod(keepAlive: true)
+AppEnvironmentInfo appEnvironmentInfo(Ref ref) => throw UnimplementedError(
+  'appEnvironmentInfoProvider must be overridden in bootstrap',
+);
+
+@Riverpod(keepAlive: true)
+Box<dynamic> cacheBox(Ref ref) => throw UnimplementedError(
+  'cacheBoxProvider must be overridden in bootstrap',
+);
+
+@Riverpod(keepAlive: true)
+Box<dynamic> prefsBox(Ref ref) => throw UnimplementedError(
+  'prefsBoxProvider must be overridden in bootstrap',
+);
+
+@Riverpod(keepAlive: true)
+Box<dynamic> readingBox(Ref ref) => throw UnimplementedError(
+  'readingBoxProvider must be overridden in bootstrap',
+);
+
+@Riverpod(keepAlive: true)
+Box<dynamic> draftsBox(Ref ref) => throw UnimplementedError(
+  'draftsBoxProvider must be overridden in bootstrap',
+);
+
+@Riverpod(keepAlive: true)
+ConnectivityService connectivityService(Ref ref) => throw UnimplementedError(
+  'connectivityServiceProvider must be overridden in bootstrap',
+);
+
+// ── Derived singletons ────────────────────────────────────────────────────────
+
+@Riverpod(keepAlive: true)
+AppLogger appLogger(Ref ref) {
+  final AppLogger logger = AppLogger(
+    flavor: ref.watch(appConfigProvider).flavor,
+  );
+  ref.onDispose(logger.dispose);
+  return logger;
+}
+
+@Riverpod(keepAlive: true)
+SecureStorage secureStorage(Ref ref) => SecureStorage();
+
+@Riverpod(keepAlive: true)
+TokenStore tokenStore(Ref ref) => TokenStore(ref.watch(secureStorageProvider));
+
+@Riverpod(keepAlive: true)
+CacheStore cacheStore(Ref ref) => HiveCacheStore(ref.watch(cacheBoxProvider));
+
+@Riverpod(keepAlive: true)
+PreferencesStore preferencesStore(Ref ref) =>
+    PreferencesStore(ref.watch(prefsBoxProvider));
+
+@Riverpod(keepAlive: true)
+MediaUrlBuilder mediaUrlBuilder(Ref ref) =>
+    MediaUrlBuilder(ref.watch(appConfigProvider));
+
+@Riverpod(keepAlive: true)
+CoverImagePicker coverImagePicker(Ref ref) => PlatformCoverImagePicker();
+
+@Riverpod(keepAlive: true)
+AuthGateway authGateway(Ref ref) => AuthGateway(
+  tokenStore: ref.watch(tokenStoreProvider),
+  config: ref.watch(appConfigProvider),
+  logger: ref.watch(appLoggerProvider),
+);
+
+@Riverpod(keepAlive: true)
+Dio dio(Ref ref) {
+  final Dio client = buildDioClient(
+    config: ref.watch(appConfigProvider),
+    gateway: ref.watch(authGatewayProvider),
+    logger: ref.watch(appLoggerProvider),
+  );
+  ref.onDispose(client.close);
+  return client;
+}
+
+@Riverpod(keepAlive: true)
+ApiClient apiClient(Ref ref) => ApiClient(
+  dio: ref.watch(dioProvider),
+  connectivity: ref.watch(connectivityServiceProvider),
+);
+
+// ── Placeholder services (inert in M1, swapped in their epics) ─────────────────
+
+@Riverpod(keepAlive: true)
+PushMessagingService pushMessagingService(Ref ref) =>
+    const NoopPushMessagingService();
+
+@Riverpod(keepAlive: true)
+LocalNotificationService localNotificationService(Ref ref) =>
+    const NoopLocalNotificationService();
+
+@Riverpod(keepAlive: true)
+BiometricGate biometricGate(Ref ref) => const NoopBiometricGate();
+
+@Riverpod(keepAlive: true)
+CertificatePinning certificatePinning(Ref ref) =>
+    const NoopCertificatePinning();
+
+@Riverpod(keepAlive: true)
+DeviceIntegrityService deviceIntegrityService(Ref ref) =>
+    const NoopDeviceIntegrityService();
