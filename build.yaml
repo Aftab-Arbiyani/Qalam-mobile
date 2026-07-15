@@ -1,0 +1,10 @@
+# Code-generation config (docs/40 §3). `explicit_to_json` makes every generated
+# `toJson()` recursively serialize nested objects to plain maps — so a cached
+# entity round-trips correctly regardless of the cache backend (not only through
+# Hive's `jsonEncode`). Applies to all freezed + json_serializable models.
+targets:
+  $default:
+    builders:
+      json_serializable:
+        options:
+          explicit_to_json: true

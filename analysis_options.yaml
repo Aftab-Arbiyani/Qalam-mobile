@@ -1,0 +1,50 @@
+# Static analysis for Qalam Mobile.
+# Strict language modes + flutter_lints + a curated rule set that enforces the
+# house style from docs/40 §44 and docs/16 (no dynamic at boundaries, const-first,
+# no print, ordered imports). Generated code is excluded.
+
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  language:
+    strict-casts: true
+    strict-inference: true
+    strict-raw-types: true
+  errors:
+    # freezed / json_serializable place annotations on factory params.
+    invalid_annotation_target: ignore
+    # Private-field constructor injection (`_dep = dep`) cannot use `this._dep`
+    # named formals (private names aren't valid external argument names), so this
+    # lint is a false positive for our DI pattern.
+    prefer_initializing_formals: ignore
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+    - "lib/l10n/generated/**"
+    - "build/**"
+
+linter:
+  rules:
+    # Const-correctness (performance — docs/40 §36).
+    - prefer_const_constructors
+    - prefer_const_constructors_in_immutables
+    - prefer_const_declarations
+    - prefer_const_literals_to_create_immutables
+    # Immutability / finality.
+    - prefer_final_locals
+    - prefer_final_in_for_each
+    # Typing discipline (docs/40 §44 — no implicit dynamic at boundaries).
+    - always_declare_return_types
+    - avoid_dynamic_calls
+    # Diagnostics.
+    - avoid_print
+    - unawaited_futures
+    # Readability / consistency.
+    - directives_ordering
+    - use_super_parameters
+    - unnecessary_parenthesis
+    - unnecessary_lambdas
+    - avoid_redundant_argument_values
+    - require_trailing_commas
+    - sort_child_properties_last
+    - use_key_in_widget_constructors

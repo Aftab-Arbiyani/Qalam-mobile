@@ -1,0 +1,76 @@
+name: qalam_mobile
+description: "Qalam — a premium creative-writing sanctuary (mobile client)."
+# Private application package — never published to pub.dev.
+publish_to: 'none'
+
+# App version. `flutter build` may override with --build-name / --build-number.
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.12.0
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Runtime dependencies. Latest stable, resolved by `flutter pub add`.
+# The stack is fixed by docs/40_MobileArchitecture.md §1.1 — do not swap without
+# an architecture amendment.
+# ─────────────────────────────────────────────────────────────────────────────
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+
+  # State management + DI (the ONLY solution — no service locators).
+  flutter_riverpod: ^3.3.2
+  riverpod_annotation: ^4.0.3
+
+  # Navigation.
+  go_router: ^17.3.0
+
+  # Networking.
+  dio: ^5.10.0
+
+  # Immutable models / (de)serialization.
+  freezed_annotation: ^3.1.0
+  json_annotation: ^4.12.0
+
+  # Storage.
+  flutter_secure_storage: ^10.3.1
+  hive_ce: ^2.19.3
+  hive_ce_flutter: ^2.3.4
+
+  # Media.
+  cached_network_image: ^3.4.1
+  # Cover-image selection. Downscale/quality options give client-side compression
+  # (docs/40 §34.2) without a separate codec dependency; the server re-encodes too.
+  image_picker: ^1.1.2
+
+  # Platform / device.
+  connectivity_plus: ^7.2.0
+  package_info_plus: ^10.2.0
+  device_info_plus: ^13.2.0
+
+  # Theming (Material You harmonization — used ONLY as an opt-in, off by default).
+  dynamic_color: ^1.8.1
+
+  # Diagnostics + i18n.
+  logger: ^2.7.0
+  intl: ^0.20.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  build_runner: ^2.15.1
+  freezed: ^3.2.6-dev.1
+  json_serializable: ^6.14.0
+  riverpod_generator: ^4.0.4
+  hive_ce_generator: ^1.11.2
+  mocktail: ^1.0.5
+
+flutter:
+  uses-material-design: true
+  # Generate the localization delegates from lib/l10n/*.arb (see l10n.yaml).
+  generate: true
