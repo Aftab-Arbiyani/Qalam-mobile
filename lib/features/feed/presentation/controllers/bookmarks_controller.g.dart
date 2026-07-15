@@ -38,7 +38,7 @@ final class BookmarksControllerProvider
 }
 
 String _$bookmarksControllerHash() =>
-    r'2d7d0534d56afcbebf7df166550c0b3430c1c91e';
+    r'2351e42f90c6bb2a99616521e90275637d3e77a6';
 
 abstract class _$BookmarksController
     extends $AsyncNotifier<PagedListState<BookmarkItem>> {

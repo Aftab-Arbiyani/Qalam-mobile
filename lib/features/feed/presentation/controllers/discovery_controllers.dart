@@ -8,7 +8,7 @@ library;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../../shared/domain/enums.dart';
-import '../../domain/entities/cached_page.dart';
+import '../../../../shared/pagination/cached_page.dart';
 import '../../domain/entities/piece_summary.dart';
 import '../../domain/entities/trend_item.dart';
 import '../../domain/entities/writer_summary.dart';

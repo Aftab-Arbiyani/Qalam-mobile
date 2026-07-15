@@ -7,12 +7,12 @@ import 'package:qalam_mobile/core/utils/typedefs.dart';
 import 'package:qalam_mobile/features/feed/data/datasources/feed_local_data_source.dart';
 import 'package:qalam_mobile/features/feed/data/datasources/feed_remote_data_source.dart';
 import 'package:qalam_mobile/features/feed/data/repositories/feed_repository_impl.dart';
-import 'package:qalam_mobile/features/feed/domain/entities/cached_page.dart';
 import 'package:qalam_mobile/features/feed/domain/entities/piece_summary.dart';
 import 'package:qalam_mobile/features/feed/domain/value_objects/feed_query.dart';
 import 'package:qalam_mobile/shared/api/api_envelope.dart';
 import 'package:qalam_mobile/shared/domain/entities/author.dart';
 import 'package:qalam_mobile/shared/domain/entities/taxonomy.dart';
+import 'package:qalam_mobile/shared/pagination/cached_page.dart';
 
 class _MemCache implements CacheStore {
   final Map<String, CacheEntry> _m = <String, CacheEntry>{};

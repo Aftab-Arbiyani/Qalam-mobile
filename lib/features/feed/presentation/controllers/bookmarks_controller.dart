@@ -5,19 +5,19 @@ library;
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../../../shared/pagination/paged_list_state.dart';
 import '../../domain/entities/bookmark_item.dart';
 import '../providers/feed_providers.dart';
-import '../state/paged_list_state.dart';
 
 part 'bookmarks_controller.g.dart';
 
 @riverpod
 class BookmarksController extends _$BookmarksController {
-  FeedPaginator<BookmarkItem>? _paginator;
+  CursorPaginator<BookmarkItem>? _paginator;
 
   @override
   Future<PagedListState<BookmarkItem>> build() {
-    final paginator = FeedPaginator<BookmarkItem>(
+    final paginator = CursorPaginator<BookmarkItem>(
       (String? cursor) =>
           ref.read(feedRepositoryProvider).bookmarks(cursor: cursor),
     );
@@ -26,7 +26,7 @@ class BookmarksController extends _$BookmarksController {
   }
 
   Future<void> loadMore() async {
-    final FeedPaginator<BookmarkItem>? paginator = _paginator;
+    final CursorPaginator<BookmarkItem>? paginator = _paginator;
     final PagedListState<BookmarkItem>? current = state.asData?.value;
     if (paginator == null ||
         current == null ||
@@ -43,7 +43,7 @@ class BookmarksController extends _$BookmarksController {
   }
 
   Future<void> refresh() async {
-    final FeedPaginator<BookmarkItem>? paginator = _paginator;
+    final CursorPaginator<BookmarkItem>? paginator = _paginator;
     if (paginator == null) return;
     state = await AsyncValue.guard(paginator.first);
   }

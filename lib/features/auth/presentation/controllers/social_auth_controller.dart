@@ -11,6 +11,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../../core/error/failure.dart';
 import '../../../../core/session/session_controller.dart';
+import '../../../../core/session/sign_in_method.dart';
 import '../../../../core/utils/result.dart';
 import '../../data/services/social_sign_in_service.dart';
 import '../../domain/entities/auth_result.dart';
@@ -110,6 +111,7 @@ class SocialAuthController extends _$SocialAuthController {
               accessToken: value.accessToken,
               refreshToken: value.refreshToken,
               rememberMe: false,
+              signInMethod: SignInMethod.google,
             );
         state = SocialAuthState(
           status: SocialAuthStatus.success,

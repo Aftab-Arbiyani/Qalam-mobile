@@ -39,6 +39,7 @@ class FakeAuthRepository implements AuthRepository {
   int logoutCalls = 0;
   int logoutAllCalls = 0;
   int exchangeCalls = 0;
+  int changePasswordCalls = 0;
 
   Result<AuthResult> get _auth =>
       failure != null ? Err<AuthResult>(failure!) : Ok<AuthResult>(authResult);
@@ -106,6 +107,15 @@ class FakeAuthRepository implements AuthRepository {
   @override
   Future<Result<AuthResult>> exchangeSocialCode({required String code}) async {
     exchangeCalls++;
+    return _auth;
+  }
+
+  @override
+  Future<Result<AuthResult>> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    changePasswordCalls++;
     return _auth;
   }
 }

@@ -524,3 +524,51 @@ final class ExchangeSocialCodeUseCaseProvider
 
 String _$exchangeSocialCodeUseCaseHash() =>
     r'e5cc5681f20af51be8405539ee953584bf4c41a4';
+
+@ProviderFor(changePasswordUseCase)
+final changePasswordUseCaseProvider = ChangePasswordUseCaseProvider._();
+
+final class ChangePasswordUseCaseProvider
+    extends
+        $FunctionalProvider<
+          ChangePasswordUseCase,
+          ChangePasswordUseCase,
+          ChangePasswordUseCase
+        >
+    with $Provider<ChangePasswordUseCase> {
+  ChangePasswordUseCaseProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'changePasswordUseCaseProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$changePasswordUseCaseHash();
+
+  @$internal
+  @override
+  $ProviderElement<ChangePasswordUseCase> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  ChangePasswordUseCase create(Ref ref) {
+    return changePasswordUseCase(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(ChangePasswordUseCase value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<ChangePasswordUseCase>(value),
+    );
+  }
+}
+
+String _$changePasswordUseCaseHash() =>
+    r'87ac37d0ab027c8def7825f6ae7fbe78f5a1d42f';

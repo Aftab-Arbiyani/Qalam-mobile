@@ -76,6 +76,21 @@ class AuthRemoteDataSource {
 
   Future<void> logoutAll() => _api.postVoid(ApiPaths.authLogoutAll);
 
+  /// `POST /auth/change-password` (200). Returns a fresh `TokenResponseDto`
+  /// (mobile channel → refresh token in body; no `user`), because the server
+  /// revokes all sessions — the caller re-establishes with these rotated tokens.
+  Future<AuthResult> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) => _api.post<AuthResult>(
+    ApiPaths.authChangePassword,
+    body: <String, Object?>{
+      'currentPassword': currentPassword,
+      'newPassword': newPassword,
+    },
+    decode: authResultFromJson,
+  );
+
   Future<AuthResult> exchangeSocialCode({required String code}) =>
       _api.post<AuthResult>(
         ApiPaths.authGoogleExchange,

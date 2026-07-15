@@ -39,7 +39,7 @@ void main() {
     repo = FakePieceEditorRepository();
     final ProviderContainer c = await buildTestContainer(
       pieceEditorRepository: repo,
-      editorTaxonomyRepository: FakeEditorTaxonomyRepository(),
+      taxonomyRepository: FakeTaxonomyRepository(),
     );
     addTearDown(c.dispose);
     // Deterministic: no debounced autosave timers bleeding across tests.

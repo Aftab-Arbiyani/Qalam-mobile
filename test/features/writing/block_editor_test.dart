@@ -20,7 +20,7 @@ void main() {
     await tester.runAsync(() async {
       c = await buildTestContainer(
         pieceEditorRepository: FakePieceEditorRepository(),
-        editorTaxonomyRepository: FakeEditorTaxonomyRepository(),
+        taxonomyRepository: FakeTaxonomyRepository(),
       );
       await c.read(preferencesStoreProvider).setEditorAutosave(false);
       await c
@@ -75,7 +75,7 @@ void main() {
     await tester.runAsync(() async {
       c = await buildTestContainer(
         pieceEditorRepository: FakePieceEditorRepository(),
-        editorTaxonomyRepository: FakeEditorTaxonomyRepository(),
+        taxonomyRepository: FakeTaxonomyRepository(),
       );
       await c.read(preferencesStoreProvider).setEditorAutosave(false);
       await c

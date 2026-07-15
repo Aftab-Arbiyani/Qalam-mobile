@@ -42,7 +42,7 @@ final class LoginFormControllerProvider
 }
 
 String _$loginFormControllerHash() =>
-    r'e879f9b47244562f1366a10b8ed9d8241efcd0b0';
+    r'8e6f5a8cd964d1fa5b4f9dedf36bc677472759d5';
 
 abstract class _$LoginFormController extends $Notifier<LoginFormState> {
   LoginFormState build();

@@ -28,6 +28,11 @@ class PreferencesStore {
   static const String _kEditorWidth = 'editor_width';
   static const String _kEditorSurface = 'editor_surface';
   static const String _kEditorAutosave = 'editor_autosave';
+  static const String _kDefaultFeed = 'default_feed';
+  static const String _kAutoplayMedia = 'autoplay_media';
+  static const String _kShowReadingHistory = 'show_reading_history';
+  static const String _kShowBookmarks = 'show_bookmarks';
+  static const String _kSignInMethod = 'sign_in_method';
 
   String? get themeMode => _box.get(_kThemeMode) as String?;
   Future<void> setThemeMode(String value) => _box.put(_kThemeMode, value);
@@ -87,4 +92,35 @@ class PreferencesStore {
   bool get editorAutosave => (_box.get(_kEditorAutosave) as bool?) ?? true;
   Future<void> setEditorAutosave(bool value) =>
       _box.put(_kEditorAutosave, value);
+
+  // ── Reader / app preferences (M5) — device-scoped, local-only (never synced). ──
+
+  /// Which home-feed tab opens by default (`for_you` | `following` | `trending`
+  /// | `latest`). Local-only; the frozen `v1` has no server field for it.
+  String get defaultFeed => (_box.get(_kDefaultFeed) as String?) ?? 'for_you';
+  Future<void> setDefaultFeed(String value) => _box.put(_kDefaultFeed, value);
+
+  /// Whether media may autoplay (default off — data-conscious). Local-only; no
+  /// media playback surface consumes it yet (future extension point, docs/40 §45).
+  bool get autoplayMedia => (_box.get(_kAutoplayMedia) as bool?) ?? false;
+  Future<void> setAutoplayMedia(bool value) => _box.put(_kAutoplayMedia, value);
+
+  /// Whether the owner shows their reading-history count on their own profile
+  /// (default on). LOCAL display gate only — the frozen `v1` never exposes another
+  /// user's reading history, so there is no cross-user leak to enforce server-side.
+  bool get showReadingHistory =>
+      (_box.get(_kShowReadingHistory) as bool?) ?? true;
+  Future<void> setShowReadingHistory(bool value) =>
+      _box.put(_kShowReadingHistory, value);
+
+  /// Whether the owner shows their bookmarks count on their own profile (default
+  /// on). LOCAL display gate only (see [showReadingHistory]).
+  bool get showBookmarks => (_box.get(_kShowBookmarks) as bool?) ?? true;
+  Future<void> setShowBookmarks(bool value) => _box.put(_kShowBookmarks, value);
+
+  /// How the current session was established (`password` | `google`), for the
+  /// account settings "sign-in method" line. Session-scoped in practice (a new
+  /// sign-in overwrites it); a stale value is never shown (only reachable signed in).
+  String? get signInMethod => _box.get(_kSignInMethod) as String?;
+  Future<void> setSignInMethod(String value) => _box.put(_kSignInMethod, value);
 }

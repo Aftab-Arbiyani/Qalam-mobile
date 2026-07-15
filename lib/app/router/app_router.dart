@@ -21,11 +21,13 @@ import '../../features/feed/presentation/screens/discover_screen.dart';
 import '../../features/feed/presentation/screens/feed_screen.dart';
 import '../../features/gallery/presentation/pages/gallery_page.dart';
 import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
+import '../../features/profile/profile.dart';
+import '../../features/reading/presentation/screens/appearance_settings_screen.dart';
 import '../../features/reading/presentation/screens/reading_screen.dart';
+import '../../features/settings/presentation/screens/settings_hub_screen.dart';
 import '../../features/shell/presentation/pages/app_error_page.dart';
 import '../../features/shell/presentation/pages/notifications_placeholder_page.dart';
 import '../../features/shell/presentation/pages/search_placeholder_page.dart';
-import '../../features/shell/presentation/pages/settings_placeholder_page.dart';
 import '../../features/shell/presentation/widgets/unknown_route_page.dart';
 import '../../features/splash/presentation/pages/splash_page.dart';
 import '../../features/writing/writing.dart';
@@ -164,18 +166,70 @@ GoRouter goRouter(Ref ref) {
               GoRoute(
                 path: Routes.profile,
                 name: 'profile',
-                builder: (_, _) => const AccountScreen(),
+                builder: (_, _) => const MyProfileScreen(),
               ),
             ],
           ),
         ],
       ),
+
+      // Edit profile — full-screen, outside the shell, auth-gated via
+      // Routes.isProtected('/me/…').
+      GoRoute(
+        path: Routes.profileEdit,
+        name: 'profileEdit',
+        parentNavigatorKey: _rootKey,
+        pageBuilder: (BuildContext context, GoRouterState state) =>
+            _fade(state, const ProfileEditScreen()),
+      ),
+
+      // Public profile by permanent username — public, full-screen (deep-linkable).
+      GoRoute(
+        path: '${Routes.userProfile}/:username',
+        name: 'userProfile',
+        parentNavigatorKey: _rootKey,
+        pageBuilder: (BuildContext context, GoRouterState state) => _fade(
+          state,
+          PublicProfileScreen(username: state.pathParameters['username'] ?? ''),
+        ),
+      ),
+
+      // Settings hub + per-area screens — full-screen, outside the shell,
+      // auth-gated via Routes.isProtected('/settings').
       GoRoute(
         path: Routes.settings,
         name: 'settings',
         parentNavigatorKey: _rootKey,
         pageBuilder: (BuildContext context, GoRouterState state) =>
-            _fade(state, const SettingsPlaceholderPage()),
+            _fade(state, const SettingsHubScreen()),
+      ),
+      GoRoute(
+        path: Routes.settingsAccount,
+        name: 'settingsAccount',
+        parentNavigatorKey: _rootKey,
+        pageBuilder: (BuildContext context, GoRouterState state) =>
+            _fade(state, const AccountSettingsScreen()),
+      ),
+      GoRoute(
+        path: Routes.settingsAccountPassword,
+        name: 'settingsAccountPassword',
+        parentNavigatorKey: _rootKey,
+        pageBuilder: (BuildContext context, GoRouterState state) =>
+            _fade(state, const ChangePasswordScreen()),
+      ),
+      GoRoute(
+        path: Routes.settingsAppearance,
+        name: 'settingsAppearance',
+        parentNavigatorKey: _rootKey,
+        pageBuilder: (BuildContext context, GoRouterState state) =>
+            _fade(state, const AppearanceSettingsScreen()),
+      ),
+      GoRoute(
+        path: Routes.settingsPrivacy,
+        name: 'settingsPrivacy',
+        parentNavigatorKey: _rootKey,
+        pageBuilder: (BuildContext context, GoRouterState state) =>
+            _fade(state, const PrivacySettingsScreen()),
       ),
 
       // Discovery + reading — public, full-screen (no bottom nav) — docs/40 §10.2.

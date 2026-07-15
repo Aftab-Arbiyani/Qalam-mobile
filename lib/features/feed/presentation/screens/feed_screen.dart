@@ -5,9 +5,12 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/routes.dart';
+import '../../../../shared/preferences/app_preferences_controllers.dart';
+import '../../../../shared/preferences/default_feed.dart';
 import '../../../../shared/theme/q_tokens.dart';
 import '../../../../shared/widgets/app_bar/q_app_bar.dart';
 import '../../../../shared/widgets/layout/q_scaffold.dart';
@@ -16,14 +19,14 @@ import '../widgets/bookmarks_tab.dart';
 import '../widgets/history_tab.dart';
 import '../widgets/piece_feed_tab.dart';
 
-class FeedScreen extends StatefulWidget {
+class FeedScreen extends ConsumerStatefulWidget {
   const FeedScreen({super.key});
 
   @override
-  State<FeedScreen> createState() => _FeedScreenState();
+  ConsumerState<FeedScreen> createState() => _FeedScreenState();
 }
 
-class _FeedScreenState extends State<FeedScreen>
+class _FeedScreenState extends ConsumerState<FeedScreen>
     with SingleTickerProviderStateMixin {
   static const List<({String label, Widget view})> _tabs =
       <({String label, Widget view})>[
@@ -35,8 +38,18 @@ class _FeedScreenState extends State<FeedScreen>
         (label: 'History', view: HistoryTab()),
       ];
 
+  /// Land on the user's chosen default feed (docs/40 §8.4). Read once at build of
+  /// the controller; changing the preference applies on the next launch.
+  static int _tabIndexFor(DefaultFeed feed) => switch (feed) {
+    DefaultFeed.forYou => 0,
+    DefaultFeed.following => 1,
+    DefaultFeed.trending => 2,
+    DefaultFeed.latest => 3,
+  };
+
   late final TabController _controller = TabController(
     length: _tabs.length,
+    initialIndex: _tabIndexFor(ref.read(defaultFeedControllerProvider)),
     vsync: this,
   );
 

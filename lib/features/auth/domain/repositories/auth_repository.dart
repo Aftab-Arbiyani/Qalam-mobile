@@ -49,6 +49,15 @@ abstract interface class AuthRepository {
   /// version) — "sign out everywhere".
   Future<Result<Unit>> logoutAll();
 
+  /// `POST /auth/change-password` (200). Verifies the current password and, on
+  /// success, revokes all sessions and returns freshly-rotated tokens for THIS
+  /// device to adopt (so the user stays signed in here). Errors surface as
+  /// `AUTH_CURRENT_PASSWORD_INVALID` (400) / `AUTH_PASSWORD_WEAK` (422).
+  Future<Result<AuthResult>> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  });
+
   /// `POST /auth/google/exchange` (200). Trades the one-time authorization code for
   /// an access token. The frozen response is `{ accessToken }` only — no user
   /// object and no body refresh token (docs/40 §14.4) — so the returned

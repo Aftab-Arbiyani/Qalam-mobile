@@ -10,11 +10,11 @@ import 'package:qalam_mobile/core/utils/typedefs.dart';
 import 'package:qalam_mobile/features/writing/domain/entities/draft.dart';
 import 'package:qalam_mobile/features/writing/domain/entities/draft_summary.dart';
 import 'package:qalam_mobile/features/writing/domain/entities/draft_sync.dart';
-import 'package:qalam_mobile/features/writing/domain/repositories/editor_taxonomy_repository.dart';
 import 'package:qalam_mobile/features/writing/domain/repositories/piece_editor_repository.dart';
 import 'package:qalam_mobile/shared/api/api_envelope.dart';
 import 'package:qalam_mobile/shared/domain/entities/taxonomy.dart';
 import 'package:qalam_mobile/shared/domain/enums.dart';
+import 'package:qalam_mobile/shared/taxonomy/domain/taxonomy_repository.dart';
 
 class FakePieceEditorRepository implements PieceEditorRepository {
   FakePieceEditorRepository();
@@ -145,26 +145,24 @@ class FakePieceEditorRepository implements PieceEditorRepository {
   void cancelUpload(String uploadKey) {}
 }
 
-class FakeEditorTaxonomyRepository implements EditorTaxonomyRepository {
-  FakeEditorTaxonomyRepository({
-    List<LanguageRef>? languages,
-    List<GenreRef>? genres,
-  }) : _languages =
-           languages ??
-           const <LanguageRef>[
-             LanguageRef(
-               code: 'ur',
-               nativeName: 'اردو',
-               direction: TextDirectionKind.rtl,
-             ),
-             LanguageRef(code: 'hi', nativeName: 'हिन्दी'),
-           ],
-       _genres =
-           genres ??
-           const <GenreRef>[
-             GenreRef(slug: 'ghazal', name: 'Ghazal'),
-             GenreRef(slug: 'story', name: 'Story'),
-           ];
+class FakeTaxonomyRepository implements TaxonomyRepository {
+  FakeTaxonomyRepository({List<LanguageRef>? languages, List<GenreRef>? genres})
+    : _languages =
+          languages ??
+          const <LanguageRef>[
+            LanguageRef(
+              code: 'ur',
+              nativeName: 'اردو',
+              direction: TextDirectionKind.rtl,
+            ),
+            LanguageRef(code: 'hi', nativeName: 'हिन्दी'),
+          ],
+      _genres =
+          genres ??
+          const <GenreRef>[
+            GenreRef(slug: 'ghazal', name: 'Ghazal'),
+            GenreRef(slug: 'story', name: 'Story'),
+          ];
 
   final List<LanguageRef> _languages;
   final List<GenreRef> _genres;

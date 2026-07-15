@@ -12,6 +12,7 @@ import '../../data/datasources/auth_remote_data_source.dart';
 import '../../data/repositories/auth_repository_impl.dart';
 import '../../data/services/social_sign_in_service.dart';
 import '../../domain/repositories/auth_repository.dart';
+import '../../domain/usecases/change_password.dart';
 import '../../domain/usecases/exchange_social_code.dart';
 import '../../domain/usecases/register_account.dart';
 import '../../domain/usecases/request_password_reset.dart';
@@ -72,3 +73,7 @@ SignOutUseCase signOutUseCase(Ref ref) =>
 @riverpod
 ExchangeSocialCodeUseCase exchangeSocialCodeUseCase(Ref ref) =>
     ExchangeSocialCodeUseCase(ref.watch(authRepositoryProvider));
+
+@riverpod
+ChangePasswordUseCase changePasswordUseCase(Ref ref) =>
+    ChangePasswordUseCase(ref.watch(authRepositoryProvider));

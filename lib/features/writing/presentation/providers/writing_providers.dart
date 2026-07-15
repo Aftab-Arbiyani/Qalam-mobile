@@ -7,12 +7,9 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../../core/di/providers.dart';
 import '../../data/datasources/draft_local_data_source.dart';
-import '../../data/datasources/editor_taxonomy_remote_data_source.dart';
 import '../../data/datasources/piece_editor_remote_data_source.dart';
-import '../../data/repositories/editor_taxonomy_repository_impl.dart';
 import '../../data/repositories/piece_editor_repository_impl.dart';
 import '../../data/sync/draft_sync_engine.dart';
-import '../../domain/repositories/editor_taxonomy_repository.dart';
 import '../../domain/repositories/piece_editor_repository.dart';
 
 part 'writing_providers.g.dart';
@@ -28,17 +25,6 @@ PieceEditorRemoteDataSource pieceEditorRemoteDataSource(Ref ref) =>
 @Riverpod(keepAlive: true)
 PieceEditorRepository pieceEditorRepository(Ref ref) =>
     PieceEditorRepositoryImpl(ref.watch(pieceEditorRemoteDataSourceProvider));
-
-@Riverpod(keepAlive: true)
-EditorTaxonomyRemoteDataSource editorTaxonomyRemoteDataSource(Ref ref) =>
-    EditorTaxonomyRemoteDataSource(ref.watch(apiClientProvider));
-
-@Riverpod(keepAlive: true)
-EditorTaxonomyRepository editorTaxonomyRepository(Ref ref) =>
-    EditorTaxonomyRepositoryImpl(
-      ref.watch(editorTaxonomyRemoteDataSourceProvider),
-      ref.watch(cacheStoreProvider),
-    );
 
 /// The always-on background sync engine (docs/40 §42). Started on first read; kept
 /// alive for the app's lifetime and read early by the app root so offline drafts

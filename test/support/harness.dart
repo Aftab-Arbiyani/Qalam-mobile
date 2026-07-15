@@ -30,12 +30,15 @@ import 'package:qalam_mobile/features/auth/domain/repositories/auth_repository.d
 import 'package:qalam_mobile/features/auth/presentation/providers/auth_providers.dart';
 import 'package:qalam_mobile/features/feed/domain/repositories/feed_repository.dart';
 import 'package:qalam_mobile/features/feed/presentation/providers/feed_providers.dart';
+import 'package:qalam_mobile/features/profile/domain/repositories/profile_repository.dart';
+import 'package:qalam_mobile/features/profile/presentation/providers/profile_providers.dart';
 import 'package:qalam_mobile/features/reading/domain/repositories/engagement_repository.dart';
 import 'package:qalam_mobile/features/reading/domain/repositories/reading_repository.dart';
 import 'package:qalam_mobile/features/reading/presentation/providers/reading_providers.dart';
-import 'package:qalam_mobile/features/writing/domain/repositories/editor_taxonomy_repository.dart';
 import 'package:qalam_mobile/features/writing/domain/repositories/piece_editor_repository.dart';
 import 'package:qalam_mobile/features/writing/presentation/providers/writing_providers.dart';
+import 'package:qalam_mobile/shared/taxonomy/domain/taxonomy_repository.dart';
+import 'package:qalam_mobile/shared/taxonomy/taxonomy_providers.dart';
 
 class MockFlutterSecureStorage extends Mock implements FlutterSecureStorage {}
 
@@ -110,7 +113,8 @@ Future<Widget> buildTestApp({
   ReadingRepository? readingRepository,
   EngagementRepository? engagementRepository,
   PieceEditorRepository? pieceEditorRepository,
-  EditorTaxonomyRepository? editorTaxonomyRepository,
+  TaxonomyRepository? taxonomyRepository,
+  ProfileRepository? profileRepository,
   CoverImagePicker? coverImagePicker,
 }) async {
   final Directory dir = await Directory.systemTemp.createTemp('qalam_test');
@@ -155,10 +159,10 @@ Future<Widget> buildTestApp({
         engagementRepositoryProvider.overrideWithValue(engagementRepository),
       if (pieceEditorRepository != null)
         pieceEditorRepositoryProvider.overrideWithValue(pieceEditorRepository),
-      if (editorTaxonomyRepository != null)
-        editorTaxonomyRepositoryProvider.overrideWithValue(
-          editorTaxonomyRepository,
-        ),
+      if (taxonomyRepository != null)
+        taxonomyRepositoryProvider.overrideWithValue(taxonomyRepository),
+      if (profileRepository != null)
+        profileRepositoryProvider.overrideWithValue(profileRepository),
       if (coverImagePicker != null)
         coverImagePickerProvider.overrideWithValue(coverImagePicker),
     ],
@@ -230,7 +234,8 @@ Future<ProviderContainer> buildTestContainer({
   ReadingRepository? readingRepository,
   EngagementRepository? engagementRepository,
   PieceEditorRepository? pieceEditorRepository,
-  EditorTaxonomyRepository? editorTaxonomyRepository,
+  TaxonomyRepository? taxonomyRepository,
+  ProfileRepository? profileRepository,
   CoverImagePicker? coverImagePicker,
   Dio? refreshClient,
 }) async {
@@ -270,10 +275,10 @@ Future<ProviderContainer> buildTestContainer({
         engagementRepositoryProvider.overrideWithValue(engagementRepository),
       if (pieceEditorRepository != null)
         pieceEditorRepositoryProvider.overrideWithValue(pieceEditorRepository),
-      if (editorTaxonomyRepository != null)
-        editorTaxonomyRepositoryProvider.overrideWithValue(
-          editorTaxonomyRepository,
-        ),
+      if (taxonomyRepository != null)
+        taxonomyRepositoryProvider.overrideWithValue(taxonomyRepository),
+      if (profileRepository != null)
+        profileRepositoryProvider.overrideWithValue(profileRepository),
       if (coverImagePicker != null)
         coverImagePickerProvider.overrideWithValue(coverImagePicker),
       // Inject a mocked refresh transport so silent-restore success is testable

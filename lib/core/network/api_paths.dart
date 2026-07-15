@@ -26,6 +26,12 @@ abstract final class ApiPaths {
   static const String me = '/me';
   static String userByUsername(String username) => '/users/$username';
 
+  // Profile media uploads (M5, docs/40 §34.3). Dedicated multipart endpoints on
+  // the profiles controller — distinct from the piece-cover upload; the server
+  // re-encodes (avatar → 512² WebP, cover → 1500×500 WebP) and returns `{ key }`.
+  static const String profileAvatar = '/profile/avatar';
+  static const String profileCover = '/profile/cover';
+
   // Pieces.
   static const String pieces = '/pieces';
   static String pieceById(String id) => '/pieces/$id';

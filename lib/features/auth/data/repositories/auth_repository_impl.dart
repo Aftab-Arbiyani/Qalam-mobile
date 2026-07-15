@@ -66,6 +66,17 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Result<AuthResult>> exchangeSocialCode({required String code}) =>
       _guard(() => _remote.exchangeSocialCode(code: code));
 
+  @override
+  Future<Result<AuthResult>> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) => _guard(
+    () => _remote.changePassword(
+      currentPassword: currentPassword,
+      newPassword: newPassword,
+    ),
+  );
+
   Future<Result<T>> _guard<T>(Future<T> Function() run) async {
     try {
       return Ok<T>(await run());

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/features/auth/presentation/screens/account_screen.dart';
 import 'package:qalam_mobile/features/auth/presentation/screens/login_screen.dart';
+import 'package:qalam_mobile/features/profile/presentation/screens/my_profile_screen.dart';
 
 import '../../support/fake_auth_repository.dart';
 import '../../support/harness.dart';
 
 void main() {
-  testWidgets('login flow: creds → session established → account surface', (
+  testWidgets('login flow: creds → session established → profile surface', (
     WidgetTester tester,
   ) async {
     final FakeAuthRepository fake = FakeAuthRepository();
@@ -27,8 +27,8 @@ void main() {
     await tapAndSettle(tester, find.text('Sign in'));
 
     expect(fake.loginCalls, 1);
-    expect(find.byType(AccountScreen), findsOneWidget);
-    expect(find.textContaining('writer'), findsWidgets);
+    // The `/me` tab now hosts the real profile surface (M5).
+    expect(find.byType(MyProfileScreen), findsOneWidget);
   });
 
   testWidgets('empty submit surfaces inline validation, no repo call', (
@@ -47,9 +47,13 @@ void main() {
     expect(find.byType(LoginScreen), findsOneWidget);
   });
 
-  testWidgets('logout tears down the session and returns to login', (
+  testWidgets('logout (via settings → account) tears down the session', (
     WidgetTester tester,
   ) async {
+    // A tall surface so every account-settings row (incl. Log out) is on-screen.
+    tester.view.physicalSize = const Size(500, 2000);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
     final FakeAuthRepository fake = FakeAuthRepository();
     await pumpTestApp(tester, authRepository: fake);
 
@@ -58,8 +62,11 @@ void main() {
     await tester.enterText(find.byType(TextField).at(0), 'writer@qalam.test');
     await tester.enterText(find.byType(TextField).at(1), 'secret1234');
     await tapAndSettle(tester, find.text('Sign in'));
-    expect(find.byType(AccountScreen), findsOneWidget);
+    expect(find.byType(MyProfileScreen), findsOneWidget);
 
+    // Profile → Settings → Account → Log out.
+    await tapAndSettle(tester, find.byIcon(Icons.settings_outlined));
+    await tapAndSettle(tester, find.text('Account'));
     await tapAndSettle(tester, find.text('Log out'));
 
     expect(fake.logoutCalls, 1);

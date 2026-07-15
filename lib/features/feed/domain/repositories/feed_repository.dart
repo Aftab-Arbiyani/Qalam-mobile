@@ -5,8 +5,8 @@ library;
 
 import '../../../../core/utils/result.dart';
 import '../../../../shared/domain/enums.dart';
+import '../../../../shared/pagination/cached_page.dart';
 import '../entities/bookmark_item.dart';
-import '../entities/cached_page.dart';
 import '../entities/piece_summary.dart';
 import '../entities/trend_item.dart';
 import '../entities/writer_summary.dart';

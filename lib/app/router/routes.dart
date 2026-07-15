@@ -18,6 +18,12 @@ abstract final class Routes {
   static const String notifications = '/notifications';
   static const String profile = '/me';
 
+  // Profile (M5). Editing my own profile is full-screen (outside the shell, like
+  // the editor); a public profile is viewed by permanent username at `/u/:username`.
+  static const String profileEdit = '/me/edit';
+  static const String userProfile = '/u';
+  static String userProfilePath(String username) => '/u/$username';
+
   // Writing / editor (M4). The Write tab is the drafts home; the editor + preview
   // are full-screen (no bottom nav). `:id` accepts a local draft id or a piece id.
   static String writeDraftPath(String id) => '/write/$id';
@@ -31,8 +37,13 @@ abstract final class Routes {
   static const String piece = '/p';
   static String piecePath(String id) => '/p/$id';
 
-  // Protected demo surface (guard demonstration; real settings ship later).
+  // Settings (M5). A hub at `/settings` with per-area sub-routes; all full-screen
+  // outside the shell. All are covered by `isProtected('/settings')`'s prefix match.
   static const String settings = '/settings';
+  static const String settingsAccount = '/settings/account';
+  static const String settingsAccountPassword = '/settings/account/password';
+  static const String settingsAppearance = '/settings/appearance';
+  static const String settingsPrivacy = '/settings/privacy';
 
   // Auth corridor (docs/40 §10.2). No bottom nav; own minimal chrome.
   static const String login = '/auth/login';

@@ -12,6 +12,7 @@ import '../../../../shared/theme/tokens/spacing_tokens.dart';
 import '../../../../shared/widgets/haptics/q_haptics.dart';
 import '../../domain/value_objects/reader_preferences.dart';
 import '../controllers/reader_preferences_controller.dart';
+import 'labeled_segment.dart';
 
 class ReaderSettingsSheet extends ConsumerWidget {
   const ReaderSettingsSheet({super.key});
@@ -42,7 +43,7 @@ class ReaderSettingsSheet extends ConsumerWidget {
           children: <Widget>[
             Text('Reading settings', style: theme.textTheme.titleMedium),
             Gap.v4,
-            _Section<ReadingFontSize>(
+            LabeledSegment<ReadingFontSize>(
               label: 'Text size',
               value: prefs.fontSize,
               segments: const <(ReadingFontSize, String)>[
@@ -56,7 +57,7 @@ class ReaderSettingsSheet extends ConsumerWidget {
               },
             ),
             Gap.v4,
-            _Section<ReadingLineHeight>(
+            LabeledSegment<ReadingLineHeight>(
               label: 'Line spacing',
               value: prefs.lineHeight,
               segments: const <(ReadingLineHeight, String)>[
@@ -70,7 +71,7 @@ class ReaderSettingsSheet extends ConsumerWidget {
               },
             ),
             Gap.v4,
-            _Section<ReadingWidth>(
+            LabeledSegment<ReadingWidth>(
               label: 'Reading width',
               value: prefs.width,
               segments: const <(ReadingWidth, String)>[
@@ -84,7 +85,7 @@ class ReaderSettingsSheet extends ConsumerWidget {
               },
             ),
             Gap.v4,
-            _Section<ThemeMode>(
+            LabeledSegment<ThemeMode>(
               label: 'Theme',
               value: themeMode,
               segments: const <(ThemeMode, String)>[
@@ -100,45 +101,6 @@ class ReaderSettingsSheet extends ConsumerWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-class _Section<T> extends StatelessWidget {
-  const _Section({
-    required this.label,
-    required this.value,
-    required this.segments,
-    required this.onChanged,
-  });
-
-  final String label;
-  final T value;
-  final List<(T, String)> segments;
-  final ValueChanged<T> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Text(label, style: theme.textTheme.labelLarge),
-        Gap.v2,
-        SizedBox(
-          width: double.infinity,
-          child: SegmentedButton<T>(
-            showSelectedIcon: false,
-            segments: <ButtonSegment<T>>[
-              for (final (T v, String text) segment in segments)
-                ButtonSegment<T>(value: segment.$1, label: Text(segment.$2)),
-            ],
-            selected: <T>{value},
-            onSelectionChanged: (Set<T> selection) =>
-                onChanged(selection.first),
-          ),
-        ),
-      ],
     );
   }
 }

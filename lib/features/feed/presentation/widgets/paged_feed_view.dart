@@ -10,12 +10,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/error/failure.dart';
 import '../../../../shared/domain/error_codes.dart';
+import '../../../../shared/pagination/paged_list_state.dart';
 import '../../../../shared/theme/tokens/spacing_tokens.dart';
 import '../../../../shared/widgets/feedback/q_snackbar.dart';
 import '../../../../shared/widgets/list/q_paged_list_view.dart';
 import '../../../../shared/widgets/list/q_refresh.dart';
 import '../../../../shared/widgets/states/q_error_view.dart';
-import '../state/paged_list_state.dart';
 
 class PagedFeedView<T> extends StatelessWidget {
   const PagedFeedView({

@@ -11,6 +11,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../shared/domain/entities/taxonomy.dart';
 import '../../../../shared/domain/enums.dart';
 import '../../../../shared/domain/limits.dart';
+import '../../../../shared/taxonomy/taxonomy_providers.dart';
 import '../../../../shared/theme/q_tokens.dart';
 import '../../../../shared/theme/tokens/spacing_tokens.dart';
 import '../../../../shared/widgets/cards/q_chip.dart';
@@ -19,7 +20,6 @@ import '../../../../shared/widgets/inputs/q_text_field.dart';
 import '../../domain/entities/draft.dart';
 import '../controllers/current_draft_controller.dart';
 import '../controllers/editor_state.dart';
-import '../controllers/editor_taxonomy_controller.dart';
 
 class MetadataSection extends ConsumerStatefulWidget {
   const MetadataSection({required this.routeId, super.key});
@@ -113,7 +113,7 @@ class _MetadataSectionState extends ConsumerState<MetadataSection> {
 
   Future<void> _pickLanguage(BuildContext context) async {
     final AsyncValue<List<LanguageRef>> languages = ref.read(
-      editorLanguagesProvider,
+      taxonomyLanguagesProvider,
     );
     final LanguageRef? picked = await _showOptions<LanguageRef>(
       context,
@@ -126,7 +126,7 @@ class _MetadataSectionState extends ConsumerState<MetadataSection> {
   }
 
   Future<void> _pickGenre(BuildContext context) async {
-    final AsyncValue<List<GenreRef>> genres = ref.read(editorGenresProvider);
+    final AsyncValue<List<GenreRef>> genres = ref.read(taxonomyGenresProvider);
     final GenreRef? picked = await _showOptions<GenreRef>(
       context,
       title: 'Genre',

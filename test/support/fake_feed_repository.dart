@@ -4,13 +4,13 @@ library;
 
 import 'package:qalam_mobile/core/utils/result.dart';
 import 'package:qalam_mobile/features/feed/domain/entities/bookmark_item.dart';
-import 'package:qalam_mobile/features/feed/domain/entities/cached_page.dart';
 import 'package:qalam_mobile/features/feed/domain/entities/piece_summary.dart';
 import 'package:qalam_mobile/features/feed/domain/entities/trend_item.dart';
 import 'package:qalam_mobile/features/feed/domain/entities/writer_summary.dart';
 import 'package:qalam_mobile/features/feed/domain/repositories/feed_repository.dart';
 import 'package:qalam_mobile/features/feed/domain/value_objects/feed_query.dart';
 import 'package:qalam_mobile/shared/api/api_envelope.dart';
+import 'package:qalam_mobile/shared/pagination/cached_page.dart';
 
 class FakeFeedRepository implements FeedRepository {
   FakeFeedRepository({

@@ -1,7 +1,7 @@
 /// The shared feed timeline controller (docs/40 §8.3). ONE controller drives all
 /// four piece-summary tabs (Following / For You / Trending / Latest) via a family
 /// keyed by [FeedTab] — no per-tab code. Page-1 load/error is the `AsyncValue`;
-/// [loadMore] and [refresh] mutate through the shared [FeedPaginator]. A stale
+/// [loadMore] and [refresh] mutate through the shared [CursorPaginator]. A stale
 /// cursor (`FEED_INVALID_CURSOR`) resets to page one (docs/40 §13.7).
 library;
 
@@ -9,20 +9,20 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../../core/error/failure.dart';
 import '../../../../shared/domain/error_codes.dart';
+import '../../../../shared/pagination/paged_list_state.dart';
 import '../../domain/entities/piece_summary.dart';
 import '../../domain/value_objects/feed_query.dart';
 import '../providers/feed_providers.dart';
-import '../state/paged_list_state.dart';
 
 part 'feed_list_controller.g.dart';
 
 @riverpod
 class FeedListController extends _$FeedListController {
-  FeedPaginator<PieceSummary>? _paginator;
+  CursorPaginator<PieceSummary>? _paginator;
 
   @override
   Future<PagedListState<PieceSummary>> build(FeedTab tab) {
-    final paginator = FeedPaginator<PieceSummary>(
+    final paginator = CursorPaginator<PieceSummary>(
       (String? cursor) =>
           ref.read(feedRepositoryProvider).pieceFeed(tab, cursor: cursor),
     );
@@ -31,7 +31,7 @@ class FeedListController extends _$FeedListController {
   }
 
   Future<void> loadMore() async {
-    final FeedPaginator<PieceSummary>? paginator = _paginator;
+    final CursorPaginator<PieceSummary>? paginator = _paginator;
     final PagedListState<PieceSummary>? current = state.asData?.value;
     if (paginator == null ||
         current == null ||
@@ -53,7 +53,7 @@ class FeedListController extends _$FeedListController {
   /// Pull-to-refresh — re-fetch page one (network-first) and replace, keeping the
   /// old content painted while it runs.
   Future<void> refresh() async {
-    final FeedPaginator<PieceSummary>? paginator = _paginator;
+    final CursorPaginator<PieceSummary>? paginator = _paginator;
     if (paginator == null) return;
     state = await AsyncValue.guard(paginator.first);
   }

@@ -18,7 +18,8 @@
 ///   `core/network` decodes every payload; no hand-duplicated DTO classes.
 library;
 
-export 'presentation/screens/account_screen.dart';
+export 'presentation/screens/account_settings_screen.dart';
+export 'presentation/screens/change_password_screen.dart';
 export 'presentation/screens/forgot_password_screen.dart';
 export 'presentation/screens/google_callback_screen.dart';
 export 'presentation/screens/login_screen.dart';

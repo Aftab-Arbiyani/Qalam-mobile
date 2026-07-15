@@ -24,6 +24,7 @@ import '../utils/jwt.dart';
 import 'current_user.dart';
 import 'current_user_controller.dart';
 import 'session_state.dart';
+import 'sign_in_method.dart';
 
 part 'session_controller.g.dart';
 
@@ -66,10 +67,18 @@ class SessionController extends _$SessionController {
     required String accessToken,
     String? refreshToken,
     required bool rememberMe,
+    SignInMethod? signInMethod,
   }) async {
     await ref
         .read(tokenStoreProvider)
         .save(access: accessToken, refresh: refreshToken);
+    // Record how this session was authenticated for the account settings screen.
+    // Null (e.g. a change-password token rotation) leaves the existing value.
+    if (signInMethod != null) {
+      await ref
+          .read(preferencesStoreProvider)
+          .setSignInMethod(signInMethod.wire);
+    }
     // Silent restore needs a refresh token; without one (Google exchange) it can
     // never restore, so remember-me is forced off regardless of the checkbox.
     final bool canRestore = refreshToken != null && refreshToken.isNotEmpty;
