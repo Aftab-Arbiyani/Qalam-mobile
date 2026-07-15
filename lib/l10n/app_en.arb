@@ -1,0 +1,176 @@
+{
+  "@@locale": "en",
+
+  "appTitle": "Qalam",
+  "@appTitle": { "description": "The application name." },
+
+  "navFeed": "Feed",
+  "navSearch": "Search",
+  "navWrite": "Write",
+  "navNotifications": "Notifications",
+  "navProfile": "Profile",
+
+  "actionRetry": "Try again",
+  "actionDismiss": "Dismiss",
+  "actionClose": "Close",
+  "actionCancel": "Cancel",
+  "actionOk": "OK",
+  "actionContinue": "Continue",
+
+  "connectivityOffline": "You're offline — showing saved content.",
+  "connectivityRestored": "Back online.",
+
+  "loadingLabel": "Loading…",
+
+  "errorGenericTitle": "Something went wrong.",
+  "errorGenericBody": "We couldn't complete that just now. Please try again.",
+  "errorOfflineTitle": "You're offline.",
+  "errorOfflineBody": "Check your connection and try again.",
+  "errorNotFoundTitle": "Not found.",
+  "errorNotFoundBody": "That page has wandered off.",
+  "errorUnauthorizedTitle": "Please sign in.",
+  "errorUnauthorizedBody": "You need to be signed in to see that.",
+  "errorForbiddenTitle": "Not allowed.",
+  "errorForbiddenBody": "You don't have access to that.",
+  "errorRequestIdLabel": "Reference: {requestId}",
+  "@errorRequestIdLabel": {
+    "description": "Support correlation id shown on error screens.",
+    "placeholders": { "requestId": { "type": "String" } }
+  },
+
+  "emptyGenericTitle": "Nothing here yet.",
+  "emptyGenericBody": "When there's something to show, it'll appear here.",
+
+  "unknownRouteTitle": "Lost the thread.",
+  "unknownRouteBody": "This page doesn't exist.",
+
+  "comingSoonLabel": "Coming in a later chapter.",
+  "placeholderFeedBody": "Your feed will live here.",
+  "placeholderSearchBody": "Search will live here.",
+  "placeholderWriteBody": "The editor will live here.",
+  "placeholderNotificationsBody": "Notifications will live here.",
+  "placeholderProfileBody": "Your profile will live here.",
+
+  "settingsTitle": "Settings",
+  "settingsBody": "A protected surface — settings arrive in a later chapter.",
+
+  "galleryTitle": "Design gallery",
+
+  "onboardingSkip": "Skip",
+  "onboardingNext": "Next",
+  "onboardingGetStarted": "Get started",
+  "onboardingWelcomeTitle": "A place for your words",
+  "onboardingWelcomeBody": "Qalam is a quiet writing sanctuary — warm paper and ink, for Hindi and Urdu writers first.",
+  "onboardingFeaturesTitle": "Read and write, beautifully",
+  "onboardingFeaturesBody": "Follow writers you love, save what moves you, and publish prose that reads the way it should.",
+  "onboardingPrivacyTitle": "Your words, your control",
+  "onboardingPrivacyBody": "You decide what you share. We keep only what we need, and never sell your writing.",
+
+  "authLoginTitle": "Welcome back",
+  "authLoginSubtitle": "Sign in to continue writing.",
+  "authRegisterTitle": "Create your account",
+  "authRegisterSubtitle": "Join a sanctuary for writers.",
+  "authForgotTitle": "Reset your password",
+  "authForgotSubtitle": "We'll send a link to set a new one.",
+  "authResetTitle": "Choose a new password",
+  "authResetSubtitle": "Set a strong password you'll remember.",
+  "authVerifyTitle": "Verify your email",
+
+  "fieldEmailLabel": "Email",
+  "fieldPasswordLabel": "Password",
+  "fieldUsernameLabel": "Username",
+  "fieldNewPasswordLabel": "New password",
+  "fieldConfirmPasswordLabel": "Confirm password",
+  "fieldEmailHint": "you@example.com",
+
+  "authUsernameHint": "Lowercase letters, numbers, and underscores.",
+  "authUsernamePermanent": "Your username is permanent — choose it with care.",
+
+  "actionSignIn": "Sign in",
+  "actionCreateAccount": "Create account",
+  "actionSendResetLink": "Send reset link",
+  "actionResetPassword": "Reset password",
+  "actionResend": "Resend email",
+  "actionForgotPassword": "Forgot password?",
+  "actionSignOut": "Log out",
+  "actionSignOutEverywhere": "Sign out everywhere",
+  "actionShowPassword": "Show password",
+  "actionHidePassword": "Hide password",
+
+  "authRememberMe": "Keep me signed in",
+  "authNoAccount": "New to Qalam?",
+  "authCreateOne": "Create an account",
+  "authHaveAccount": "Already have an account?",
+  "authSignInLink": "Sign in",
+  "authBackToLogin": "Back to sign in",
+
+  "authOrDivider": "or",
+  "authContinueWith": "Continue with {provider}",
+  "@authContinueWith": {
+    "description": "Social sign-in button label.",
+    "placeholders": { "provider": { "type": "String" } }
+  },
+  "authSocialUnavailable": "{provider} sign-in isn't available in this build yet.",
+  "@authSocialUnavailable": {
+    "description": "Shown when a social provider seam is not wired.",
+    "placeholders": { "provider": { "type": "String" } }
+  },
+
+  "pwStrengthLabel": "Password strength: {level}",
+  "@pwStrengthLabel": {
+    "description": "Accessible label for the password strength meter.",
+    "placeholders": { "level": { "type": "String" } }
+  },
+  "pwStrengthWeak": "weak",
+  "pwStrengthFair": "fair",
+  "pwStrengthGood": "good",
+  "pwStrengthStrong": "strong",
+
+  "validationRequired": "This field is required.",
+  "validationEmailInvalid": "Enter a valid email address.",
+  "validationUsernameFormat": "Use only lowercase letters, numbers, and underscores.",
+  "validationUsernameLength": "Username must be 3–30 characters.",
+  "validationPasswordTooShort": "Use at least 10 characters.",
+  "validationPasswordTooLong": "That's too long — 128 characters at most.",
+  "validationPasswordsMismatch": "Those passwords don't match.",
+  "validationEmailTaken": "That email is already registered.",
+  "validationUsernameTaken": "That username is already taken.",
+  "validationPasswordWeak": "Please choose a stronger password.",
+  "validationTokenInvalid": "This link is invalid or has expired.",
+
+  "authForgotSentTitle": "Check your inbox",
+  "authForgotSentBody": "If an account exists for {email}, a reset link is on its way.",
+  "@authForgotSentBody": {
+    "description": "Enumeration-safe confirmation after requesting a reset.",
+    "placeholders": { "email": { "type": "String" } }
+  },
+
+  "authResetDoneTitle": "Password updated",
+  "authResetDoneBody": "Sign in with your new password.",
+
+  "authVerifyingLabel": "Verifying your email…",
+  "authVerifiedTitle": "Email verified",
+  "authVerifiedBody": "Thank you — your email is confirmed.",
+  "authVerifySentToBody": "We sent a verification link to {email}. Open it to confirm your account.",
+  "@authVerifySentToBody": {
+    "description": "Verify-email body when the address is known.",
+    "placeholders": { "email": { "type": "String" } }
+  },
+  "authVerifyGenericBody": "We sent a verification link to your email. Open it to confirm your account.",
+  "authVerifyWhyBody": "You can keep using Qalam — some actions need a verified email.",
+  "authResentBody": "Sent. Check your inbox again.",
+
+  "accountSignedInAs": "Signed in as @{username}",
+  "@accountSignedInAs": {
+    "description": "Account surface header with the current username.",
+    "placeholders": { "username": { "type": "String" } }
+  },
+  "accountSignedIn": "You're signed in.",
+  "accountEmailUnverified": "Your email isn't verified yet.",
+
+  "verifyBannerText": "Verify your email to unlock everything.",
+  "verifyBannerAction": "Verify",
+
+  "signOutConfirmTitle": "Sign out everywhere?",
+  "signOutConfirmBody": "This ends every active session on all your devices."
+}
