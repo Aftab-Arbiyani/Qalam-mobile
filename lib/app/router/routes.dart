@@ -55,6 +55,7 @@ abstract final class Routes {
   static const String settingsAccountPassword = '/settings/account/password';
   static const String settingsAppearance = '/settings/appearance';
   static const String settingsPrivacy = '/settings/privacy';
+  static const String settingsNotifications = '/settings/notifications';
 
   // Auth corridor (docs/40 §10.2). No bottom nav; own minimal chrome.
   static const String login = '/auth/login';

@@ -17,6 +17,8 @@ import 'core/config/app_environment_info.dart';
 import 'core/connectivity/connectivity_service.dart';
 import 'core/di/providers.dart';
 import 'core/logging/app_logger.dart';
+import 'core/notifications/flutter_local_notification_service.dart';
+import 'core/notifications/local_notification_service.dart';
 import 'core/storage/hive_boxes.dart';
 
 Future<void> bootstrap() async {
@@ -51,6 +53,12 @@ Future<void> bootstrap() async {
   final ConnectivityService connectivity = ConnectivityService();
   await connectivity.initialize();
 
+  // Concrete on-device notifications (docs/40 §33). Initialization (channels +
+  // tap handler) is driven by the push coordinator once the app is up; the FCM
+  // push service stays inert (Phase-2 seam gated by AppConfig.enablePush).
+  final LocalNotificationService localNotifications =
+      FlutterLocalNotificationService(logger);
+
   logger.i(
     'Qalam ${env.fullVersion} · ${config.flavor.name} · ${env.platform}',
   );
@@ -70,6 +78,7 @@ Future<void> bootstrap() async {
           ref.onDispose(connectivity.dispose);
           return connectivity;
         }),
+        localNotificationServiceProvider.overrideWithValue(localNotifications),
       ],
       child: const QalamApp(),
     ),

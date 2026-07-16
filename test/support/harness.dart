@@ -30,6 +30,9 @@ import 'package:qalam_mobile/features/auth/domain/repositories/auth_repository.d
 import 'package:qalam_mobile/features/auth/presentation/providers/auth_providers.dart';
 import 'package:qalam_mobile/features/feed/domain/repositories/feed_repository.dart';
 import 'package:qalam_mobile/features/feed/presentation/providers/feed_providers.dart';
+import 'package:qalam_mobile/features/notifications/domain/repositories/notification_preferences_repository.dart';
+import 'package:qalam_mobile/features/notifications/domain/repositories/notification_repository.dart';
+import 'package:qalam_mobile/features/notifications/presentation/providers/notification_providers.dart';
 import 'package:qalam_mobile/features/profile/domain/repositories/profile_repository.dart';
 import 'package:qalam_mobile/features/profile/presentation/providers/profile_providers.dart';
 import 'package:qalam_mobile/features/reading/domain/repositories/reading_repository.dart';
@@ -131,6 +134,8 @@ Future<Widget> buildTestApp({
   TaxonomyRepository? taxonomyRepository,
   ProfileRepository? profileRepository,
   CoverImagePicker? coverImagePicker,
+  NotificationRepository? notificationRepository,
+  NotificationPreferencesRepository? notificationPreferencesRepository,
 }) async {
   final Directory dir = await Directory.systemTemp.createTemp('qalam_test');
   Hive.init(dir.path);
@@ -192,6 +197,14 @@ Future<Widget> buildTestApp({
         profileRepositoryProvider.overrideWithValue(profileRepository),
       if (coverImagePicker != null)
         coverImagePickerProvider.overrideWithValue(coverImagePicker),
+      if (notificationRepository != null)
+        notificationRepositoryProvider.overrideWithValue(
+          notificationRepository,
+        ),
+      if (notificationPreferencesRepository != null)
+        notificationPreferencesRepositoryProvider.overrideWithValue(
+          notificationPreferencesRepository,
+        ),
     ],
     child: child ?? const QalamApp(),
   );
@@ -274,6 +287,8 @@ Future<ProviderContainer> buildTestContainer({
   TaxonomyRepository? taxonomyRepository,
   ProfileRepository? profileRepository,
   CoverImagePicker? coverImagePicker,
+  NotificationRepository? notificationRepository,
+  NotificationPreferencesRepository? notificationPreferencesRepository,
   Dio? refreshClient,
 }) async {
   final Directory dir = await Directory.systemTemp.createTemp('qalam_test_c');
@@ -330,6 +345,14 @@ Future<ProviderContainer> buildTestContainer({
         profileRepositoryProvider.overrideWithValue(profileRepository),
       if (coverImagePicker != null)
         coverImagePickerProvider.overrideWithValue(coverImagePicker),
+      if (notificationRepository != null)
+        notificationRepositoryProvider.overrideWithValue(
+          notificationRepository,
+        ),
+      if (notificationPreferencesRepository != null)
+        notificationPreferencesRepositoryProvider.overrideWithValue(
+          notificationPreferencesRepository,
+        ),
       // Inject a mocked refresh transport so silent-restore success is testable
       // without a live server (the gateway's refresh Dio is otherwise real).
       if (refreshClient != null)

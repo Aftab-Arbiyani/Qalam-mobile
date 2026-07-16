@@ -137,6 +137,18 @@ class ApiClient {
     return decode(_dataAsJson(response));
   }
 
+  /// PATCH with no meaningful body in the response (a 200/204 action, e.g.
+  /// mark-read / archive). Mirrors [postVoid] for the PATCH verb.
+  Future<void> patchVoid(
+    String path, {
+    Object? body,
+    CancelToken? cancelToken,
+  }) async {
+    await _execute(
+      () => _dio.patch<dynamic>(path, data: body, cancelToken: cancelToken),
+    );
+  }
+
   Future<void> delete(
     String path, {
     Object? body,

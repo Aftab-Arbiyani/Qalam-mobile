@@ -1,4 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- On-device notifications (M8, docs/40 §33). POST_NOTIFICATIONS is the
+         Android 13+ runtime permission (requested contextually via the local
+         notification service). Scheduling uses inexact alarms, so no exact-alarm
+         permission is needed; the plugin declares its own broadcast receivers. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <application
         android:label="Qalam"
         android:name="${applicationName}"

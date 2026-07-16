@@ -46,6 +46,12 @@ class SettingsHubScreen extends ConsumerWidget {
                 subtitle: 'Private account, what you show',
                 onTap: () => context.push(Routes.settingsPrivacy),
               ),
+              QSettingsTile(
+                icon: Icons.notifications_outlined,
+                title: 'Notifications',
+                subtitle: 'Choose what you\'re notified about',
+                onTap: () => context.push(Routes.settingsNotifications),
+              ),
             ],
           ),
           Gap.v5,

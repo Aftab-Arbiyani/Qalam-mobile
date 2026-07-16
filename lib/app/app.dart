@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../features/notifications/presentation/providers/notification_providers.dart';
 import '../l10n/generated/app_localizations.dart';
 import '../shared/social/social_providers.dart';
 import '../shared/theme/app_theme.dart';
@@ -25,6 +26,11 @@ class QalamApp extends ConsumerWidget {
     // Eagerly start the offline social-action queue so queued likes/bookmarks/
     // follows flush on reconnect even if no social screen was opened (docs/40 §23).
     ref.watch(socialSyncEngineProvider);
+    // Same for queued notification actions (read/archive/delete), and the push ↔
+    // app bridge so local/push notification taps deep-link from a cold start
+    // (docs/40 §23, §32).
+    ref.watch(notificationSyncEngineProvider);
+    ref.watch(pushNotificationCoordinatorProvider);
 
     return DynamicColorBuilder(
       builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {

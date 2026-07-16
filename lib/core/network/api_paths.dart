@@ -72,10 +72,8 @@ abstract final class ApiPaths {
   static String userFollowers(String username) => '/users/$username/followers';
   static String userFollowing(String username) => '/users/$username/following';
   static const String meFollowRequests = '/me/follow-requests';
-  static String followRequestAccept(String id) =>
-      '/follow-requests/$id/accept';
-  static String followRequestReject(String id) =>
-      '/follow-requests/$id/reject';
+  static String followRequestAccept(String id) => '/follow-requests/$id/accept';
+  static String followRequestReject(String id) => '/follow-requests/$id/reject';
 
   // Moderation.
   static const String reports = '/reports';
@@ -106,9 +104,18 @@ abstract final class ApiPaths {
   static const String searchRecent = '/search/recent';
   static String searchRecentById(String id) => '/search/recent/$id';
 
-  // Notifications.
+  // Notifications (M8, docs/40 §32). Inbox is cursor-paginated; per-item actions
+  // key on the notification UUID. Read/read-all/archive are PATCH→204; delete is
+  // a DELETE→204 soft-delete. Preferences is a single non-paginated object with a
+  // partial PATCH (no PUT). Push/FCM device-token registration is a Phase-2 seam
+  // with no backend endpoint yet (docs/40 §32.2), so no path is declared for it.
   static const String notifications = '/notifications';
   static const String notificationsUnreadCount = '/notifications/unread-count';
+  static const String notificationsReadAll = '/notifications/read-all';
+  static String notificationRead(String id) => '/notifications/$id/read';
+  static String notificationArchive(String id) => '/notifications/$id/archive';
+  static String notification(String id) => '/notifications/$id';
+  static const String notificationPreferences = '/notification-preferences';
 
   // Analytics.
   static const String analyticsDashboard = '/analytics/dashboard';

@@ -59,6 +59,17 @@ dependencies:
   logger: ^2.7.0
   intl: ^0.20.2
 
+  # Local (on-device) notifications (M8, docs/40 §33) — the sanctioned package for
+  # foreground presentation + the (gated) reminder-scheduling seam, behind the
+  # `LocalNotificationService` interface. `timezone`/`flutter_timezone` back
+  # `zonedSchedule` so a scheduled notification fires at the right wall-clock time.
+  # FCM push (`firebase_messaging`) is deliberately NOT added — it is a Phase-2
+  # seam gated by `AppConfig.enablePush` with no backend token endpoint yet
+  # (docs/40 §31, §32.2).
+  flutter_local_notifications: ^22.0.1
+  timezone: ^0.11.1
+  flutter_timezone: ^5.1.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

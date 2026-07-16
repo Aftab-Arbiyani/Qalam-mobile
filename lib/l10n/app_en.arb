@@ -358,5 +358,101 @@
   "reportReasonMisinformation": "Misinformation",
   "reportReasonCopyright": "Copyright",
   "reportReasonImpersonation": "Impersonation",
-  "reportReasonOther": "Something else"
+  "reportReasonOther": "Something else",
+
+  "notificationsTitle": "Notifications",
+  "notificationsSettingsTooltip": "Notification settings",
+  "notificationsMarkAllRead": "Mark all read",
+  "notificationsFilterAll": "All",
+  "notificationsFilterUnread": "Unread",
+  "notificationsFilterRead": "Read",
+  "notificationsFilterArchived": "Archived",
+  "notificationsEmptyTitle": "You're all caught up",
+  "notificationsEmptyBody": "New activity on your writing will appear here.",
+  "notificationsUnreadEmptyTitle": "Nothing unread",
+  "notificationsUnreadEmptyBody": "You've seen everything for now.",
+  "notificationsReadEmptyTitle": "Nothing read yet",
+  "notificationsReadEmptyBody": "Notifications you've opened will rest here.",
+  "notificationsArchivedEmptyTitle": "Your archive is empty",
+  "notificationsArchivedEmptyBody": "Archived notifications will rest here.",
+  "notificationsStaleNotice": "Showing saved notifications — you're offline.",
+  "notificationsUnreadBadge": "{count} unread notifications",
+  "@notificationsUnreadBadge": {
+    "description": "Screen-reader label for the unread-count nav badge.",
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "notificationActionMarkRead": "Mark read",
+  "notificationActionArchive": "Archive",
+  "notificationActionDelete": "Delete",
+  "notificationDeleted": "Notification deleted",
+  "notificationUndo": "Undo",
+  "notificationQueuedOffline": "You're offline — we'll sync this when you're back.",
+  "notificationSectionToday": "Today",
+  "notificationSectionYesterday": "Yesterday",
+  "notificationSectionEarlier": "Earlier",
+  "notificationFollow": "{name} started following you.",
+  "@notificationFollow": {
+    "description": "New-follower notification summary.",
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "notificationFollowRequest": "{name} asked to follow you.",
+  "@notificationFollowRequest": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "notificationFollowAccepted": "{name} accepted your follow request.",
+  "@notificationFollowAccepted": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "notificationLike": "{name} appreciated your piece.",
+  "@notificationLike": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "notificationClap": "{name} applauded your piece.",
+  "@notificationClap": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "notificationComment": "{name} commented on your piece.",
+  "@notificationComment": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "notificationCommentReply": "{name} replied to your comment.",
+  "@notificationCommentReply": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "notificationResponse": "{name} wrote a response to your piece.",
+  "@notificationResponse": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "notificationMention": "{name} mentioned you.",
+  "@notificationMention": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "notificationRepost": "{name} shared your piece.",
+  "@notificationRepost": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "notificationCollectionFollow": "{name} followed your collection.",
+  "@notificationCollectionFollow": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "notificationFeatured": "Your piece was featured.",
+  "notificationSystem": "Announcement",
+  "notificationGeneric": "New activity.",
+  "notificationPrefsTitle": "Notification preferences",
+  "notificationPrefsSubtitle": "Choose what you're notified about.",
+  "notificationPrefFollow": "Follows",
+  "notificationPrefFollowDesc": "New followers and follow requests.",
+  "notificationPrefComment": "Comments",
+  "notificationPrefCommentDesc": "Comments on your pieces.",
+  "notificationPrefReply": "Replies",
+  "notificationPrefReplyDesc": "Replies to your comments.",
+  "notificationPrefReaction": "Reactions",
+  "notificationPrefReactionDesc": "Appreciation and applause on your pieces.",
+  "notificationPrefMention": "Mentions",
+  "notificationPrefMentionDesc": "When someone mentions you.",
+  "notificationPrefResponse": "Responses",
+  "notificationPrefResponseDesc": "Responses written to your pieces.",
+  "notificationPrefSystem": "Announcements",
+  "notificationPrefSystemDesc": "Service and account updates.",
+  "settingsNotifications": "Notifications"
 }

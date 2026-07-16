@@ -1611,6 +1611,348 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Something else'**
   String get reportReasonOther;
+
+  /// No description provided for @notificationsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get notificationsTitle;
+
+  /// No description provided for @notificationsSettingsTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Notification settings'**
+  String get notificationsSettingsTooltip;
+
+  /// No description provided for @notificationsMarkAllRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark all read'**
+  String get notificationsMarkAllRead;
+
+  /// No description provided for @notificationsFilterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get notificationsFilterAll;
+
+  /// No description provided for @notificationsFilterUnread.
+  ///
+  /// In en, this message translates to:
+  /// **'Unread'**
+  String get notificationsFilterUnread;
+
+  /// No description provided for @notificationsFilterRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Read'**
+  String get notificationsFilterRead;
+
+  /// No description provided for @notificationsFilterArchived.
+  ///
+  /// In en, this message translates to:
+  /// **'Archived'**
+  String get notificationsFilterArchived;
+
+  /// No description provided for @notificationsEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re all caught up'**
+  String get notificationsEmptyTitle;
+
+  /// No description provided for @notificationsEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'New activity on your writing will appear here.'**
+  String get notificationsEmptyBody;
+
+  /// No description provided for @notificationsUnreadEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing unread'**
+  String get notificationsUnreadEmptyTitle;
+
+  /// No description provided for @notificationsUnreadEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ve seen everything for now.'**
+  String get notificationsUnreadEmptyBody;
+
+  /// No description provided for @notificationsReadEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing read yet'**
+  String get notificationsReadEmptyTitle;
+
+  /// No description provided for @notificationsReadEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications you\'ve opened will rest here.'**
+  String get notificationsReadEmptyBody;
+
+  /// No description provided for @notificationsArchivedEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your archive is empty'**
+  String get notificationsArchivedEmptyTitle;
+
+  /// No description provided for @notificationsArchivedEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Archived notifications will rest here.'**
+  String get notificationsArchivedEmptyBody;
+
+  /// No description provided for @notificationsStaleNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing saved notifications — you\'re offline.'**
+  String get notificationsStaleNotice;
+
+  /// Screen-reader label for the unread-count nav badge.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} unread notifications'**
+  String notificationsUnreadBadge(int count);
+
+  /// No description provided for @notificationActionMarkRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark read'**
+  String get notificationActionMarkRead;
+
+  /// No description provided for @notificationActionArchive.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive'**
+  String get notificationActionArchive;
+
+  /// No description provided for @notificationActionDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get notificationActionDelete;
+
+  /// No description provided for @notificationDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Notification deleted'**
+  String get notificationDeleted;
+
+  /// No description provided for @notificationUndo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get notificationUndo;
+
+  /// No description provided for @notificationQueuedOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re offline — we\'ll sync this when you\'re back.'**
+  String get notificationQueuedOffline;
+
+  /// No description provided for @notificationSectionToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get notificationSectionToday;
+
+  /// No description provided for @notificationSectionYesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday'**
+  String get notificationSectionYesterday;
+
+  /// No description provided for @notificationSectionEarlier.
+  ///
+  /// In en, this message translates to:
+  /// **'Earlier'**
+  String get notificationSectionEarlier;
+
+  /// New-follower notification summary.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} started following you.'**
+  String notificationFollow(String name);
+
+  /// No description provided for @notificationFollowRequest.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} asked to follow you.'**
+  String notificationFollowRequest(String name);
+
+  /// No description provided for @notificationFollowAccepted.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} accepted your follow request.'**
+  String notificationFollowAccepted(String name);
+
+  /// No description provided for @notificationLike.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} appreciated your piece.'**
+  String notificationLike(String name);
+
+  /// No description provided for @notificationClap.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} applauded your piece.'**
+  String notificationClap(String name);
+
+  /// No description provided for @notificationComment.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} commented on your piece.'**
+  String notificationComment(String name);
+
+  /// No description provided for @notificationCommentReply.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} replied to your comment.'**
+  String notificationCommentReply(String name);
+
+  /// No description provided for @notificationResponse.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} wrote a response to your piece.'**
+  String notificationResponse(String name);
+
+  /// No description provided for @notificationMention.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} mentioned you.'**
+  String notificationMention(String name);
+
+  /// No description provided for @notificationRepost.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} shared your piece.'**
+  String notificationRepost(String name);
+
+  /// No description provided for @notificationCollectionFollow.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} followed your collection.'**
+  String notificationCollectionFollow(String name);
+
+  /// No description provided for @notificationFeatured.
+  ///
+  /// In en, this message translates to:
+  /// **'Your piece was featured.'**
+  String get notificationFeatured;
+
+  /// No description provided for @notificationSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'Announcement'**
+  String get notificationSystem;
+
+  /// No description provided for @notificationGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'New activity.'**
+  String get notificationGeneric;
+
+  /// No description provided for @notificationPrefsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Notification preferences'**
+  String get notificationPrefsTitle;
+
+  /// No description provided for @notificationPrefsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose what you\'re notified about.'**
+  String get notificationPrefsSubtitle;
+
+  /// No description provided for @notificationPrefFollow.
+  ///
+  /// In en, this message translates to:
+  /// **'Follows'**
+  String get notificationPrefFollow;
+
+  /// No description provided for @notificationPrefFollowDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'New followers and follow requests.'**
+  String get notificationPrefFollowDesc;
+
+  /// No description provided for @notificationPrefComment.
+  ///
+  /// In en, this message translates to:
+  /// **'Comments'**
+  String get notificationPrefComment;
+
+  /// No description provided for @notificationPrefCommentDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Comments on your pieces.'**
+  String get notificationPrefCommentDesc;
+
+  /// No description provided for @notificationPrefReply.
+  ///
+  /// In en, this message translates to:
+  /// **'Replies'**
+  String get notificationPrefReply;
+
+  /// No description provided for @notificationPrefReplyDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Replies to your comments.'**
+  String get notificationPrefReplyDesc;
+
+  /// No description provided for @notificationPrefReaction.
+  ///
+  /// In en, this message translates to:
+  /// **'Reactions'**
+  String get notificationPrefReaction;
+
+  /// No description provided for @notificationPrefReactionDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Appreciation and applause on your pieces.'**
+  String get notificationPrefReactionDesc;
+
+  /// No description provided for @notificationPrefMention.
+  ///
+  /// In en, this message translates to:
+  /// **'Mentions'**
+  String get notificationPrefMention;
+
+  /// No description provided for @notificationPrefMentionDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'When someone mentions you.'**
+  String get notificationPrefMentionDesc;
+
+  /// No description provided for @notificationPrefResponse.
+  ///
+  /// In en, this message translates to:
+  /// **'Responses'**
+  String get notificationPrefResponse;
+
+  /// No description provided for @notificationPrefResponseDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Responses written to your pieces.'**
+  String get notificationPrefResponseDesc;
+
+  /// No description provided for @notificationPrefSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'Announcements'**
+  String get notificationPrefSystem;
+
+  /// No description provided for @notificationPrefSystemDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Service and account updates.'**
+  String get notificationPrefSystemDesc;
+
+  /// No description provided for @settingsNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get settingsNotifications;
 }
 
 class _AppLocalizationsDelegate

@@ -34,18 +34,33 @@ class QNavScaffold extends StatelessWidget {
         destinations: <Widget>[
           for (final QNavDestination d in destinations)
             NavigationDestination(
-              icon: Icon(
-                d.icon,
-                color: d.accented ? tokens.colors.accent : null,
+              icon: _withBadge(
+                Icon(d.icon, color: d.accented ? tokens.colors.accent : null),
+                d.badge,
               ),
-              selectedIcon: Icon(
-                d.selectedIcon,
-                color: d.accented ? tokens.colors.accent : null,
+              selectedIcon: _withBadge(
+                Icon(
+                  d.selectedIcon,
+                  color: d.accented ? tokens.colors.accent : null,
+                ),
+                d.badge,
               ),
               label: d.label,
             ),
         ],
       ),
+    );
+  }
+
+  /// Overlay [badge] on the icon's top-end corner (logical — mirrors in RTL).
+  Widget _withBadge(Widget icon, Widget? badge) {
+    if (badge == null) return icon;
+    return Stack(
+      clipBehavior: Clip.none,
+      children: <Widget>[
+        icon,
+        PositionedDirectional(top: -6, end: -8, child: badge),
+      ],
     );
   }
 }

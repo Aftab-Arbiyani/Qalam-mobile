@@ -9,6 +9,8 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart'
+    show Consumer, WidgetRef;
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -20,6 +22,7 @@ import '../../features/auth/auth.dart';
 import '../../features/feed/presentation/screens/discover_screen.dart';
 import '../../features/feed/presentation/screens/feed_screen.dart';
 import '../../features/gallery/presentation/pages/gallery_page.dart';
+import '../../features/notifications/notifications.dart';
 import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
 import '../../features/profile/profile.dart';
 import '../../features/reading/presentation/screens/appearance_settings_screen.dart';
@@ -27,7 +30,6 @@ import '../../features/reading/presentation/screens/reading_screen.dart';
 import '../../features/search/search.dart';
 import '../../features/settings/presentation/screens/settings_hub_screen.dart';
 import '../../features/shell/presentation/pages/app_error_page.dart';
-import '../../features/shell/presentation/pages/notifications_placeholder_page.dart';
 import '../../features/shell/presentation/widgets/unknown_route_page.dart';
 import '../../features/social/social.dart';
 import '../../features/splash/presentation/pages/splash_page.dart';
@@ -35,6 +37,7 @@ import '../../features/writing/writing.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../../shared/domain/error_codes.dart';
 import '../../shared/theme/tokens/motion_tokens.dart';
+import '../../shared/widgets/cards/q_badge.dart';
 import '../../shared/widgets/navigation/q_nav_destination.dart';
 import '../../shared/widgets/navigation/q_nav_scaffold.dart';
 import '../observers/app_navigator_observer.dart';
@@ -93,36 +96,57 @@ GoRouter goRouter(Ref ref) {
               StatefulNavigationShell shell,
             ) {
               final AppLocalizations l10n = AppLocalizations.of(context);
-              return QNavScaffold(
-                navigationShell: shell,
-                destinations: <QNavDestination>[
-                  QNavDestination(
-                    icon: Icons.home_outlined,
-                    selectedIcon: Icons.home,
-                    label: l10n.navFeed,
-                  ),
-                  QNavDestination(
-                    icon: Icons.search_outlined,
-                    selectedIcon: Icons.search,
-                    label: l10n.navSearch,
-                  ),
-                  QNavDestination(
-                    icon: Icons.edit_outlined,
-                    selectedIcon: Icons.edit,
-                    label: l10n.navWrite,
-                    accented: true,
-                  ),
-                  QNavDestination(
-                    icon: Icons.notifications_outlined,
-                    selectedIcon: Icons.notifications,
-                    label: l10n.navNotifications,
-                  ),
-                  QNavDestination(
-                    icon: Icons.person_outline,
-                    selectedIcon: Icons.person,
-                    label: l10n.navProfile,
-                  ),
-                ],
+              // The unread badge watches the polled count provider without
+              // coupling the shell to the notifications data layer (docs/40 §32.1).
+              return Consumer(
+                builder: (BuildContext context, WidgetRef ref, _) {
+                  final int unread =
+                      ref
+                          .watch(unreadCountControllerProvider)
+                          .asData
+                          ?.value
+                          .count ??
+                      0;
+                  return QNavScaffold(
+                    navigationShell: shell,
+                    destinations: <QNavDestination>[
+                      QNavDestination(
+                        icon: Icons.home_outlined,
+                        selectedIcon: Icons.home,
+                        label: l10n.navFeed,
+                      ),
+                      QNavDestination(
+                        icon: Icons.search_outlined,
+                        selectedIcon: Icons.search,
+                        label: l10n.navSearch,
+                      ),
+                      QNavDestination(
+                        icon: Icons.edit_outlined,
+                        selectedIcon: Icons.edit,
+                        label: l10n.navWrite,
+                        accented: true,
+                      ),
+                      QNavDestination(
+                        icon: Icons.notifications_outlined,
+                        selectedIcon: Icons.notifications,
+                        label: l10n.navNotifications,
+                        badge: unread > 0
+                            ? QBadge.count(
+                                count: unread,
+                                semanticLabel: l10n.notificationsUnreadBadge(
+                                  unread,
+                                ),
+                              )
+                            : null,
+                      ),
+                      QNavDestination(
+                        icon: Icons.person_outline,
+                        selectedIcon: Icons.person,
+                        label: l10n.navProfile,
+                      ),
+                    ],
+                  );
+                },
               );
             },
         branches: <StatefulShellBranch>[
@@ -158,7 +182,7 @@ GoRouter goRouter(Ref ref) {
               GoRoute(
                 path: Routes.notifications,
                 name: 'notifications',
-                builder: (_, _) => const NotificationsPlaceholderPage(),
+                builder: (_, _) => const NotificationsScreen(),
               ),
             ],
           ),
@@ -280,6 +304,13 @@ GoRouter goRouter(Ref ref) {
         parentNavigatorKey: _rootKey,
         pageBuilder: (BuildContext context, GoRouterState state) =>
             _fade(state, const PrivacySettingsScreen()),
+      ),
+      GoRoute(
+        path: Routes.settingsNotifications,
+        name: 'settingsNotifications',
+        parentNavigatorKey: _rootKey,
+        pageBuilder: (BuildContext context, GoRouterState state) =>
+            _fade(state, const NotificationPreferencesScreen()),
       ),
 
       // Discovery + reading — public, full-screen (no bottom nav) — docs/40 §10.2.

@@ -164,6 +164,26 @@ enum NotificationType {
   );
 }
 
+/// The polymorphic subject a notification points at (docs/40 §12.4). Drives the
+/// deep-link target; `unknown` absorbs any server-added kind so an older client
+/// falls back gracefully instead of throwing.
+enum NotificationEntityType {
+  piece('piece'),
+  comment('comment'),
+  user('user'),
+  collection('collection'),
+  system('system'),
+  unknown('__unknown__');
+
+  const NotificationEntityType(this.wire);
+  final String wire;
+
+  static NotificationEntityType fromWire(String? value) => values.firstWhere(
+    (e) => e.wire == value,
+    orElse: () => NotificationEntityType.unknown,
+  );
+}
+
 /// Content text direction — Urdu is RTL and a day-one requirement.
 enum TextDirectionKind {
   ltr('ltr'),

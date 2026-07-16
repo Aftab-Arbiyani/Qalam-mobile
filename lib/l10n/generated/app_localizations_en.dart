@@ -868,4 +868,206 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reportReasonOther => 'Something else';
+
+  @override
+  String get notificationsTitle => 'Notifications';
+
+  @override
+  String get notificationsSettingsTooltip => 'Notification settings';
+
+  @override
+  String get notificationsMarkAllRead => 'Mark all read';
+
+  @override
+  String get notificationsFilterAll => 'All';
+
+  @override
+  String get notificationsFilterUnread => 'Unread';
+
+  @override
+  String get notificationsFilterRead => 'Read';
+
+  @override
+  String get notificationsFilterArchived => 'Archived';
+
+  @override
+  String get notificationsEmptyTitle => 'You\'re all caught up';
+
+  @override
+  String get notificationsEmptyBody =>
+      'New activity on your writing will appear here.';
+
+  @override
+  String get notificationsUnreadEmptyTitle => 'Nothing unread';
+
+  @override
+  String get notificationsUnreadEmptyBody => 'You\'ve seen everything for now.';
+
+  @override
+  String get notificationsReadEmptyTitle => 'Nothing read yet';
+
+  @override
+  String get notificationsReadEmptyBody =>
+      'Notifications you\'ve opened will rest here.';
+
+  @override
+  String get notificationsArchivedEmptyTitle => 'Your archive is empty';
+
+  @override
+  String get notificationsArchivedEmptyBody =>
+      'Archived notifications will rest here.';
+
+  @override
+  String get notificationsStaleNotice =>
+      'Showing saved notifications — you\'re offline.';
+
+  @override
+  String notificationsUnreadBadge(int count) {
+    return '$count unread notifications';
+  }
+
+  @override
+  String get notificationActionMarkRead => 'Mark read';
+
+  @override
+  String get notificationActionArchive => 'Archive';
+
+  @override
+  String get notificationActionDelete => 'Delete';
+
+  @override
+  String get notificationDeleted => 'Notification deleted';
+
+  @override
+  String get notificationUndo => 'Undo';
+
+  @override
+  String get notificationQueuedOffline =>
+      'You\'re offline — we\'ll sync this when you\'re back.';
+
+  @override
+  String get notificationSectionToday => 'Today';
+
+  @override
+  String get notificationSectionYesterday => 'Yesterday';
+
+  @override
+  String get notificationSectionEarlier => 'Earlier';
+
+  @override
+  String notificationFollow(String name) {
+    return '$name started following you.';
+  }
+
+  @override
+  String notificationFollowRequest(String name) {
+    return '$name asked to follow you.';
+  }
+
+  @override
+  String notificationFollowAccepted(String name) {
+    return '$name accepted your follow request.';
+  }
+
+  @override
+  String notificationLike(String name) {
+    return '$name appreciated your piece.';
+  }
+
+  @override
+  String notificationClap(String name) {
+    return '$name applauded your piece.';
+  }
+
+  @override
+  String notificationComment(String name) {
+    return '$name commented on your piece.';
+  }
+
+  @override
+  String notificationCommentReply(String name) {
+    return '$name replied to your comment.';
+  }
+
+  @override
+  String notificationResponse(String name) {
+    return '$name wrote a response to your piece.';
+  }
+
+  @override
+  String notificationMention(String name) {
+    return '$name mentioned you.';
+  }
+
+  @override
+  String notificationRepost(String name) {
+    return '$name shared your piece.';
+  }
+
+  @override
+  String notificationCollectionFollow(String name) {
+    return '$name followed your collection.';
+  }
+
+  @override
+  String get notificationFeatured => 'Your piece was featured.';
+
+  @override
+  String get notificationSystem => 'Announcement';
+
+  @override
+  String get notificationGeneric => 'New activity.';
+
+  @override
+  String get notificationPrefsTitle => 'Notification preferences';
+
+  @override
+  String get notificationPrefsSubtitle => 'Choose what you\'re notified about.';
+
+  @override
+  String get notificationPrefFollow => 'Follows';
+
+  @override
+  String get notificationPrefFollowDesc => 'New followers and follow requests.';
+
+  @override
+  String get notificationPrefComment => 'Comments';
+
+  @override
+  String get notificationPrefCommentDesc => 'Comments on your pieces.';
+
+  @override
+  String get notificationPrefReply => 'Replies';
+
+  @override
+  String get notificationPrefReplyDesc => 'Replies to your comments.';
+
+  @override
+  String get notificationPrefReaction => 'Reactions';
+
+  @override
+  String get notificationPrefReactionDesc =>
+      'Appreciation and applause on your pieces.';
+
+  @override
+  String get notificationPrefMention => 'Mentions';
+
+  @override
+  String get notificationPrefMentionDesc => 'When someone mentions you.';
+
+  @override
+  String get notificationPrefResponse => 'Responses';
+
+  @override
+  String get notificationPrefResponseDesc =>
+      'Responses written to your pieces.';
+
+  @override
+  String get notificationPrefSystem => 'Announcements';
+
+  @override
+  String get notificationPrefSystemDesc => 'Service and account updates.';
+
+  @override
+  String get settingsNotifications => 'Notifications';
 }
