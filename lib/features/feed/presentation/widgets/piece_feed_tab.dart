@@ -11,14 +11,14 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/routes.dart';
 import '../../../../core/session/session_controller.dart';
+import '../../../../shared/domain/entities/piece_summary.dart';
 import '../../../../shared/widgets/buttons/q_button.dart';
+import '../../../../shared/widgets/content/piece_card.dart';
+import '../../../../shared/widgets/list/paged_feed_view.dart';
+import '../../../../shared/widgets/loading/feed_skeleton_list.dart';
 import '../../../../shared/widgets/states/q_empty_state.dart';
-import '../../domain/entities/piece_summary.dart';
 import '../../domain/value_objects/feed_query.dart';
 import '../controllers/feed_list_controller.dart';
-import 'feed_skeleton_list.dart';
-import 'paged_feed_view.dart';
-import 'piece_card.dart';
 
 class PieceFeedTab extends ConsumerStatefulWidget {
   const PieceFeedTab({required this.tab, super.key});

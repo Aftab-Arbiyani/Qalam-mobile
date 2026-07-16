@@ -2,9 +2,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:qalam_mobile/features/auth/presentation/screens/login_screen.dart';
 import 'package:qalam_mobile/features/feed/presentation/screens/feed_screen.dart';
 import 'package:qalam_mobile/features/onboarding/presentation/screens/onboarding_screen.dart';
-import 'package:qalam_mobile/features/shell/presentation/pages/search_placeholder_page.dart';
+import 'package:qalam_mobile/features/search/search.dart';
 
 import '../../support/fake_feed_repository.dart';
+import '../../support/fake_search_repository.dart';
 import '../../support/harness.dart';
 
 void main() {
@@ -33,10 +34,15 @@ void main() {
   testWidgets('bottom navigation switches to a public branch', (
     WidgetTester tester,
   ) async {
-    await pumpTestApp(tester, feedRepository: feed());
+    await pumpTestApp(
+      tester,
+      feedRepository: feed(),
+      discoveryRepository: FakeDiscoveryRepository(),
+      searchRepository: FakeSearchRepository(),
+    );
     await tester.tap(find.text('Search'));
     await settleFrames(tester);
-    expect(find.byType(SearchPlaceholderPage), findsOneWidget);
+    expect(find.byType(SearchScreen), findsOneWidget);
   });
 
   testWidgets('tapping a protected tab while anonymous redirects to login', (

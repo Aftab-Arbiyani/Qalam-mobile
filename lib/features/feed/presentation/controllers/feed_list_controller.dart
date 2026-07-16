@@ -8,9 +8,9 @@ library;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../../core/error/failure.dart';
+import '../../../../shared/domain/entities/piece_summary.dart';
 import '../../../../shared/domain/error_codes.dart';
 import '../../../../shared/pagination/paged_list_state.dart';
-import '../../domain/entities/piece_summary.dart';
 import '../../domain/value_objects/feed_query.dart';
 import '../providers/feed_providers.dart';
 
@@ -39,10 +39,14 @@ class FeedListController extends _$FeedListController {
         current.isLoadingMore) {
       return;
     }
-    state = AsyncData<PagedListState<PieceSummary>>(
-      current.copyWith(isLoadingMore: true),
+    final PagedListState<PieceSummary> pending = current.copyWith(
+      isLoadingMore: true,
     );
+    state = AsyncData<PagedListState<PieceSummary>>(pending);
     final PagedListState<PieceSummary> updated = await paginator.next(current);
+    // A refresh() may have replaced the list while this page was in flight;
+    // committing would resurrect the pre-refresh list with a stale cursor.
+    if (!identical(state.asData?.value, pending)) return;
     if (_isInvalidCursor(updated.loadMoreFailure)) {
       await refresh();
       return;

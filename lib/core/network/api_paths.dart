@@ -45,7 +45,7 @@ abstract final class ApiPaths {
   static String pieceCover(String id) => '/pieces/$id/cover';
 
   // Reading engagement (docs/40 §21.4). Counts + viewer flags, like/bookmark,
-  // share, responses (response creation is nav-only in M3).
+  // share, responses.
   static String pieceEngagement(String id) => '/pieces/$id/engagement';
   static String pieceLikes(String id) => '/pieces/$id/likes';
   static String pieceBookmarks(String id) => '/pieces/$id/bookmarks';
@@ -53,8 +53,29 @@ abstract final class ApiPaths {
   static String pieceResponses(String id) => '/pieces/$id/responses';
   static const String meBookmarks = '/me/bookmarks';
 
-  // Follow graph (follow/unfollow key on the target USER UUID, docs §follows).
+  // Comments & replies (E7). Top-level comments live under a piece; replies and
+  // edit/delete key on the comment id.
+  static String pieceComments(String id) => '/pieces/$id/comments';
+  static String commentReplies(String id) => '/comments/$id/replies';
+  static String comment(String id) => '/comments/$id';
+
+  // Collections & reading lists (E7). Owner-only in Phase 1.
+  static const String collections = '/collections';
+  static String collection(String id) => '/collections/$id';
+  static String collectionPieces(String id) => '/collections/$id/pieces';
+  static String collectionPiece(String id, String pieceId) =>
+      '/collections/$id/pieces/$pieceId';
+
+  // Follow graph (follow/unfollow key on the target USER UUID; lists key on the
+  // username; requests key on the follow-edge id, docs §follows).
   static String userFollow(String userId) => '/users/$userId/follow';
+  static String userFollowers(String username) => '/users/$username/followers';
+  static String userFollowing(String username) => '/users/$username/following';
+  static const String meFollowRequests = '/me/follow-requests';
+  static String followRequestAccept(String id) =>
+      '/follow-requests/$id/accept';
+  static String followRequestReject(String id) =>
+      '/follow-requests/$id/reject';
 
   // Moderation.
   static const String reports = '/reports';
@@ -72,9 +93,18 @@ abstract final class ApiPaths {
   static const String discoverGenres = '/discover/genres';
   static const String discoverLanguages = '/discover/languages';
 
-  // Search.
+  // Search (E8). Grouped preview, per-type paginated searches, autocomplete,
+  // trending, and recent-search management.
   static const String search = '/search';
-  static String searchType(String type) => '/search/$type';
+  static const String searchPieces = '/search/pieces';
+  static const String searchWriters = '/search/writers';
+  static const String searchTags = '/search/tags';
+  static const String searchGenres = '/search/genres';
+  static const String searchLanguages = '/search/languages';
+  static const String searchAutocomplete = '/search/autocomplete';
+  static const String searchTrending = '/search/trending';
+  static const String searchRecent = '/search/recent';
+  static String searchRecentById(String id) => '/search/recent/$id';
 
   // Notifications.
   static const String notifications = '/notifications';

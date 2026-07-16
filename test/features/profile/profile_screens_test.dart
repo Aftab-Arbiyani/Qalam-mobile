@@ -6,6 +6,7 @@ import 'package:qalam_mobile/features/profile/domain/entities/profile_piece.dart
 import 'package:qalam_mobile/features/profile/presentation/screens/my_profile_screen.dart';
 import 'package:qalam_mobile/features/profile/presentation/screens/privacy_settings_screen.dart';
 import 'package:qalam_mobile/features/profile/presentation/screens/public_profile_screen.dart';
+import 'package:qalam_mobile/l10n/generated/app_localizations.dart';
 import 'package:qalam_mobile/shared/theme/app_theme.dart';
 
 import '../../support/fake_profile_repository.dart';
@@ -27,6 +28,8 @@ Future<void> _pump(
       profileRepository: repo,
       child: MaterialApp(
         theme: buildQalamTheme(brightness: Brightness.light),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         home: screen,
       ),
     );

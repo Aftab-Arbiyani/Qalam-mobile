@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:qalam_mobile/features/reading/domain/entities/piece_detail.dart';
 import 'package:qalam_mobile/features/reading/domain/entities/piece_engagement.dart';
 import 'package:qalam_mobile/features/reading/presentation/screens/reading_screen.dart';
+import 'package:qalam_mobile/l10n/generated/app_localizations.dart';
 import 'package:qalam_mobile/shared/domain/entities/author.dart';
 import 'package:qalam_mobile/shared/domain/entities/taxonomy.dart';
 import 'package:qalam_mobile/shared/theme/app_theme.dart';
@@ -46,6 +47,8 @@ void main() {
         engagementRepository: FakeEngagementRepository(),
         child: MaterialApp(
           theme: buildQalamTheme(brightness: Brightness.light),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
           home: const ReadingScreen(pieceId: 'p1'),
         ),
       );

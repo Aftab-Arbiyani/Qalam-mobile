@@ -12,6 +12,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../app/router/routes.dart';
 import '../../../../core/di/providers.dart';
 import '../../../../core/error/failure.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 import '../../../../shared/pagination/paged_list_state.dart';
 import '../../../../shared/preferences/app_preferences_controllers.dart';
 import '../../../../shared/preferences/content_privacy.dart';
@@ -122,6 +123,17 @@ class _MyProfileScreenState extends ConsumerState<MyProfileScreen> {
                         icon: Icons.edit_outlined,
                         onPressed: () => context.push(Routes.profileEdit),
                       ),
+                      Gap.v2,
+                      _ProfileLink(
+                        icon: Icons.collections_bookmark_outlined,
+                        label: AppLocalizations.of(context).collectionsTitle,
+                        onTap: () => context.push(Routes.collections),
+                      ),
+                      _ProfileLink(
+                        icon: Icons.person_add_alt_1_outlined,
+                        label: AppLocalizations.of(context).followRequestsTitle,
+                        onTap: () => context.push(Routes.followRequests),
+                      ),
                       Gap.v4,
                       ProfileBioBlock(profile: profile),
                       Gap.v4,
@@ -144,6 +156,29 @@ class _MyProfileScreenState extends ConsumerState<MyProfileScreen> {
       ),
     );
   }
+}
+
+/// A compact navigation row on the own-profile surface (Collections, Follow
+/// requests) — a labelled, tappable list tile.
+class _ProfileLink extends StatelessWidget {
+  const _ProfileLink({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => ListTile(
+    contentPadding: EdgeInsets.zero,
+    leading: Icon(icon),
+    title: Text(label),
+    trailing: const Icon(Icons.chevron_right),
+    onTap: onTap,
+  );
 }
 
 /// The stat tiles — published (from the profile DTO) plus the drafts/bookmarks/

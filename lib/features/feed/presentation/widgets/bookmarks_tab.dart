@@ -10,11 +10,11 @@ import 'package:go_router/go_router.dart';
 import '../../../../app/router/routes.dart';
 import '../../../../core/session/session_controller.dart';
 import '../../../../shared/widgets/buttons/q_button.dart';
+import '../../../../shared/widgets/list/paged_feed_view.dart';
 import '../../../../shared/widgets/states/q_empty_state.dart';
 import '../../domain/entities/bookmark_item.dart';
 import '../controllers/bookmarks_controller.dart';
 import 'bookmark_card.dart';
-import 'paged_feed_view.dart';
 
 class BookmarksTab extends ConsumerStatefulWidget {
   const BookmarksTab({super.key});

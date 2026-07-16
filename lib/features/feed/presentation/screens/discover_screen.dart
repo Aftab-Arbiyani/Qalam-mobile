@@ -9,19 +9,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/reading_history/reading_history_controller.dart';
 import '../../../../core/reading_history/reading_history_entry.dart';
+import '../../../../shared/discovery/discovery_providers.dart';
+import '../../../../shared/domain/entities/piece_summary.dart';
+import '../../../../shared/domain/entities/trend_item.dart';
+import '../../../../shared/domain/entities/writer_summary.dart';
 import '../../../../shared/domain/enums.dart';
 import '../../../../shared/theme/tokens/spacing_tokens.dart';
 import '../../../../shared/widgets/app_bar/q_app_bar.dart';
 import '../../../../shared/widgets/cards/q_chip.dart';
+import '../../../../shared/widgets/content/history_card.dart';
+import '../../../../shared/widgets/discovery/discovery_widgets.dart';
 import '../../../../shared/widgets/layout/q_scaffold.dart';
 import '../../../../shared/widgets/list/q_refresh.dart';
 import '../../../../shared/widgets/states/q_empty_state.dart';
-import '../../domain/entities/piece_summary.dart';
-import '../../domain/entities/trend_item.dart';
-import '../../domain/entities/writer_summary.dart';
-import '../controllers/discovery_controllers.dart';
-import '../widgets/discovery_widgets.dart';
-import '../widgets/history_card.dart';
 
 class DiscoverScreen extends ConsumerWidget {
   const DiscoverScreen({super.key});

@@ -105,55 +105,6 @@ final class PieceLocalDataSourceProvider
 String _$pieceLocalDataSourceHash() =>
     r'b3b0986560d28758a06b82d55b11e7b7917ddb71';
 
-@ProviderFor(engagementRemoteDataSource)
-final engagementRemoteDataSourceProvider =
-    EngagementRemoteDataSourceProvider._();
-
-final class EngagementRemoteDataSourceProvider
-    extends
-        $FunctionalProvider<
-          EngagementRemoteDataSource,
-          EngagementRemoteDataSource,
-          EngagementRemoteDataSource
-        >
-    with $Provider<EngagementRemoteDataSource> {
-  EngagementRemoteDataSourceProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'engagementRemoteDataSourceProvider',
-        isAutoDispose: true,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$engagementRemoteDataSourceHash();
-
-  @$internal
-  @override
-  $ProviderElement<EngagementRemoteDataSource> $createElement(
-    $ProviderPointer pointer,
-  ) => $ProviderElement(pointer);
-
-  @override
-  EngagementRemoteDataSource create(Ref ref) {
-    return engagementRemoteDataSource(ref);
-  }
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(EngagementRemoteDataSource value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<EngagementRemoteDataSource>(value),
-    );
-  }
-}
-
-String _$engagementRemoteDataSourceHash() =>
-    r'bc50cd7ce20a0b387e0c31ead6572585d3c856a1';
-
 @ProviderFor(readingRepository)
 final readingRepositoryProvider = ReadingRepositoryProvider._();
 
@@ -200,51 +151,3 @@ final class ReadingRepositoryProvider
 }
 
 String _$readingRepositoryHash() => r'86563da6d68449779e28478909dd5f1e8aea1042';
-
-@ProviderFor(engagementRepository)
-final engagementRepositoryProvider = EngagementRepositoryProvider._();
-
-final class EngagementRepositoryProvider
-    extends
-        $FunctionalProvider<
-          EngagementRepository,
-          EngagementRepository,
-          EngagementRepository
-        >
-    with $Provider<EngagementRepository> {
-  EngagementRepositoryProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'engagementRepositoryProvider',
-        isAutoDispose: true,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$engagementRepositoryHash();
-
-  @$internal
-  @override
-  $ProviderElement<EngagementRepository> $createElement(
-    $ProviderPointer pointer,
-  ) => $ProviderElement(pointer);
-
-  @override
-  EngagementRepository create(Ref ref) {
-    return engagementRepository(ref);
-  }
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(EngagementRepository value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<EngagementRepository>(value),
-    );
-  }
-}
-
-String _$engagementRepositoryHash() =>
-    r'878385e6680111da2598453972f0c9514ef6c26e';

@@ -12,14 +12,16 @@ import 'package:go_router/go_router.dart';
 import '../../../../app/router/routes.dart';
 import '../../../../core/di/providers.dart';
 import '../../../../core/session/session_controller.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 import '../../../../shared/domain/enums.dart';
 import '../../../../shared/theme/q_tokens.dart';
 import '../../../../shared/widgets/feedback/q_bottom_sheet.dart';
 import '../../../../shared/widgets/feedback/q_snackbar.dart';
 import '../../../../shared/widgets/haptics/q_haptics.dart';
+import '../../../../shared/widgets/social/report_sheet.dart';
+import '../../../../shared/widgets/social/save_to_collection_sheet.dart';
 import '../../domain/entities/piece_engagement.dart';
 import '../controllers/engagement_controller.dart';
-import 'reader_report_sheet.dart';
 
 class ReaderActionBar extends ConsumerWidget {
   const ReaderActionBar({required this.pieceId, required this.slug, super.key});
@@ -110,6 +112,7 @@ class ReaderActionBar extends ConsumerWidget {
   }
 
   void _more(BuildContext context, WidgetRef ref) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
     QBottomSheet.show<void>(
       context,
       builder: (BuildContext sheetContext) => SafeArea(
@@ -118,32 +121,32 @@ class ReaderActionBar extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             ListTile(
-              leading: const Icon(Icons.reply_outlined),
-              title: const Text('Write a response'),
+              leading: const Icon(Icons.collections_bookmark_outlined),
+              title: Text(l10n.saveToCollectionTitle),
               onTap: () {
                 Navigator.of(sheetContext).pop();
-                context.push(Routes.write);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.format_quote_outlined),
-              title: const Text('Quote this piece'),
-              onTap: () {
-                Navigator.of(sheetContext).pop();
-                context.push(Routes.write);
+                _guarded(
+                  context,
+                  ref,
+                  () => showSaveToCollectionSheet(context, pieceId: pieceId),
+                );
               },
             ),
             ListTile(
               leading: const Icon(Icons.flag_outlined),
-              title: const Text('Report'),
+              title: Text(l10n.reportTitle),
               onTap: () {
                 Navigator.of(sheetContext).pop();
-                _guarded(context, ref, () {
-                  QBottomSheet.show<void>(
+                _guarded(
+                  context,
+                  ref,
+                  () => showReportSheet(
                     context,
-                    builder: (_) => ReaderReportSheet(pieceId: pieceId),
-                  );
-                });
+                    entityType: ReportEntityType.piece,
+                    entityId: pieceId,
+                    title: l10n.reportPieceTitle,
+                  ),
+                );
               },
             ),
           ],

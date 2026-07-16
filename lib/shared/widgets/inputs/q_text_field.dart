@@ -26,6 +26,8 @@ class QTextField extends StatelessWidget {
     this.trailing,
     this.onTapOutside,
     this.autofocus = false,
+    this.maxLines = 1,
+    this.minLines,
     super.key,
   });
 
@@ -45,6 +47,12 @@ class QTextField extends StatelessWidget {
 
   /// User-content fields (bio, comment) set this so text follows its own script.
   final bool contentDirectionAuto;
+
+  /// Max visible lines (1 = single-line). A multiline composer sets this > 1.
+  final int maxLines;
+
+  /// Optional minimum lines the field grows to before scrolling.
+  final int? minLines;
 
   /// Optional trailing affordance inside the field (e.g. a password visibility
   /// toggle). Rendered as the input's suffix icon.
@@ -76,6 +84,8 @@ class QTextField extends StatelessWidget {
           obscureText: obscureText,
           keyboardType: keyboardType,
           textInputAction: textInputAction,
+          maxLines: maxLines,
+          minLines: minLines,
           maxLength: maxLength,
           autofillHints: autofillHints,
           onChanged: onChanged,

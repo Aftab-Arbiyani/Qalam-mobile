@@ -33,6 +33,8 @@ class PreferencesStore {
   static const String _kShowReadingHistory = 'show_reading_history';
   static const String _kShowBookmarks = 'show_bookmarks';
   static const String _kSignInMethod = 'sign_in_method';
+  static const String _kSearchFilters = 'search_filters';
+  static const String _kSearchShowDiscovery = 'search_show_discovery';
 
   String? get themeMode => _box.get(_kThemeMode) as String?;
   Future<void> setThemeMode(String value) => _box.put(_kThemeMode, value);
@@ -123,4 +125,21 @@ class PreferencesStore {
   /// sign-in overwrites it); a stale value is never shown (only reachable signed in).
   String? get signInMethod => _box.get(_kSignInMethod) as String?;
   Future<void> setSignInMethod(String value) => _box.put(_kSignInMethod, value);
+
+  // ── Search & Discovery preferences (M6) — device-scoped, local-only. ──────────
+
+  /// The last-used search filters, as a JSON string, so a session's narrowing
+  /// (language / genre / tag / date / reading-time / sort) survives (docs/40 §25).
+  /// `null` (or a parse failure at the call site) means the empty filter set.
+  String? get searchFilters => _box.get(_kSearchFilters) as String?;
+  Future<void> setSearchFilters(String value) =>
+      _box.put(_kSearchFilters, value);
+  Future<void> clearSearchFilters() => _box.delete(_kSearchFilters);
+
+  /// Whether the discovery landing (trending / popular shelves) is shown on the
+  /// empty search screen (default on). A "Discovery preference" the reader controls.
+  bool get searchShowDiscovery =>
+      (_box.get(_kSearchShowDiscovery) as bool?) ?? true;
+  Future<void> setSearchShowDiscovery(bool value) =>
+      _box.put(_kSearchShowDiscovery, value);
 }

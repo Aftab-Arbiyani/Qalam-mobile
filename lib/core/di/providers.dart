@@ -11,6 +11,7 @@ import 'package:dio/dio.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../shared/data/cache_list_data_source.dart';
 import '../config/app_config.dart';
 import '../config/app_environment_info.dart';
 import '../connectivity/connectivity_service.dart';
@@ -88,6 +89,10 @@ TokenStore tokenStore(Ref ref) => TokenStore(ref.watch(secureStorageProvider));
 
 @Riverpod(keepAlive: true)
 CacheStore cacheStore(Ref ref) => HiveCacheStore(ref.watch(cacheBoxProvider));
+
+@Riverpod(keepAlive: true)
+CacheListDataSource cacheListDataSource(Ref ref) =>
+    CacheListDataSource(ref.watch(cacheStoreProvider));
 
 @Riverpod(keepAlive: true)
 PreferencesStore preferencesStore(Ref ref) =>

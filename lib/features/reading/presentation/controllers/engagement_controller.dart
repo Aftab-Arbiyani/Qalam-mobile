@@ -1,8 +1,9 @@
-/// The reading engagement controller (docs/40 §21.4) — holds the piece's counts +
-/// the viewer's like/bookmark state, and applies OPTIMISTIC like / bookmark /
-/// share with server reconciliation and rollback on failure. Engagement is
-/// non-critical: a failed initial load degrades to empty counts, never an error
-/// screen (the prose still reads).
+/// The reading engagement controller (docs/40 §21.4, §23) — holds the piece's
+/// counts + the viewer's like/bookmark state, and applies OPTIMISTIC like /
+/// bookmark / share with server reconciliation and rollback. When OFFLINE, a
+/// like/bookmark toggle is applied optimistically and QUEUED (the shared
+/// [SocialSyncEngine] reconciles it on reconnect) instead of calling the wire.
+/// Engagement is non-critical: a failed initial load degrades to empty counts.
 library;
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -11,8 +12,10 @@ import '../../../../core/di/providers.dart';
 import '../../../../core/error/failure.dart';
 import '../../../../core/utils/result.dart';
 import '../../../../shared/domain/enums.dart';
+import '../../../../shared/social/domain/engagement_repository.dart';
+import '../../../../shared/social/domain/value_objects/queued_social_action.dart';
+import '../../../../shared/social/social_providers.dart';
 import '../../domain/entities/piece_engagement.dart';
-import '../../domain/repositories/engagement_repository.dart';
 import '../providers/reading_providers.dart';
 
 part 'engagement_controller.g.dart';
@@ -34,8 +37,10 @@ class EngagementController extends _$EngagementController {
     );
   }
 
+  bool get _online => ref.read(connectivityServiceProvider).isOnline;
+
   /// Optimistic like/unlike — apply immediately, reconcile with the server total,
-  /// roll back on failure (docs/40 §21.4).
+  /// roll back on failure. Offline: apply + queue for reconnect (docs/40 §23).
   Future<void> toggleLike() async {
     final PieceEngagement? current = state.asData?.value;
     if (current == null) return;
@@ -45,6 +50,11 @@ class EngagementController extends _$EngagementController {
       likes: _clamp(current.likes + (wasLiked ? -1 : 1)),
     );
     state = AsyncData<PieceEngagement>(optimistic);
+
+    if (!_online) {
+      await _queue(SocialCategory.pieceLike, pieceId, desired: !wasLiked);
+      return;
+    }
 
     final EngagementRepository repo = ref.read(engagementRepositoryProvider);
     if (wasLiked) {
@@ -65,7 +75,7 @@ class EngagementController extends _$EngagementController {
   }
 
   /// Optimistic bookmark/unbookmark. Also evicts the cached bookmarks list so the
-  /// Bookmarks feed is fresh on its next load (docs/40 §25.3 invalidation).
+  /// Bookmarks feed is fresh on its next load. Offline: apply + queue.
   Future<void> toggleBookmark() async {
     final PieceEngagement? current = state.asData?.value;
     if (current == null) return;
@@ -76,6 +86,12 @@ class EngagementController extends _$EngagementController {
         bookmarks: _clamp(current.bookmarks + (wasMarked ? -1 : 1)),
       ),
     );
+
+    if (!_online) {
+      await _queue(SocialCategory.pieceBookmark, pieceId, desired: !wasMarked);
+      await ref.read(cacheStoreProvider).evict(_bookmarksCacheKey);
+      return;
+    }
 
     final EngagementRepository repo = ref.read(engagementRepositoryProvider);
     final Result<Object?> res = wasMarked
@@ -117,9 +133,29 @@ class EngagementController extends _$EngagementController {
   }) async {
     final Result<void> res = await ref
         .read(engagementRepositoryProvider)
-        .report(pieceId: pieceId, reason: reason, description: description);
+        .report(
+          entityType: ReportEntityType.piece,
+          entityId: pieceId,
+          reason: reason,
+          description: description,
+        );
     return res.failureOrNull;
   }
+
+  Future<void> _queue(
+    SocialCategory category,
+    String targetId, {
+    required bool desired,
+  }) => ref
+      .read(socialSyncEngineProvider)
+      .enqueue(
+        QueuedSocialAction(
+          category: category,
+          targetId: targetId,
+          desired: desired,
+          createdAt: DateTime.now(),
+        ),
+      );
 
   int _clamp(int value) => value < 0 ? 0 : value;
 }

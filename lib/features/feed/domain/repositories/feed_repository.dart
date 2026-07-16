@@ -1,15 +1,15 @@
-/// The feed feature boundary (docs/40 §16). One repository serves every feed +
-/// discovery surface, each cache-then-network with offline fallback. Returns
-/// domain [Result]s of [CachedPage]s — never a DTO, `DioException`, or HTTP status.
+/// The feed feature boundary (docs/40 §16). Serves the four piece-summary feed
+/// tabs and the signed-in user's bookmarks, each cache-then-network with offline
+/// fallback. Discovery surfaces (featured/popular pieces & writers, trending
+/// tags/genres/languages) live in the shared `shared/discovery` module so search
+/// reuses them without a feature→feature import (docs/40 §7.3). Returns domain
+/// [Result]s of [CachedPage]s — never a DTO, `DioException`, or HTTP status.
 library;
 
 import '../../../../core/utils/result.dart';
-import '../../../../shared/domain/enums.dart';
+import '../../../../shared/domain/entities/piece_summary.dart';
 import '../../../../shared/pagination/cached_page.dart';
 import '../entities/bookmark_item.dart';
-import '../entities/piece_summary.dart';
-import '../entities/trend_item.dart';
-import '../entities/writer_summary.dart';
 import '../value_objects/feed_query.dart';
 
 abstract interface class FeedRepository {
@@ -18,26 +18,6 @@ abstract interface class FeedRepository {
   Future<Result<CachedPage<PieceSummary>>> pieceFeed(
     FeedTab tab, {
     FeedQuery query,
-    String? cursor,
-  });
-
-  /// Discovery: featured / recent / most-clapped / most-discussed pieces.
-  Future<Result<CachedPage<PieceSummary>>> discoverPieces(
-    DiscoverPieceKind kind, {
-    String? cursor,
-  });
-
-  /// Discovery: featured / popular / new writers.
-  Future<Result<CachedPage<WriterSummary>>> discoverWriters(
-    WriterKind kind, {
-    String? cursor,
-  });
-
-  Future<Result<CachedPage<TrendingTag>>> trendingTags({String? cursor});
-
-  Future<Result<CachedPage<TrendingGenre>>> trendingGenres({String? cursor});
-
-  Future<Result<CachedPage<TrendingLanguage>>> trendingLanguages({
     String? cursor,
   });
 

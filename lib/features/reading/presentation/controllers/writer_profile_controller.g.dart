@@ -52,7 +52,7 @@ final class WriterProfileControllerProvider
 }
 
 String _$writerProfileControllerHash() =>
-    r'0ec19cad95b8ec526fb60c60acf7a01277ae97d0';
+    r'bcb806fe88f678202e263e3096f278b2a68a9cfb';
 
 final class WriterProfileControllerFamily extends $Family
     with

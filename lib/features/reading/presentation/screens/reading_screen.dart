@@ -12,9 +12,11 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../app/router/routes.dart';
 import '../../../../core/di/providers.dart';
 import '../../../../core/error/failure.dart';
 import '../../../../core/reading_history/reading_history_controller.dart';
+import '../../../../l10n/generated/app_localizations.dart';
 import '../../../../shared/domain/enums.dart';
 import '../../../../shared/theme/q_tokens.dart';
 import '../../../../shared/theme/tokens/motion_tokens.dart';
@@ -33,6 +35,7 @@ import '../../domain/entities/content_node.dart';
 import '../../domain/entities/piece_detail.dart';
 import '../../domain/repositories/reading_repository.dart';
 import '../../domain/value_objects/reader_preferences.dart';
+import '../controllers/engagement_controller.dart';
 import '../controllers/piece_detail_controller.dart';
 import '../controllers/reader_preferences_controller.dart';
 import '../providers/reading_providers.dart';
@@ -486,6 +489,51 @@ class _ReaderBody extends ConsumerWidget {
             ],
           ),
         ],
+        Gap.v5,
+        _SocialFooter(
+          pieceId: piece.id,
+          languageCode: piece.language?.code ?? 'ur',
+        ),
+      ],
+    );
+  }
+}
+
+/// Entry points to the piece's comments + responses (docs/40 §21.4). Counts come
+/// from the engagement controller; tapping opens the dedicated screen.
+class _SocialFooter extends ConsumerWidget {
+  const _SocialFooter({required this.pieceId, required this.languageCode});
+
+  final String pieceId;
+  final String languageCode;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final QTokens tokens = QTokens.of(context);
+    final e = ref
+        .watch(engagementControllerProvider(pieceId))
+        .asData
+        ?.value;
+    return Column(
+      children: <Widget>[
+        Divider(color: tokens.colors.border),
+        ListTile(
+          contentPadding: EdgeInsets.zero,
+          leading: const Icon(Icons.mode_comment_outlined),
+          title: Text(l10n.commentsCount(e?.comments ?? 0)),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: () => context.push(Routes.pieceCommentsPath(pieceId)),
+        ),
+        ListTile(
+          contentPadding: EdgeInsets.zero,
+          leading: const Icon(Icons.forum_outlined),
+          title: Text(l10n.responsesCount(e?.responses ?? 0)),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: () => context.push(
+            '${Routes.pieceResponsesPath(pieceId)}?lang=$languageCode',
+          ),
+        ),
       ],
     );
   }

@@ -7,9 +7,9 @@ import 'package:qalam_mobile/core/utils/typedefs.dart';
 import 'package:qalam_mobile/features/reading/domain/entities/piece_detail.dart';
 import 'package:qalam_mobile/features/reading/domain/entities/piece_engagement.dart';
 import 'package:qalam_mobile/features/reading/domain/entities/writer_profile.dart';
-import 'package:qalam_mobile/features/reading/domain/repositories/engagement_repository.dart';
 import 'package:qalam_mobile/features/reading/domain/repositories/reading_repository.dart';
 import 'package:qalam_mobile/shared/domain/enums.dart';
+import 'package:qalam_mobile/shared/social/domain/engagement_repository.dart';
 
 class FakeReadingRepository implements ReadingRepository {
   FakeReadingRepository({
@@ -109,7 +109,8 @@ class FakeEngagementRepository implements EngagementRepository {
 
   @override
   Future<Result<Unit>> report({
-    required String pieceId,
+    required ReportEntityType entityType,
+    required String entityId,
     required ReportReason reason,
     String? description,
   }) async => _result<Unit>(unit);

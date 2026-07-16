@@ -37,6 +37,17 @@ abstract final class Routes {
   static const String piece = '/p';
   static String piecePath(String id) => '/p/$id';
 
+  // Social (M7). Comments + responses are public reading sub-surfaces; the
+  // follow lists are public/auth-aware; requests + collections are gated by the
+  // `/me` prefix.
+  static String pieceCommentsPath(String id) => '/p/$id/comments';
+  static String pieceResponsesPath(String id) => '/p/$id/responses';
+  static String followersPath(String username) => '/u/$username/followers';
+  static String followingPath(String username) => '/u/$username/following';
+  static const String followRequests = '/me/follow-requests';
+  static const String collections = '/me/collections';
+  static String collectionDetailPath(String id) => '/me/collections/$id';
+
   // Settings (M5). A hub at `/settings` with per-area sub-routes; all full-screen
   // outside the shell. All are covered by `isProtected('/settings')`'s prefix match.
   static const String settings = '/settings';

@@ -172,5 +172,191 @@
   "verifyBannerAction": "Verify",
 
   "signOutConfirmTitle": "Sign out everywhere?",
-  "signOutConfirmBody": "This ends every active session on all your devices."
+  "signOutConfirmBody": "This ends every active session on all your devices.",
+
+  "searchHint": "Search writers, pieces, tags…",
+  "searchClearTooltip": "Clear search",
+  "searchTooShortHint": "Type at least {min} letters to search.",
+  "@searchTooShortHint": {
+    "description": "Hint shown when the query is below the minimum length.",
+    "placeholders": { "min": { "type": "int" } }
+  },
+
+  "searchTabAll": "All",
+  "searchTabPieces": "Pieces",
+  "searchTabWriters": "Writers",
+  "searchTabTags": "Tags",
+  "searchTabGenres": "Genres",
+  "searchTabLanguages": "Languages",
+
+  "searchSeeAll": "See all",
+  "searchEmptyTitle": "Nothing matched.",
+  "searchEmptyBody": "Try a different word, or loosen your filters.",
+  "searchOfflineResultsBody": "Showing your last results — you're offline.",
+
+  "searchRecentTitle": "Recent searches",
+  "searchRecentClear": "Clear all",
+  "searchClearHistoryTitle": "Clear search history?",
+  "searchClearHistoryBody": "This removes every recent search on this device.",
+
+  "searchTrendingTitle": "Trending searches",
+  "searchTrendingTags": "Trending tags",
+
+  "searchSuggestWriters": "Writers",
+  "searchSuggestTags": "Tags",
+  "searchSuggestGenres": "Genres",
+  "searchSuggestPieces": "Pieces",
+
+  "searchFiltersTitle": "Filters",
+  "searchFiltersButton": "Filters",
+  "searchFilterReset": "Reset",
+  "searchFilterApply": "Show results",
+  "searchFilterSortLabel": "Sort by",
+  "searchFilterLanguageLabel": "Language",
+  "searchFilterGenreLabel": "Genre",
+  "searchFilterTagLabel": "Tag",
+  "searchFilterReadingTimeLabel": "Reading time",
+  "searchSortRelevance": "Most relevant",
+  "searchSortLatest": "Newest",
+  "searchSortTrending": "Trending",
+  "searchSortMostClapped": "Most clapped",
+  "searchSortMostCommented": "Most discussed",
+  "searchReadingAny": "Any length",
+  "searchReadingShort": "Under 5 min",
+  "searchReadingMedium": "5–15 min",
+  "searchReadingLong": "Over 15 min",
+
+  "searchDiscoverFeatured": "Featured",
+  "searchDiscoverRecent": "Recently published",
+  "searchDiscoverPopularWriters": "Popular writers",
+  "searchDiscoverPopularGenres": "Popular genres",
+  "searchDiscoverContinue": "Continue discovering",
+  "searchDiscoverEmptyTitle": "A quiet beginning.",
+  "searchDiscoverEmptyBody": "Search above, or come back as the community publishes.",
+
+  "searchWriterPrivate": "Private account",
+  "searchPieceCount": "{count, plural, =0{No pieces} =1{1 piece} other{{count} pieces}}",
+  "@searchPieceCount": {
+    "description": "Count of pieces on a tag/genre/language result.",
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "searchFollowerCount": "{count, plural, =0{No followers} =1{1 follower} other{{count} followers}}",
+  "@searchFollowerCount": {
+    "description": "Follower count on a writer result.",
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "followFollow": "Follow",
+  "followFollowing": "Following",
+  "followRequested": "Requested",
+  "followSignInPrompt": "Sign in to follow writers.",
+  "socialActionFailed": "That didn't go through. Please try again.",
+  "socialQueuedOffline": "You're offline — we'll sync this when you reconnect.",
+  "socialPendingSync": "{count, plural, =1{1 change waiting to sync} other{{count} changes waiting to sync}}",
+  "@socialPendingSync": {
+    "description": "Banner text for queued offline social actions.",
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "followersTitle": "Followers",
+  "followingTitle": "Following",
+  "followRequestsTitle": "Follow requests",
+  "followRequestsEmptyTitle": "No pending requests.",
+  "followRequestsEmptyBody": "When someone asks to follow you, they'll appear here.",
+  "followRequestAccept": "Accept",
+  "followRequestReject": "Decline",
+  "followersEmptyTitle": "No followers yet.",
+  "followersEmptyBody": "Followers will appear here.",
+  "followingEmptyTitle": "Not following anyone yet.",
+  "followingEmptyBody": "Writers this reader follows will appear here.",
+
+  "commentsTitle": "Comments",
+  "commentsCount": "{count, plural, =0{No comments} =1{1 comment} other{{count} comments}}",
+  "@commentsCount": {
+    "description": "Comment count header.",
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "commentComposerHint": "Add a comment…",
+  "commentReplyHint": "Write a reply…",
+  "commentSend": "Post",
+  "commentReply": "Reply",
+  "commentEdit": "Edit",
+  "commentDelete": "Delete",
+  "commentEdited": "edited",
+  "commentDeletedTombstone": "This comment has been deleted.",
+  "commentViewReplies": "{count, plural, =1{View 1 reply} other{View {count} replies}}",
+  "@commentViewReplies": {
+    "description": "Expand-replies affordance.",
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "commentHideReplies": "Hide replies",
+  "commentsEmptyTitle": "No comments yet.",
+  "commentsEmptyBody": "Be the first to share a thought.",
+  "commentSignInPrompt": "Sign in to join the conversation.",
+  "commentDeleteConfirmTitle": "Delete comment?",
+  "commentDeleteConfirmBody": "This can't be undone. Replies stay visible.",
+  "commentSortNewest": "Newest",
+  "commentSortOldest": "Oldest",
+
+  "responsesTitle": "Responses",
+  "responsesCount": "{count, plural, =0{No responses} =1{1 response} other{{count} responses}}",
+  "@responsesCount": {
+    "description": "Response count header.",
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "responseWrite": "Write a response",
+  "responsesEmptyTitle": "No responses yet.",
+  "responsesEmptyBody": "Start the conversation with your own piece.",
+  "responseSignInPrompt": "Sign in to write a response.",
+
+  "collectionsTitle": "Collections",
+  "collectionsEmptyTitle": "No collections yet.",
+  "collectionsEmptyBody": "Create a collection to gather pieces you love.",
+  "collectionCreate": "New collection",
+  "collectionCreateTitle": "New collection",
+  "collectionRename": "Rename",
+  "collectionDelete": "Delete",
+  "collectionNameLabel": "Name",
+  "collectionNameHint": "e.g. Rainy-day ghazals",
+  "collectionDescriptionLabel": "Description (optional)",
+  "collectionMakePrivate": "Private",
+  "collectionSave": "Save",
+  "collectionDeleteConfirmTitle": "Delete collection?",
+  "collectionDeleteConfirmBody": "The pieces stay published — only this collection is removed.",
+  "collectionEmptyPiecesTitle": "Nothing saved yet.",
+  "collectionEmptyPiecesBody": "Pieces you add to this collection will appear here.",
+  "collectionPieceCount": "{count, plural, =0{Empty} =1{1 piece} other{{count} pieces}}",
+  "@collectionPieceCount": {
+    "description": "Piece count on a collection card.",
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "collectionRemovePiece": "Remove",
+  "collectionPrivateLabel": "Private",
+  "saveToCollectionTitle": "Save to collection",
+  "saveToCollectionAdded": "Saved to {name}.",
+  "@saveToCollectionAdded": {
+    "description": "Snackbar after adding a piece to a collection.",
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "saveAction": "Save",
+
+  "reportTitle": "Report",
+  "reportPieceTitle": "Report this piece",
+  "reportCommentTitle": "Report this comment",
+  "reportUserTitle": "Report this account",
+  "reportResponseTitle": "Report this response",
+  "reportReasonPrompt": "Why are you reporting this?",
+  "reportDetailsHint": "Add any details (optional)",
+  "reportSubmit": "Submit report",
+  "reportSubmitted": "Thanks — our team will take a look.",
+  "reportReasonSpam": "Spam",
+  "reportReasonHarassment": "Harassment",
+  "reportReasonHateSpeech": "Hate speech",
+  "reportReasonViolence": "Violence",
+  "reportReasonSexualContent": "Sexual content",
+  "reportReasonSelfHarm": "Self-harm",
+  "reportReasonMisinformation": "Misinformation",
+  "reportReasonCopyright": "Copyright",
+  "reportReasonImpersonation": "Impersonation",
+  "reportReasonOther": "Something else"
 }

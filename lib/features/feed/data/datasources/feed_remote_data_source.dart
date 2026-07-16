@@ -2,18 +2,16 @@
 /// touches the wire. Each method reads one cursor page via [ApiClient.getPage],
 /// which reads `meta.pagination` and unwraps the envelope. Knows nothing about
 /// caching or `Failure`; returns [CursorPage]s of entities or throws
-/// [ApiException] for the repository to translate.
+/// [ApiException] for the repository to translate. The shared read-model mappers
+/// (piece summary) come from `shared/data/entity_mappers.dart` via feed_mappers.
 library;
 
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/api_paths.dart';
 import '../../../../core/utils/typedefs.dart';
 import '../../../../shared/api/api_envelope.dart';
-import '../../../../shared/domain/enums.dart';
+import '../../../../shared/domain/entities/piece_summary.dart';
 import '../../domain/entities/bookmark_item.dart';
-import '../../domain/entities/piece_summary.dart';
-import '../../domain/entities/trend_item.dart';
-import '../../domain/entities/writer_summary.dart';
 import '../../domain/value_objects/feed_query.dart';
 import '../mappers/feed_mappers.dart';
 
@@ -34,45 +32,6 @@ class FeedRemoteDataSource {
     query: _page(cursor, query.toParams()),
     decodeItem: pieceSummaryFromJson,
   );
-
-  Future<CursorPage<PieceSummary>> discoverPieces(
-    DiscoverPieceKind kind, {
-    String? cursor,
-  }) => _api.getPage<PieceSummary>(
-    ApiPaths.discoverPieces,
-    query: _page(cursor, <String, dynamic>{'kind': kind.wire}),
-    decodeItem: pieceSummaryFromJson,
-  );
-
-  Future<CursorPage<WriterSummary>> discoverWriters(
-    WriterKind kind, {
-    String? cursor,
-  }) => _api.getPage<WriterSummary>(
-    ApiPaths.discoverWriters,
-    query: _page(cursor, <String, dynamic>{'kind': kind.wire}),
-    decodeItem: writerSummaryFromJson,
-  );
-
-  Future<CursorPage<TrendingTag>> trendingTags({String? cursor}) =>
-      _api.getPage<TrendingTag>(
-        ApiPaths.discoverTags,
-        query: _page(cursor),
-        decodeItem: trendingTagFromJson,
-      );
-
-  Future<CursorPage<TrendingGenre>> trendingGenres({String? cursor}) =>
-      _api.getPage<TrendingGenre>(
-        ApiPaths.discoverGenres,
-        query: _page(cursor),
-        decodeItem: trendingGenreFromJson,
-      );
-
-  Future<CursorPage<TrendingLanguage>> trendingLanguages({String? cursor}) =>
-      _api.getPage<TrendingLanguage>(
-        ApiPaths.discoverLanguages,
-        query: _page(cursor),
-        decodeItem: trendingLanguageFromJson,
-      );
 
   Future<CursorPage<BookmarkItem>> bookmarks({String? cursor}) =>
       _api.getPage<BookmarkItem>(

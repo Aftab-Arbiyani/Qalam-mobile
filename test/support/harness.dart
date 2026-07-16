@@ -32,11 +32,20 @@ import 'package:qalam_mobile/features/feed/domain/repositories/feed_repository.d
 import 'package:qalam_mobile/features/feed/presentation/providers/feed_providers.dart';
 import 'package:qalam_mobile/features/profile/domain/repositories/profile_repository.dart';
 import 'package:qalam_mobile/features/profile/presentation/providers/profile_providers.dart';
-import 'package:qalam_mobile/features/reading/domain/repositories/engagement_repository.dart';
 import 'package:qalam_mobile/features/reading/domain/repositories/reading_repository.dart';
 import 'package:qalam_mobile/features/reading/presentation/providers/reading_providers.dart';
+import 'package:qalam_mobile/features/search/domain/repositories/search_repository.dart';
+import 'package:qalam_mobile/features/search/presentation/providers/search_providers.dart';
 import 'package:qalam_mobile/features/writing/domain/repositories/piece_editor_repository.dart';
 import 'package:qalam_mobile/features/writing/presentation/providers/writing_providers.dart';
+import 'package:qalam_mobile/shared/discovery/discovery_providers.dart';
+import 'package:qalam_mobile/shared/discovery/domain/discovery_repository.dart';
+import 'package:qalam_mobile/shared/social/domain/collection_repository.dart';
+import 'package:qalam_mobile/shared/social/domain/comment_repository.dart';
+import 'package:qalam_mobile/shared/social/domain/engagement_repository.dart';
+import 'package:qalam_mobile/shared/social/domain/follow_repository.dart';
+import 'package:qalam_mobile/shared/social/domain/response_repository.dart';
+import 'package:qalam_mobile/shared/social/social_providers.dart';
 import 'package:qalam_mobile/shared/taxonomy/domain/taxonomy_repository.dart';
 import 'package:qalam_mobile/shared/taxonomy/taxonomy_providers.dart';
 
@@ -110,8 +119,14 @@ Future<Widget> buildTestApp({
   AuthRepository? authRepository,
   SocialSignInService? socialSignInService,
   FeedRepository? feedRepository,
-  ReadingRepository? readingRepository,
+  DiscoveryRepository? discoveryRepository,
+  SearchRepository? searchRepository,
   EngagementRepository? engagementRepository,
+  CommentRepository? commentRepository,
+  FollowRepository? followRepository,
+  CollectionRepository? collectionRepository,
+  ResponseRepository? responseRepository,
+  ReadingRepository? readingRepository,
   PieceEditorRepository? pieceEditorRepository,
   TaxonomyRepository? taxonomyRepository,
   ProfileRepository? profileRepository,
@@ -153,10 +168,22 @@ Future<Widget> buildTestApp({
         socialSignInServiceProvider.overrideWithValue(socialSignInService),
       if (feedRepository != null)
         feedRepositoryProvider.overrideWithValue(feedRepository),
+      if (discoveryRepository != null)
+        discoveryRepositoryProvider.overrideWithValue(discoveryRepository),
+      if (searchRepository != null)
+        searchRepositoryProvider.overrideWithValue(searchRepository),
       if (readingRepository != null)
         readingRepositoryProvider.overrideWithValue(readingRepository),
       if (engagementRepository != null)
         engagementRepositoryProvider.overrideWithValue(engagementRepository),
+      if (commentRepository != null)
+        commentRepositoryProvider.overrideWithValue(commentRepository),
+      if (followRepository != null)
+        followRepositoryProvider.overrideWithValue(followRepository),
+      if (collectionRepository != null)
+        collectionRepositoryProvider.overrideWithValue(collectionRepository),
+      if (responseRepository != null)
+        responseRepositoryProvider.overrideWithValue(responseRepository),
       if (pieceEditorRepository != null)
         pieceEditorRepositoryProvider.overrideWithValue(pieceEditorRepository),
       if (taxonomyRepository != null)
@@ -184,6 +211,8 @@ Future<void> pumpTestApp(
   AuthRepository? authRepository,
   SocialSignInService? socialSignInService,
   FeedRepository? feedRepository,
+  DiscoveryRepository? discoveryRepository,
+  SearchRepository? searchRepository,
 }) async {
   late final Widget app;
   await tester.runAsync(() async {
@@ -195,6 +224,8 @@ Future<void> pumpTestApp(
       authRepository: authRepository,
       socialSignInService: socialSignInService,
       feedRepository: feedRepository,
+      discoveryRepository: discoveryRepository,
+      searchRepository: searchRepository,
     );
   });
   await tester.pumpWidget(app);
@@ -231,8 +262,14 @@ Future<ProviderContainer> buildTestContainer({
   bool rememberMe = false,
   AuthRepository? authRepository,
   FeedRepository? feedRepository,
-  ReadingRepository? readingRepository,
+  DiscoveryRepository? discoveryRepository,
+  SearchRepository? searchRepository,
   EngagementRepository? engagementRepository,
+  CommentRepository? commentRepository,
+  FollowRepository? followRepository,
+  CollectionRepository? collectionRepository,
+  ResponseRepository? responseRepository,
+  ReadingRepository? readingRepository,
   PieceEditorRepository? pieceEditorRepository,
   TaxonomyRepository? taxonomyRepository,
   ProfileRepository? profileRepository,
@@ -269,10 +306,22 @@ Future<ProviderContainer> buildTestContainer({
         authRepositoryProvider.overrideWithValue(authRepository),
       if (feedRepository != null)
         feedRepositoryProvider.overrideWithValue(feedRepository),
+      if (discoveryRepository != null)
+        discoveryRepositoryProvider.overrideWithValue(discoveryRepository),
+      if (searchRepository != null)
+        searchRepositoryProvider.overrideWithValue(searchRepository),
       if (readingRepository != null)
         readingRepositoryProvider.overrideWithValue(readingRepository),
       if (engagementRepository != null)
         engagementRepositoryProvider.overrideWithValue(engagementRepository),
+      if (commentRepository != null)
+        commentRepositoryProvider.overrideWithValue(commentRepository),
+      if (followRepository != null)
+        followRepositoryProvider.overrideWithValue(followRepository),
+      if (collectionRepository != null)
+        collectionRepositoryProvider.overrideWithValue(collectionRepository),
+      if (responseRepository != null)
+        responseRepositoryProvider.overrideWithValue(responseRepository),
       if (pieceEditorRepository != null)
         pieceEditorRepositoryProvider.overrideWithValue(pieceEditorRepository),
       if (taxonomyRepository != null)

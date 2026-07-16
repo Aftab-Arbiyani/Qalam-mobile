@@ -10,9 +10,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/reading_history/reading_history_controller.dart';
 import '../../../../core/reading_history/reading_history_entry.dart';
 import '../../../../shared/theme/tokens/spacing_tokens.dart';
+import '../../../../shared/widgets/content/history_card.dart';
 import '../../../../shared/widgets/feedback/q_dialog.dart';
 import '../../../../shared/widgets/states/q_empty_state.dart';
-import 'history_card.dart';
 
 class HistoryTab extends ConsumerWidget {
   const HistoryTab({super.key});

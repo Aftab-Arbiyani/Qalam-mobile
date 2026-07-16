@@ -9,17 +9,26 @@ class QSearchField extends StatelessWidget {
   const QSearchField({
     required this.controller,
     this.hint,
+    this.clearTooltip,
     this.onChanged,
     this.onSubmitted,
     this.onClear,
+    this.focusNode,
+    this.autofocus = false,
     super.key,
   });
 
   final TextEditingController controller;
   final String? hint;
+
+  /// Tooltip for the trailing clear button; defaults to the Material cancel
+  /// label.
+  final String? clearTooltip;
   final ValueChanged<String>? onChanged;
   final ValueChanged<String>? onSubmitted;
   final VoidCallback? onClear;
+  final FocusNode? focusNode;
+  final bool autofocus;
 
   @override
   Widget build(BuildContext context) {
@@ -28,6 +37,8 @@ class QSearchField extends StatelessWidget {
       builder: (BuildContext context, TextEditingValue value, _) {
         return TextField(
           controller: controller,
+          focusNode: focusNode,
+          autofocus: autofocus,
           textInputAction: TextInputAction.search,
           onChanged: onChanged,
           onSubmitted: onSubmitted,
@@ -38,9 +49,9 @@ class QSearchField extends StatelessWidget {
                 ? null
                 : IconButton(
                     icon: const Icon(Icons.close, size: 20),
-                    tooltip: MaterialLocalizations.of(
-                      context,
-                    ).cancelButtonLabel,
+                    tooltip:
+                        clearTooltip ??
+                        MaterialLocalizations.of(context).cancelButtonLabel,
                     onPressed: () {
                       controller.clear();
                       onClear?.call();

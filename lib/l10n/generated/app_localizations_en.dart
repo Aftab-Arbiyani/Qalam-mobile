@@ -387,4 +387,485 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get signOutConfirmBody =>
       'This ends every active session on all your devices.';
+
+  @override
+  String get searchHint => 'Search writers, pieces, tags…';
+
+  @override
+  String get searchClearTooltip => 'Clear search';
+
+  @override
+  String searchTooShortHint(int min) {
+    return 'Type at least $min letters to search.';
+  }
+
+  @override
+  String get searchTabAll => 'All';
+
+  @override
+  String get searchTabPieces => 'Pieces';
+
+  @override
+  String get searchTabWriters => 'Writers';
+
+  @override
+  String get searchTabTags => 'Tags';
+
+  @override
+  String get searchTabGenres => 'Genres';
+
+  @override
+  String get searchTabLanguages => 'Languages';
+
+  @override
+  String get searchSeeAll => 'See all';
+
+  @override
+  String get searchEmptyTitle => 'Nothing matched.';
+
+  @override
+  String get searchEmptyBody => 'Try a different word, or loosen your filters.';
+
+  @override
+  String get searchOfflineResultsBody =>
+      'Showing your last results — you\'re offline.';
+
+  @override
+  String get searchRecentTitle => 'Recent searches';
+
+  @override
+  String get searchRecentClear => 'Clear all';
+
+  @override
+  String get searchClearHistoryTitle => 'Clear search history?';
+
+  @override
+  String get searchClearHistoryBody =>
+      'This removes every recent search on this device.';
+
+  @override
+  String get searchTrendingTitle => 'Trending searches';
+
+  @override
+  String get searchTrendingTags => 'Trending tags';
+
+  @override
+  String get searchSuggestWriters => 'Writers';
+
+  @override
+  String get searchSuggestTags => 'Tags';
+
+  @override
+  String get searchSuggestGenres => 'Genres';
+
+  @override
+  String get searchSuggestPieces => 'Pieces';
+
+  @override
+  String get searchFiltersTitle => 'Filters';
+
+  @override
+  String get searchFiltersButton => 'Filters';
+
+  @override
+  String get searchFilterReset => 'Reset';
+
+  @override
+  String get searchFilterApply => 'Show results';
+
+  @override
+  String get searchFilterSortLabel => 'Sort by';
+
+  @override
+  String get searchFilterLanguageLabel => 'Language';
+
+  @override
+  String get searchFilterGenreLabel => 'Genre';
+
+  @override
+  String get searchFilterTagLabel => 'Tag';
+
+  @override
+  String get searchFilterReadingTimeLabel => 'Reading time';
+
+  @override
+  String get searchSortRelevance => 'Most relevant';
+
+  @override
+  String get searchSortLatest => 'Newest';
+
+  @override
+  String get searchSortTrending => 'Trending';
+
+  @override
+  String get searchSortMostClapped => 'Most clapped';
+
+  @override
+  String get searchSortMostCommented => 'Most discussed';
+
+  @override
+  String get searchReadingAny => 'Any length';
+
+  @override
+  String get searchReadingShort => 'Under 5 min';
+
+  @override
+  String get searchReadingMedium => '5–15 min';
+
+  @override
+  String get searchReadingLong => 'Over 15 min';
+
+  @override
+  String get searchDiscoverFeatured => 'Featured';
+
+  @override
+  String get searchDiscoverRecent => 'Recently published';
+
+  @override
+  String get searchDiscoverPopularWriters => 'Popular writers';
+
+  @override
+  String get searchDiscoverPopularGenres => 'Popular genres';
+
+  @override
+  String get searchDiscoverContinue => 'Continue discovering';
+
+  @override
+  String get searchDiscoverEmptyTitle => 'A quiet beginning.';
+
+  @override
+  String get searchDiscoverEmptyBody =>
+      'Search above, or come back as the community publishes.';
+
+  @override
+  String get searchWriterPrivate => 'Private account';
+
+  @override
+  String searchPieceCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count pieces',
+      one: '1 piece',
+      zero: 'No pieces',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String searchFollowerCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count followers',
+      one: '1 follower',
+      zero: 'No followers',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get followFollow => 'Follow';
+
+  @override
+  String get followFollowing => 'Following';
+
+  @override
+  String get followRequested => 'Requested';
+
+  @override
+  String get followSignInPrompt => 'Sign in to follow writers.';
+
+  @override
+  String get socialActionFailed => 'That didn\'t go through. Please try again.';
+
+  @override
+  String get socialQueuedOffline =>
+      'You\'re offline — we\'ll sync this when you reconnect.';
+
+  @override
+  String socialPendingSync(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count changes waiting to sync',
+      one: '1 change waiting to sync',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get followersTitle => 'Followers';
+
+  @override
+  String get followingTitle => 'Following';
+
+  @override
+  String get followRequestsTitle => 'Follow requests';
+
+  @override
+  String get followRequestsEmptyTitle => 'No pending requests.';
+
+  @override
+  String get followRequestsEmptyBody =>
+      'When someone asks to follow you, they\'ll appear here.';
+
+  @override
+  String get followRequestAccept => 'Accept';
+
+  @override
+  String get followRequestReject => 'Decline';
+
+  @override
+  String get followersEmptyTitle => 'No followers yet.';
+
+  @override
+  String get followersEmptyBody => 'Followers will appear here.';
+
+  @override
+  String get followingEmptyTitle => 'Not following anyone yet.';
+
+  @override
+  String get followingEmptyBody =>
+      'Writers this reader follows will appear here.';
+
+  @override
+  String get commentsTitle => 'Comments';
+
+  @override
+  String commentsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count comments',
+      one: '1 comment',
+      zero: 'No comments',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get commentComposerHint => 'Add a comment…';
+
+  @override
+  String get commentReplyHint => 'Write a reply…';
+
+  @override
+  String get commentSend => 'Post';
+
+  @override
+  String get commentReply => 'Reply';
+
+  @override
+  String get commentEdit => 'Edit';
+
+  @override
+  String get commentDelete => 'Delete';
+
+  @override
+  String get commentEdited => 'edited';
+
+  @override
+  String get commentDeletedTombstone => 'This comment has been deleted.';
+
+  @override
+  String commentViewReplies(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'View $count replies',
+      one: 'View 1 reply',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get commentHideReplies => 'Hide replies';
+
+  @override
+  String get commentsEmptyTitle => 'No comments yet.';
+
+  @override
+  String get commentsEmptyBody => 'Be the first to share a thought.';
+
+  @override
+  String get commentSignInPrompt => 'Sign in to join the conversation.';
+
+  @override
+  String get commentDeleteConfirmTitle => 'Delete comment?';
+
+  @override
+  String get commentDeleteConfirmBody =>
+      'This can\'t be undone. Replies stay visible.';
+
+  @override
+  String get commentSortNewest => 'Newest';
+
+  @override
+  String get commentSortOldest => 'Oldest';
+
+  @override
+  String get responsesTitle => 'Responses';
+
+  @override
+  String responsesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count responses',
+      one: '1 response',
+      zero: 'No responses',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get responseWrite => 'Write a response';
+
+  @override
+  String get responsesEmptyTitle => 'No responses yet.';
+
+  @override
+  String get responsesEmptyBody =>
+      'Start the conversation with your own piece.';
+
+  @override
+  String get responseSignInPrompt => 'Sign in to write a response.';
+
+  @override
+  String get collectionsTitle => 'Collections';
+
+  @override
+  String get collectionsEmptyTitle => 'No collections yet.';
+
+  @override
+  String get collectionsEmptyBody =>
+      'Create a collection to gather pieces you love.';
+
+  @override
+  String get collectionCreate => 'New collection';
+
+  @override
+  String get collectionCreateTitle => 'New collection';
+
+  @override
+  String get collectionRename => 'Rename';
+
+  @override
+  String get collectionDelete => 'Delete';
+
+  @override
+  String get collectionNameLabel => 'Name';
+
+  @override
+  String get collectionNameHint => 'e.g. Rainy-day ghazals';
+
+  @override
+  String get collectionDescriptionLabel => 'Description (optional)';
+
+  @override
+  String get collectionMakePrivate => 'Private';
+
+  @override
+  String get collectionSave => 'Save';
+
+  @override
+  String get collectionDeleteConfirmTitle => 'Delete collection?';
+
+  @override
+  String get collectionDeleteConfirmBody =>
+      'The pieces stay published — only this collection is removed.';
+
+  @override
+  String get collectionEmptyPiecesTitle => 'Nothing saved yet.';
+
+  @override
+  String get collectionEmptyPiecesBody =>
+      'Pieces you add to this collection will appear here.';
+
+  @override
+  String collectionPieceCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count pieces',
+      one: '1 piece',
+      zero: 'Empty',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get collectionRemovePiece => 'Remove';
+
+  @override
+  String get collectionPrivateLabel => 'Private';
+
+  @override
+  String get saveToCollectionTitle => 'Save to collection';
+
+  @override
+  String saveToCollectionAdded(String name) {
+    return 'Saved to $name.';
+  }
+
+  @override
+  String get saveAction => 'Save';
+
+  @override
+  String get reportTitle => 'Report';
+
+  @override
+  String get reportPieceTitle => 'Report this piece';
+
+  @override
+  String get reportCommentTitle => 'Report this comment';
+
+  @override
+  String get reportUserTitle => 'Report this account';
+
+  @override
+  String get reportResponseTitle => 'Report this response';
+
+  @override
+  String get reportReasonPrompt => 'Why are you reporting this?';
+
+  @override
+  String get reportDetailsHint => 'Add any details (optional)';
+
+  @override
+  String get reportSubmit => 'Submit report';
+
+  @override
+  String get reportSubmitted => 'Thanks — our team will take a look.';
+
+  @override
+  String get reportReasonSpam => 'Spam';
+
+  @override
+  String get reportReasonHarassment => 'Harassment';
+
+  @override
+  String get reportReasonHateSpeech => 'Hate speech';
+
+  @override
+  String get reportReasonViolence => 'Violence';
+
+  @override
+  String get reportReasonSexualContent => 'Sexual content';
+
+  @override
+  String get reportReasonSelfHarm => 'Self-harm';
+
+  @override
+  String get reportReasonMisinformation => 'Misinformation';
+
+  @override
+  String get reportReasonCopyright => 'Copyright';
+
+  @override
+  String get reportReasonImpersonation => 'Impersonation';
+
+  @override
+  String get reportReasonOther => 'Something else';
 }

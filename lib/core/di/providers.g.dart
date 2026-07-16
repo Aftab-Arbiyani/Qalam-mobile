@@ -474,6 +474,54 @@ final class CacheStoreProvider
 
 String _$cacheStoreHash() => r'b88b8fc73b4c20946ae699d407ec0bc2d0e0490d';
 
+@ProviderFor(cacheListDataSource)
+final cacheListDataSourceProvider = CacheListDataSourceProvider._();
+
+final class CacheListDataSourceProvider
+    extends
+        $FunctionalProvider<
+          CacheListDataSource,
+          CacheListDataSource,
+          CacheListDataSource
+        >
+    with $Provider<CacheListDataSource> {
+  CacheListDataSourceProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'cacheListDataSourceProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$cacheListDataSourceHash();
+
+  @$internal
+  @override
+  $ProviderElement<CacheListDataSource> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  CacheListDataSource create(Ref ref) {
+    return cacheListDataSource(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(CacheListDataSource value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<CacheListDataSource>(value),
+    );
+  }
+}
+
+String _$cacheListDataSourceHash() =>
+    r'a18204633cfd79d4472e783060a037cc4e391637';
+
 @ProviderFor(preferencesStore)
 final preferencesStoreProvider = PreferencesStoreProvider._();
 

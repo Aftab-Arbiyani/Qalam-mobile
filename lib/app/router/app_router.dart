@@ -24,11 +24,12 @@ import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
 import '../../features/profile/profile.dart';
 import '../../features/reading/presentation/screens/appearance_settings_screen.dart';
 import '../../features/reading/presentation/screens/reading_screen.dart';
+import '../../features/search/search.dart';
 import '../../features/settings/presentation/screens/settings_hub_screen.dart';
 import '../../features/shell/presentation/pages/app_error_page.dart';
 import '../../features/shell/presentation/pages/notifications_placeholder_page.dart';
-import '../../features/shell/presentation/pages/search_placeholder_page.dart';
 import '../../features/shell/presentation/widgets/unknown_route_page.dart';
+import '../../features/social/social.dart';
 import '../../features/splash/presentation/pages/splash_page.dart';
 import '../../features/writing/writing.dart';
 import '../../l10n/generated/app_localizations.dart';
@@ -139,7 +140,7 @@ GoRouter goRouter(Ref ref) {
               GoRoute(
                 path: Routes.search,
                 name: 'search',
-                builder: (_, _) => const SearchPlaceholderPage(),
+                builder: (_, _) => const SearchScreen(),
               ),
             ],
           ),
@@ -192,6 +193,55 @@ GoRouter goRouter(Ref ref) {
           state,
           PublicProfileScreen(username: state.pathParameters['username'] ?? ''),
         ),
+        routes: <RouteBase>[
+          GoRoute(
+            path: 'followers',
+            name: 'followers',
+            parentNavigatorKey: _rootKey,
+            pageBuilder: (BuildContext context, GoRouterState state) => _fade(
+              state,
+              FollowersScreen(username: state.pathParameters['username'] ?? ''),
+            ),
+          ),
+          GoRoute(
+            path: 'following',
+            name: 'following',
+            parentNavigatorKey: _rootKey,
+            pageBuilder: (BuildContext context, GoRouterState state) => _fade(
+              state,
+              FollowingScreen(username: state.pathParameters['username'] ?? ''),
+            ),
+          ),
+        ],
+      ),
+
+      // Follow requests + collections — full-screen, gated by the `/me` prefix.
+      GoRoute(
+        path: Routes.followRequests,
+        name: 'followRequests',
+        parentNavigatorKey: _rootKey,
+        pageBuilder: (BuildContext context, GoRouterState state) =>
+            _fade(state, const FollowRequestsScreen()),
+      ),
+      GoRoute(
+        path: Routes.collections,
+        name: 'collections',
+        parentNavigatorKey: _rootKey,
+        pageBuilder: (BuildContext context, GoRouterState state) =>
+            _fade(state, const CollectionsScreen()),
+        routes: <RouteBase>[
+          GoRoute(
+            path: ':id',
+            name: 'collectionDetail',
+            parentNavigatorKey: _rootKey,
+            pageBuilder: (BuildContext context, GoRouterState state) => _fade(
+              state,
+              CollectionDetailScreen(
+                collectionId: state.pathParameters['id'] ?? '',
+              ),
+            ),
+          ),
+        ],
       ),
 
       // Settings hub + per-area screens — full-screen, outside the shell,
@@ -248,6 +298,29 @@ GoRouter goRouter(Ref ref) {
           final String id = state.pathParameters['id'] ?? '';
           return _fade(state, ReadingScreen(pieceId: id));
         },
+        routes: <RouteBase>[
+          GoRoute(
+            path: 'comments',
+            name: 'pieceComments',
+            parentNavigatorKey: _rootKey,
+            pageBuilder: (BuildContext context, GoRouterState state) => _fade(
+              state,
+              CommentsScreen(pieceId: state.pathParameters['id'] ?? ''),
+            ),
+          ),
+          GoRoute(
+            path: 'responses',
+            name: 'pieceResponses',
+            parentNavigatorKey: _rootKey,
+            pageBuilder: (BuildContext context, GoRouterState state) => _fade(
+              state,
+              ResponsesScreen(
+                pieceId: state.pathParameters['id'] ?? '',
+                languageCode: state.uri.queryParameters['lang'] ?? 'ur',
+              ),
+            ),
+          ),
+        ],
       ),
 
       // Editor + preview — full-screen, outside the shell (no bottom nav),

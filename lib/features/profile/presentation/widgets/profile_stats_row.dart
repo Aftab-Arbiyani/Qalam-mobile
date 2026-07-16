@@ -11,12 +11,15 @@ import '../../../../shared/theme/tokens/spacing_tokens.dart';
 
 @immutable
 class ProfileStat {
-  const ProfileStat({required this.label, required this.value});
+  const ProfileStat({required this.label, required this.value, this.onTap});
 
   final String label;
 
   /// The already-formatted value ("12", "50+", "—").
   final String value;
+
+  /// Optional tap target (e.g. Followers → the followers list). Null = static.
+  final VoidCallback? onTap;
 }
 
 class ProfileStatsRow extends StatelessWidget {
@@ -41,25 +44,30 @@ class ProfileStatsRow extends StatelessWidget {
             for (final ProfileStat stat in stats)
               Expanded(
                 child: Semantics(
+                  button: stat.onTap != null,
                   label: '${stat.value} ${stat.label}',
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      Text(
-                        stat.value,
-                        style: theme.textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w700,
+                  child: InkWell(
+                    onTap: stat.onTap,
+                    borderRadius: BorderRadius.circular(8),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        Text(
+                          stat.value,
+                          style: theme.textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        stat.label,
-                        textAlign: TextAlign.center,
-                        style: theme.textTheme.labelSmall?.copyWith(
-                          color: tokens.colors.textMuted,
+                        const SizedBox(height: 2),
+                        Text(
+                          stat.label,
+                          textAlign: TextAlign.center,
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: tokens.colors.textMuted,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),

@@ -801,6 +801,816 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This ends every active session on all your devices.'**
   String get signOutConfirmBody;
+
+  /// No description provided for @searchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search writers, pieces, tags…'**
+  String get searchHint;
+
+  /// No description provided for @searchClearTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear search'**
+  String get searchClearTooltip;
+
+  /// Hint shown when the query is below the minimum length.
+  ///
+  /// In en, this message translates to:
+  /// **'Type at least {min} letters to search.'**
+  String searchTooShortHint(int min);
+
+  /// No description provided for @searchTabAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get searchTabAll;
+
+  /// No description provided for @searchTabPieces.
+  ///
+  /// In en, this message translates to:
+  /// **'Pieces'**
+  String get searchTabPieces;
+
+  /// No description provided for @searchTabWriters.
+  ///
+  /// In en, this message translates to:
+  /// **'Writers'**
+  String get searchTabWriters;
+
+  /// No description provided for @searchTabTags.
+  ///
+  /// In en, this message translates to:
+  /// **'Tags'**
+  String get searchTabTags;
+
+  /// No description provided for @searchTabGenres.
+  ///
+  /// In en, this message translates to:
+  /// **'Genres'**
+  String get searchTabGenres;
+
+  /// No description provided for @searchTabLanguages.
+  ///
+  /// In en, this message translates to:
+  /// **'Languages'**
+  String get searchTabLanguages;
+
+  /// No description provided for @searchSeeAll.
+  ///
+  /// In en, this message translates to:
+  /// **'See all'**
+  String get searchSeeAll;
+
+  /// No description provided for @searchEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing matched.'**
+  String get searchEmptyTitle;
+
+  /// No description provided for @searchEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Try a different word, or loosen your filters.'**
+  String get searchEmptyBody;
+
+  /// No description provided for @searchOfflineResultsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing your last results — you\'re offline.'**
+  String get searchOfflineResultsBody;
+
+  /// No description provided for @searchRecentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent searches'**
+  String get searchRecentTitle;
+
+  /// No description provided for @searchRecentClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear all'**
+  String get searchRecentClear;
+
+  /// No description provided for @searchClearHistoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear search history?'**
+  String get searchClearHistoryTitle;
+
+  /// No description provided for @searchClearHistoryBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This removes every recent search on this device.'**
+  String get searchClearHistoryBody;
+
+  /// No description provided for @searchTrendingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Trending searches'**
+  String get searchTrendingTitle;
+
+  /// No description provided for @searchTrendingTags.
+  ///
+  /// In en, this message translates to:
+  /// **'Trending tags'**
+  String get searchTrendingTags;
+
+  /// No description provided for @searchSuggestWriters.
+  ///
+  /// In en, this message translates to:
+  /// **'Writers'**
+  String get searchSuggestWriters;
+
+  /// No description provided for @searchSuggestTags.
+  ///
+  /// In en, this message translates to:
+  /// **'Tags'**
+  String get searchSuggestTags;
+
+  /// No description provided for @searchSuggestGenres.
+  ///
+  /// In en, this message translates to:
+  /// **'Genres'**
+  String get searchSuggestGenres;
+
+  /// No description provided for @searchSuggestPieces.
+  ///
+  /// In en, this message translates to:
+  /// **'Pieces'**
+  String get searchSuggestPieces;
+
+  /// No description provided for @searchFiltersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Filters'**
+  String get searchFiltersTitle;
+
+  /// No description provided for @searchFiltersButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Filters'**
+  String get searchFiltersButton;
+
+  /// No description provided for @searchFilterReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get searchFilterReset;
+
+  /// No description provided for @searchFilterApply.
+  ///
+  /// In en, this message translates to:
+  /// **'Show results'**
+  String get searchFilterApply;
+
+  /// No description provided for @searchFilterSortLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort by'**
+  String get searchFilterSortLabel;
+
+  /// No description provided for @searchFilterLanguageLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get searchFilterLanguageLabel;
+
+  /// No description provided for @searchFilterGenreLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Genre'**
+  String get searchFilterGenreLabel;
+
+  /// No description provided for @searchFilterTagLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Tag'**
+  String get searchFilterTagLabel;
+
+  /// No description provided for @searchFilterReadingTimeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading time'**
+  String get searchFilterReadingTimeLabel;
+
+  /// No description provided for @searchSortRelevance.
+  ///
+  /// In en, this message translates to:
+  /// **'Most relevant'**
+  String get searchSortRelevance;
+
+  /// No description provided for @searchSortLatest.
+  ///
+  /// In en, this message translates to:
+  /// **'Newest'**
+  String get searchSortLatest;
+
+  /// No description provided for @searchSortTrending.
+  ///
+  /// In en, this message translates to:
+  /// **'Trending'**
+  String get searchSortTrending;
+
+  /// No description provided for @searchSortMostClapped.
+  ///
+  /// In en, this message translates to:
+  /// **'Most clapped'**
+  String get searchSortMostClapped;
+
+  /// No description provided for @searchSortMostCommented.
+  ///
+  /// In en, this message translates to:
+  /// **'Most discussed'**
+  String get searchSortMostCommented;
+
+  /// No description provided for @searchReadingAny.
+  ///
+  /// In en, this message translates to:
+  /// **'Any length'**
+  String get searchReadingAny;
+
+  /// No description provided for @searchReadingShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Under 5 min'**
+  String get searchReadingShort;
+
+  /// No description provided for @searchReadingMedium.
+  ///
+  /// In en, this message translates to:
+  /// **'5–15 min'**
+  String get searchReadingMedium;
+
+  /// No description provided for @searchReadingLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Over 15 min'**
+  String get searchReadingLong;
+
+  /// No description provided for @searchDiscoverFeatured.
+  ///
+  /// In en, this message translates to:
+  /// **'Featured'**
+  String get searchDiscoverFeatured;
+
+  /// No description provided for @searchDiscoverRecent.
+  ///
+  /// In en, this message translates to:
+  /// **'Recently published'**
+  String get searchDiscoverRecent;
+
+  /// No description provided for @searchDiscoverPopularWriters.
+  ///
+  /// In en, this message translates to:
+  /// **'Popular writers'**
+  String get searchDiscoverPopularWriters;
+
+  /// No description provided for @searchDiscoverPopularGenres.
+  ///
+  /// In en, this message translates to:
+  /// **'Popular genres'**
+  String get searchDiscoverPopularGenres;
+
+  /// No description provided for @searchDiscoverContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue discovering'**
+  String get searchDiscoverContinue;
+
+  /// No description provided for @searchDiscoverEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'A quiet beginning.'**
+  String get searchDiscoverEmptyTitle;
+
+  /// No description provided for @searchDiscoverEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Search above, or come back as the community publishes.'**
+  String get searchDiscoverEmptyBody;
+
+  /// No description provided for @searchWriterPrivate.
+  ///
+  /// In en, this message translates to:
+  /// **'Private account'**
+  String get searchWriterPrivate;
+
+  /// Count of pieces on a tag/genre/language result.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No pieces} =1{1 piece} other{{count} pieces}}'**
+  String searchPieceCount(int count);
+
+  /// Follower count on a writer result.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No followers} =1{1 follower} other{{count} followers}}'**
+  String searchFollowerCount(int count);
+
+  /// No description provided for @followFollow.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow'**
+  String get followFollow;
+
+  /// No description provided for @followFollowing.
+  ///
+  /// In en, this message translates to:
+  /// **'Following'**
+  String get followFollowing;
+
+  /// No description provided for @followRequested.
+  ///
+  /// In en, this message translates to:
+  /// **'Requested'**
+  String get followRequested;
+
+  /// No description provided for @followSignInPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to follow writers.'**
+  String get followSignInPrompt;
+
+  /// No description provided for @socialActionFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'That didn\'t go through. Please try again.'**
+  String get socialActionFailed;
+
+  /// No description provided for @socialQueuedOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re offline — we\'ll sync this when you reconnect.'**
+  String get socialQueuedOffline;
+
+  /// Banner text for queued offline social actions.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 change waiting to sync} other{{count} changes waiting to sync}}'**
+  String socialPendingSync(int count);
+
+  /// No description provided for @followersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Followers'**
+  String get followersTitle;
+
+  /// No description provided for @followingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Following'**
+  String get followingTitle;
+
+  /// No description provided for @followRequestsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow requests'**
+  String get followRequestsTitle;
+
+  /// No description provided for @followRequestsEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No pending requests.'**
+  String get followRequestsEmptyTitle;
+
+  /// No description provided for @followRequestsEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'When someone asks to follow you, they\'ll appear here.'**
+  String get followRequestsEmptyBody;
+
+  /// No description provided for @followRequestAccept.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept'**
+  String get followRequestAccept;
+
+  /// No description provided for @followRequestReject.
+  ///
+  /// In en, this message translates to:
+  /// **'Decline'**
+  String get followRequestReject;
+
+  /// No description provided for @followersEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No followers yet.'**
+  String get followersEmptyTitle;
+
+  /// No description provided for @followersEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Followers will appear here.'**
+  String get followersEmptyBody;
+
+  /// No description provided for @followingEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Not following anyone yet.'**
+  String get followingEmptyTitle;
+
+  /// No description provided for @followingEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Writers this reader follows will appear here.'**
+  String get followingEmptyBody;
+
+  /// No description provided for @commentsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Comments'**
+  String get commentsTitle;
+
+  /// Comment count header.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No comments} =1{1 comment} other{{count} comments}}'**
+  String commentsCount(int count);
+
+  /// No description provided for @commentComposerHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a comment…'**
+  String get commentComposerHint;
+
+  /// No description provided for @commentReplyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Write a reply…'**
+  String get commentReplyHint;
+
+  /// No description provided for @commentSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Post'**
+  String get commentSend;
+
+  /// No description provided for @commentReply.
+  ///
+  /// In en, this message translates to:
+  /// **'Reply'**
+  String get commentReply;
+
+  /// No description provided for @commentEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get commentEdit;
+
+  /// No description provided for @commentDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get commentDelete;
+
+  /// No description provided for @commentEdited.
+  ///
+  /// In en, this message translates to:
+  /// **'edited'**
+  String get commentEdited;
+
+  /// No description provided for @commentDeletedTombstone.
+  ///
+  /// In en, this message translates to:
+  /// **'This comment has been deleted.'**
+  String get commentDeletedTombstone;
+
+  /// Expand-replies affordance.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{View 1 reply} other{View {count} replies}}'**
+  String commentViewReplies(int count);
+
+  /// No description provided for @commentHideReplies.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide replies'**
+  String get commentHideReplies;
+
+  /// No description provided for @commentsEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No comments yet.'**
+  String get commentsEmptyTitle;
+
+  /// No description provided for @commentsEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Be the first to share a thought.'**
+  String get commentsEmptyBody;
+
+  /// No description provided for @commentSignInPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to join the conversation.'**
+  String get commentSignInPrompt;
+
+  /// No description provided for @commentDeleteConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete comment?'**
+  String get commentDeleteConfirmTitle;
+
+  /// No description provided for @commentDeleteConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This can\'t be undone. Replies stay visible.'**
+  String get commentDeleteConfirmBody;
+
+  /// No description provided for @commentSortNewest.
+  ///
+  /// In en, this message translates to:
+  /// **'Newest'**
+  String get commentSortNewest;
+
+  /// No description provided for @commentSortOldest.
+  ///
+  /// In en, this message translates to:
+  /// **'Oldest'**
+  String get commentSortOldest;
+
+  /// No description provided for @responsesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Responses'**
+  String get responsesTitle;
+
+  /// Response count header.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No responses} =1{1 response} other{{count} responses}}'**
+  String responsesCount(int count);
+
+  /// No description provided for @responseWrite.
+  ///
+  /// In en, this message translates to:
+  /// **'Write a response'**
+  String get responseWrite;
+
+  /// No description provided for @responsesEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No responses yet.'**
+  String get responsesEmptyTitle;
+
+  /// No description provided for @responsesEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Start the conversation with your own piece.'**
+  String get responsesEmptyBody;
+
+  /// No description provided for @responseSignInPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to write a response.'**
+  String get responseSignInPrompt;
+
+  /// No description provided for @collectionsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Collections'**
+  String get collectionsTitle;
+
+  /// No description provided for @collectionsEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No collections yet.'**
+  String get collectionsEmptyTitle;
+
+  /// No description provided for @collectionsEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a collection to gather pieces you love.'**
+  String get collectionsEmptyBody;
+
+  /// No description provided for @collectionCreate.
+  ///
+  /// In en, this message translates to:
+  /// **'New collection'**
+  String get collectionCreate;
+
+  /// No description provided for @collectionCreateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New collection'**
+  String get collectionCreateTitle;
+
+  /// No description provided for @collectionRename.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename'**
+  String get collectionRename;
+
+  /// No description provided for @collectionDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get collectionDelete;
+
+  /// No description provided for @collectionNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get collectionNameLabel;
+
+  /// No description provided for @collectionNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Rainy-day ghazals'**
+  String get collectionNameHint;
+
+  /// No description provided for @collectionDescriptionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Description (optional)'**
+  String get collectionDescriptionLabel;
+
+  /// No description provided for @collectionMakePrivate.
+  ///
+  /// In en, this message translates to:
+  /// **'Private'**
+  String get collectionMakePrivate;
+
+  /// No description provided for @collectionSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get collectionSave;
+
+  /// No description provided for @collectionDeleteConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete collection?'**
+  String get collectionDeleteConfirmTitle;
+
+  /// No description provided for @collectionDeleteConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The pieces stay published — only this collection is removed.'**
+  String get collectionDeleteConfirmBody;
+
+  /// No description provided for @collectionEmptyPiecesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing saved yet.'**
+  String get collectionEmptyPiecesTitle;
+
+  /// No description provided for @collectionEmptyPiecesBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Pieces you add to this collection will appear here.'**
+  String get collectionEmptyPiecesBody;
+
+  /// Piece count on a collection card.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Empty} =1{1 piece} other{{count} pieces}}'**
+  String collectionPieceCount(int count);
+
+  /// No description provided for @collectionRemovePiece.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get collectionRemovePiece;
+
+  /// No description provided for @collectionPrivateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Private'**
+  String get collectionPrivateLabel;
+
+  /// No description provided for @saveToCollectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Save to collection'**
+  String get saveToCollectionTitle;
+
+  /// Snackbar after adding a piece to a collection.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved to {name}.'**
+  String saveToCollectionAdded(String name);
+
+  /// No description provided for @saveAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get saveAction;
+
+  /// No description provided for @reportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Report'**
+  String get reportTitle;
+
+  /// No description provided for @reportPieceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Report this piece'**
+  String get reportPieceTitle;
+
+  /// No description provided for @reportCommentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Report this comment'**
+  String get reportCommentTitle;
+
+  /// No description provided for @reportUserTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Report this account'**
+  String get reportUserTitle;
+
+  /// No description provided for @reportResponseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Report this response'**
+  String get reportResponseTitle;
+
+  /// No description provided for @reportReasonPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Why are you reporting this?'**
+  String get reportReasonPrompt;
+
+  /// No description provided for @reportDetailsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add any details (optional)'**
+  String get reportDetailsHint;
+
+  /// No description provided for @reportSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit report'**
+  String get reportSubmit;
+
+  /// No description provided for @reportSubmitted.
+  ///
+  /// In en, this message translates to:
+  /// **'Thanks — our team will take a look.'**
+  String get reportSubmitted;
+
+  /// No description provided for @reportReasonSpam.
+  ///
+  /// In en, this message translates to:
+  /// **'Spam'**
+  String get reportReasonSpam;
+
+  /// No description provided for @reportReasonHarassment.
+  ///
+  /// In en, this message translates to:
+  /// **'Harassment'**
+  String get reportReasonHarassment;
+
+  /// No description provided for @reportReasonHateSpeech.
+  ///
+  /// In en, this message translates to:
+  /// **'Hate speech'**
+  String get reportReasonHateSpeech;
+
+  /// No description provided for @reportReasonViolence.
+  ///
+  /// In en, this message translates to:
+  /// **'Violence'**
+  String get reportReasonViolence;
+
+  /// No description provided for @reportReasonSexualContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Sexual content'**
+  String get reportReasonSexualContent;
+
+  /// No description provided for @reportReasonSelfHarm.
+  ///
+  /// In en, this message translates to:
+  /// **'Self-harm'**
+  String get reportReasonSelfHarm;
+
+  /// No description provided for @reportReasonMisinformation.
+  ///
+  /// In en, this message translates to:
+  /// **'Misinformation'**
+  String get reportReasonMisinformation;
+
+  /// No description provided for @reportReasonCopyright.
+  ///
+  /// In en, this message translates to:
+  /// **'Copyright'**
+  String get reportReasonCopyright;
+
+  /// No description provided for @reportReasonImpersonation.
+  ///
+  /// In en, this message translates to:
+  /// **'Impersonation'**
+  String get reportReasonImpersonation;
+
+  /// No description provided for @reportReasonOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Something else'**
+  String get reportReasonOther;
 }
 
 class _AppLocalizationsDelegate

@@ -10,6 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../l10n/generated/app_localizations.dart';
+import '../shared/social/social_providers.dart';
 import '../shared/theme/app_theme.dart';
 import '../shared/theme/theme_mode_controller.dart';
 import 'router/app_router.dart';
@@ -21,6 +22,9 @@ class QalamApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final GoRouter router = ref.watch(goRouterProvider);
     final ThemeMode themeMode = ref.watch(themeModeControllerProvider);
+    // Eagerly start the offline social-action queue so queued likes/bookmarks/
+    // follows flush on reconnect even if no social screen was opened (docs/40 §23).
+    ref.watch(socialSyncEngineProvider);
 
     return DynamicColorBuilder(
       builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
