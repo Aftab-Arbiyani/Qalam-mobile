@@ -7,6 +7,8 @@
 /// is deserialized by the caller — the network layer never knows a DTO.
 library;
 
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 
 import '../../shared/api/api_envelope.dart';
@@ -194,6 +196,70 @@ class ApiClient {
       ),
     );
     return decode(_dataAsJson(response));
+  }
+
+  // ── Streaming (AF1) ──────────────────────────────────────────────────────────
+
+  /// POST a Server-Sent-Events stream and yield each `data:` JSON payload as it
+  /// arrives (docs/40 §32 SSE seam). The AI datasource maps each map to a typed
+  /// event, so the network layer stays DTO-agnostic. Cancel by cancelling the
+  /// [cancelToken] (leaving the screen aborts the request). Marked
+  /// `skipAuthRefresh` (like [upload]): a streamed 401 surfaces to the caller
+  /// rather than fighting the refresh-replay interceptor.
+  Stream<Json> streamSse(
+    String path, {
+    Object? body,
+    CancelToken? cancelToken,
+  }) async* {
+    if (!_connectivity.isOnline) {
+      throw const ApiException(
+        code: ErrorCodes.apiOffline,
+        status: 0,
+        message: "You're offline.",
+      );
+    }
+    final Response<ResponseBody> response;
+    try {
+      response = await _dio.post<ResponseBody>(
+        path,
+        data: body,
+        cancelToken: cancelToken,
+        options: Options(
+          responseType: ResponseType.stream,
+          headers: <String, Object?>{'Accept': 'text/event-stream'},
+          extra: <String, Object?>{RequestKeys.skipAuthRefresh: true},
+        ),
+      );
+    } on DioException catch (e) {
+      throw dioExceptionToApiException(e);
+    }
+    final ResponseBody? responseBody = response.data;
+    if (responseBody == null) {
+      throw ApiException(
+        code: ErrorCodes.apiMalformedResponse,
+        status: response.statusCode ?? 0,
+        message: 'The server returned an empty stream.',
+      );
+    }
+    String buffer = '';
+    await for (final List<int> chunk in responseBody.stream) {
+      buffer += utf8.decode(chunk, allowMalformed: true);
+      int newlineIndex = buffer.indexOf('\n');
+      while (newlineIndex != -1) {
+        final String line = buffer.substring(0, newlineIndex).replaceAll('\r', '');
+        buffer = buffer.substring(newlineIndex + 1);
+        if (line.startsWith('data:')) {
+          final String payload = line.substring(5).trimLeft();
+          try {
+            final Object? decoded = jsonDecode(payload);
+            if (decoded is Map) yield Json.from(decoded);
+          } catch (_) {
+            // Ignore keep-alive / non-JSON comment lines.
+          }
+        }
+        newlineIndex = buffer.indexOf('\n');
+      }
+    }
   }
 
   // ── Internals ────────────────────────────────────────────────────────────────

@@ -36,6 +36,18 @@ abstract final class ApiPaths {
   static const String pieces = '/pieces';
   static String pieceById(String id) => '/pieces/$id';
 
+  // AI platform (AF1, Phase 2). Additive `/ai/*` surface; the client never calls
+  // a provider directly (docs/34). Streaming completion is SSE.
+  static const String aiFeatures = '/ai/features';
+  static const String aiModels = '/ai/models';
+  static const String aiConfig = '/ai/config';
+  static const String aiUsageMe = '/ai/usage/me';
+  static const String aiCompletions = '/ai/completions';
+  static const String aiCompletionsStream = '/ai/completions/stream';
+  static const String aiConversations = '/ai/conversations';
+  static String aiConversationById(String id) => '/ai/conversations/$id';
+  static String aiConversationExport(String id) => '/ai/conversations/$id/export';
+
   // Authoring / drafts (M4, docs/40 §47 M6). Lifecycle is driven by dedicated
   // action endpoints — `status`/`slug`/`scheduledAt` are never writable fields.
   static const String meDrafts = '/me/drafts';

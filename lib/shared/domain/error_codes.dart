@@ -108,6 +108,30 @@ abstract final class ErrorCodes {
   static const String jobNotFound = 'JOB_NOT_FOUND';
   static const String jobNotRetryable = 'JOB_NOT_RETRYABLE';
 
+  // ── AI platform (AF1, Phase 2) ──────────────────────────────────────────────
+  static const String aiDisabled = 'AI_DISABLED';
+  static const String aiFeatureDisabled = 'AI_FEATURE_DISABLED';
+  static const String aiProviderNotConfigured = 'AI_PROVIDER_NOT_CONFIGURED';
+  static const String aiProviderError = 'AI_PROVIDER_ERROR';
+  static const String aiProviderUnavailable = 'AI_PROVIDER_UNAVAILABLE';
+  static const String aiModelNotFound = 'AI_MODEL_NOT_FOUND';
+  static const String aiModelUnavailable = 'AI_MODEL_UNAVAILABLE';
+  static const String aiCapabilityUnsupported = 'AI_CAPABILITY_UNSUPPORTED';
+  static const String aiPromptNotFound = 'AI_PROMPT_NOT_FOUND';
+  static const String aiPromptInvalid = 'AI_PROMPT_INVALID';
+  static const String aiPromptRenderFailed = 'AI_PROMPT_RENDER_FAILED';
+  static const String aiContextTooLarge = 'AI_CONTEXT_TOO_LARGE';
+  static const String aiInputTooLong = 'AI_INPUT_TOO_LONG';
+  static const String aiInputBlocked = 'AI_INPUT_BLOCKED';
+  static const String aiOutputBlocked = 'AI_OUTPUT_BLOCKED';
+  static const String aiConversationNotFound = 'AI_CONVERSATION_NOT_FOUND';
+  static const String aiConversationForbidden = 'AI_CONVERSATION_FORBIDDEN';
+  static const String aiUsageLimitExceeded = 'AI_USAGE_LIMIT_EXCEEDED';
+  static const String aiTimeout = 'AI_TIMEOUT';
+  static const String aiRequestCancelled = 'AI_REQUEST_CANCELLED';
+  static const String aiStreamError = 'AI_STREAM_ERROR';
+  static const String aiConfigInvalid = 'AI_CONFIG_INVALID';
+
   // ── Cross-cutting ─────────────────────────────────────────────────────────
   static const String rateLimited = 'RATE_LIMITED';
   static const String validationFailed = 'VALIDATION_FAILED';

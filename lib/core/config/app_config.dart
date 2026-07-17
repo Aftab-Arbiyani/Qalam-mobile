@@ -19,6 +19,7 @@ class AppConfig {
     required this.sentryDsn,
     required this.enablePush,
     required this.webUrl,
+    required this.enableAi,
   });
 
   /// Build config from `--dart-define` keys. Defaults target local development.
@@ -37,6 +38,7 @@ class AppConfig {
       webUrl: const String.fromEnvironment('QALAM_WEB_URL'),
       sentryDsn: const String.fromEnvironment('QALAM_SENTRY_DSN'),
       enablePush: const bool.fromEnvironment('QALAM_ENABLE_PUSH'),
+      enableAi: const bool.fromEnvironment('QALAM_ENABLE_AI'),
     );
   }
 
@@ -59,6 +61,12 @@ class AppConfig {
   /// Feature flag: FCM push. Off by default in M1 (in-app polling only,
   /// docs/40 §32). The push seam is inert until this is enabled.
   final bool enablePush;
+
+  /// Feature flag: AI platform (AF1, Phase 2). Off by default; gates the
+  /// `features/ai` routes/affordances. The server-side per-feature flags
+  /// (`feature.ai.*`, via GET /ai/features) are the runtime source of truth —
+  /// this is the compile-time kill switch (mirrors [enablePush]).
+  final bool enableAi;
 
   /// The versioned API base every request is relative to.
   String get apiBaseUrl => '${_stripTrailingSlash(apiUrl)}/api/v1';
