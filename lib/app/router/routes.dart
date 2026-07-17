@@ -56,6 +56,14 @@ abstract final class Routes {
   static const String settingsAppearance = '/settings/appearance';
   static const String settingsPrivacy = '/settings/privacy';
   static const String settingsNotifications = '/settings/notifications';
+  static const String settingsStorage = '/settings/storage';
+
+  // Analytics & insights (M9). Full-screen, session-gated. The creator dashboard,
+  // the reader's own reading analytics, and the owner-only per-piece detail.
+  static const String creatorAnalytics = '/analytics';
+  static const String readingAnalytics = '/analytics/reading';
+  static const String pieceAnalytics = '/analytics/piece';
+  static String pieceAnalyticsPath(String id) => '/analytics/piece/$id';
 
   // Auth corridor (docs/40 §10.2). No bottom nav; own minimal chrome.
   static const String login = '/auth/login';
@@ -80,7 +88,8 @@ abstract final class Routes {
       _matches(location, settings) ||
       _matches(location, profile) ||
       _matches(location, write) ||
-      _matches(location, notifications);
+      _matches(location, notifications) ||
+      _matches(location, creatorAnalytics);
 
   /// The auth corridor — any `/auth/*`. Exempt from the network auth-refresh
   /// interceptor (a failed login/refresh is the caller's to handle, docs/40 §15).

@@ -35,6 +35,22 @@ class ProfileEdit {
       defaultLanguageCode = null,
       genreSlugs = null;
 
+  /// Reconstruct from a queued-sync payload (docs/40 §23) — the inverse of
+  /// [toJson]. Only keys present are set; absent keys stay `null` ("unchanged").
+  factory ProfileEdit.fromJson(Map<String, dynamic> json) => ProfileEdit(
+    penName: json['penName'] as String?,
+    bio: json['bio'] as String?,
+    websiteUrl: json['websiteUrl'] as String?,
+    location: json['location'] as String?,
+    socialLinks: (json['socialLinks'] as Map<dynamic, dynamic>?)
+        ?.map((Object? k, Object? v) => MapEntry<String, String>('$k', '$v')),
+    isPrivate: json['isPrivate'] as bool?,
+    defaultLanguageCode: json['defaultLanguageCode'] as String?,
+    genreSlugs: (json['genreSlugs'] as List<dynamic>?)
+        ?.map((Object? e) => '$e')
+        .toList(growable: false),
+  );
+
   final String? penName;
   final String? bio;
   final String? websiteUrl;
@@ -43,4 +59,17 @@ class ProfileEdit {
   final bool? isPrivate;
   final String? defaultLanguageCode;
   final List<String>? genreSlugs;
+
+  /// Serialize for the offline sync outbox — omit `null` fields so a merge of two
+  /// queued edits (via the handler) accumulates set fields rather than clobbering.
+  Map<String, dynamic> toJson() => <String, dynamic>{
+    'penName': ?penName,
+    'bio': ?bio,
+    'websiteUrl': ?websiteUrl,
+    'location': ?location,
+    'socialLinks': ?socialLinks,
+    'isPrivate': ?isPrivate,
+    'defaultLanguageCode': ?defaultLanguageCode,
+    'genreSlugs': ?genreSlugs,
+  };
 }

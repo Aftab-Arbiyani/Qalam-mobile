@@ -8,9 +8,12 @@ library;
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../../../core/di/providers.dart';
 import '../../../../core/session/current_user.dart';
 import '../../../../core/session/current_user_controller.dart';
+import '../../../../core/sync/sync_providers.dart';
 import '../../../pagination/paged_list_state.dart';
+import '../../data/sync/comment_sync_handler.dart';
 import '../../domain/entities/comment.dart';
 import '../../social_providers.dart';
 
@@ -50,6 +53,21 @@ class CommentsController extends _$CommentsController {
     state = AsyncData<PagedListState<Comment>>(
       current.copyWith(items: <Comment>[provisional, ...current.items]),
     );
+    // Offline: keep the provisional node and queue the create on the unified engine
+    // — a later refresh reconciles it to the real server node (docs/40 §23).
+    if (!ref.read(connectivityServiceProvider).isOnline) {
+      await ref
+          .read(syncEngineProvider)
+          .enqueue(
+            buildCommentOperation(
+              tempId: provisional.id,
+              pieceId: pieceId,
+              body: body,
+              label: 'Comment',
+            ),
+          );
+      return;
+    }
     final result = await ref.read(commentRepositoryProvider).addComment(pieceId, body);
     result.fold(
       (Comment saved) => _replace(provisional.id, saved),
@@ -214,6 +232,20 @@ class RepliesController extends _$RepliesController {
     state = AsyncData<PagedListState<Comment>>(
       current.copyWith(items: <Comment>[provisional, ...current.items]),
     );
+    if (!ref.read(connectivityServiceProvider).isOnline) {
+      await ref
+          .read(syncEngineProvider)
+          .enqueue(
+            buildCommentOperation(
+              tempId: provisional.id,
+              pieceId: commentId,
+              body: body,
+              parentId: commentId,
+              label: 'Reply',
+            ),
+          );
+      return;
+    }
     final result = await ref.read(commentRepositoryProvider).reply(commentId, body);
     result.fold(
       (Comment saved) {

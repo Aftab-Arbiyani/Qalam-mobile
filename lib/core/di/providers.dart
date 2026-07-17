@@ -23,6 +23,7 @@ import '../network/auth_gateway.dart';
 import '../network/dio_client.dart';
 import '../notifications/local_notification_service.dart';
 import '../notifications/push_messaging_service.dart';
+import '../observability/crash_reporter.dart';
 import '../security/biometric_gate.dart';
 import '../security/certificate_pinning.dart';
 import '../security/device_integrity.dart';
@@ -69,6 +70,13 @@ Box<dynamic> draftsBox(Ref ref) => throw UnimplementedError(
 ConnectivityService connectivityService(Ref ref) => throw UnimplementedError(
   'connectivityServiceProvider must be overridden in bootstrap',
 );
+
+/// The crash/error reporter (docs/40 §31). Overridden in `bootstrap` with the
+/// DSN-gated concrete instance so error handlers and features can leave
+/// breadcrumbs. Defaults to an inert reporter in tests (no DSN, no uploads).
+@Riverpod(keepAlive: true)
+CrashReporter crashReporter(Ref ref) =>
+    NoopCrashReporter(logger: ref.watch(appLoggerProvider));
 
 // ── Derived singletons ────────────────────────────────────────────────────────
 
@@ -118,6 +126,7 @@ Dio dio(Ref ref) {
     config: ref.watch(appConfigProvider),
     gateway: ref.watch(authGatewayProvider),
     logger: ref.watch(appLoggerProvider),
+    pinning: ref.watch(certificatePinningProvider),
   );
   ref.onDispose(client.close);
   return client;

@@ -26,9 +26,10 @@ PieceEditorRemoteDataSource pieceEditorRemoteDataSource(Ref ref) =>
 PieceEditorRepository pieceEditorRepository(Ref ref) =>
     PieceEditorRepositoryImpl(ref.watch(pieceEditorRemoteDataSourceProvider));
 
-/// The always-on background sync engine (docs/40 §42). Started on first read; kept
-/// alive for the app's lifetime and read early by the app root so offline drafts
-/// sync the moment connectivity returns, even with no editor screen open.
+/// The offline-draft sync engine (docs/40 §42). Kept alive for the app's lifetime;
+/// registered as a background task on the unified [SyncEngine] (see
+/// `app/sync_bootstrap.dart`) so offline drafts drain the moment connectivity
+/// returns — on the ONE connectivity signal — even with no editor screen open.
 @Riverpod(keepAlive: true)
 DraftSyncEngine draftSyncEngine(Ref ref) {
   final DraftSyncEngine engine = DraftSyncEngine(
@@ -36,7 +37,7 @@ DraftSyncEngine draftSyncEngine(Ref ref) {
     store: ref.watch(draftLocalDataSourceProvider),
     connectivity: ref.watch(connectivityServiceProvider),
     logger: ref.watch(appLoggerProvider),
-  )..start();
+  );
   ref.onDispose(engine.dispose);
   return engine;
 }

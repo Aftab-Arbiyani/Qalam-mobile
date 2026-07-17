@@ -52,6 +52,30 @@ class SettingsHubScreen extends ConsumerWidget {
                 subtitle: 'Choose what you\'re notified about',
                 onTap: () => context.push(Routes.settingsNotifications),
               ),
+              QSettingsTile(
+                icon: Icons.sd_storage_outlined,
+                title: 'Storage & cache',
+                subtitle: 'Manage on-device storage and offline data',
+                onTap: () => context.push(Routes.settingsStorage),
+              ),
+            ],
+          ),
+          Gap.v5,
+          QSettingsSection(
+            title: 'Insights',
+            children: <Widget>[
+              QSettingsTile(
+                icon: Icons.query_stats_outlined,
+                title: 'Creator analytics',
+                subtitle: 'Views, reads, followers and growth',
+                onTap: () => context.push(Routes.creatorAnalytics),
+              ),
+              QSettingsTile(
+                icon: Icons.auto_stories_outlined,
+                title: 'Reading analytics',
+                subtitle: 'Your streak, time read and history',
+                onTap: () => context.push(Routes.readingAnalytics),
+              ),
             ],
           ),
           Gap.v5,

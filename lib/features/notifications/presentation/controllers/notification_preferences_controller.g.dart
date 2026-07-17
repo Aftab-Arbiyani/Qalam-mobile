@@ -41,7 +41,7 @@ final class NotificationPreferencesControllerProvider
 }
 
 String _$notificationPreferencesControllerHash() =>
-    r'781bc6ec06a1448ac9334761a46ae1f0bdcf1a57';
+    r'fc26c723ee858cf68dd17137e792128a26d8e617';
 
 abstract class _$NotificationPreferencesController
     extends $AsyncNotifier<NotificationPreferences> {

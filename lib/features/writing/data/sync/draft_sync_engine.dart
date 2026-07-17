@@ -11,12 +11,13 @@
 /// stay `pending` for the next reconnect; domain/validation failures become
 /// `failed` with a reason; a detected divergence becomes `conflict`.
 ///
-/// Retry is EVENT-DRIVEN, not a battery-draining timer: it runs on connectivity
-/// restore ([start]), on app-resume / screen actions, and on explicit user retry
-/// (docs/40 §36 "respect the wire"). One drain runs at a time (re-entrancy guarded).
+/// Retry is EVENT-DRIVEN, not a battery-draining timer. This engine no longer owns
+/// a connectivity subscription: it is registered as a background task on the single
+/// unified [SyncEngine] (`core/sync`, `app/sync_bootstrap.dart`), which drains it on
+/// connectivity restore and app start. It is still driven directly for immediate
+/// per-draft actions ([syncDraftById]) and on explicit user retry (docs/40 §36
+/// "respect the wire"). One drain runs at a time (re-entrancy guarded).
 library;
-
-import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
@@ -46,7 +47,6 @@ class DraftSyncEngine {
   final ConnectivityService _connectivity;
   final AppLogger _logger;
 
-  StreamSubscription<bool>? _connSub;
   Future<void>? _draining;
 
   /// Bumped after every store mutation so listeners (drafts list / current draft
@@ -57,18 +57,7 @@ class DraftSyncEngine {
   /// surfaced to the editor's cover field for the progress indicator.
   final ValueNotifier<double?> coverProgress = ValueNotifier<double?>(null);
 
-  /// Begin background synchronization: drain now if online, and on every
-  /// reconnect. Idempotent — safe to call once from the app root.
-  void start() {
-    _connSub ??= _connectivity.onStatusChange.listen((bool online) {
-      if (online) unawaited(syncAll());
-    });
-    if (_connectivity.isOnline) unawaited(syncAll());
-  }
-
   void dispose() {
-    unawaited(_connSub?.cancel());
-    _connSub = null;
     revision.dispose();
     coverProgress.dispose();
   }

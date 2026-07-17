@@ -52,7 +52,7 @@ final class CommentsControllerProvider
 }
 
 String _$commentsControllerHash() =>
-    r'5b8f2aa819cbfe8bd918f4ce5cc48bd96021fac6';
+    r'027b2f15cf2bd6b5e6bca0c8eaf3e9fdcf24aba8';
 
 final class CommentsControllerFamily extends $Family
     with
@@ -150,7 +150,7 @@ final class RepliesControllerProvider
   }
 }
 
-String _$repliesControllerHash() => r'96cb5991212fad1c46edd07000da77751608c5e4';
+String _$repliesControllerHash() => r'ebef60f83fdc2653226d6c0838e9302d7e3eff2a';
 
 final class RepliesControllerFamily extends $Family
     with

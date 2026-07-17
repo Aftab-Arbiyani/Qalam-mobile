@@ -11,11 +11,11 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../../app/router/app_router.dart';
 import '../../../../core/di/providers.dart';
+import '../../../../core/sync/sync_providers.dart';
+import '../../../../core/sync/sync_status.dart';
 import '../../data/datasources/notification_remote_data_source.dart';
 import '../../data/repositories/notification_preferences_repository_impl.dart';
 import '../../data/repositories/notification_repository_impl.dart';
-import '../../data/sync/notification_outbox_store.dart';
-import '../../data/sync/notification_sync_engine.dart';
 import '../../domain/repositories/notification_preferences_repository.dart';
 import '../../domain/repositories/notification_repository.dart';
 import '../controllers/notifications_controller.dart';
@@ -45,40 +45,22 @@ NotificationPreferencesRepository notificationPreferencesRepository(Ref ref) =>
 
 // ── Offline action queue ─────────────────────────────────────────────────────
 
-@Riverpod(keepAlive: true)
-NotificationOutboxStore notificationOutboxStore(Ref ref) =>
-    NotificationOutboxStore(ref.watch(prefsBoxProvider));
+// Queued notification actions (read / archive / delete / read-all) and preference
+// toggles now flow through the single unified `SyncEngine` (see `core/sync` +
+// `app/sync_bootstrap.dart`) — there is no notification-specific outbox/engine.
 
+/// Keeps the unread badge honest as queued notification actions drain on the
+/// unified engine: a change in the engine's outstanding work re-reads the count.
+/// Kept alive + watched from the app root so it works with no inbox screen open —
+/// the same always-on guarantee the old engine gave.
 @Riverpod(keepAlive: true)
-NotificationSyncEngine notificationSyncEngine(Ref ref) {
-  final NotificationSyncEngine engine = NotificationSyncEngine(
-    repository: ref.watch(notificationRepositoryProvider),
-    store: ref.watch(notificationOutboxStoreProvider),
-    connectivity: ref.watch(connectivityServiceProvider),
-    logger: ref.watch(appLoggerProvider),
-  )..start();
-  // As queued actions drain on reconnect, the server state moved — keep the badge
-  // honest by refreshing it whenever the queue changes.
-  void onRevision() => ref.invalidate(unreadCountControllerProvider);
-  engine.revision.addListener(onRevision);
-  ref.onDispose(() {
-    engine.revision.removeListener(onRevision);
-    engine.dispose();
+Object notificationSyncWatcher(Ref ref) {
+  ref.listen<SyncStatus>(syncStatusProvider, (SyncStatus? prev, SyncStatus next) {
+    if (prev == null || prev.outstanding != next.outstanding) {
+      ref.invalidate(unreadCountControllerProvider);
+    }
   });
-  return engine;
-}
-
-/// The number of pending queued notification actions — drives the offline-pending
-/// indicator. Re-reads whenever the engine's revision changes.
-@riverpod
-int notificationPendingCount(Ref ref) {
-  final NotificationSyncEngine engine = ref.watch(
-    notificationSyncEngineProvider,
-  );
-  void listener() => ref.invalidateSelf();
-  engine.revision.addListener(listener);
-  ref.onDispose(() => engine.revision.removeListener(listener));
-  return engine.pendingCount;
+  return const Object();
 }
 
 // ── Push ↔ app bridge (Phase-2 FCM seam) ─────────────────────────────────────

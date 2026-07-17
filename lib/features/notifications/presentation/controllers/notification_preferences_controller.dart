@@ -7,6 +7,9 @@ library;
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../../../core/di/providers.dart';
+import '../../../../core/sync/sync_providers.dart';
+import '../../data/sync/notification_sync_handler.dart';
 import '../../domain/entities/notification_preferences.dart';
 import '../providers/notification_providers.dart';
 
@@ -34,6 +37,20 @@ class NotificationPreferencesController
     final bool next = !category.valueOf(current);
     state = AsyncData<NotificationPreferences>(category.apply(current, next));
 
+    // Offline: keep the optimistic switch and queue the change on the unified
+    // engine ("Queued Settings Changes", docs/40 §23) — it replays on reconnect.
+    if (!ref.read(connectivityServiceProvider).isOnline) {
+      await ref
+          .read(syncEngineProvider)
+          .enqueue(
+            buildNotificationPrefOperation(
+              category: category,
+              value: next,
+              label: 'Notification setting',
+            ),
+          );
+      return;
+    }
     final result = await ref
         .read(notificationPreferencesRepositoryProvider)
         .update(category, next);

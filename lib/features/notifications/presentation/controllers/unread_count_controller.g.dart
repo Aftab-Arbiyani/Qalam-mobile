@@ -34,7 +34,7 @@ final class UnreadCountControllerProvider
 }
 
 String _$unreadCountControllerHash() =>
-    r'554e7d5db7ec3bfc5d37440714905654a48f5cbe';
+    r'43344863d56729e5d054f13e4fc539cc1bdf7209';
 
 abstract class _$UnreadCountController extends $AsyncNotifier<UnreadCount> {
   FutureOr<UnreadCount> build();

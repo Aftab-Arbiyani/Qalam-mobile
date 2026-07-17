@@ -117,8 +117,14 @@ abstract final class ApiPaths {
   static String notification(String id) => '/notifications/$id';
   static const String notificationPreferences = '/notification-preferences';
 
-  // Analytics.
+  // Analytics (M9). Self-scoped creator + reader aggregates and the growth series.
+  // `me` and `readers/me` are LIFETIME (no range param); the growth series is the
+  // only range knob a creator has (`?period=&points=`, docs/40 §30).
   static const String analyticsDashboard = '/analytics/dashboard';
+  static const String analyticsMe = '/analytics/me';
+  static const String analyticsMeGrowth = '/analytics/me/growth';
+  static const String analyticsReadersMe = '/analytics/readers/me';
+  static String analyticsPiece(String id) => '/analytics/pieces/$id';
 
   /// Auth-corridor prefix — requests under it are exempt from the 401→refresh
   /// interceptor (a failed login/refresh is the caller's to handle, docs/40 §15).

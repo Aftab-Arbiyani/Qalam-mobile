@@ -1,10 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:qalam_mobile/core/error/failure.dart';
+import 'package:qalam_mobile/core/sync/sync_providers.dart';
 import 'package:qalam_mobile/features/notifications/domain/entities/app_notification.dart';
 import 'package:qalam_mobile/features/notifications/domain/value_objects/notification_filter.dart';
 import 'package:qalam_mobile/features/notifications/presentation/controllers/notifications_controller.dart';
-import 'package:qalam_mobile/features/notifications/presentation/providers/notification_providers.dart';
 import 'package:qalam_mobile/shared/domain/enums.dart';
 
 import '../../support/fake_notifications.dart';
@@ -70,7 +70,7 @@ void main() {
     await container.read(unreadProvider.notifier).markRead('a');
 
     expect(repo.markReadCalls, 0); // no network call offline
-    expect(container.read(notificationOutboxStoreProvider).count, 1);
+    expect(container.read(syncOutboxStoreProvider).count, 1);
     // Optimistic removal still applied.
     expect(container.read(unreadProvider).asData!.value.items, isEmpty);
   });

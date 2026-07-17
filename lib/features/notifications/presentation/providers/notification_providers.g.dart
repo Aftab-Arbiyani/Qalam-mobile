@@ -158,151 +158,61 @@ final class NotificationPreferencesRepositoryProvider
 String _$notificationPreferencesRepositoryHash() =>
     r'c934ea627342885478cde1f32ce2a9d036ec1876';
 
-@ProviderFor(notificationOutboxStore)
-final notificationOutboxStoreProvider = NotificationOutboxStoreProvider._();
+/// Keeps the unread badge honest as queued notification actions drain on the
+/// unified engine: a change in the engine's outstanding work re-reads the count.
+/// Kept alive + watched from the app root so it works with no inbox screen open —
+/// the same always-on guarantee the old engine gave.
 
-final class NotificationOutboxStoreProvider
-    extends
-        $FunctionalProvider<
-          NotificationOutboxStore,
-          NotificationOutboxStore,
-          NotificationOutboxStore
-        >
-    with $Provider<NotificationOutboxStore> {
-  NotificationOutboxStoreProvider._()
+@ProviderFor(notificationSyncWatcher)
+final notificationSyncWatcherProvider = NotificationSyncWatcherProvider._();
+
+/// Keeps the unread badge honest as queued notification actions drain on the
+/// unified engine: a change in the engine's outstanding work re-reads the count.
+/// Kept alive + watched from the app root so it works with no inbox screen open —
+/// the same always-on guarantee the old engine gave.
+
+final class NotificationSyncWatcherProvider
+    extends $FunctionalProvider<Object, Object, Object>
+    with $Provider<Object> {
+  /// Keeps the unread badge honest as queued notification actions drain on the
+  /// unified engine: a change in the engine's outstanding work re-reads the count.
+  /// Kept alive + watched from the app root so it works with no inbox screen open —
+  /// the same always-on guarantee the old engine gave.
+  NotificationSyncWatcherProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
-        name: r'notificationOutboxStoreProvider',
+        name: r'notificationSyncWatcherProvider',
         isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
 
   @override
-  String debugGetCreateSourceHash() => _$notificationOutboxStoreHash();
+  String debugGetCreateSourceHash() => _$notificationSyncWatcherHash();
 
   @$internal
   @override
-  $ProviderElement<NotificationOutboxStore> $createElement(
-    $ProviderPointer pointer,
-  ) => $ProviderElement(pointer);
-
-  @override
-  NotificationOutboxStore create(Ref ref) {
-    return notificationOutboxStore(ref);
-  }
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(NotificationOutboxStore value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<NotificationOutboxStore>(value),
-    );
-  }
-}
-
-String _$notificationOutboxStoreHash() =>
-    r'36286cef1b3674713bf85e67df960240a43a7ab5';
-
-@ProviderFor(notificationSyncEngine)
-final notificationSyncEngineProvider = NotificationSyncEngineProvider._();
-
-final class NotificationSyncEngineProvider
-    extends
-        $FunctionalProvider<
-          NotificationSyncEngine,
-          NotificationSyncEngine,
-          NotificationSyncEngine
-        >
-    with $Provider<NotificationSyncEngine> {
-  NotificationSyncEngineProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'notificationSyncEngineProvider',
-        isAutoDispose: false,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$notificationSyncEngineHash();
-
-  @$internal
-  @override
-  $ProviderElement<NotificationSyncEngine> $createElement(
-    $ProviderPointer pointer,
-  ) => $ProviderElement(pointer);
-
-  @override
-  NotificationSyncEngine create(Ref ref) {
-    return notificationSyncEngine(ref);
-  }
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(NotificationSyncEngine value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<NotificationSyncEngine>(value),
-    );
-  }
-}
-
-String _$notificationSyncEngineHash() =>
-    r'40e8bc593900d994631b88ef5131187b5f486797';
-
-/// The number of pending queued notification actions — drives the offline-pending
-/// indicator. Re-reads whenever the engine's revision changes.
-
-@ProviderFor(notificationPendingCount)
-final notificationPendingCountProvider = NotificationPendingCountProvider._();
-
-/// The number of pending queued notification actions — drives the offline-pending
-/// indicator. Re-reads whenever the engine's revision changes.
-
-final class NotificationPendingCountProvider
-    extends $FunctionalProvider<int, int, int>
-    with $Provider<int> {
-  /// The number of pending queued notification actions — drives the offline-pending
-  /// indicator. Re-reads whenever the engine's revision changes.
-  NotificationPendingCountProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'notificationPendingCountProvider',
-        isAutoDispose: true,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$notificationPendingCountHash();
-
-  @$internal
-  @override
-  $ProviderElement<int> $createElement($ProviderPointer pointer) =>
+  $ProviderElement<Object> $createElement($ProviderPointer pointer) =>
       $ProviderElement(pointer);
 
   @override
-  int create(Ref ref) {
-    return notificationPendingCount(ref);
+  Object create(Ref ref) {
+    return notificationSyncWatcher(ref);
   }
 
   /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(int value) {
+  Override overrideWithValue(Object value) {
     return $ProviderOverride(
       origin: this,
-      providerOverride: $SyncValueProvider<int>(value),
+      providerOverride: $SyncValueProvider<Object>(value),
     );
   }
 }
 
-String _$notificationPendingCountHash() =>
-    r'310a882d8c51e4afba53a6d78a2702f28744dc46';
+String _$notificationSyncWatcherHash() =>
+    r'83ed2175c2c1d1b4e063235530b01b97119cb7a2';
 
 @ProviderFor(pushNotificationCoordinator)
 final pushNotificationCoordinatorProvider =

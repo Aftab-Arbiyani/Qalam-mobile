@@ -18,6 +18,9 @@ import '../../core/di/providers.dart';
 import '../../core/error/failure.dart';
 import '../../core/session/onboarding_controller.dart';
 import '../../core/session/session_controller.dart';
+import '../../features/analytics/presentation/screens/creator_analytics_screen.dart';
+import '../../features/analytics/presentation/screens/piece_analytics_screen.dart';
+import '../../features/analytics/presentation/screens/reading_analytics_screen.dart';
 import '../../features/auth/auth.dart';
 import '../../features/feed/presentation/screens/discover_screen.dart';
 import '../../features/feed/presentation/screens/feed_screen.dart';
@@ -33,6 +36,7 @@ import '../../features/shell/presentation/pages/app_error_page.dart';
 import '../../features/shell/presentation/widgets/unknown_route_page.dart';
 import '../../features/social/social.dart';
 import '../../features/splash/presentation/pages/splash_page.dart';
+import '../../features/storage/presentation/screens/storage_screen.dart';
 import '../../features/writing/writing.dart';
 import '../../l10n/generated/app_localizations.dart';
 import '../../shared/domain/error_codes.dart';
@@ -65,7 +69,10 @@ GoRouter goRouter(Ref ref) {
     initialLocation: Routes.splash,
     refreshListenable: refresh,
     observers: <NavigatorObserver>[
-      AppNavigatorObserver(ref.watch(appLoggerProvider)),
+      AppNavigatorObserver(
+        ref.watch(appLoggerProvider),
+        ref.watch(crashReporterProvider),
+      ),
     ],
     redirect: (BuildContext context, GoRouterState state) => guardRedirect(
       session: ref.read(sessionControllerProvider).stateOrUnknown,
@@ -311,6 +318,39 @@ GoRouter goRouter(Ref ref) {
         parentNavigatorKey: _rootKey,
         pageBuilder: (BuildContext context, GoRouterState state) =>
             _fade(state, const NotificationPreferencesScreen()),
+      ),
+      GoRoute(
+        path: Routes.settingsStorage,
+        name: 'settingsStorage',
+        parentNavigatorKey: _rootKey,
+        pageBuilder: (BuildContext context, GoRouterState state) =>
+            _fade(state, const StorageScreen()),
+      ),
+
+      // Analytics & insights (M9) — full-screen, session-gated. Reading + per-piece
+      // declared before the bare dashboard so their fuller paths match first.
+      GoRoute(
+        path: Routes.readingAnalytics,
+        name: 'readingAnalytics',
+        parentNavigatorKey: _rootKey,
+        pageBuilder: (BuildContext context, GoRouterState state) =>
+            _fade(state, const ReadingAnalyticsScreen()),
+      ),
+      GoRoute(
+        path: '${Routes.pieceAnalytics}/:id',
+        name: 'pieceAnalytics',
+        parentNavigatorKey: _rootKey,
+        pageBuilder: (BuildContext context, GoRouterState state) => _fade(
+          state,
+          PieceAnalyticsScreen(pieceId: state.pathParameters['id'] ?? ''),
+        ),
+      ),
+      GoRoute(
+        path: Routes.creatorAnalytics,
+        name: 'creatorAnalytics',
+        parentNavigatorKey: _rootKey,
+        pageBuilder: (BuildContext context, GoRouterState state) =>
+            _fade(state, const CreatorAnalyticsScreen()),
       ),
 
       // Discovery + reading — public, full-screen (no bottom nav) — docs/40 §10.2.

@@ -18,8 +18,6 @@ import 'data/follow_remote_data_source.dart';
 import 'data/follow_repository_impl.dart';
 import 'data/response_remote_data_source.dart';
 import 'data/response_repository_impl.dart';
-import 'data/social_outbox_store.dart';
-import 'data/social_sync_engine.dart';
 import 'domain/collection_repository.dart';
 import 'domain/comment_repository.dart';
 import 'domain/engagement_repository.dart';
@@ -87,31 +85,6 @@ CollectionRepository collectionRepository(Ref ref) => CollectionRepositoryImpl(
   ref.watch(cacheStoreProvider),
 );
 
-// ── Offline action queue ─────────────────────────────────────────────────────
-
-@Riverpod(keepAlive: true)
-SocialOutboxStore socialOutboxStore(Ref ref) =>
-    SocialOutboxStore(ref.watch(prefsBoxProvider));
-
-@Riverpod(keepAlive: true)
-SocialSyncEngine socialSyncEngine(Ref ref) {
-  final SocialSyncEngine engine = SocialSyncEngine(
-    engagement: ref.watch(engagementRepositoryProvider),
-    store: ref.watch(socialOutboxStoreProvider),
-    connectivity: ref.watch(connectivityServiceProvider),
-    logger: ref.watch(appLoggerProvider),
-  )..start();
-  ref.onDispose(engine.dispose);
-  return engine;
-}
-
-/// The number of pending queued social actions — drives the offline-pending
-/// indicator. Re-reads whenever the engine's revision changes.
-@riverpod
-int socialPendingCount(Ref ref) {
-  final SocialSyncEngine engine = ref.watch(socialSyncEngineProvider);
-  void listener() => ref.invalidateSelf();
-  engine.revision.addListener(listener);
-  ref.onDispose(() => engine.revision.removeListener(listener));
-  return engine.pendingCount;
-}
+// Offline queued social actions (likes / bookmarks / follows) and queued comments
+// now flow through the single unified `SyncEngine` (see `core/sync` +
+// `app/sync_bootstrap.dart`) — there is no feature-specific social outbox/engine.

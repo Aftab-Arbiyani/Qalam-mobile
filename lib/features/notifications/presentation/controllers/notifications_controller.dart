@@ -3,7 +3,7 @@
 /// [NotificationFilter] tab, reusing the shared [CursorPaginator] (no bespoke
 /// pagination). Per-row actions (mark read / archive / delete) and mark-all-read
 /// are optimistic with rollback; offline they apply locally and queue for replay
-/// on reconnect via [NotificationSyncEngine] (docs/40 §23, §24). Deletion is
+/// on reconnect via the unified [SyncEngine] (docs/40 §23, §24). Deletion is
 /// undo-able — the row is removed locally and the destructive call is committed
 /// (or dropped) by the screen after the undo window (docs/41 §18).
 library;
@@ -12,14 +12,15 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../../core/di/providers.dart';
 import '../../../../core/error/failure.dart';
+import '../../../../core/sync/sync_providers.dart';
 import '../../../../core/utils/result.dart';
 import '../../../../core/utils/typedefs.dart';
 import '../../../../shared/domain/enums.dart';
 import '../../../../shared/pagination/paged_list_state.dart';
+import '../../data/sync/notification_sync_handler.dart';
 import '../../domain/entities/app_notification.dart';
 import '../../domain/repositories/notification_repository.dart';
 import '../../domain/value_objects/notification_filter.dart';
-import '../../domain/value_objects/queued_notification_action.dart';
 import '../providers/notification_providers.dart';
 import 'unread_count_controller.dart';
 
@@ -92,15 +93,12 @@ class NotificationsController extends _$NotificationsController {
 
     if (!_online) {
       // A single mark-all replay; individual rows reconcile server-side.
-      await _enqueue(id: _allSentinel, kind: NotificationActionKind.readAll);
+      await _enqueue(id: kNotificationAllSentinel, kind: NotificationActionKind.readAll);
       return;
     }
     final Result<Unit> result = await _repo.markAllRead();
     if (result.isErr) state = AsyncData(current); // rollback
   }
-
-  /// Sentinel target id for the global mark-all-read queued action.
-  static const String _allSentinel = '__all__';
 
   /// Remove a row for a pending, undo-able deletion — no server call yet. Returns
   /// the removed item so the screen can restore it if the user taps Undo.
@@ -220,12 +218,6 @@ class NotificationsController extends _$NotificationsController {
     required String id,
     required NotificationActionKind kind,
   }) => ref
-      .read(notificationSyncEngineProvider)
-      .enqueue(
-        QueuedNotificationAction(
-          kind: kind,
-          targetId: id,
-          createdAt: DateTime.now(),
-        ),
-      );
+      .read(syncEngineProvider)
+      .enqueue(buildNotificationOperation(kind: kind, targetId: id));
 }

@@ -9,6 +9,7 @@ import 'package:dio/dio.dart';
 
 import '../config/app_config.dart';
 import '../logging/app_logger.dart';
+import '../security/certificate_pinning.dart';
 import 'auth_gateway.dart';
 import 'interceptors/auth_interceptor.dart';
 import 'interceptors/logging_interceptor.dart';
@@ -18,6 +19,7 @@ Dio buildDioClient({
   required AppConfig config,
   required AuthGateway gateway,
   required AppLogger logger,
+  CertificatePinning pinning = const NoopCertificatePinning(),
 }) {
   final Dio dio = Dio(
     BaseOptions(
@@ -39,5 +41,9 @@ Dio buildDioClient({
     RetryInterceptor(dio),
     LoggingInterceptor(logger),
   ]);
+
+  // Certificate pinning hook (docs/40 §39.2). Inert until a pin set is configured
+  // (NoopCertificatePinning); wired here so activation is a single provider swap.
+  pinning.apply(dio);
   return dio;
 }

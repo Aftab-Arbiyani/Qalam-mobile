@@ -154,24 +154,27 @@ final class PieceEditorRepositoryProvider
 String _$pieceEditorRepositoryHash() =>
     r'b726ec4657af86959ef991ce0953dbb488f652d3';
 
-/// The always-on background sync engine (docs/40 §42). Started on first read; kept
-/// alive for the app's lifetime and read early by the app root so offline drafts
-/// sync the moment connectivity returns, even with no editor screen open.
+/// The offline-draft sync engine (docs/40 §42). Kept alive for the app's lifetime;
+/// registered as a background task on the unified [SyncEngine] (see
+/// `app/sync_bootstrap.dart`) so offline drafts drain the moment connectivity
+/// returns — on the ONE connectivity signal — even with no editor screen open.
 
 @ProviderFor(draftSyncEngine)
 final draftSyncEngineProvider = DraftSyncEngineProvider._();
 
-/// The always-on background sync engine (docs/40 §42). Started on first read; kept
-/// alive for the app's lifetime and read early by the app root so offline drafts
-/// sync the moment connectivity returns, even with no editor screen open.
+/// The offline-draft sync engine (docs/40 §42). Kept alive for the app's lifetime;
+/// registered as a background task on the unified [SyncEngine] (see
+/// `app/sync_bootstrap.dart`) so offline drafts drain the moment connectivity
+/// returns — on the ONE connectivity signal — even with no editor screen open.
 
 final class DraftSyncEngineProvider
     extends
         $FunctionalProvider<DraftSyncEngine, DraftSyncEngine, DraftSyncEngine>
     with $Provider<DraftSyncEngine> {
-  /// The always-on background sync engine (docs/40 §42). Started on first read; kept
-  /// alive for the app's lifetime and read early by the app root so offline drafts
-  /// sync the moment connectivity returns, even with no editor screen open.
+  /// The offline-draft sync engine (docs/40 §42). Kept alive for the app's lifetime;
+  /// registered as a background task on the unified [SyncEngine] (see
+  /// `app/sync_bootstrap.dart`) so offline drafts drain the moment connectivity
+  /// returns — on the ONE connectivity signal — even with no editor screen open.
   DraftSyncEngineProvider._()
     : super(
         from: null,
@@ -205,7 +208,7 @@ final class DraftSyncEngineProvider
   }
 }
 
-String _$draftSyncEngineHash() => r'48f3351302fd394898b6f48fa7c148d2ecc79e9a';
+String _$draftSyncEngineHash() => r'2e658736ca3ff6c1c4ed6a2456725abdc5be9a31';
 
 /// Rebuilds whenever the sync engine mutates a draft, so the drafts list and the
 /// open editor refresh after background sync — without any feature→feature or

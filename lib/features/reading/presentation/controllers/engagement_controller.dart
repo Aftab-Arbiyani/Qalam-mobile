@@ -1,8 +1,8 @@
 /// The reading engagement controller (docs/40 §21.4, §23) — holds the piece's
 /// counts + the viewer's like/bookmark state, and applies OPTIMISTIC like /
 /// bookmark / share with server reconciliation and rollback. When OFFLINE, a
-/// like/bookmark toggle is applied optimistically and QUEUED (the shared
-/// [SocialSyncEngine] reconciles it on reconnect) instead of calling the wire.
+/// like/bookmark toggle is applied optimistically and QUEUED (the unified
+/// [SyncEngine] reconciles it on reconnect) instead of calling the wire.
 /// Engagement is non-critical: a failed initial load degrades to empty counts.
 library;
 
@@ -10,10 +10,11 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../../core/di/providers.dart';
 import '../../../../core/error/failure.dart';
+import '../../../../core/sync/sync_providers.dart';
 import '../../../../core/utils/result.dart';
 import '../../../../shared/domain/enums.dart';
+import '../../../../shared/social/data/sync/social_sync_handler.dart';
 import '../../../../shared/social/domain/engagement_repository.dart';
-import '../../../../shared/social/domain/value_objects/queued_social_action.dart';
 import '../../../../shared/social/social_providers.dart';
 import '../../domain/entities/piece_engagement.dart';
 import '../providers/reading_providers.dart';
@@ -147,13 +148,12 @@ class EngagementController extends _$EngagementController {
     String targetId, {
     required bool desired,
   }) => ref
-      .read(socialSyncEngineProvider)
+      .read(syncEngineProvider)
       .enqueue(
-        QueuedSocialAction(
+        buildSocialOperation(
           category: category,
           targetId: targetId,
           desired: desired,
-          createdAt: DateTime.now(),
         ),
       );
 

@@ -2,8 +2,8 @@
 /// author card, a writer's profile header, and every followers/following row, so
 /// follow UX lives in ONE place (docs/40 §44). Seeded with the initial relation,
 /// it owns its optimistic button state: an immediate flip, an online call to the
-/// shared [EngagementRepository], or (offline) an enqueue into the shared
-/// [SocialSyncEngine]; a failure rolls the button back. [onChanged] lets the host
+/// shared [EngagementRepository], or (offline) an enqueue into the unified
+/// [SyncEngine]; a failure rolls the button back. [onChanged] lets the host
 /// adjust a follower count optimistically. Hidden for self / signed-out viewers.
 library;
 
@@ -12,9 +12,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/di/providers.dart';
 import '../../../core/session/session_controller.dart';
+import '../../../core/sync/sync_providers.dart';
 import '../../../l10n/generated/app_localizations.dart';
 import '../../domain/enums.dart';
-import '../../social/domain/value_objects/queued_social_action.dart';
+import '../../social/data/sync/social_sync_handler.dart';
 import '../../social/social_providers.dart';
 import '../buttons/q_button.dart';
 import '../feedback/q_snackbar.dart';
@@ -102,13 +103,12 @@ class _FollowButtonState extends ConsumerState<FollowButton> {
 
     if (!online) {
       await ref
-          .read(socialSyncEngineProvider)
+          .read(syncEngineProvider)
           .enqueue(
-            QueuedSocialAction(
+            buildSocialOperation(
               category: SocialCategory.userFollow,
               targetId: widget.userId,
               desired: desired,
-              createdAt: DateTime.now(),
             ),
           );
       return;

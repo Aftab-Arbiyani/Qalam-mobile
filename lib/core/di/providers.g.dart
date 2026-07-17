@@ -310,6 +310,58 @@ final class ConnectivityServiceProvider
 String _$connectivityServiceHash() =>
     r'773e17302fbf7e88132cc840f9790642979d30ed';
 
+/// The crash/error reporter (docs/40 §31). Overridden in `bootstrap` with the
+/// DSN-gated concrete instance so error handlers and features can leave
+/// breadcrumbs. Defaults to an inert reporter in tests (no DSN, no uploads).
+
+@ProviderFor(crashReporter)
+final crashReporterProvider = CrashReporterProvider._();
+
+/// The crash/error reporter (docs/40 §31). Overridden in `bootstrap` with the
+/// DSN-gated concrete instance so error handlers and features can leave
+/// breadcrumbs. Defaults to an inert reporter in tests (no DSN, no uploads).
+
+final class CrashReporterProvider
+    extends $FunctionalProvider<CrashReporter, CrashReporter, CrashReporter>
+    with $Provider<CrashReporter> {
+  /// The crash/error reporter (docs/40 §31). Overridden in `bootstrap` with the
+  /// DSN-gated concrete instance so error handlers and features can leave
+  /// breadcrumbs. Defaults to an inert reporter in tests (no DSN, no uploads).
+  CrashReporterProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'crashReporterProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$crashReporterHash();
+
+  @$internal
+  @override
+  $ProviderElement<CrashReporter> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  CrashReporter create(Ref ref) {
+    return crashReporter(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(CrashReporter value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<CrashReporter>(value),
+    );
+  }
+}
+
+String _$crashReporterHash() => r'51442d32882442ad603bd264b3f2a5da1d369612';
+
 @ProviderFor(appLogger)
 final appLoggerProvider = AppLoggerProvider._();
 
@@ -735,7 +787,7 @@ final class DioProvider extends $FunctionalProvider<Dio, Dio, Dio>
   }
 }
 
-String _$dioHash() => r'5c43ee14fcb1a7d1931a92b6cb9e3924b576fcd1';
+String _$dioHash() => r'336c4f96e2bf0f8268bd3e6c4daf188106d49764';
 
 @ProviderFor(apiClient)
 final apiClientProvider = ApiClientProvider._();

@@ -10,11 +10,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../features/notifications/presentation/providers/notification_providers.dart';
+import '../features/storage/presentation/providers/storage_providers.dart';
 import '../l10n/generated/app_localizations.dart';
-import '../shared/social/social_providers.dart';
 import '../shared/theme/app_theme.dart';
 import '../shared/theme/theme_mode_controller.dart';
 import 'router/app_router.dart';
+import 'sync_bootstrap.dart';
 
 class QalamApp extends ConsumerWidget {
   const QalamApp({super.key});
@@ -23,14 +24,18 @@ class QalamApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final GoRouter router = ref.watch(goRouterProvider);
     final ThemeMode themeMode = ref.watch(themeModeControllerProvider);
-    // Eagerly start the offline social-action queue so queued likes/bookmarks/
-    // follows flush on reconnect even if no social screen was opened (docs/40 §23).
-    ref.watch(socialSyncEngineProvider);
-    // Same for queued notification actions (read/archive/delete), and the push ↔
-    // app bridge so local/push notification taps deep-link from a cold start
-    // (docs/40 §23, §32).
-    ref.watch(notificationSyncEngineProvider);
+    // Eagerly start the ONE unified sync engine so every queued offline action
+    // (likes/bookmarks/follows, notification actions, comments, profile + settings
+    // changes) and the offline-draft drain flush on reconnect even if no relevant
+    // screen was opened (docs/40 §23). The notification badge watcher keeps the
+    // unread count honest as those actions drain; the push ↔ app bridge deep-links
+    // local/push taps from a cold start (docs/40 §32).
+    ref.watch(appSyncProvider);
+    ref.watch(notificationSyncWatcherProvider);
     ref.watch(pushNotificationCoordinatorProvider);
+    // One-shot cache maintenance: evict hard-expired cache entries on launch
+    // (docs/40 §37 automatic cleanup), off the critical path.
+    ref.watch(cacheMaintenanceProvider);
 
     return DynamicColorBuilder(
       builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {

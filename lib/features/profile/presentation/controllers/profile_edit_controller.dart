@@ -14,11 +14,14 @@ import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../../../core/di/providers.dart';
 import '../../../../core/error/failure.dart';
+import '../../../../core/sync/sync_providers.dart';
 import '../../../../core/utils/result.dart';
 import '../../../../shared/api/api_envelope.dart';
 import '../../../../shared/domain/entities/taxonomy.dart';
 import '../../../../shared/domain/limits.dart';
+import '../../data/sync/profile_sync_handler.dart';
 import '../../domain/entities/profile.dart';
 import '../../domain/repositories/profile_repository.dart';
 import '../../domain/value_objects/profile_edit.dart';
@@ -256,6 +259,34 @@ class ProfileEditController extends _$ProfileEditController {
       defaultLanguageCode: state.defaultLanguage?.code,
       genreSlugs: <String>[for (final GenreRef g in state.genres) g.slug],
     );
+    // Offline: queue the update on the unified engine ("Queued Profile Updates",
+    // docs/40 §23), optimistically reflect it in the live profile, and clear the
+    // dirty state — it replays as a single PATCH /me on reconnect.
+    if (!ref.read(connectivityServiceProvider).isOnline) {
+      await ref
+          .read(syncEngineProvider)
+          .enqueue(buildProfileOperation(edit, label: 'Profile update'));
+      final Profile? current = ref
+          .read(myProfileControllerProvider)
+          .asData
+          ?.value;
+      if (current != null) {
+        ref
+            .read(myProfileControllerProvider.notifier)
+            .applyProfile(
+              current.copyWith(
+                penName: state.penName,
+                bio: state.bio,
+                location: state.location,
+                websiteUrl: state.websiteUrl,
+                isPrivate: state.isPrivate,
+                genres: state.genres,
+              ),
+            );
+      }
+      state = state.copyWith(submitting: false, saved: true, seed: state._current);
+      return;
+    }
     final Result<Profile> result = await ref
         .read(profileRepositoryProvider)
         .updateProfile(edit);

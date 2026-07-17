@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:qalam_mobile/core/sync/sync_providers.dart';
 import 'package:qalam_mobile/features/reading/domain/entities/piece_engagement.dart';
 import 'package:qalam_mobile/features/reading/presentation/controllers/engagement_controller.dart';
-import 'package:qalam_mobile/shared/social/social_providers.dart';
 
 import '../../support/fake_reading_repository.dart';
 import '../../support/harness.dart';
@@ -19,7 +19,7 @@ void main() {
       engagementRepository: FakeEngagementRepository(),
     );
     addTearDown(c.dispose);
-    c.listen(socialSyncEngineProvider, (_, _) {});
+    c.listen(syncEngineProvider, (_, _) {});
     c.listen(engagementControllerProvider('p1'), (_, _) {});
 
     await c.read(engagementControllerProvider('p1').future);
@@ -31,9 +31,10 @@ void main() {
     expect(e.hasLiked, isTrue);
     expect(e.likes, 6);
 
-    // Queued for reconnect (not rolled back).
-    expect(c.read(socialOutboxStoreProvider).count, 1);
-    expect(c.read(socialOutboxStoreProvider).readAll().single.targetId, 'p1');
+    // Queued on the unified engine's outbox for reconnect (not rolled back).
+    expect(c.read(syncOutboxStoreProvider).count, 1);
+    expect(c.read(syncOutboxStoreProvider).readAll().single.dedupKey, 'p1');
+    expect(c.read(syncOutboxStoreProvider).readAll().single.type, 'social.piece_like');
   });
 
   test('offline bookmark is applied optimistically and queued', () async {
@@ -45,7 +46,7 @@ void main() {
       engagementRepository: FakeEngagementRepository(),
     );
     addTearDown(c.dispose);
-    c.listen(socialSyncEngineProvider, (_, _) {});
+    c.listen(syncEngineProvider, (_, _) {});
     c.listen(engagementControllerProvider('p1'), (_, _) {});
 
     await c.read(engagementControllerProvider('p1').future);
@@ -54,6 +55,10 @@ void main() {
     final PieceEngagement e =
         c.read(engagementControllerProvider('p1')).asData!.value;
     expect(e.hasBookmarked, isTrue);
-    expect(c.read(socialOutboxStoreProvider).count, 1);
+    expect(c.read(syncOutboxStoreProvider).count, 1);
+    expect(
+      c.read(syncOutboxStoreProvider).readAll().single.type,
+      'social.piece_bookmark',
+    );
   });
 }

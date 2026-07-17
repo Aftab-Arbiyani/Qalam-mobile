@@ -1,7 +1,7 @@
 /// The author-card controller (docs/40 §21.4) — loads a writer's profile by
 /// username (the source of the follow-target id + follow relation) and applies
 /// OPTIMISTIC follow / unfollow with rollback. Offline, the toggle is applied and
-/// QUEUED (the shared [SocialSyncEngine] reconciles on reconnect). Non-critical: a
+/// QUEUED (the unified [SyncEngine] reconciles on reconnect). Non-critical: a
 /// failed load hides the rich card (the byline still shows from the piece).
 library;
 
@@ -9,10 +9,11 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../../core/di/providers.dart';
 import '../../../../core/error/failure.dart';
+import '../../../../core/sync/sync_providers.dart';
 import '../../../../core/utils/result.dart';
 import '../../../../shared/domain/enums.dart';
+import '../../../../shared/social/data/sync/social_sync_handler.dart';
 import '../../../../shared/social/domain/engagement_repository.dart';
-import '../../../../shared/social/domain/value_objects/queued_social_action.dart';
 import '../../../../shared/social/social_providers.dart';
 import '../../domain/entities/writer_profile.dart';
 import '../providers/reading_providers.dart';
@@ -81,13 +82,12 @@ class WriterProfileController extends _$WriterProfileController {
   }
 
   Future<void> _queue(String userId, {required bool desired}) => ref
-      .read(socialSyncEngineProvider)
+      .read(syncEngineProvider)
       .enqueue(
-        QueuedSocialAction(
+        buildSocialOperation(
           category: SocialCategory.userFollow,
           targetId: userId,
           desired: desired,
-          createdAt: DateTime.now(),
         ),
       );
 
