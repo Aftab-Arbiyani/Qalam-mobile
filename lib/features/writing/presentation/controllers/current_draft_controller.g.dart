@@ -52,7 +52,7 @@ final class CurrentDraftControllerProvider
 }
 
 String _$currentDraftControllerHash() =>
-    r'83a5620aef4b9b1c448b8f746def32506b09d949';
+    r'fce15177d1a2940f8306cf53db947300280cccc8';
 
 final class CurrentDraftControllerFamily extends $Family
     with

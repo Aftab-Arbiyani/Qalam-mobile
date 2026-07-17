@@ -29,6 +29,15 @@ abstract final class Routes {
   static String writeDraftPath(String id) => '/write/$id';
   static String piecePreviewPath(String id) => '/write/$id/preview';
 
+  // AI surfaces (AF2). Full-screen, session-gated (the `/ai` prefix is protected).
+  // Editor-integrated AI is a bottom sheet, not a route; these are the management
+  // surfaces reachable from the editor overflow + settings.
+  static const String ai = '/ai';
+  static const String aiConversations = '/ai/conversations';
+  static String aiConversationPath(String id) => '/ai/conversations/$id';
+  static const String promptLibrary = '/ai/prompts';
+  static const String aiUsage = '/ai/usage';
+
   // Discovery surface (public, top-level as on web — docs/40 §10.2).
   static const String discover = '/discover';
 
@@ -89,6 +98,7 @@ abstract final class Routes {
       _matches(location, profile) ||
       _matches(location, write) ||
       _matches(location, notifications) ||
+      _matches(location, ai) ||
       _matches(location, creatorAnalytics);
 
   /// The auth corridor — any `/auth/*`. Exempt from the network auth-refresh

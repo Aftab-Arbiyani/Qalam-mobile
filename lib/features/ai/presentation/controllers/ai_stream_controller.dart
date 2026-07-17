@@ -25,6 +25,7 @@ class AiStreamState {
     this.text = '',
     this.model,
     this.provider,
+    this.conversationId,
     this.errorCode,
     this.usage,
   });
@@ -33,14 +34,25 @@ class AiStreamState {
   final String text;
   final String? model;
   final String? provider;
+
+  /// The conversation this stream belongs to (from the `start` event) — lets the
+  /// caller continue the same conversation on the next turn (docs/34 §6).
+  final String? conversationId;
   final String? errorCode;
   final AiTokenUsage? usage;
+
+  bool get isStreaming => status == AiStreamStatus.streaming;
+  bool get isTerminal =>
+      status == AiStreamStatus.done ||
+      status == AiStreamStatus.error ||
+      status == AiStreamStatus.cancelled;
 
   AiStreamState copyWith({
     AiStreamStatus? status,
     String? text,
     String? model,
     String? provider,
+    String? conversationId,
     String? errorCode,
     AiTokenUsage? usage,
   }) => AiStreamState(
@@ -48,6 +60,7 @@ class AiStreamState {
     text: text ?? this.text,
     model: model ?? this.model,
     provider: provider ?? this.provider,
+    conversationId: conversationId ?? this.conversationId,
     errorCode: errorCode ?? this.errorCode,
     usage: usage ?? this.usage,
   );
@@ -100,7 +113,11 @@ class AiStreamController extends _$AiStreamController {
   void _onEvent(AiStreamEvent event) {
     switch (event.type) {
       case AiStreamEventType.start:
-        state = state.copyWith(model: event.model, provider: event.provider);
+        state = state.copyWith(
+          model: event.model,
+          provider: event.provider,
+          conversationId: event.conversationId,
+        );
       case AiStreamEventType.delta:
         state = state.copyWith(text: state.text + (event.text ?? ''));
       case AiStreamEventType.done:

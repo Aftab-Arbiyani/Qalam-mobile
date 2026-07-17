@@ -34,7 +34,7 @@ final class DraftListControllerProvider
 }
 
 String _$draftListControllerHash() =>
-    r'43910c551da9b3b919e0c3c895ed469b520ab573';
+    r'74df60dbc4f4992aea2831e63f977229413a08ef';
 
 abstract class _$DraftListController
     extends $AsyncNotifier<List<DraftSummary>> {

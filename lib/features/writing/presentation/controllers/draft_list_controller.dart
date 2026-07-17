@@ -10,6 +10,10 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../../core/utils/result.dart';
 import '../../../../shared/api/api_envelope.dart';
 import '../../data/datasources/draft_local_data_source.dart';
+import '../../domain/editor/editor_block.dart';
+import '../../domain/editor/editor_document.dart';
+import '../../domain/editor/marked_text.dart';
+import '../../domain/editor/tiptap_codec.dart';
 import '../../domain/entities/draft.dart';
 import '../../domain/entities/draft_summary.dart';
 import '../../domain/entities/draft_sync.dart';
@@ -47,6 +51,40 @@ class DraftListController extends _$DraftListController {
       localId: localId,
       createdAt: now,
       localUpdatedAt: now,
+      syncState: DraftSyncState.pending,
+    );
+    await ref.read(draftLocalDataSourceProvider).write(draft);
+    ref.invalidateSelf();
+    return localId;
+  }
+
+  /// Mint a fresh local draft seeded with [text] (paragraphs split on blank lines) —
+  /// backs the assistant's "Save as draft". Returns its id for navigation.
+  Future<String> newDraftFromText(String text) async {
+    final DateTime now = DateTime.now().toUtc();
+    final String localId = 'loc-${now.microsecondsSinceEpoch}';
+    final List<String> paragraphs = text
+        .trim()
+        .split(RegExp(r'\n\s*\n'))
+        .map((String p) => p.trim())
+        .where((String p) => p.isNotEmpty)
+        .toList(growable: false);
+    final List<EditorBlock> blocks = <EditorBlock>[
+      for (int i = 0; i < paragraphs.length; i++)
+        EditorBlock(
+          id: 'b$i',
+          type: EditorBlockType.paragraph,
+          text: MarkedText.plain(paragraphs[i]),
+        ),
+    ];
+    final EditorDocument doc =
+        blocks.isEmpty ? EditorDocument.blank() : EditorDocument.of(blocks);
+    final Draft draft = Draft(
+      localId: localId,
+      createdAt: now,
+      localUpdatedAt: now,
+      content: encodeDocument(doc),
+      wordCount: doc.wordCount,
       syncState: DraftSyncState.pending,
     );
     await ref.read(draftLocalDataSourceProvider).write(draft);

@@ -15,6 +15,21 @@ class AiMessage {
   Json toJson() => <String, dynamic>{'role': role, 'content': content};
 }
 
+/// A named context request the server resolves via a context provider (docs/34 §4).
+/// The client passes the text/metadata as [params] (offline-safe — the server never
+/// reads the unsaved draft); an unregistered [type] is silently dropped server-side.
+class AiContextRequest {
+  const AiContextRequest({required this.type, this.params});
+
+  final String type;
+  final Json? params;
+
+  Json toJson() => <String, dynamic>{
+    'type': type,
+    if (params != null) 'params': params,
+  };
+}
+
 /// A completion request. Reference a prompt template by key OR pass raw messages;
 /// the server assembles context + prompt. `params` are per-call overrides.
 class AiCompletionRequest {
@@ -25,6 +40,7 @@ class AiCompletionRequest {
     this.promptVersion,
     this.promptVariables,
     this.messages,
+    this.context,
     this.params,
   });
 
@@ -34,6 +50,9 @@ class AiCompletionRequest {
   final int? promptVersion;
   final Json? promptVariables;
   final List<AiMessage>? messages;
+
+  /// Named context requests assembled server-side into the prompt (docs/34 §4).
+  final List<AiContextRequest>? context;
   final Json? params;
 
   Json toJson() => <String, dynamic>{
@@ -44,6 +63,8 @@ class AiCompletionRequest {
     if (promptVariables != null) 'promptVariables': promptVariables,
     if (messages != null)
       'messages': messages!.map((AiMessage m) => m.toJson()).toList(growable: false),
+    if (context != null && context!.isNotEmpty)
+      'context': context!.map((AiContextRequest c) => c.toJson()).toList(growable: false),
     if (params != null) 'params': params,
   };
 }

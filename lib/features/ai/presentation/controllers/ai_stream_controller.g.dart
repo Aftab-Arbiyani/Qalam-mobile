@@ -42,7 +42,7 @@ final class AiStreamControllerProvider
 }
 
 String _$aiStreamControllerHash() =>
-    r'44083c1156a07598169727b27a3a1b761ac65f19';
+    r'ec5106a55295a308c41195edda82172cb24dfee3';
 
 abstract class _$AiStreamController extends $Notifier<AiStreamState> {
   AiStreamState build();

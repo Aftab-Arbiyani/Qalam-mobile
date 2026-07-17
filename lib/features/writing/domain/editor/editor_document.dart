@@ -156,6 +156,34 @@ class EditorDocument {
     );
   }
 
+  /// Insert [paragraphs] as new paragraph blocks after [afterId] (or at the end if
+  /// [afterId] is absent). Blank entries are skipped. A GENERIC structural insert —
+  /// the same operation a multi-line paste, an import, or an accepted AI suggestion
+  /// reduces to (no AI-specific mutation). New blocks get fresh ids.
+  EditorDocument insertParagraphsAfter(String afterId, List<String> paragraphs) {
+    final List<String> texts =
+        paragraphs.where((String p) => p.trim().isNotEmpty).toList(growable: false);
+    if (texts.isEmpty) return this;
+    final List<EditorBlock> copy = List<EditorBlock>.of(blocks);
+    final int at = indexOfId(afterId);
+    final int insertAt = at < 0 ? copy.length : at + 1;
+    int ordinal = nextId;
+    final List<EditorBlock> fresh = <EditorBlock>[
+      for (final String t in texts)
+        EditorBlock(
+          id: 'b${ordinal++}',
+          type: EditorBlockType.paragraph,
+          text: MarkedText.plain(t.trim()),
+        ),
+    ];
+    copy.insertAll(insertAt, fresh);
+    return EditorDocument(blocks: List<EditorBlock>.unmodifiable(copy), nextId: ordinal);
+  }
+
+  /// Append [paragraphs] as new paragraph blocks at the end of the document.
+  EditorDocument appendParagraphs(List<String> paragraphs) =>
+      insertParagraphsAfter(blocks.isEmpty ? '' : blocks.last.id, paragraphs);
+
   /// Remove a block, keeping at least one (a lone removed block becomes blank).
   EditorDocument removeBlock(String id) {
     final int i = indexOfId(id);

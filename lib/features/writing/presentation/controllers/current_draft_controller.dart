@@ -213,6 +213,36 @@ class CurrentDraftController extends _$CurrentDraftController {
   void removeBlock(String blockId) =>
       _editDocument((EditorDocument doc) => doc.removeBlock(blockId));
 
+  // ── Generic bulk / range edits (paste · import · accepted AI suggestion) ────────
+  // Ordinary editor commands, NOT AI-specific: they funnel through the SAME edit path
+  // as typing (mark dirty → debounced autosave → offline sync → version bump), so an
+  // accepted AI suggestion produces exactly the editor events manual editing does. The
+  // editor stays the sole owner of document state (docs/34, AF2).
+
+  /// Replace `[start, end)` in [blockId] with [text] (accepted "Replace selection").
+  void replaceRange(String blockId, int start, int end, String text) {
+    _editDocument((EditorDocument doc) {
+      final EditorBlock? block = doc.blockById(blockId);
+      if (block == null) return doc;
+      final int s = start.clamp(0, block.text.length);
+      final int e = end.clamp(s, block.text.length);
+      return doc.setBlockText(blockId, block.text.replace(s, e - s, text));
+    });
+  }
+
+  /// Insert [paragraphs] as new paragraph blocks after [afterId] ("Insert below").
+  void insertParagraphsAfter(String afterId, List<String> paragraphs) =>
+      _editDocument((EditorDocument doc) => doc.insertParagraphsAfter(afterId, paragraphs));
+
+  /// Append [paragraphs] as new paragraph blocks at the end ("Append").
+  void appendParagraphs(List<String> paragraphs) =>
+      _editDocument((EditorDocument doc) => doc.appendParagraphs(paragraphs));
+
+  /// Replace the whole live document (undo/redo/import). The caller keeps the prior
+  /// [EditorDocument] to offer an "Undo AI application".
+  void replaceDocument(EditorDocument document) =>
+      _editDocument((EditorDocument _) => document);
+
   /// The editor consumed the pending focus request.
   void clearFocus() {
     final EditorState? cur = state.asData?.value;

@@ -18,6 +18,10 @@ import '../../core/di/providers.dart';
 import '../../core/error/failure.dart';
 import '../../core/session/onboarding_controller.dart';
 import '../../core/session/session_controller.dart';
+import '../../features/ai/presentation/screens/ai_conversation_screen.dart';
+import '../../features/ai/presentation/screens/ai_conversations_screen.dart';
+import '../../features/ai/presentation/screens/ai_usage_screen.dart';
+import '../../features/ai/presentation/screens/prompt_library_screen.dart';
 import '../../features/analytics/presentation/screens/creator_analytics_screen.dart';
 import '../../features/analytics/presentation/screens/piece_analytics_screen.dart';
 import '../../features/analytics/presentation/screens/reading_analytics_screen.dart';
@@ -415,6 +419,41 @@ GoRouter goRouter(Ref ref) {
             ),
           ),
         ],
+      ),
+
+      // AI management surfaces (AF2) — full-screen, session-gated (`/ai` prefix).
+      // The in-editor assistant + coach are bottom sheets, not routes.
+      GoRoute(
+        path: Routes.aiConversations,
+        name: 'aiConversations',
+        parentNavigatorKey: _rootKey,
+        pageBuilder: (BuildContext context, GoRouterState state) =>
+            _fade(state, const AiConversationsScreen()),
+        routes: <RouteBase>[
+          GoRoute(
+            path: ':id',
+            name: 'aiConversation',
+            parentNavigatorKey: _rootKey,
+            pageBuilder: (BuildContext context, GoRouterState state) => _fade(
+              state,
+              AiConversationScreen(conversationId: state.pathParameters['id'] ?? ''),
+            ),
+          ),
+        ],
+      ),
+      GoRoute(
+        path: Routes.promptLibrary,
+        name: 'promptLibrary',
+        parentNavigatorKey: _rootKey,
+        pageBuilder: (BuildContext context, GoRouterState state) =>
+            _fade(state, const PromptLibraryScreen()),
+      ),
+      GoRoute(
+        path: Routes.aiUsage,
+        name: 'aiUsage',
+        parentNavigatorKey: _rootKey,
+        pageBuilder: (BuildContext context, GoRouterState state) =>
+            _fade(state, const AiUsageScreen()),
       ),
 
       // ── Auth corridor (top-level, no bottom nav) ────────────────────────────

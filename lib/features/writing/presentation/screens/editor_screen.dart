@@ -15,6 +15,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/routes.dart';
+import '../../../../core/di/providers.dart';
 import '../../../../core/error/failure.dart';
 import '../../../../shared/domain/enums.dart';
 import '../../../../shared/theme/q_tokens.dart';
@@ -24,12 +25,16 @@ import '../../../../shared/widgets/feedback/q_snackbar.dart';
 import '../../../../shared/widgets/haptics/q_haptics.dart';
 import '../../../../shared/widgets/layout/connectivity_banner.dart';
 import '../../../../shared/widgets/states/q_error_view.dart';
+import '../../../ai/domain/value_objects/ai_feature_ids.dart';
+import '../../../ai/presentation/panels/craft_coach_panel.dart';
+import '../../../ai/presentation/providers/ai_providers.dart';
 import '../../domain/entities/draft_sync.dart';
 import '../../domain/value_objects/editor_preferences.dart';
 import '../controllers/current_draft_controller.dart';
 import '../controllers/editor_preferences_controller.dart';
 import '../controllers/editor_state.dart';
 import '../editor/block_editor.dart';
+import '../editor/draft_ai_editor_target.dart';
 import '../editor/formatting_toolbar.dart';
 import '../widgets/cover_field.dart';
 import '../widgets/draft_status_chips.dart';
@@ -118,6 +123,9 @@ class _EditorScreenState extends ConsumerState<EditorScreen>
   }
 
   PreferredSizeWidget _appBar(EditorState? st, QTokens tokens) {
+    final bool aiOn = ref.watch(appConfigProvider).enableAi;
+    final bool coachEnabled = aiOn &&
+        (ref.watch(aiFeaturesProvider).asData?.value.isEnabled(AiFeatureIds.craftCoach) ?? false);
     return AppBar(
       backgroundColor: Colors.transparent,
       elevation: 0,
@@ -153,6 +161,17 @@ class _EditorScreenState extends ConsumerState<EditorScreen>
                 padding: EdgeInsets.only(right: QSpacing.s2),
                 child: Center(child: OfflineChip()),
               ),
+              if (coachEnabled)
+                IconButton(
+                  icon: const Icon(Icons.school_outlined),
+                  tooltip: 'Craft coach',
+                  onPressed: () => unawaited(
+                    CraftCoachPanel.show(
+                      context,
+                      writingContext: DraftAiEditorTarget.build(ref, widget.draftId).context,
+                    ),
+                  ),
+                ),
               IconButton(
                 icon: Icon(
                   _focusMode ? Icons.fullscreen_exit : Icons.fullscreen,
@@ -196,13 +215,25 @@ class _EditorScreenState extends ConsumerState<EditorScreen>
   }
 
   Widget _overflow(EditorState st) {
+    final bool aiOn = ref.watch(appConfigProvider).enableAi;
+    final bool anyAi = aiOn &&
+        ((ref.watch(aiFeaturesProvider).asData?.value.isEnabled(AiFeatureIds.writingAssistant) ??
+                false) ||
+            (ref.watch(aiFeaturesProvider).asData?.value.isEnabled(AiFeatureIds.craftCoach) ??
+                false));
     return PopupMenuButton<String>(
       icon: const Icon(Icons.more_vert),
       onSelected: (String value) => _onMenu(value, st),
-      itemBuilder: (BuildContext context) => const <PopupMenuEntry<String>>[
-        PopupMenuItem<String>(value: 'save', child: Text('Save draft')),
-        PopupMenuItem<String>(value: 'discard', child: Text('Discard changes')),
-        PopupMenuItem<String>(value: 'delete', child: Text('Delete draft')),
+      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+        const PopupMenuItem<String>(value: 'save', child: Text('Save draft')),
+        const PopupMenuItem<String>(value: 'discard', child: Text('Discard changes')),
+        const PopupMenuItem<String>(value: 'delete', child: Text('Delete draft')),
+        if (anyAi) ...<PopupMenuEntry<String>>[
+          const PopupMenuDivider(),
+          const PopupMenuItem<String>(value: 'ai_conversations', child: Text('AI conversations')),
+          const PopupMenuItem<String>(value: 'ai_prompts', child: Text('Prompt library')),
+          const PopupMenuItem<String>(value: 'ai_usage', child: Text('AI usage')),
+        ],
       ],
     );
   }
@@ -326,6 +357,12 @@ class _EditorScreenState extends ConsumerState<EditorScreen>
           QSnackbar.show(context, message: 'Draft deleted');
           context.pop();
         }
+      case 'ai_conversations':
+        unawaited(context.push(Routes.aiConversations));
+      case 'ai_prompts':
+        unawaited(context.push(Routes.promptLibrary));
+      case 'ai_usage':
+        unawaited(context.push(Routes.aiUsage));
     }
   }
 

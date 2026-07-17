@@ -7,16 +7,23 @@
 /// Every control is a ≥44px, semantically-labelled tap target (docs/40 §a11y).
 library;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/di/providers.dart';
 import '../../../../shared/theme/q_tokens.dart';
 import '../../../../shared/theme/tokens/radius_tokens.dart';
 import '../../../../shared/widgets/haptics/q_haptics.dart';
+import '../../../ai/domain/value_objects/ai_feature_ids.dart';
+import '../../../ai/presentation/panels/writing_assistant_panel.dart';
+import '../../../ai/presentation/providers/ai_providers.dart';
 import '../../domain/editor/editor_block.dart';
 import '../../domain/editor/marked_text.dart';
 import '../controllers/current_draft_controller.dart';
 import '../controllers/editor_state.dart';
+import 'draft_ai_editor_target.dart';
 import 'editor_selection_controller.dart';
 
 class FormattingToolbar extends ConsumerWidget {
@@ -48,6 +55,19 @@ class FormattingToolbar extends ConsumerWidget {
       currentDraftControllerProvider(routeId).notifier,
     );
 
+    // AI assistant entry — gated by the compile-time kill switch AND the server
+    // `writing_assistant` flag (docs/34 §9). Hidden entirely when off.
+    final bool aiEnabled = ref.watch(appConfigProvider).enableAi &&
+        (ref.watch(aiFeaturesProvider).asData?.value.isEnabled(AiFeatureIds.writingAssistant) ??
+            false);
+
+    void openAssistant() {
+      QHaptics.selection();
+      unawaited(
+        WritingAssistantPanel.show(context, target: DraftAiEditorTarget.build(ref, routeId)),
+      );
+    }
+
     void toggle(TextMark mark) {
       if (block == null || selection == null) return;
       QHaptics.selection();
@@ -75,6 +95,17 @@ class FormattingToolbar extends ConsumerWidget {
               padding: const EdgeInsets.symmetric(horizontal: 8),
               child: Row(
                 children: <Widget>[
+                  if (aiEnabled) ...<Widget>[
+                    _ToolButton(
+                      icon: Icons.auto_awesome,
+                      tooltip: 'AI assistant',
+                      active: false,
+                      enabled: true,
+                      onTap: openAssistant,
+                      tokens: tokens,
+                    ),
+                    _Divider(tokens: tokens),
+                  ],
                   _ToolButton(
                     icon: Icons.format_bold,
                     tooltip: 'Bold',

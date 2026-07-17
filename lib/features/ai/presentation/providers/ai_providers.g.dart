@@ -98,6 +98,59 @@ final class AiRepositoryProvider
 
 String _$aiRepositoryHash() => r'd4493bbed813189b507a2199e502f4fbb589194a';
 
+/// The on-device Prompt Library store (favourites / custom presets / history).
+
+@ProviderFor(promptLibraryStore)
+final promptLibraryStoreProvider = PromptLibraryStoreProvider._();
+
+/// The on-device Prompt Library store (favourites / custom presets / history).
+
+final class PromptLibraryStoreProvider
+    extends
+        $FunctionalProvider<
+          PromptLibraryStore,
+          PromptLibraryStore,
+          PromptLibraryStore
+        >
+    with $Provider<PromptLibraryStore> {
+  /// The on-device Prompt Library store (favourites / custom presets / history).
+  PromptLibraryStoreProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'promptLibraryStoreProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$promptLibraryStoreHash();
+
+  @$internal
+  @override
+  $ProviderElement<PromptLibraryStore> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  PromptLibraryStore create(Ref ref) {
+    return promptLibraryStore(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(PromptLibraryStore value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<PromptLibraryStore>(value),
+    );
+  }
+}
+
+String _$promptLibraryStoreHash() =>
+    r'606641f2e0da266e9f49f7b04852effd92d602df';
+
 /// The caller's AI feature-flag state (server source of truth for gating).
 
 @ProviderFor(aiFeatures)
@@ -140,3 +193,47 @@ final class AiFeaturesProvider
 }
 
 String _$aiFeaturesHash() => r'4856f1cb3e19e9fae3b09097b122f4fa40fc2464';
+
+/// The caller's AI usage (daily/monthly/lifetime + per feature) for the token meter.
+
+@ProviderFor(aiUsage)
+final aiUsageProvider = AiUsageProvider._();
+
+/// The caller's AI usage (daily/monthly/lifetime + per feature) for the token meter.
+
+final class AiUsageProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<AiUsageSummary>,
+          AiUsageSummary,
+          FutureOr<AiUsageSummary>
+        >
+    with $FutureModifier<AiUsageSummary>, $FutureProvider<AiUsageSummary> {
+  /// The caller's AI usage (daily/monthly/lifetime + per feature) for the token meter.
+  AiUsageProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'aiUsageProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$aiUsageHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<AiUsageSummary> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<AiUsageSummary> create(Ref ref) {
+    return aiUsage(ref);
+  }
+}
+
+String _$aiUsageHash() => r'b30333a3d4a9b4e4e6a05e158ee780cd2b191561';

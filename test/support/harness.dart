@@ -25,6 +25,8 @@ import 'package:qalam_mobile/core/logging/app_logger.dart';
 import 'package:qalam_mobile/core/media/cover_image_picker.dart';
 import 'package:qalam_mobile/core/network/auth_gateway.dart';
 import 'package:qalam_mobile/core/storage/secure_storage.dart';
+import 'package:qalam_mobile/features/ai/domain/repositories/ai_repository.dart';
+import 'package:qalam_mobile/features/ai/presentation/providers/ai_providers.dart';
 import 'package:qalam_mobile/features/auth/data/services/social_sign_in_service.dart';
 import 'package:qalam_mobile/features/auth/domain/repositories/auth_repository.dart';
 import 'package:qalam_mobile/features/auth/presentation/providers/auth_providers.dart';
@@ -137,6 +139,7 @@ Future<Widget> buildTestApp({
   CoverImagePicker? coverImagePicker,
   NotificationRepository? notificationRepository,
   NotificationPreferencesRepository? notificationPreferencesRepository,
+  AiRepository? aiRepository,
 }) async {
   final Directory dir = await Directory.systemTemp.createTemp('qalam_test');
   Hive.init(dir.path);
@@ -206,6 +209,8 @@ Future<Widget> buildTestApp({
         notificationPreferencesRepositoryProvider.overrideWithValue(
           notificationPreferencesRepository,
         ),
+      if (aiRepository != null)
+        aiRepositoryProvider.overrideWithValue(aiRepository),
     ],
     child: child ?? const QalamApp(),
   );
@@ -290,6 +295,7 @@ Future<ProviderContainer> buildTestContainer({
   CoverImagePicker? coverImagePicker,
   NotificationRepository? notificationRepository,
   NotificationPreferencesRepository? notificationPreferencesRepository,
+  AiRepository? aiRepository,
   Dio? refreshClient,
 }) async {
   final Directory dir = await Directory.systemTemp.createTemp('qalam_test_c');
@@ -354,6 +360,8 @@ Future<ProviderContainer> buildTestContainer({
         notificationPreferencesRepositoryProvider.overrideWithValue(
           notificationPreferencesRepository,
         ),
+      if (aiRepository != null)
+        aiRepositoryProvider.overrideWithValue(aiRepository),
       // Inject a mocked refresh transport so silent-restore success is testable
       // without a live server (the gateway's refresh Dio is otherwise real).
       if (refreshClient != null)
