@@ -46,7 +46,20 @@ abstract final class ApiPaths {
   static const String aiCompletionsStream = '/ai/completions/stream';
   static const String aiConversations = '/ai/conversations';
   static String aiConversationById(String id) => '/ai/conversations/$id';
-  static String aiConversationExport(String id) => '/ai/conversations/$id/export';
+  static String aiConversationExport(String id) =>
+      '/ai/conversations/$id/export';
+
+  // AI discovery / search / recommendation (AF4). Additive `/ai/*` surface consumed by
+  // the discovery/search/ask/explorer/recommendation screens (docs 36).
+  static const String aiSearch = '/ai/search';
+  static const String aiSearchSuggestions = '/ai/search/suggestions';
+  static const String aiSearchSaved = '/ai/search/saved';
+  static String aiSearchSavedById(String id) => '/ai/search/saved/$id';
+  static const String aiAsk = '/ai/ask';
+  static const String aiAskStream = '/ai/ask/stream';
+  static String aiExplorer(String storyId, String view) =>
+      '/ai/explorer/$storyId/$view';
+  static const String aiRecommendations = '/ai/recommendations';
 
   // Authoring / drafts (M4, docs/40 §47 M6). Lifecycle is driven by dedicated
   // action endpoints — `status`/`slug`/`scheduledAt` are never writable fields.

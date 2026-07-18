@@ -38,6 +38,14 @@ abstract final class Routes {
   static const String promptLibrary = '/ai/prompts';
   static const String aiUsage = '/ai/usage';
 
+  // AI Discovery / Search / Ask / Explorer (AF4). Full-screen, session-gated (`/ai`).
+  static const String aiDiscovery = '/ai/discovery';
+  static const String aiSearch = '/ai/search';
+  static const String aiExplorer = '/ai/explorer';
+  static String aiExplorerPath(String storyId) => '/ai/explorer/$storyId';
+  static const String aiAsk = '/ai/ask';
+  static String aiAskPath(String storyId) => '/ai/ask/$storyId';
+
   // Discovery surface (public, top-level as on web — docs/40 §10.2).
   static const String discover = '/discover';
 

@@ -20,8 +20,12 @@ import '../../core/session/onboarding_controller.dart';
 import '../../core/session/session_controller.dart';
 import '../../features/ai/presentation/screens/ai_conversation_screen.dart';
 import '../../features/ai/presentation/screens/ai_conversations_screen.dart';
+import '../../features/ai/presentation/screens/ai_discovery_screen.dart';
 import '../../features/ai/presentation/screens/ai_usage_screen.dart';
+import '../../features/ai/presentation/screens/ask_book_screen.dart';
 import '../../features/ai/presentation/screens/prompt_library_screen.dart';
+import '../../features/ai/presentation/screens/semantic_search_screen.dart';
+import '../../features/ai/presentation/screens/story_explorer_screen.dart';
 import '../../features/analytics/presentation/screens/creator_analytics_screen.dart';
 import '../../features/analytics/presentation/screens/piece_analytics_screen.dart';
 import '../../features/analytics/presentation/screens/reading_analytics_screen.dart';
@@ -436,7 +440,9 @@ GoRouter goRouter(Ref ref) {
             parentNavigatorKey: _rootKey,
             pageBuilder: (BuildContext context, GoRouterState state) => _fade(
               state,
-              AiConversationScreen(conversationId: state.pathParameters['id'] ?? ''),
+              AiConversationScreen(
+                conversationId: state.pathParameters['id'] ?? '',
+              ),
             ),
           ),
         ],
@@ -454,6 +460,40 @@ GoRouter goRouter(Ref ref) {
         parentNavigatorKey: _rootKey,
         pageBuilder: (BuildContext context, GoRouterState state) =>
             _fade(state, const AiUsageScreen()),
+      ),
+
+      // AI Discovery / Search / Ask / Explorer (AF4) — full-screen, session-gated.
+      GoRoute(
+        path: Routes.aiDiscovery,
+        name: 'aiDiscovery',
+        parentNavigatorKey: _rootKey,
+        pageBuilder: (BuildContext context, GoRouterState state) =>
+            _fade(state, const AiDiscoveryScreen()),
+      ),
+      GoRoute(
+        path: Routes.aiSearch,
+        name: 'aiSearch',
+        parentNavigatorKey: _rootKey,
+        pageBuilder: (BuildContext context, GoRouterState state) =>
+            _fade(state, const SemanticSearchScreen()),
+      ),
+      GoRoute(
+        path: '${Routes.aiExplorer}/:storyId',
+        name: 'aiExplorer',
+        parentNavigatorKey: _rootKey,
+        pageBuilder: (BuildContext context, GoRouterState state) => _fade(
+          state,
+          StoryExplorerScreen(storyId: state.pathParameters['storyId'] ?? ''),
+        ),
+      ),
+      GoRoute(
+        path: '${Routes.aiAsk}/:storyId',
+        name: 'aiAsk',
+        parentNavigatorKey: _rootKey,
+        pageBuilder: (BuildContext context, GoRouterState state) => _fade(
+          state,
+          AskBookScreen(storyId: state.pathParameters['storyId'] ?? ''),
+        ),
       ),
 
       // ── Auth corridor (top-level, no bottom nav) ────────────────────────────

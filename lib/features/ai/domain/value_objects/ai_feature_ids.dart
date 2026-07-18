@@ -14,4 +14,10 @@ abstract final class AiFeatureIds {
 
   /// The infra playground surface (raw completion / prompt testing).
   static const String playground = 'playground';
+
+  // AF4 — AI Discovery / Search / Recommendation. Mirror the backend `AiFeature`
+  // wire values; used to gate the AF4 surfaces via `GET /ai/features`.
+  static const String semanticSearch = 'semantic_search';
+  static const String recommendations = 'recommendations';
+  static const String askBook = 'ask_book';
 }

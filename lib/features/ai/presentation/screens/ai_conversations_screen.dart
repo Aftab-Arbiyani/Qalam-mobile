@@ -25,7 +25,8 @@ class AiConversationsScreen extends ConsumerStatefulWidget {
   const AiConversationsScreen({super.key});
 
   @override
-  ConsumerState<AiConversationsScreen> createState() => _AiConversationsScreenState();
+  ConsumerState<AiConversationsScreen> createState() =>
+      _AiConversationsScreenState();
 }
 
 class _AiConversationsScreenState extends ConsumerState<AiConversationsScreen> {
@@ -54,15 +55,29 @@ class _AiConversationsScreenState extends ConsumerState<AiConversationsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final AsyncValue<ConversationsState> async = ref.watch(conversationsControllerProvider);
+    final AsyncValue<ConversationsState> async = ref.watch(
+      conversationsControllerProvider,
+    );
     return Scaffold(
-      appBar: const QAppBar(title: 'AI conversations'),
+      appBar: QAppBar(
+        title: 'AI conversations',
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.auto_awesome_outlined),
+            tooltip: 'Discover with AI',
+            onPressed: () => context.push(Routes.aiDiscovery),
+          ),
+        ],
+      ),
       body: async.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (Object error, StackTrace _) => QErrorView(
           failure: error is Failure
               ? error
-              : Failure.unexpected(code: ErrorCodes.apiUnexpected, message: '$error'),
+              : Failure.unexpected(
+                  code: ErrorCodes.apiUnexpected,
+                  message: '$error',
+                ),
           onRetry: () => ref.invalidate(conversationsControllerProvider),
         ),
         data: _content,
@@ -74,9 +89,11 @@ class _AiConversationsScreenState extends ConsumerState<AiConversationsScreen> {
     final List<AiConversationSummary> rows = _query.isEmpty
         ? state.ordered
         : state.ordered
-            .where((AiConversationSummary c) =>
-                c.displayTitle.toLowerCase().contains(_query.toLowerCase()))
-            .toList(growable: false);
+              .where(
+                (AiConversationSummary c) =>
+                    c.displayTitle.toLowerCase().contains(_query.toLowerCase()),
+              )
+              .toList(growable: false);
 
     return Column(
       children: <Widget>[
@@ -101,7 +118,9 @@ class _AiConversationsScreenState extends ConsumerState<AiConversationsScreen> {
                   message: 'Your AI conversations will appear here.',
                 )
               : RefreshIndicator(
-                  onRefresh: () => ref.read(conversationsControllerProvider.notifier).refresh(),
+                  onRefresh: () => ref
+                      .read(conversationsControllerProvider.notifier)
+                      .refresh(),
                   child: ListView.builder(
                     controller: _scroll,
                     itemCount: rows.length,
@@ -126,7 +145,10 @@ class _AiConversationsScreenState extends ConsumerState<AiConversationsScreen> {
       trailing: PopupMenuButton<String>(
         onSelected: (String v) => unawaited(_onAction(v, c)),
         itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-          PopupMenuItem<String>(value: 'pin', child: Text(pinned ? 'Unpin' : 'Pin')),
+          PopupMenuItem<String>(
+            value: 'pin',
+            child: Text(pinned ? 'Unpin' : 'Pin'),
+          ),
           const PopupMenuItem<String>(value: 'rename', child: Text('Rename')),
           const PopupMenuItem<String>(value: 'archive', child: Text('Archive')),
           const PopupMenuItem<String>(value: 'delete', child: Text('Delete')),
@@ -137,8 +159,9 @@ class _AiConversationsScreenState extends ConsumerState<AiConversationsScreen> {
   }
 
   Future<void> _onAction(String action, AiConversationSummary c) async {
-    final ConversationsController notifier =
-        ref.read(conversationsControllerProvider.notifier);
+    final ConversationsController notifier = ref.read(
+      conversationsControllerProvider.notifier,
+    );
     switch (action) {
       case 'pin':
         await notifier.togglePin(c.id);
@@ -147,7 +170,11 @@ class _AiConversationsScreenState extends ConsumerState<AiConversationsScreen> {
         if (title != null && title.trim().isNotEmpty) {
           final bool ok = await notifier.rename(c.id, title.trim());
           if (mounted && !ok) {
-            QSnackbar.show(context, message: 'Rename failed.', variant: QSnackbarVariant.danger);
+            QSnackbar.show(
+              context,
+              message: 'Rename failed.',
+              variant: QSnackbarVariant.danger,
+            );
           }
         }
       case 'archive':
@@ -165,7 +192,9 @@ class _AiConversationsScreenState extends ConsumerState<AiConversationsScreen> {
   }
 
   Future<String?> _renameDialog(String current) {
-    final TextEditingController controller = TextEditingController(text: current);
+    final TextEditingController controller = TextEditingController(
+      text: current,
+    );
     return showDialog<String>(
       context: context,
       builder: (BuildContext dialogContext) => AlertDialog(

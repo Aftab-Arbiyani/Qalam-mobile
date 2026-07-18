@@ -132,6 +132,15 @@ abstract final class ErrorCodes {
   static const String aiStreamError = 'AI_STREAM_ERROR';
   static const String aiConfigInvalid = 'AI_CONFIG_INVALID';
 
+  // ── Story intelligence (AF3) + AI retrieval (AF4) ───────────────────────────
+  static const String storyNotFound = 'STORY_NOT_FOUND';
+  static const String retrievalQueryInvalid = 'RETRIEVAL_QUERY_INVALID';
+  static const String retrievalFailed = 'RETRIEVAL_FAILED';
+  static const String retrievalTimeout = 'RETRIEVAL_TIMEOUT';
+  static const String recommendationUnavailable = 'RECOMMENDATION_UNAVAILABLE';
+  static const String savedSearchNotFound = 'SAVED_SEARCH_NOT_FOUND';
+  static const String savedSearchLimitExceeded = 'SAVED_SEARCH_LIMIT_EXCEEDED';
+
   // ── Cross-cutting ─────────────────────────────────────────────────────────
   static const String rateLimited = 'RATE_LIMITED';
   static const String validationFailed = 'VALIDATION_FAILED';

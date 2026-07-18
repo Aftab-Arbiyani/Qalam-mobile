@@ -14,6 +14,11 @@ import '../entities/ai_conversation.dart';
 import '../entities/ai_feature_flag.dart';
 import '../entities/ai_stream_event.dart';
 import '../entities/ai_usage.dart';
+import '../entities/ask_answer.dart';
+import '../entities/retrieval.dart';
+import '../entities/saved_search.dart';
+import '../entities/story_graph.dart';
+import '../value_objects/retrieval_requests.dart';
 
 abstract interface class AiRepository {
   /// Which AI features are enabled for the caller.
@@ -45,7 +50,10 @@ abstract interface class AiRepository {
   Future<Result<AiConversationDetail>> getConversation(String id);
 
   /// Rename a conversation.
-  Future<Result<AiConversationSummary>> renameConversation(String id, String title);
+  Future<Result<AiConversationSummary>> renameConversation(
+    String id,
+    String title,
+  );
 
   /// Archive/unarchive a conversation.
   Future<Result<AiConversationSummary>> setConversationStatus(
@@ -58,4 +66,44 @@ abstract interface class AiRepository {
 
   /// Export a conversation as a portable JSON document.
   Future<Result<Json>> exportConversation(String id);
+
+  // ── AF4 — discovery / search / ask / explorer / recommendations ──────────────
+  /// Semantic/hybrid search over a story graph or the library.
+  Future<Result<SemanticSearchResponse>> searchSemantic(
+    SemanticSearchRequest request,
+  );
+
+  /// Lightweight query suggestions for a short prefix.
+  Future<Result<List<String>>> searchSuggestions(
+    String query, {
+    String? storyId,
+  });
+
+  /// The caller's saved searches (server copy).
+  Future<Result<List<SavedSearch>>> listSavedSearches();
+
+  /// Save a search (idempotent by name).
+  Future<Result<SavedSearch>> saveSearch({
+    required String name,
+    required String query,
+    String? queryType,
+    String? storyId,
+  });
+
+  /// Delete a saved search.
+  Future<Result<Unit>> deleteSavedSearch(String id);
+
+  /// A buffered grounded answer about a story.
+  Future<Result<AskBookAnswer>> ask(AskBookRequest request);
+
+  /// A streamed grounded answer. Cancel by cancelling the subscription.
+  Stream<AskStreamEvent> streamAsk(AskBookRequest request);
+
+  /// A structured Story Explorer view over the knowledge graph.
+  Future<Result<ExplorerViewResult>> explorer(String storyId, String view);
+
+  /// Explainable recommendations for a surface.
+  Future<Result<RecommendationResponse>> recommendations(
+    RecommendationQuery query,
+  );
 }
