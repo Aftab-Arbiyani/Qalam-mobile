@@ -43,7 +43,7 @@ final class RetrievalSessionControllerProvider
 }
 
 String _$retrievalSessionControllerHash() =>
-    r'3d6e207ade0f86ec928c53ec42ec9f1a2009f429';
+    r'216e0958c3acc54b663bab7211ca316d5beff82f';
 
 abstract class _$RetrievalSessionController
     extends $Notifier<RetrievalSession> {

@@ -35,7 +35,7 @@ final class ConversationsControllerProvider
 }
 
 String _$conversationsControllerHash() =>
-    r'3658a0aa035657f22c4c9270e5ec67a75bd0c66e';
+    r'b45a9657b5540c2ba7942c2d851099fd5a892f24';
 
 abstract class _$ConversationsController
     extends $AsyncNotifier<ConversationsState> {

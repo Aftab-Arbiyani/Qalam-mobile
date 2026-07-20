@@ -66,6 +66,7 @@ const AppConfig testConfig = AppConfig(
   sentryDsn: '',
   enablePush: false,
   enableAi: false,
+  enableMonetization: false,
 );
 
 /// An in-memory [SecureStorage] backed by a mocked plugin.

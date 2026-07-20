@@ -11,6 +11,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/routes.dart';
+import '../../../../core/di/providers.dart';
 import '../../../../shared/theme/tokens/spacing_tokens.dart';
 import '../../../../shared/widgets/app_bar/q_app_bar.dart';
 import '../../../../shared/widgets/layout/q_scaffold.dart';
@@ -21,6 +22,7 @@ class SettingsHubScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final bool monetizationOn = ref.watch(appConfigProvider).enableMonetization;
     return QScaffold(
       appBar: const QAppBar(title: 'Settings'),
       body: ListView(
@@ -78,6 +80,20 @@ class SettingsHubScreen extends ConsumerWidget {
               ),
             ],
           ),
+          if (monetizationOn) ...<Widget>[
+            Gap.v5,
+            QSettingsSection(
+              title: 'Premium',
+              children: <Widget>[
+                QSettingsTile(
+                  icon: Icons.workspace_premium_outlined,
+                  title: 'Subscription & billing',
+                  subtitle: 'Your plan, usage, credits and invoices',
+                  onTap: () => context.push(Routes.billing),
+                ),
+              ],
+            ),
+          ],
           Gap.v5,
           QSettingsSection(
             title: 'Developer',

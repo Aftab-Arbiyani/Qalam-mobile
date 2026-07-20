@@ -141,6 +141,28 @@ abstract final class ErrorCodes {
   static const String savedSearchNotFound = 'SAVED_SEARCH_NOT_FOUND';
   static const String savedSearchLimitExceeded = 'SAVED_SEARCH_LIMIT_EXCEEDED';
 
+  // ── Monetization (AF5) ────────────────────────────────────────────────────
+  static const String monetizationDisabled = 'MONETIZATION_DISABLED';
+  static const String subscriptionNotFound = 'SUBSCRIPTION_NOT_FOUND';
+  static const String subscriptionAlreadyActive = 'SUBSCRIPTION_ALREADY_ACTIVE';
+  static const String subscriptionInvalidTransition = 'SUBSCRIPTION_INVALID_TRANSITION';
+  static const String planNotFound = 'PLAN_NOT_FOUND';
+  static const String planChangeNoop = 'PLAN_CHANGE_NOOP';
+  static const String trialNotEligible = 'TRIAL_NOT_ELIGIBLE';
+  static const String entitlementDenied = 'ENTITLEMENT_DENIED';
+  static const String quotaExceeded = 'QUOTA_EXCEEDED';
+  static const String insufficientCredits = 'INSUFFICIENT_CREDITS';
+  static const String paymentFailed = 'PAYMENT_FAILED';
+  static const String paymentNotFound = 'PAYMENT_NOT_FOUND';
+  static const String invoiceNotFound = 'INVOICE_NOT_FOUND';
+  static const String paymentProviderNotConfigured = 'PAYMENT_PROVIDER_NOT_CONFIGURED';
+  static const String paymentProviderError = 'PAYMENT_PROVIDER_ERROR';
+  static const String receiptValidationFailed = 'RECEIPT_VALIDATION_FAILED';
+  static const String couponNotFound = 'COUPON_NOT_FOUND';
+  static const String couponNotRedeemable = 'COUPON_NOT_REDEEMABLE';
+  static const String couponAlreadyRedeemed = 'COUPON_ALREADY_REDEEMED';
+  static const String purchaseNotFound = 'PURCHASE_NOT_FOUND';
+
   // ── Cross-cutting ─────────────────────────────────────────────────────────
   static const String rateLimited = 'RATE_LIMITED';
   static const String validationFailed = 'VALIDATION_FAILED';

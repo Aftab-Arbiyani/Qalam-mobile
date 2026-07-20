@@ -46,6 +46,14 @@ abstract final class Routes {
   static const String aiAsk = '/ai/ask';
   static String aiAskPath(String storyId) => '/ai/ask/$storyId';
 
+  // Monetization (AF5). Full-screen, session-gated (the `/billing` prefix is
+  // protected). Entered from Settings; deep-linkable for paywall/upsell.
+  static const String billing = '/billing';
+  static const String billingPlans = '/billing/plans';
+  static const String billingUsage = '/billing/usage';
+  static const String billingCredits = '/billing/credits';
+  static const String billingHistory = '/billing/history';
+
   // Discovery surface (public, top-level as on web — docs/40 §10.2).
   static const String discover = '/discover';
 
@@ -107,6 +115,7 @@ abstract final class Routes {
       _matches(location, write) ||
       _matches(location, notifications) ||
       _matches(location, ai) ||
+      _matches(location, billing) ||
       _matches(location, creatorAnalytics);
 
   /// The auth corridor — any `/auth/*`. Exempt from the network auth-refresh

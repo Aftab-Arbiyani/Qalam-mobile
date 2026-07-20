@@ -20,6 +20,7 @@ class AppConfig {
     required this.enablePush,
     required this.webUrl,
     required this.enableAi,
+    required this.enableMonetization,
   });
 
   /// Build config from `--dart-define` keys. Defaults target local development.
@@ -39,6 +40,7 @@ class AppConfig {
       sentryDsn: const String.fromEnvironment('QALAM_SENTRY_DSN'),
       enablePush: const bool.fromEnvironment('QALAM_ENABLE_PUSH'),
       enableAi: const bool.fromEnvironment('QALAM_ENABLE_AI'),
+      enableMonetization: const bool.fromEnvironment('QALAM_ENABLE_MONETIZATION'),
     );
   }
 
@@ -67,6 +69,13 @@ class AppConfig {
   /// (`feature.ai.*`, via GET /ai/features) are the runtime source of truth —
   /// this is the compile-time kill switch (mirrors [enablePush]).
   final bool enableAi;
+
+  /// Feature flag: monetization platform (AF5, Phase 2). Off by default; gates the
+  /// `features/monetization` routes/affordances and premium-gating UI. The
+  /// server-side `feature.payments.enabled` flag + the entitlement snapshot are the
+  /// runtime source of truth — this is the compile-time kill switch (mirrors
+  /// [enableAi]). Purchase validation is always server-authoritative.
+  final bool enableMonetization;
 
   /// The versioned API base every request is relative to.
   String get apiBaseUrl => '${_stripTrailingSlash(apiUrl)}/api/v1';

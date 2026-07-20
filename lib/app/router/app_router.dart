@@ -33,6 +33,11 @@ import '../../features/auth/auth.dart';
 import '../../features/feed/presentation/screens/discover_screen.dart';
 import '../../features/feed/presentation/screens/feed_screen.dart';
 import '../../features/gallery/presentation/pages/gallery_page.dart';
+import '../../features/monetization/presentation/screens/billing_history_screen.dart';
+import '../../features/monetization/presentation/screens/credit_dashboard_screen.dart';
+import '../../features/monetization/presentation/screens/plans_screen.dart';
+import '../../features/monetization/presentation/screens/subscription_screen.dart';
+import '../../features/monetization/presentation/screens/usage_dashboard_screen.dart';
 import '../../features/notifications/notifications.dart';
 import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
 import '../../features/profile/profile.dart';
@@ -494,6 +499,43 @@ GoRouter goRouter(Ref ref) {
           state,
           AskBookScreen(storyId: state.pathParameters['storyId'] ?? ''),
         ),
+      ),
+
+      // ── Monetization (AF5) — full-screen, session-gated (`/billing/*`). ───────
+      GoRoute(
+        path: Routes.billing,
+        name: 'billing',
+        parentNavigatorKey: _rootKey,
+        pageBuilder: (BuildContext context, GoRouterState state) =>
+            _fade(state, const SubscriptionScreen()),
+      ),
+      GoRoute(
+        path: Routes.billingPlans,
+        name: 'billingPlans',
+        parentNavigatorKey: _rootKey,
+        pageBuilder: (BuildContext context, GoRouterState state) =>
+            _fade(state, const PlansScreen()),
+      ),
+      GoRoute(
+        path: Routes.billingUsage,
+        name: 'billingUsage',
+        parentNavigatorKey: _rootKey,
+        pageBuilder: (BuildContext context, GoRouterState state) =>
+            _fade(state, const UsageDashboardScreen()),
+      ),
+      GoRoute(
+        path: Routes.billingCredits,
+        name: 'billingCredits',
+        parentNavigatorKey: _rootKey,
+        pageBuilder: (BuildContext context, GoRouterState state) =>
+            _fade(state, const CreditDashboardScreen()),
+      ),
+      GoRoute(
+        path: Routes.billingHistory,
+        name: 'billingHistory',
+        parentNavigatorKey: _rootKey,
+        pageBuilder: (BuildContext context, GoRouterState state) =>
+            _fade(state, const BillingHistoryScreen()),
       ),
 
       // ── Auth corridor (top-level, no bottom nav) ────────────────────────────
