@@ -54,6 +54,22 @@ abstract final class Routes {
   static const String billingCredits = '/billing/credits';
   static const String billingHistory = '/billing/history';
 
+  // Collaboration / Publishing / Trust (AF6). Story-scoped, full-screen, session-gated
+  // (the `/stories` prefix is protected). The invitations inbox lives under the
+  // already-protected `/me` prefix; the restricted-state wall is its own protected
+  // surface. Deep-linkable from a story's overflow menu.
+  static const String stories = '/stories';
+  static String storyCollaboratorsPath(String storyId) =>
+      '/stories/$storyId/collaborators';
+  static String storyCommentsPath(String storyId) =>
+      '/stories/$storyId/comments';
+  static String storySuggestionsPath(String storyId) =>
+      '/stories/$storyId/suggestions';
+  static String storyPublishingPath(String storyId) =>
+      '/stories/$storyId/publishing';
+  static const String invitationsInbox = '/me/invitations';
+  static const String trustRestricted = '/restricted';
+
   // Discovery surface (public, top-level as on web — docs/40 §10.2).
   static const String discover = '/discover';
 
@@ -116,6 +132,8 @@ abstract final class Routes {
       _matches(location, notifications) ||
       _matches(location, ai) ||
       _matches(location, billing) ||
+      _matches(location, stories) ||
+      _matches(location, trustRestricted) ||
       _matches(location, creatorAnalytics);
 
   /// The auth corridor — any `/auth/*`. Exempt from the network auth-refresh

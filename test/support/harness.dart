@@ -30,6 +30,10 @@ import 'package:qalam_mobile/features/ai/presentation/providers/ai_providers.dar
 import 'package:qalam_mobile/features/auth/data/services/social_sign_in_service.dart';
 import 'package:qalam_mobile/features/auth/domain/repositories/auth_repository.dart';
 import 'package:qalam_mobile/features/auth/presentation/providers/auth_providers.dart';
+import 'package:qalam_mobile/features/collaboration/domain/repositories/collaboration_repository.dart';
+import 'package:qalam_mobile/features/collaboration/domain/repositories/publishing_repository.dart';
+import 'package:qalam_mobile/features/collaboration/domain/repositories/trust_repository.dart';
+import 'package:qalam_mobile/features/collaboration/presentation/providers/collaboration_providers.dart';
 import 'package:qalam_mobile/features/feed/domain/repositories/feed_repository.dart';
 import 'package:qalam_mobile/features/feed/presentation/providers/feed_providers.dart';
 import 'package:qalam_mobile/features/notifications/domain/repositories/notification_preferences_repository.dart';
@@ -67,6 +71,7 @@ const AppConfig testConfig = AppConfig(
   enablePush: false,
   enableAi: false,
   enableMonetization: false,
+  enableCollaboration: false,
 );
 
 /// An in-memory [SecureStorage] backed by a mocked plugin.
@@ -141,6 +146,9 @@ Future<Widget> buildTestApp({
   NotificationRepository? notificationRepository,
   NotificationPreferencesRepository? notificationPreferencesRepository,
   AiRepository? aiRepository,
+  CollaborationRepository? collaborationRepository,
+  PublishingRepository? publishingRepository,
+  TrustRepository? trustRepository,
 }) async {
   final Directory dir = await Directory.systemTemp.createTemp('qalam_test');
   Hive.init(dir.path);
@@ -212,6 +220,14 @@ Future<Widget> buildTestApp({
         ),
       if (aiRepository != null)
         aiRepositoryProvider.overrideWithValue(aiRepository),
+      if (collaborationRepository != null)
+        collaborationRepositoryProvider.overrideWithValue(
+          collaborationRepository,
+        ),
+      if (publishingRepository != null)
+        publishingRepositoryProvider.overrideWithValue(publishingRepository),
+      if (trustRepository != null)
+        trustRepositoryProvider.overrideWithValue(trustRepository),
     ],
     child: child ?? const QalamApp(),
   );
@@ -297,6 +313,9 @@ Future<ProviderContainer> buildTestContainer({
   NotificationRepository? notificationRepository,
   NotificationPreferencesRepository? notificationPreferencesRepository,
   AiRepository? aiRepository,
+  CollaborationRepository? collaborationRepository,
+  PublishingRepository? publishingRepository,
+  TrustRepository? trustRepository,
   Dio? refreshClient,
 }) async {
   final Directory dir = await Directory.systemTemp.createTemp('qalam_test_c');
@@ -363,6 +382,14 @@ Future<ProviderContainer> buildTestContainer({
         ),
       if (aiRepository != null)
         aiRepositoryProvider.overrideWithValue(aiRepository),
+      if (collaborationRepository != null)
+        collaborationRepositoryProvider.overrideWithValue(
+          collaborationRepository,
+        ),
+      if (publishingRepository != null)
+        publishingRepositoryProvider.overrideWithValue(publishingRepository),
+      if (trustRepository != null)
+        trustRepositoryProvider.overrideWithValue(trustRepository),
       // Inject a mocked refresh transport so silent-restore success is testable
       // without a live server (the gateway's refresh Dio is otherwise real).
       if (refreshClient != null)

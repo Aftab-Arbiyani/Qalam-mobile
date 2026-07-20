@@ -21,6 +21,7 @@ class AppConfig {
     required this.webUrl,
     required this.enableAi,
     required this.enableMonetization,
+    required this.enableCollaboration,
   });
 
   /// Build config from `--dart-define` keys. Defaults target local development.
@@ -40,7 +41,12 @@ class AppConfig {
       sentryDsn: const String.fromEnvironment('QALAM_SENTRY_DSN'),
       enablePush: const bool.fromEnvironment('QALAM_ENABLE_PUSH'),
       enableAi: const bool.fromEnvironment('QALAM_ENABLE_AI'),
-      enableMonetization: const bool.fromEnvironment('QALAM_ENABLE_MONETIZATION'),
+      enableMonetization: const bool.fromEnvironment(
+        'QALAM_ENABLE_MONETIZATION',
+      ),
+      enableCollaboration: const bool.fromEnvironment(
+        'QALAM_ENABLE_COLLABORATION',
+      ),
     );
   }
 
@@ -76,6 +82,13 @@ class AppConfig {
   /// runtime source of truth — this is the compile-time kill switch (mirrors
   /// [enableAi]). Purchase validation is always server-authoritative.
   final bool enableMonetization;
+
+  /// Feature flag: collaboration / publishing / trust platform (AF6, Phase 2). Off by
+  /// default; gates the `features/collaboration` routes/affordances and capability-
+  /// gated UI. The server-side policy engine + the capability map + the trust summary
+  /// are the runtime source of truth — this is the compile-time kill switch (mirrors
+  /// [enableAi] / [enableMonetization]). Authorization is always server-authoritative.
+  final bool enableCollaboration;
 
   /// The versioned API base every request is relative to.
   String get apiBaseUrl => '${_stripTrailingSlash(apiUrl)}/api/v1';

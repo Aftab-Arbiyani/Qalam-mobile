@@ -69,22 +69,77 @@ abstract final class ApiPaths {
   static String monetizationEntitlement(String feature) =>
       '/monetization/entitlements/$feature';
   static const String monetizationSubscription = '/monetization/subscription';
-  static const String monetizationSubscriptionChange = '/monetization/subscription/change';
-  static const String monetizationSubscriptionCancel = '/monetization/subscription/cancel';
+  static const String monetizationSubscriptionChange =
+      '/monetization/subscription/change';
+  static const String monetizationSubscriptionCancel =
+      '/monetization/subscription/cancel';
   static const String monetizationSubscriptionReactivate =
       '/monetization/subscription/reactivate';
-  static const String monetizationSubscriptionPause = '/monetization/subscription/pause';
-  static const String monetizationSubscriptionResume = '/monetization/subscription/resume';
-  static const String monetizationSubscriptionHistory = '/monetization/subscription/history';
+  static const String monetizationSubscriptionPause =
+      '/monetization/subscription/pause';
+  static const String monetizationSubscriptionResume =
+      '/monetization/subscription/resume';
+  static const String monetizationSubscriptionHistory =
+      '/monetization/subscription/history';
   static const String monetizationUsage = '/monetization/usage';
   static const String monetizationCredits = '/monetization/credits';
-  static const String monetizationCreditTransactions = '/monetization/credits/transactions';
-  static const String monetizationCreditPurchase = '/monetization/credits/purchase';
+  static const String monetizationCreditTransactions =
+      '/monetization/credits/transactions';
+  static const String monetizationCreditPurchase =
+      '/monetization/credits/purchase';
   static const String monetizationInvoices = '/monetization/invoices';
   static const String monetizationPayments = '/monetization/payments';
   static const String monetizationPurchases = '/monetization/purchases';
-  static const String monetizationPurchasesRestore = '/monetization/purchases/restore';
-  static const String monetizationCouponsValidate = '/monetization/coupons/validate';
+  static const String monetizationPurchasesRestore =
+      '/monetization/purchases/restore';
+  static const String monetizationCouponsValidate =
+      '/monetization/coupons/validate';
+
+  // Collaboration / Publishing / Trust (AF6, Phase 2). Additive story-scoped surface:
+  // membership + the server-authoritative capability map the client gates affordances
+  // on, invitations, threaded comments + edit suggestions, presence + activity, the
+  // publish/review workflow + snapshots, and the caller's trust standing + blocks.
+  static String storyMembers(String id) => '/stories/$id/members';
+  static String storyMember(String id, String userId) =>
+      '/stories/$id/members/$userId';
+  static String storyLeave(String id) => '/stories/$id/leave';
+  static String storyCapabilities(String id) => '/stories/$id/capabilities';
+  static String storyInvitations(String id) => '/stories/$id/invitations';
+  static const String meInvitations = '/me/invitations';
+  static String invitationAccept(String id) => '/invitations/$id/accept';
+  static String invitationDecline(String id) => '/invitations/$id/decline';
+  static String invitation(String id) => '/invitations/$id';
+  static String storyComments(String id) => '/stories/$id/comments';
+  static String collaborationCommentReplies(String id) =>
+      '/comments/$id/replies';
+  static String collaborationCommentResolve(String id) =>
+      '/comments/$id/resolve';
+  static String collaborationComment(String id) => '/comments/$id';
+  static String storySuggestions(String id) => '/stories/$id/suggestions';
+  static String suggestionAccept(String id) => '/suggestions/$id/accept';
+  static String suggestionReject(String id) => '/suggestions/$id/reject';
+  static String suggestionWithdraw(String id) => '/suggestions/$id/withdraw';
+  static String storyActivity(String id) => '/stories/$id/activity';
+  static String storyPresence(String id) => '/stories/$id/presence';
+  // Publishing.
+  static String storyPublish(String id) => '/stories/$id/publish';
+  static String storyUnpublish(String id) => '/stories/$id/unpublish';
+  static String storySchedule(String id) => '/stories/$id/schedule';
+  static String storyVisibility(String id) => '/stories/$id/visibility';
+  static String storyReview(String id) => '/stories/$id/review';
+  static String storyReviewApprove(String id) => '/stories/$id/review/approve';
+  static String storyReviewChanges(String id) => '/stories/$id/review/changes';
+  static String storySnapshots(String id) => '/stories/$id/snapshots';
+  static String snapshot(String id) => '/snapshots/$id';
+  static String storySnapshotRevert(String id, String snapshotId) =>
+      '/stories/$id/snapshots/$snapshotId/revert';
+  static String storyPublicationHistory(String id) =>
+      '/stories/$id/publication-history';
+  // Trust & safety.
+  static const String meTrust = '/me/trust';
+  static const String meBlocks = '/me/blocks';
+  static String userBlock(String id) => '/users/$id/block';
+  static String userMute(String id) => '/users/$id/mute';
 
   // Authoring / drafts (M4, docs/40 §47 M6). Lifecycle is driven by dedicated
   // action endpoints — `status`/`slug`/`scheduledAt` are never writable fields.

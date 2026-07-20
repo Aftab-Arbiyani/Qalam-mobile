@@ -30,6 +30,13 @@ import '../../features/analytics/presentation/screens/creator_analytics_screen.d
 import '../../features/analytics/presentation/screens/piece_analytics_screen.dart';
 import '../../features/analytics/presentation/screens/reading_analytics_screen.dart';
 import '../../features/auth/auth.dart';
+import '../../features/collaboration/presentation/screens/collaborators_screen.dart';
+import '../../features/collaboration/presentation/screens/comments_screen.dart'
+    as collaboration;
+import '../../features/collaboration/presentation/screens/invitations_inbox_screen.dart';
+import '../../features/collaboration/presentation/screens/publishing_workflow_screen.dart';
+import '../../features/collaboration/presentation/screens/restricted_state_screen.dart';
+import '../../features/collaboration/presentation/screens/suggestions_screen.dart';
 import '../../features/feed/presentation/screens/discover_screen.dart';
 import '../../features/feed/presentation/screens/feed_screen.dart';
 import '../../features/gallery/presentation/pages/gallery_page.dart';
@@ -536,6 +543,62 @@ GoRouter goRouter(Ref ref) {
         parentNavigatorKey: _rootKey,
         pageBuilder: (BuildContext context, GoRouterState state) =>
             _fade(state, const BillingHistoryScreen()),
+      ),
+
+      // ── Collaboration / Publishing / Trust (AF6) — story-scoped, session-gated. ─
+      GoRoute(
+        path: Routes.storyCollaboratorsPath(':storyId'),
+        name: 'storyCollaborators',
+        parentNavigatorKey: _rootKey,
+        pageBuilder: (BuildContext context, GoRouterState state) => _fade(
+          state,
+          CollaboratorsScreen(storyId: state.pathParameters['storyId'] ?? ''),
+        ),
+      ),
+      GoRoute(
+        path: Routes.storyCommentsPath(':storyId'),
+        name: 'storyCollaborationComments',
+        parentNavigatorKey: _rootKey,
+        pageBuilder: (BuildContext context, GoRouterState state) => _fade(
+          state,
+          collaboration.CollaborationCommentsScreen(
+            storyId: state.pathParameters['storyId'] ?? '',
+          ),
+        ),
+      ),
+      GoRoute(
+        path: Routes.storySuggestionsPath(':storyId'),
+        name: 'storySuggestions',
+        parentNavigatorKey: _rootKey,
+        pageBuilder: (BuildContext context, GoRouterState state) => _fade(
+          state,
+          SuggestionsScreen(storyId: state.pathParameters['storyId'] ?? ''),
+        ),
+      ),
+      GoRoute(
+        path: Routes.storyPublishingPath(':storyId'),
+        name: 'storyPublishing',
+        parentNavigatorKey: _rootKey,
+        pageBuilder: (BuildContext context, GoRouterState state) => _fade(
+          state,
+          PublishingWorkflowScreen(
+            storyId: state.pathParameters['storyId'] ?? '',
+          ),
+        ),
+      ),
+      GoRoute(
+        path: Routes.invitationsInbox,
+        name: 'invitationsInbox',
+        parentNavigatorKey: _rootKey,
+        pageBuilder: (BuildContext context, GoRouterState state) =>
+            _fade(state, const InvitationsInboxScreen()),
+      ),
+      GoRoute(
+        path: Routes.trustRestricted,
+        name: 'trustRestricted',
+        parentNavigatorKey: _rootKey,
+        pageBuilder: (BuildContext context, GoRouterState state) =>
+            _fade(state, const RestrictedStateScreen()),
       ),
 
       // ── Auth corridor (top-level, no bottom nav) ────────────────────────────
