@@ -1,0 +1,10 @@
+// Qalam iOS flavor config — staging (docs/40 §28.1, docs/51).
+// Mirrors AppFlavor.staging + dart_defines/staging.json + the Android `staging`
+// product flavor. Wire this to a Staging scheme in Xcode (see docs/51).
+#include "../Generated.xcconfig"
+
+PRODUCT_BUNDLE_IDENTIFIER = com.qalam.qalam_mobile.staging
+PRODUCT_NAME = Runner
+// Reference from Info.plist: <key>CFBundleDisplayName</key><string>$(DISPLAY_NAME)</string>
+DISPLAY_NAME = Qalam Staging
+FLUTTER_TARGET = lib/main.dart

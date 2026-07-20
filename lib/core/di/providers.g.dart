@@ -310,6 +310,59 @@ final class ConnectivityServiceProvider
 String _$connectivityServiceHash() =>
     r'773e17302fbf7e88132cc840f9790642979d30ed';
 
+/// Remote configuration source (docs/40 §31; docs/51). Overridden in `bootstrap`
+/// with the build's concrete instance (the inert [NoopRemoteConfigService] today;
+/// a Firebase-backed impl once activated) via [createRemoteConfig], so the app
+/// reads runtime-tunable values through one seam. Throws until overridden — tests
+/// override it with a Noop (mirrors `appConfigProvider`).
+
+@ProviderFor(remoteConfig)
+final remoteConfigProvider = RemoteConfigProvider._();
+
+final class RemoteConfigProvider
+    extends
+        $FunctionalProvider<
+          RemoteConfigService,
+          RemoteConfigService,
+          RemoteConfigService
+        >
+    with $Provider<RemoteConfigService> {
+  RemoteConfigProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'remoteConfigProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$remoteConfigHash();
+
+  @$internal
+  @override
+  $ProviderElement<RemoteConfigService> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  RemoteConfigService create(Ref ref) {
+    return remoteConfig(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(RemoteConfigService value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<RemoteConfigService>(value),
+    );
+  }
+}
+
+String _$remoteConfigHash() => r'0000000000000000000000000000000000000000';
+
 /// The crash/error reporter (docs/40 §31). Overridden in `bootstrap` with the
 /// DSN-gated concrete instance so error handlers and features can leave
 /// breadcrumbs. Defaults to an inert reporter in tests (no DSN, no uploads).

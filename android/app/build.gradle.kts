@@ -57,12 +57,49 @@ android {
             // Store builds sign with the release keystore (key.properties); local
             // builds without it fall back to debug signing so `flutter run
             // --release` keeps working. Dart obfuscation + split-debug-info are
-            // supplied at build time (see docs/46 release checklist).
+            // supplied at build time (see docs/46 + docs/51 release checklist).
+            //
+            // R8 / resource shrinking stay OFF by default (M10 decision, docs/46
+            // §13) — Dart tree-shaking + `--obfuscate` cover code size and R8 can
+            // strip un-vetted plugin code. To enable (needs device QA): set
+            // isMinifyEnabled = true, isShrinkResources = true, and add
+            // proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"),
+            //   "proguard-rules.pro"). See android/app/proguard-rules.pro.
             signingConfig = if (hasReleaseSigning) {
                 signingConfigs.getByName("release")
             } else {
                 signingConfigs.getByName("debug")
             }
+        }
+    }
+
+    // Build flavors mirror AppFlavor + dart_defines/<flavor>.json (docs/40 §28.1,
+    // docs/51). Each flavor gets a distinct applicationId suffix so all four can be
+    // installed side by side; `production` keeps the canonical id (no suffix). The
+    // ${appName} manifest placeholder drives the launcher label per flavor. Pair
+    // with `flutter build ... --flavor <name> --dart-define-from-file=...`.
+    flavorDimensions += "env"
+    productFlavors {
+        create("development") {
+            dimension = "env"
+            applicationIdSuffix = ".dev"
+            manifestPlaceholders["appName"] = "Qalam Dev"
+        }
+        create("qa") {
+            dimension = "env"
+            applicationIdSuffix = ".qa"
+            manifestPlaceholders["appName"] = "Qalam QA"
+        }
+        create("staging") {
+            dimension = "env"
+            applicationIdSuffix = ".staging"
+            manifestPlaceholders["appName"] = "Qalam Staging"
+        }
+        create("production") {
+            dimension = "env"
+            // No applicationIdSuffix — production is the canonical
+            // com.qalam.qalam_mobile id that the Play listing is tied to.
+            manifestPlaceholders["appName"] = "Qalam"
         }
     }
 }

@@ -19,6 +19,7 @@ import 'package:qalam_mobile/app/app.dart';
 import 'package:qalam_mobile/core/config/app_config.dart';
 import 'package:qalam_mobile/core/config/app_environment_info.dart';
 import 'package:qalam_mobile/core/config/app_flavor.dart';
+import 'package:qalam_mobile/core/config/remote_config.dart';
 import 'package:qalam_mobile/core/connectivity/connectivity_service.dart';
 import 'package:qalam_mobile/core/di/providers.dart';
 import 'package:qalam_mobile/core/logging/app_logger.dart';
@@ -180,6 +181,7 @@ Future<Widget> buildTestApp({
       draftsBoxProvider.overrideWithValue(drafts),
       secureStorageProvider.overrideWithValue(buildFakeSecureStorage(tokens)),
       connectivityServiceProvider.overrideWithValue(connectivity),
+      remoteConfigProvider.overrideWithValue(const NoopRemoteConfigService()),
       if (authRepository != null)
         authRepositoryProvider.overrideWithValue(authRepository),
       if (socialSignInService != null)
@@ -344,6 +346,7 @@ Future<ProviderContainer> buildTestContainer({
       draftsBoxProvider.overrideWithValue(drafts),
       secureStorageProvider.overrideWithValue(buildFakeSecureStorage(tokens)),
       connectivityServiceProvider.overrideWithValue(connectivity),
+      remoteConfigProvider.overrideWithValue(const NoopRemoteConfigService()),
       if (authRepository != null)
         authRepositoryProvider.overrideWithValue(authRepository),
       if (feedRepository != null)

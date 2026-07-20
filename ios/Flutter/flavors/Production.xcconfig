@@ -1,0 +1,12 @@
+// Qalam iOS flavor config — production (docs/40 §28.1, docs/51).
+// Mirrors AppFlavor.production + dart_defines/production.json + the Android
+// `production` product flavor. Wire this to the Release scheme in Xcode (see
+// docs/51 "iOS scheme wiring").
+#include "../Generated.xcconfig"
+
+// Canonical bundle id — NO suffix (this is the App Store listing identity).
+PRODUCT_BUNDLE_IDENTIFIER = com.qalam.qalam_mobile
+PRODUCT_NAME = Runner
+// Reference from Info.plist: <key>CFBundleDisplayName</key><string>$(DISPLAY_NAME)</string>
+DISPLAY_NAME = Qalam
+FLUTTER_TARGET = lib/main.dart

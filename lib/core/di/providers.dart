@@ -14,6 +14,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../shared/data/cache_list_data_source.dart';
 import '../config/app_config.dart';
 import '../config/app_environment_info.dart';
+import '../config/remote_config.dart';
 import '../connectivity/connectivity_service.dart';
 import '../logging/app_logger.dart';
 import '../media/cover_image_picker.dart';
@@ -69,6 +70,16 @@ Box<dynamic> draftsBox(Ref ref) => throw UnimplementedError(
 @Riverpod(keepAlive: true)
 ConnectivityService connectivityService(Ref ref) => throw UnimplementedError(
   'connectivityServiceProvider must be overridden in bootstrap',
+);
+
+/// Remote configuration source (docs/40 §31; docs/51). Overridden in `bootstrap`
+/// with the build's concrete instance (the inert [NoopRemoteConfigService] today;
+/// a Firebase-backed impl once activated) via [createRemoteConfig], so the app
+/// reads runtime-tunable values through one seam. Throws until overridden — tests
+/// override it with a Noop (mirrors `appConfigProvider`).
+@Riverpod(keepAlive: true)
+RemoteConfigService remoteConfig(Ref ref) => throw UnimplementedError(
+  'remoteConfigProvider must be overridden in bootstrap',
 );
 
 /// The crash/error reporter (docs/40 §31). Overridden in `bootstrap` with the

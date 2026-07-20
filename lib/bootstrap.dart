@@ -16,6 +16,7 @@ import 'app/app.dart';
 import 'app/observers/app_provider_observer.dart';
 import 'core/config/app_config.dart';
 import 'core/config/app_environment_info.dart';
+import 'core/config/remote_config.dart';
 import 'core/connectivity/connectivity_service.dart';
 import 'core/di/providers.dart';
 import 'core/logging/app_logger.dart';
@@ -57,6 +58,15 @@ Future<void> _start() async {
   );
   _reporter = crashReporter;
   await crashReporter.initialize();
+
+  // Remote configuration (docs/40 §31; docs/51) — inert until a backend impl is
+  // compiled in, so every lookup returns the caller's fallback and behaviour is
+  // driven by AppConfig + server-side flags. Activated by swapping the factory.
+  final RemoteConfigService remoteConfig = createRemoteConfig(
+    config: config,
+    logger: logger,
+  );
+  await remoteConfig.initialize();
 
   // Global error handlers — crash-safe, PII-redacted (docs/40 §29, §21). Each
   // forwards to BOTH the console logger and the crash reporter.
@@ -112,6 +122,7 @@ Future<void> _start() async {
         appLoggerProvider.overrideWithValue(logger),
         appEnvironmentInfoProvider.overrideWithValue(env),
         crashReporterProvider.overrideWithValue(crashReporter),
+        remoteConfigProvider.overrideWithValue(remoteConfig),
         cacheBoxProvider.overrideWithValue(hive.cache),
         prefsBoxProvider.overrideWithValue(hive.prefs),
         readingBoxProvider.overrideWithValue(hive.reading),
@@ -147,4 +158,20 @@ CrashReporter createCrashReporter({
     release: env.fullVersion,
     environment: config.flavor.wire,
   );
+}
+
+/// Select the remote-config source for this build (docs/40 §31; docs/51). Today
+/// this is always the inert [NoopRemoteConfigService] — every lookup returns the
+/// caller's fallback, so runtime behaviour stays driven by [AppConfig] + the
+/// server-side feature flags. When Firebase Remote Config is added, return a
+/// `FirebaseRemoteConfigService` here (the only line that changes) and gate it on
+/// `config`/flavor; `logger` is threaded in so activation can be traced.
+RemoteConfigService createRemoteConfig({
+  required AppConfig config,
+  required AppLogger logger,
+}) {
+  // `config` (flavor/gating) and `logger` (activation tracing) are threaded in so
+  // the signature is stable when a real impl is swapped in; the Noop needs neither.
+  logger.d('Remote config: inert (Noop) for ${config.flavor.wire} build.');
+  return const NoopRemoteConfigService();
 }
