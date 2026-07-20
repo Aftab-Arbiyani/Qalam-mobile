@@ -319,6 +319,12 @@ String _$connectivityServiceHash() =>
 @ProviderFor(remoteConfig)
 final remoteConfigProvider = RemoteConfigProvider._();
 
+/// Remote configuration source (docs/40 §31; docs/51). Overridden in `bootstrap`
+/// with the build's concrete instance (the inert [NoopRemoteConfigService] today;
+/// a Firebase-backed impl once activated) via [createRemoteConfig], so the app
+/// reads runtime-tunable values through one seam. Throws until overridden — tests
+/// override it with a Noop (mirrors `appConfigProvider`).
+
 final class RemoteConfigProvider
     extends
         $FunctionalProvider<
@@ -327,6 +333,11 @@ final class RemoteConfigProvider
           RemoteConfigService
         >
     with $Provider<RemoteConfigService> {
+  /// Remote configuration source (docs/40 §31; docs/51). Overridden in `bootstrap`
+  /// with the build's concrete instance (the inert [NoopRemoteConfigService] today;
+  /// a Firebase-backed impl once activated) via [createRemoteConfig], so the app
+  /// reads runtime-tunable values through one seam. Throws until overridden — tests
+  /// override it with a Noop (mirrors `appConfigProvider`).
   RemoteConfigProvider._()
     : super(
         from: null,
@@ -361,7 +372,7 @@ final class RemoteConfigProvider
   }
 }
 
-String _$remoteConfigHash() => r'0000000000000000000000000000000000000000';
+String _$remoteConfigHash() => r'532cbda1a04505b6d4bc5b84447c84b436c1962e';
 
 /// The crash/error reporter (docs/40 §31). Overridden in `bootstrap` with the
 /// DSN-gated concrete instance so error handlers and features can leave
@@ -1115,3 +1126,71 @@ final class DeviceIntegrityServiceProvider
 
 String _$deviceIntegrityServiceHash() =>
     r'39f8d80c412b17375d21726b22ac9ac95d6d3486';
+
+/// On-screen content protection (docs/52 P7.2). Overridden in `bootstrap` with
+/// the build's concrete instance (the inert [NoopScreenshotProtectionService]
+/// today; a FLAG_SECURE / iOS view-hiding impl once activated) via
+/// [createScreenshotProtection], so sensitive screens toggle protection through
+/// one seam. Defaults to the Noop so tests need no override (mirrors
+/// `crashReporterProvider`).
+
+@ProviderFor(screenshotProtection)
+final screenshotProtectionProvider = ScreenshotProtectionProvider._();
+
+/// On-screen content protection (docs/52 P7.2). Overridden in `bootstrap` with
+/// the build's concrete instance (the inert [NoopScreenshotProtectionService]
+/// today; a FLAG_SECURE / iOS view-hiding impl once activated) via
+/// [createScreenshotProtection], so sensitive screens toggle protection through
+/// one seam. Defaults to the Noop so tests need no override (mirrors
+/// `crashReporterProvider`).
+
+final class ScreenshotProtectionProvider
+    extends
+        $FunctionalProvider<
+          ScreenshotProtectionService,
+          ScreenshotProtectionService,
+          ScreenshotProtectionService
+        >
+    with $Provider<ScreenshotProtectionService> {
+  /// On-screen content protection (docs/52 P7.2). Overridden in `bootstrap` with
+  /// the build's concrete instance (the inert [NoopScreenshotProtectionService]
+  /// today; a FLAG_SECURE / iOS view-hiding impl once activated) via
+  /// [createScreenshotProtection], so sensitive screens toggle protection through
+  /// one seam. Defaults to the Noop so tests need no override (mirrors
+  /// `crashReporterProvider`).
+  ScreenshotProtectionProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'screenshotProtectionProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$screenshotProtectionHash();
+
+  @$internal
+  @override
+  $ProviderElement<ScreenshotProtectionService> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  ScreenshotProtectionService create(Ref ref) {
+    return screenshotProtection(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(ScreenshotProtectionService value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<ScreenshotProtectionService>(value),
+    );
+  }
+}
+
+String _$screenshotProtectionHash() =>
+    r'a14d6e9a41803e5bf6a13171f520bb23db4ef663';

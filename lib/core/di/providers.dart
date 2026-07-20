@@ -28,6 +28,7 @@ import '../observability/crash_reporter.dart';
 import '../security/biometric_gate.dart';
 import '../security/certificate_pinning.dart';
 import '../security/device_integrity.dart';
+import '../security/screenshot_protection.dart';
 import '../security/token_store.dart';
 import '../storage/cache_store.dart';
 import '../storage/preferences_store.dart';
@@ -169,3 +170,13 @@ CertificatePinning certificatePinning(Ref ref) =>
 @Riverpod(keepAlive: true)
 DeviceIntegrityService deviceIntegrityService(Ref ref) =>
     const NoopDeviceIntegrityService();
+
+/// On-screen content protection (docs/52 P7.2). Overridden in `bootstrap` with
+/// the build's concrete instance (the inert [NoopScreenshotProtectionService]
+/// today; a FLAG_SECURE / iOS view-hiding impl once activated) via
+/// [createScreenshotProtection], so sensitive screens toggle protection through
+/// one seam. Defaults to the Noop so tests need no override (mirrors
+/// `crashReporterProvider`).
+@Riverpod(keepAlive: true)
+ScreenshotProtectionService screenshotProtection(Ref ref) =>
+    const NoopScreenshotProtectionService();

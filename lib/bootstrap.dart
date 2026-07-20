@@ -23,6 +23,7 @@ import 'core/logging/app_logger.dart';
 import 'core/notifications/flutter_local_notification_service.dart';
 import 'core/notifications/local_notification_service.dart';
 import 'core/observability/crash_reporter.dart';
+import 'core/security/screenshot_protection.dart';
 import 'core/storage/hive_boxes.dart';
 
 Future<void> bootstrap() async {
@@ -67,6 +68,13 @@ Future<void> _start() async {
     logger: logger,
   );
   await remoteConfig.initialize();
+
+  // Screenshot / screen-recording protection (docs/52 P7.2) — inert until a
+  // concrete impl is compiled in. Activation (FLAG_SECURE / iOS view-hiding) is a
+  // product decision driven per-screen through the provider; created here so the
+  // swap is one factory line, exactly like the crash-reporter/remote-config seams.
+  final ScreenshotProtectionService screenshotProtection =
+      createScreenshotProtection(config: config, logger: logger);
 
   // Global error handlers — crash-safe, PII-redacted (docs/40 §29, §21). Each
   // forwards to BOTH the console logger and the crash reporter.
@@ -123,6 +131,7 @@ Future<void> _start() async {
         appEnvironmentInfoProvider.overrideWithValue(env),
         crashReporterProvider.overrideWithValue(crashReporter),
         remoteConfigProvider.overrideWithValue(remoteConfig),
+        screenshotProtectionProvider.overrideWithValue(screenshotProtection),
         cacheBoxProvider.overrideWithValue(hive.cache),
         prefsBoxProvider.overrideWithValue(hive.prefs),
         readingBoxProvider.overrideWithValue(hive.reading),
@@ -174,4 +183,22 @@ RemoteConfigService createRemoteConfig({
   // the signature is stable when a real impl is swapped in; the Noop needs neither.
   logger.d('Remote config: inert (Noop) for ${config.flavor.wire} build.');
   return const NoopRemoteConfigService();
+}
+
+/// Select the screenshot / screen-recording protection impl for this build
+/// (docs/52 P7.2). Today this is always the inert
+/// [NoopScreenshotProtectionService]; a real impl (`FLAG_SECURE` on Android,
+/// hiding/blurring the view on iOS via a package such as `screen_protector` or a
+/// platform channel) drops in here — the only line that changes. `config`
+/// (flavor gating) and `logger` (activation tracing) are threaded in so the
+/// signature is stable when a real impl is swapped in, mirroring
+/// [createCrashReporter] / [createRemoteConfig]; the Noop needs neither.
+ScreenshotProtectionService createScreenshotProtection({
+  required AppConfig config,
+  required AppLogger logger,
+}) {
+  logger.d(
+    'Screenshot protection: inert (Noop) for ${config.flavor.wire} build.',
+  );
+  return const NoopScreenshotProtectionService();
 }

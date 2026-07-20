@@ -34,7 +34,7 @@ final class CollaborationControllerProvider
 }
 
 String _$collaborationControllerHash() =>
-    r'a71c78c64a54f1681a3d2e33c362b766d6671ded';
+    r'155fe57a32e2fa5af86616bc6fcece67a8b2d61d';
 
 abstract class _$CollaborationController extends $AsyncNotifier<void> {
   FutureOr<void> build();
