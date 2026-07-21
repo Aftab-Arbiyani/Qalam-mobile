@@ -25,6 +25,12 @@ import '../network/dio_client.dart';
 import '../notifications/local_notification_service.dart';
 import '../notifications/push_messaging_service.dart';
 import '../observability/crash_reporter.dart';
+import '../observability/network_diagnostics.dart';
+import '../observability/operational_logger.dart';
+import '../observability/operations_feature_flags.dart';
+import '../observability/performance_monitor.dart';
+import '../observability/production_telemetry.dart';
+import '../observability/release_diagnostics.dart';
 import '../security/biometric_gate.dart';
 import '../security/certificate_pinning.dart';
 import '../security/device_integrity.dart';
@@ -180,3 +186,51 @@ DeviceIntegrityService deviceIntegrityService(Ref ref) =>
 @Riverpod(keepAlive: true)
 ScreenshotProtectionService screenshotProtection(Ref ref) =>
     const NoopScreenshotProtectionService();
+
+// ── Operations Platform seams (P7.4 — inert until a backend is wired) ──────────
+
+/// Performance monitoring (P7.4; docs/54). Inert [NoopPerformanceMonitor] by
+/// default — keeps a bounded local ring; swap for an APM impl to upload.
+@Riverpod(keepAlive: true)
+PerformanceMonitor performanceMonitor(Ref ref) => NoopPerformanceMonitor();
+
+/// Network diagnostics (P7.4; docs/54). Inert [NoopNetworkDiagnostics] by
+/// default — id + path only, bounded local ring + counters.
+@Riverpod(keepAlive: true)
+NetworkDiagnostics networkDiagnostics(Ref ref) => NoopNetworkDiagnostics();
+
+/// Operational logging (P7.4; docs/54). Classifies + redacts over [AppLogger] and
+/// forwards errors to the crash reporter. Ships nothing remotely by default.
+@Riverpod(keepAlive: true)
+OperationalLogger operationalLogger(Ref ref) => NoopOperationalLogger(
+  logger: ref.watch(appLoggerProvider),
+  crashReporter: ref.watch(crashReporterProvider),
+);
+
+/// Release diagnostics (P7.4; docs/54). Exposes the resolved [AppEnvironmentInfo]
+/// + build channel; attaches release context to crash reports.
+@Riverpod(keepAlive: true)
+ReleaseDiagnostics releaseDiagnostics(Ref ref) => NoopReleaseDiagnostics(
+  environment: ref.watch(appEnvironmentInfoProvider),
+  channel: ref.watch(appConfigProvider).flavor.wire,
+);
+
+/// Production telemetry umbrella (P7.4; docs/54). Composes the observability
+/// seams behind one facade. Inert by default (all composed seams are inert).
+@Riverpod(keepAlive: true)
+ProductionTelemetry productionTelemetry(Ref ref) => NoopProductionTelemetry(
+  crashReporter: ref.watch(crashReporterProvider),
+  performance: ref.watch(performanceMonitorProvider),
+  network: ref.watch(networkDiagnosticsProvider),
+  logger: ref.watch(operationalLoggerProvider),
+  release: ref.watch(releaseDiagnosticsProvider),
+);
+
+/// Remote feature-flag reconciliation (P7.4; docs/54). Reconciles the compile-time
+/// kill switches with the remote-config dial (server flags stay authoritative in
+/// their own providers).
+@Riverpod(keepAlive: true)
+OperationsFeatureFlags operationsFeatureFlags(Ref ref) => OperationsFeatureFlags(
+  config: ref.watch(appConfigProvider),
+  remoteConfig: ref.watch(remoteConfigProvider),
+);

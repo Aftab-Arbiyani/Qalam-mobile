@@ -1194,3 +1194,341 @@ final class ScreenshotProtectionProvider
 
 String _$screenshotProtectionHash() =>
     r'a14d6e9a41803e5bf6a13171f520bb23db4ef663';
+
+/// Performance monitoring (P7.4; docs/54). Inert [NoopPerformanceMonitor] by
+/// default — keeps a bounded local ring; swap for an APM impl to upload.
+
+@ProviderFor(performanceMonitor)
+final performanceMonitorProvider = PerformanceMonitorProvider._();
+
+/// Performance monitoring (P7.4; docs/54). Inert [NoopPerformanceMonitor] by
+/// default — keeps a bounded local ring; swap for an APM impl to upload.
+
+final class PerformanceMonitorProvider
+    extends
+        $FunctionalProvider<
+          PerformanceMonitor,
+          PerformanceMonitor,
+          PerformanceMonitor
+        >
+    with $Provider<PerformanceMonitor> {
+  /// Performance monitoring (P7.4; docs/54). Inert [NoopPerformanceMonitor] by
+  /// default — keeps a bounded local ring; swap for an APM impl to upload.
+  PerformanceMonitorProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'performanceMonitorProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$performanceMonitorHash();
+
+  @$internal
+  @override
+  $ProviderElement<PerformanceMonitor> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  PerformanceMonitor create(Ref ref) {
+    return performanceMonitor(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(PerformanceMonitor value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<PerformanceMonitor>(value),
+    );
+  }
+}
+
+String _$performanceMonitorHash() =>
+    r'35d5b646f27b88fa0d96b203271b6b7145635d6e';
+
+/// Network diagnostics (P7.4; docs/54). Inert [NoopNetworkDiagnostics] by
+/// default — id + path only, bounded local ring + counters.
+
+@ProviderFor(networkDiagnostics)
+final networkDiagnosticsProvider = NetworkDiagnosticsProvider._();
+
+/// Network diagnostics (P7.4; docs/54). Inert [NoopNetworkDiagnostics] by
+/// default — id + path only, bounded local ring + counters.
+
+final class NetworkDiagnosticsProvider
+    extends
+        $FunctionalProvider<
+          NetworkDiagnostics,
+          NetworkDiagnostics,
+          NetworkDiagnostics
+        >
+    with $Provider<NetworkDiagnostics> {
+  /// Network diagnostics (P7.4; docs/54). Inert [NoopNetworkDiagnostics] by
+  /// default — id + path only, bounded local ring + counters.
+  NetworkDiagnosticsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'networkDiagnosticsProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$networkDiagnosticsHash();
+
+  @$internal
+  @override
+  $ProviderElement<NetworkDiagnostics> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  NetworkDiagnostics create(Ref ref) {
+    return networkDiagnostics(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(NetworkDiagnostics value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<NetworkDiagnostics>(value),
+    );
+  }
+}
+
+String _$networkDiagnosticsHash() =>
+    r'1feb2a4e1cf7cc80cfb3d459d8e7af93ffd38657';
+
+/// Operational logging (P7.4; docs/54). Classifies + redacts over [AppLogger] and
+/// forwards errors to the crash reporter. Ships nothing remotely by default.
+
+@ProviderFor(operationalLogger)
+final operationalLoggerProvider = OperationalLoggerProvider._();
+
+/// Operational logging (P7.4; docs/54). Classifies + redacts over [AppLogger] and
+/// forwards errors to the crash reporter. Ships nothing remotely by default.
+
+final class OperationalLoggerProvider
+    extends
+        $FunctionalProvider<
+          OperationalLogger,
+          OperationalLogger,
+          OperationalLogger
+        >
+    with $Provider<OperationalLogger> {
+  /// Operational logging (P7.4; docs/54). Classifies + redacts over [AppLogger] and
+  /// forwards errors to the crash reporter. Ships nothing remotely by default.
+  OperationalLoggerProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'operationalLoggerProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$operationalLoggerHash();
+
+  @$internal
+  @override
+  $ProviderElement<OperationalLogger> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  OperationalLogger create(Ref ref) {
+    return operationalLogger(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(OperationalLogger value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<OperationalLogger>(value),
+    );
+  }
+}
+
+String _$operationalLoggerHash() => r'9c57daaa8264845da7f4e2a202cda139864f4898';
+
+/// Release diagnostics (P7.4; docs/54). Exposes the resolved [AppEnvironmentInfo]
+/// + build channel; attaches release context to crash reports.
+
+@ProviderFor(releaseDiagnostics)
+final releaseDiagnosticsProvider = ReleaseDiagnosticsProvider._();
+
+/// Release diagnostics (P7.4; docs/54). Exposes the resolved [AppEnvironmentInfo]
+/// + build channel; attaches release context to crash reports.
+
+final class ReleaseDiagnosticsProvider
+    extends
+        $FunctionalProvider<
+          ReleaseDiagnostics,
+          ReleaseDiagnostics,
+          ReleaseDiagnostics
+        >
+    with $Provider<ReleaseDiagnostics> {
+  /// Release diagnostics (P7.4; docs/54). Exposes the resolved [AppEnvironmentInfo]
+  /// + build channel; attaches release context to crash reports.
+  ReleaseDiagnosticsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'releaseDiagnosticsProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$releaseDiagnosticsHash();
+
+  @$internal
+  @override
+  $ProviderElement<ReleaseDiagnostics> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  ReleaseDiagnostics create(Ref ref) {
+    return releaseDiagnostics(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(ReleaseDiagnostics value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<ReleaseDiagnostics>(value),
+    );
+  }
+}
+
+String _$releaseDiagnosticsHash() =>
+    r'abfd7fe2cbe30413cded5b52679d157fbeafbf35';
+
+/// Production telemetry umbrella (P7.4; docs/54). Composes the observability
+/// seams behind one facade. Inert by default (all composed seams are inert).
+
+@ProviderFor(productionTelemetry)
+final productionTelemetryProvider = ProductionTelemetryProvider._();
+
+/// Production telemetry umbrella (P7.4; docs/54). Composes the observability
+/// seams behind one facade. Inert by default (all composed seams are inert).
+
+final class ProductionTelemetryProvider
+    extends
+        $FunctionalProvider<
+          ProductionTelemetry,
+          ProductionTelemetry,
+          ProductionTelemetry
+        >
+    with $Provider<ProductionTelemetry> {
+  /// Production telemetry umbrella (P7.4; docs/54). Composes the observability
+  /// seams behind one facade. Inert by default (all composed seams are inert).
+  ProductionTelemetryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'productionTelemetryProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$productionTelemetryHash();
+
+  @$internal
+  @override
+  $ProviderElement<ProductionTelemetry> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  ProductionTelemetry create(Ref ref) {
+    return productionTelemetry(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(ProductionTelemetry value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<ProductionTelemetry>(value),
+    );
+  }
+}
+
+String _$productionTelemetryHash() =>
+    r'3d2c3b657dde64e23f4ef67b6af5e87a2938c262';
+
+/// Remote feature-flag reconciliation (P7.4; docs/54). Reconciles the compile-time
+/// kill switches with the remote-config dial (server flags stay authoritative in
+/// their own providers).
+
+@ProviderFor(operationsFeatureFlags)
+final operationsFeatureFlagsProvider = OperationsFeatureFlagsProvider._();
+
+/// Remote feature-flag reconciliation (P7.4; docs/54). Reconciles the compile-time
+/// kill switches with the remote-config dial (server flags stay authoritative in
+/// their own providers).
+
+final class OperationsFeatureFlagsProvider
+    extends
+        $FunctionalProvider<
+          OperationsFeatureFlags,
+          OperationsFeatureFlags,
+          OperationsFeatureFlags
+        >
+    with $Provider<OperationsFeatureFlags> {
+  /// Remote feature-flag reconciliation (P7.4; docs/54). Reconciles the compile-time
+  /// kill switches with the remote-config dial (server flags stay authoritative in
+  /// their own providers).
+  OperationsFeatureFlagsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'operationsFeatureFlagsProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$operationsFeatureFlagsHash();
+
+  @$internal
+  @override
+  $ProviderElement<OperationsFeatureFlags> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  OperationsFeatureFlags create(Ref ref) {
+    return operationsFeatureFlags(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(OperationsFeatureFlags value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<OperationsFeatureFlags>(value),
+    );
+  }
+}
+
+String _$operationsFeatureFlagsHash() =>
+    r'3e04b7054f58355757c6ddc6b6f2dfab2899539b';
