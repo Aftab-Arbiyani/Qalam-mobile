@@ -41,12 +41,29 @@ AppLogger? _logger;
 CrashReporter? _reporter;
 
 Future<void> _start() async {
+  // Startup-budget timer (docs/40 §36, P7.3) — measured cold-start duration is
+  // logged before the first frame; the target is flutter.startup.cold (docs 43 §10).
+  final Stopwatch startupWatch = Stopwatch()..start();
+
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Bound the in-memory image cache (docs/40 §35.2/§37, P7.3): decoded bitmaps
+  // are capped so a long feed scroll cannot grow image memory unbounded. Pairs
+  // with `memCacheWidth` (decode-at-display-size) in QNetworkImage.
+  PaintingBinding.instance.imageCache.maximumSizeBytes = 100 << 20; // 100 MiB
 
   // Fail fast on misconfiguration (docs/40 §28).
   final AppConfig config = AppConfig.fromEnvironment()..validate();
   final AppLogger logger = AppLogger(flavor: config.flavor);
   _logger = logger;
+
+  // Start the independent async inits together (docs/40 §36, P7.3) — Hive (4
+  // boxes), connectivity, and environment resolution have no ordering
+  // dependency, so overlapping them shortens cold start vs the old serial awaits.
+  final ConnectivityService connectivity = ConnectivityService();
+  final Future<({Box<dynamic> cache, Box<dynamic> prefs, Box<dynamic> reading, Box<dynamic> drafts})>
+  hiveFuture = const HiveInitializer().initialize();
+  final Future<void> connectivityFuture = connectivity.initialize();
 
   final AppEnvironmentInfo env = await resolveAppEnvironmentInfo();
 
@@ -101,15 +118,15 @@ Future<void> _start() async {
     return true;
   };
 
+  // Await the inits started in parallel above.
   final ({
     Box<dynamic> cache,
     Box<dynamic> prefs,
     Box<dynamic> reading,
     Box<dynamic> drafts,
   })
-  hive = await const HiveInitializer().initialize();
-  final ConnectivityService connectivity = ConnectivityService();
-  await connectivity.initialize();
+  hive = await hiveFuture;
+  await connectivityFuture;
 
   // Concrete on-device notifications (docs/40 §33). Initialization (channels +
   // tap handler) is driven by the push coordinator once the app is up; the FCM
@@ -117,9 +134,11 @@ Future<void> _start() async {
   final LocalNotificationService localNotifications =
       FlutterLocalNotificationService(logger);
 
+  startupWatch.stop();
   logger.i(
     'Qalam ${env.fullVersion} · ${config.flavor.name} · ${env.platform}'
-    ' · crash-reporting=${crashReporter.isEnabled}',
+    ' · crash-reporting=${crashReporter.isEnabled}'
+    ' · bootstrapMs=${startupWatch.elapsedMilliseconds}',
   );
 
   runApp(

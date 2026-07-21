@@ -59,12 +59,21 @@ android {
             // --release` keeps working. Dart obfuscation + split-debug-info are
             // supplied at build time (see docs/46 + docs/51 release checklist).
             //
-            // R8 / resource shrinking stay OFF by default (M10 decision, docs/46
-            // §13) — Dart tree-shaking + `--obfuscate` cover code size and R8 can
-            // strip un-vetted plugin code. To enable (needs device QA): set
-            // isMinifyEnabled = true, isShrinkResources = true, and add
-            // proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"),
-            //   "proguard-rules.pro"). See android/app/proguard-rules.pro.
+            // R8 minification + resource shrinking are ENABLED (P7.3 release-build
+            // optimization) using the curated keep rules in proguard-rules.pro
+            // (Flutter, flutter_local_notifications/Gson, secure_storage, plus_plugins,
+            // firebase, launcher). Together with Dart tree-shaking + `--obfuscate`
+            // this is the primary APK/AAB size + native-strip win. GATE: the docs/51
+            // device-QA smoke (install a --release build, exercise notifications /
+            // secure storage / deep links) MUST pass before a store submission — R8
+            // can strip un-vetted plugin code, so a new plugin needs its keep rule
+            // added here first.
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+            )
             signingConfig = if (hasReleaseSigning) {
                 signingConfigs.getByName("release")
             } else {

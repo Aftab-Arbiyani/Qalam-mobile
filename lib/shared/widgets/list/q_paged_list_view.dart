@@ -82,7 +82,12 @@ class _QPagedListViewState<T> extends State<QPagedListView<T>> {
             child: QLoadingIndicator(size: 20),
           );
         }
-        return widget.itemBuilder(context, widget.items[index], index);
+        // Isolate each row's painting (docs/40 §36, P7.3): a card repainting
+        // (e.g. a cached image resolving, a clap animating) no longer dirties the
+        // whole list layer. Cheap, and a clear win on image-heavy feeds.
+        return RepaintBoundary(
+          child: widget.itemBuilder(context, widget.items[index], index),
+        );
       },
     );
 

@@ -40,11 +40,20 @@ class QNetworkImage extends StatelessWidget {
     if (url == null || url!.isEmpty) {
       image = placeholder();
     } else {
+      // Decode at DISPLAY size, not source size (docs/40 §35.2, P7.3): the single
+      // biggest image-memory win. Cap the decoded bitmap to the layout box scaled
+      // by the device pixel ratio so a 2000px cover doesn't sit full-res in the
+      // image cache. Null when the box is unbounded (fall back to source decode).
+      final double dpr = MediaQuery.maybeOf(context)?.devicePixelRatio ?? 1.0;
+      final int? memWidth = width != null && width!.isFinite ? (width! * dpr).round() : null;
+      final int? memHeight = height != null && height!.isFinite ? (height! * dpr).round() : null;
       image = CachedNetworkImage(
         imageUrl: url!,
         width: width,
         height: height,
         fit: fit,
+        memCacheWidth: memWidth,
+        memCacheHeight: memHeight,
         placeholder: (BuildContext context, _) => placeholder(),
         errorWidget: (BuildContext context, _, _) => placeholder(),
       );

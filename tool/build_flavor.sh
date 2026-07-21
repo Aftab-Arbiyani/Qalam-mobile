@@ -76,6 +76,14 @@ fi
 BUILD_NUMBER="${BUILD_NUMBER:-$(date -u +%Y%m%d%H%M)}"
 SYMBOLS_DIR="build/symbols/${FLAVOR}"
 
+# Per-ABI split for sideload/QA APKs (P7.3): produces smaller arch-specific APKs
+# instead of one fat universal binary. App Bundles already split per device at the
+# Play Store, and IPA does not apply — so this flag is APK-only.
+EXTRA_ARGS=()
+if [[ "$ARTIFACT" == "apk" ]]; then
+  EXTRA_ARGS+=(--split-per-abi)
+fi
+
 echo "▶ Building ${ARTIFACT} · flavor=${FLAVOR} · build=${BUILD_NUMBER}"
 echo "  defines=${DEFINES_FILE} · symbols=${SYMBOLS_DIR}"
 
@@ -85,7 +93,8 @@ flutter build "${ARTIFACT}" \
   --dart-define-from-file="${DEFINES_FILE}" \
   --obfuscate \
   --split-debug-info="${SYMBOLS_DIR}" \
-  --build-number="${BUILD_NUMBER}"
+  --build-number="${BUILD_NUMBER}" \
+  "${EXTRA_ARGS[@]}"
 
 # Report the produced artifact path (best-effort — matches Flutter's output dirs).
 case "$ARTIFACT" in
