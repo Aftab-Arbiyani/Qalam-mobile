@@ -46,3 +46,11 @@ app.*.map.json
 
 # Flutter golden-test failure diffs (transient)
 **/test/**/failures/
+
+# Claude Code transient state — hook scratch (changed-files tracker), subagent run logs,
+# and personal per-developer overrides. Any-depth patterns: a plain `.claude/state/` would
+# be anchored to the repo root and miss nested copies. Project-level Claude config
+# (hooks/, settings.json) is NOT ignored, so it can be tracked if we ever add it.
+**/.claude/state/
+**/.claude/logs/
+**/.claude/settings.local.json
