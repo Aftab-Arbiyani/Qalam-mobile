@@ -6,6 +6,7 @@ library;
 
 import '../../../../core/utils/result.dart';
 import '../../../../core/utils/typedefs.dart';
+import '../../../../shared/api/api_envelope.dart';
 import '../entities/collaboration_activity_entry.dart';
 import '../entities/collaboration_comment.dart';
 import '../entities/edit_suggestion.dart';
@@ -14,6 +15,7 @@ import '../entities/policy_capability.dart';
 import '../entities/presence_entry.dart';
 import '../entities/story_invitation.dart';
 import '../entities/story_member.dart';
+import '../entities/text_anchor.dart';
 
 abstract interface class CollaborationRepository {
   // ── Members ────────────────────────────────────────────────────────────────
@@ -42,6 +44,9 @@ abstract interface class CollaborationRepository {
   /// no invite-by-email path (defect M-1, `platfrom/docs/48` §3.1).
   Future<Result<InviteeCandidate>> resolveInvitee(String username);
 
+  /// The viewer's own id — needed for self-service affordances (C-12).
+  Future<Result<InviteeCandidate>> me();
+
   /// Invite by **user id** (`{inviteeId, role}`) — the only shape the contract accepts.
   Future<Result<StoryInvitation>> invite({
     required String storyId,
@@ -58,14 +63,24 @@ abstract interface class CollaborationRepository {
   Future<Result<Unit>> revokeInvitation(String invitationId);
 
   // ── Comments ──────────────────────────────────────────────────────────────────
-  Future<Result<List<CollaborationComment>>> comments(String storyId);
+
+  /// One cursor page of ROOT comments, optionally filtered by open/resolved.
+  Future<Result<CursorPage<CollaborationComment>>> comments(
+    String storyId, {
+    String? cursor,
+    int? limit,
+    String? status,
+  });
+
+  /// A root comment plus its replies — the only source of a thread (C-5).
+  Future<Result<CommentThread>> commentThread(String commentId);
+
   Future<Result<CollaborationComment>> addComment({
     required String storyId,
     required String body,
     required String kind,
-    CommentAnchor? anchor,
+    TextAnchor? anchor,
     List<String> mentions,
-    String? parentId,
   });
   Future<Result<CollaborationComment>> replyToComment({
     required String commentId,
@@ -76,24 +91,35 @@ abstract interface class CollaborationRepository {
   Future<Result<Unit>> deleteComment(String commentId);
 
   // ── Suggestions ────────────────────────────────────────────────────────────────
-  Future<Result<List<EditSuggestion>>> suggestions(String storyId);
+
+  /// One cursor page of suggestions, optionally filtered by status.
+  Future<Result<CursorPage<EditSuggestion>>> suggestions(
+    String storyId, {
+    String? cursor,
+    int? limit,
+    String? status,
+  });
   Future<Result<EditSuggestion>> addSuggestion({
     required String storyId,
+    required TextAnchor anchor,
     required String originalText,
     required String suggestedText,
-    String? blockId,
-    String? rationale,
   });
   Future<Result<EditSuggestion>> acceptSuggestion(String suggestionId);
   Future<Result<EditSuggestion>> rejectSuggestion(String suggestionId);
   Future<Result<EditSuggestion>> withdrawSuggestion(String suggestionId);
 
   // ── Activity + presence ──────────────────────────────────────────────────────
-  Future<Result<List<CollaborationActivityEntry>>> activity(String storyId);
+
+  /// One cursor page of the activity feed.
+  Future<Result<CursorPage<CollaborationActivityEntry>>> activity(
+    String storyId, {
+    String? cursor,
+    int? limit,
+  });
   Future<Result<List<PresenceEntry>>> presence(String storyId);
   Future<Result<Unit>> heartbeat({
     required String storyId,
     required String state,
-    String? blockId,
   });
 }

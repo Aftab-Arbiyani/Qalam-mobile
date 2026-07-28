@@ -12,4 +12,5 @@ export 'presentation/providers/collaboration_providers.dart'
     show storyCapabilitiesProvider, trustSummaryProvider;
 export 'presentation/widgets/capability_gate.dart' show CapabilityGate;
 export 'presentation/widgets/presence_bar.dart' show PresenceBar;
+export 'presentation/widgets/restricted_banner.dart' show RestrictedBanner;
 export 'presentation/widgets/role_badge.dart' show RoleBadge;

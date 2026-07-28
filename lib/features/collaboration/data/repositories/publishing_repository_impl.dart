@@ -6,6 +6,7 @@ import '../../../../core/error/result_guard.dart';
 import '../../../../core/utils/result.dart';
 import '../../domain/entities/publication_event.dart';
 import '../../domain/entities/review_session.dart';
+import '../../domain/entities/story_publication_state.dart';
 import '../../domain/entities/story_snapshot.dart';
 import '../../domain/repositories/publishing_repository.dart';
 import '../datasources/publishing_remote_data_source.dart';
@@ -16,35 +17,23 @@ class PublishingRepositoryImpl implements PublishingRepository {
   final PublishingRemoteDataSource _remote;
 
   @override
-  Future<Result<PublicationEvent>> publish({
+  Future<Result<StoryPublicationState>> publish({required String storyId}) =>
+      guardResult(() => _remote.publish(storyId: storyId));
+
+  @override
+  Future<Result<StoryPublicationState>> unpublish({required String storyId}) =>
+      guardResult(() => _remote.unpublish(storyId: storyId));
+
+  @override
+  Future<Result<StoryPublicationState>> schedule({
     required String storyId,
-    String? visibility,
-    String? note,
+    required DateTime scheduledAt,
   }) => guardResult(
-    () => _remote.publish(storyId: storyId, visibility: visibility, note: note),
+    () => _remote.schedule(storyId: storyId, scheduledAt: scheduledAt),
   );
 
   @override
-  Future<Result<PublicationEvent>> unpublish({
-    required String storyId,
-    String? note,
-  }) => guardResult(() => _remote.unpublish(storyId: storyId, note: note));
-
-  @override
-  Future<Result<PublicationEvent>> schedule({
-    required String storyId,
-    required DateTime scheduledFor,
-    String? visibility,
-  }) => guardResult(
-    () => _remote.schedule(
-      storyId: storyId,
-      scheduledFor: scheduledFor,
-      visibility: visibility,
-    ),
-  );
-
-  @override
-  Future<Result<PublicationEvent>> changeVisibility({
+  Future<Result<StoryPublicationState>> changeVisibility({
     required String storyId,
     required String visibility,
   }) => guardResult(
@@ -56,51 +45,38 @@ class PublishingRepositoryImpl implements PublishingRepository {
       guardResult(() => _remote.publicationHistory(storyId));
 
   @override
-  Future<Result<ReviewSession>> review(String storyId) =>
+  Future<Result<ReviewSession?>> review(String storyId) =>
       guardResult(() => _remote.review(storyId));
 
   @override
-  Future<Result<ReviewSession>> requestReview({
-    required String storyId,
-    String? reviewerId,
-    String? note,
-  }) => guardResult(
-    () => _remote.requestReview(
-      storyId: storyId,
-      reviewerId: reviewerId,
-      note: note,
-    ),
-  );
+  Future<Result<ReviewSession>> requestReview({required String storyId}) =>
+      guardResult(() => _remote.requestReview(storyId: storyId));
 
   @override
-  Future<Result<ReviewSession>> approveReview({
-    required String storyId,
-    String? note,
-  }) => guardResult(() => _remote.approveReview(storyId: storyId, note: note));
+  Future<Result<ReviewSession>> approveReview({required String storyId}) =>
+      guardResult(() => _remote.approveReview(storyId: storyId));
 
   @override
   Future<Result<ReviewSession>> requestChanges({
     required String storyId,
-    String? note,
-  }) => guardResult(() => _remote.requestChanges(storyId: storyId, note: note));
+    String? notes,
+  }) =>
+      guardResult(() => _remote.requestChanges(storyId: storyId, notes: notes));
 
   @override
   Future<Result<List<StorySnapshot>>> snapshots(String storyId) =>
       guardResult(() => _remote.snapshots(storyId));
 
   @override
-  Future<Result<StorySnapshot>> createSnapshot({
-    required String storyId,
-    String? label,
-  }) =>
-      guardResult(() => _remote.createSnapshot(storyId: storyId, label: label));
+  Future<Result<StorySnapshot>> createSnapshot({required String storyId}) =>
+      guardResult(() => _remote.createSnapshot(storyId: storyId));
 
   @override
   Future<Result<StorySnapshot>> snapshot(String snapshotId) =>
       guardResult(() => _remote.snapshot(snapshotId));
 
   @override
-  Future<Result<StorySnapshot>> revertToSnapshot({
+  Future<Result<StoryPublicationState>> revertToSnapshot({
     required String storyId,
     required String snapshotId,
   }) => guardResult(

@@ -99,6 +99,15 @@ abstract final class TrustStatus {
   static const String banned = 'banned';
 }
 
+/// The surface a restriction applies to (`RestrictionScope`). `global` covers all.
+abstract final class RestrictionScope {
+  static const String global = 'global';
+  static const String publishing = 'publishing';
+  static const String collaboration = 'collaboration';
+  static const String comments = 'comments';
+  static const String reporting = 'reporting';
+}
+
 /// The concrete restriction placed on an account.
 abstract final class RestrictionType {
   static const String readOnly = 'read_only';
@@ -109,6 +118,12 @@ abstract final class RestrictionType {
 }
 
 /// Policy actions the capability map keys on (`GET /stories/{id}/capabilities`).
+///
+/// The action set is chosen **by the server**: the endpoint takes only `:storyId`
+/// (no query, no body) and `MembershipService.getCapabilities` passes the
+/// module-local `COLLABORATION_CAPABILITY_ACTIONS` to `PolicyEngineService.explain`.
+/// A client cannot ask for more actions than that constant lists — so these
+/// strings are a *mirror for keying decisions*, never a request.
 abstract final class PolicyAction {
   static const String storyView = 'story.view';
   static const String storyEdit = 'story.edit';
@@ -116,37 +131,52 @@ abstract final class PolicyAction {
   static const String storySuggest = 'story.suggest';
   static const String storyInvite = 'story.invite';
   static const String storyManageMembers = 'story.manage_members';
+  static const String storyManageRoles = 'story.manage_roles';
   static const String commentResolve = 'comment.resolve';
+  static const String commentDelete = 'comment.delete';
   static const String suggestionResolve = 'suggestion.resolve';
   static const String publicationPublish = 'publication.publish';
   static const String reviewApprove = 'review.approve';
 
-  static const List<String> all = <String>[
+  /// Exactly what `COLLABORATION_CAPABILITY_ACTIONS` explains today. Keep this in
+  /// step with that constant — a gate keyed on anything absent here gets no
+  /// decision and default-denies (`PolicyCapability.deny`, reason `no_policy`).
+  static const List<String> serverExplained = <String>[
     storyView,
-    storyEdit,
     storyComment,
     storySuggest,
     storyInvite,
     storyManageMembers,
+    storyManageRoles,
     commentResolve,
+    commentDelete,
     suggestionResolve,
+  ];
+
+  /// Real, rule-governed actions (`ACTION_MIN_STORY_ROLE` in `policy.constants.ts`)
+  /// that the capabilities endpoint does **not** explain, so no client can gate on
+  /// them yet. The publishing screen's five gates key on these three: they render
+  /// nothing until `COLLABORATION_CAPABILITY_ACTIONS` grows to include them
+  /// (defect **C-2**, `docs/56` §2.1 — a backend change, tracked there).
+  static const List<String> notExplainedByServer = <String>[
+    storyEdit,
     publicationPublish,
     reviewApprove,
   ];
 }
 
-/// Story publication visibility. Not in the core policy vocab; a client HINT for the
-/// publish/visibility controls — the server validates the effective value.
+/// Story publication visibility — a mirror of `Visibility` in
+/// `packages/shared/src/enums.ts`, which is the complete set the server accepts
+/// (`ChangeVisibilityDto` is `@IsIn(Object.values(Visibility))`).
+///
+/// There is no `followers` value. One used to be listed here and the publish card
+/// rendered a chip per entry, so tapping "Followers" sent a visibility the enum does
+/// not contain and got `400 VALIDATION_FAILED` (defect **P-3**, `docs/56` §2.2).
+/// Followers-only visibility is a *profile* privacy setting, not a piece visibility.
 abstract final class StoryVisibility {
   static const String private = 'private';
   static const String unlisted = 'unlisted';
-  static const String followers = 'followers';
   static const String public = 'public';
 
-  static const List<String> ordered = <String>[
-    private,
-    unlisted,
-    followers,
-    public,
-  ];
+  static const List<String> ordered = <String>[private, unlisted, public];
 }

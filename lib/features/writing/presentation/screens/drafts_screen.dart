@@ -194,23 +194,60 @@ class _DraftRow extends ConsumerWidget {
   }
 
   Widget _rowMenu(BuildContext context, WidgetRef ref) {
+    // Collaboration entries need the SERVER piece id (`storyId === pieceId`), so a
+    // draft that has never synced (`remoteId == null`) shows none of them — its
+    // local route id would be rejected by the endpoints' `ParseUUIDPipe`
+    // (defect **R-1**, `docs/56` §2.4).
+    final String? storyId = summary.remoteId;
+    final bool collab =
+        ref.watch(appConfigProvider).enableCollaboration &&
+        storyId != null &&
+        storyId.isNotEmpty;
     return PopupMenuButton<String>(
       icon: const Icon(Icons.more_vert),
       onSelected: (String value) async {
-        if (value == 'edit') {
-          unawaited(context.push(Routes.writeDraftPath(summary.routeId)));
-        } else if (value == 'delete') {
-          final bool ok = await _confirmDelete(context);
-          if (ok) {
-            await ref
-                .read(draftListControllerProvider.notifier)
-                .deleteSummary(summary);
-          }
+        switch (value) {
+          case 'edit':
+            unawaited(context.push(Routes.writeDraftPath(summary.routeId)));
+          case 'delete':
+            final bool ok = await _confirmDelete(context);
+            if (ok) {
+              await ref
+                  .read(draftListControllerProvider.notifier)
+                  .deleteSummary(summary);
+            }
+          case 'collaborators':
+            unawaited(context.push(Routes.storyCollaboratorsPath(storyId!)));
+          case 'collab_comments':
+            unawaited(context.push(Routes.storyCommentsPath(storyId!)));
+          case 'collab_suggestions':
+            unawaited(context.push(Routes.storySuggestionsPath(storyId!)));
+          case 'collab_publishing':
+            unawaited(context.push(Routes.storyPublishingPath(storyId!)));
         }
       },
-      itemBuilder: (BuildContext context) => const <PopupMenuEntry<String>>[
-        PopupMenuItem<String>(value: 'edit', child: Text('Edit')),
-        PopupMenuItem<String>(value: 'delete', child: Text('Delete')),
+      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+        const PopupMenuItem<String>(value: 'edit', child: Text('Edit')),
+        const PopupMenuItem<String>(value: 'delete', child: Text('Delete')),
+        if (collab) ...<PopupMenuEntry<String>>[
+          const PopupMenuDivider(),
+          const PopupMenuItem<String>(
+            value: 'collaborators',
+            child: Text('Collaborators'),
+          ),
+          const PopupMenuItem<String>(
+            value: 'collab_comments',
+            child: Text('Review comments'),
+          ),
+          const PopupMenuItem<String>(
+            value: 'collab_suggestions',
+            child: Text('Suggestions'),
+          ),
+          const PopupMenuItem<String>(
+            value: 'collab_publishing',
+            child: Text('Publishing workflow'),
+          ),
+        ],
       ],
     );
   }

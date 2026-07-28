@@ -17,7 +17,6 @@ class PolicyCapability {
     required this.allowed,
     required this.reason,
     required this.obligations,
-    this.matchedRule,
   });
 
   final String action;
@@ -25,24 +24,25 @@ class PolicyCapability {
   final bool allowed;
   final String reason;
   final List<String> obligations;
-  final String? matchedRule;
+  // No `matchedRule`: `PolicyDecision` carries one, but `toCapabilityDtos`
+  // (collaboration.mappers.ts) drops it, so the wire never sends it.
 
   bool get requiresReview => effect == PolicyEffect.requiresReview;
   bool get isReadOnly => effect == PolicyEffect.readOnly;
   bool get isConditional => effect == PolicyEffect.conditionalAccess;
 
-  /// The action key comes from the map key, not the payload.
-  factory PolicyCapability.fromJson(String action, Json json) =>
-      PolicyCapability(
-        action: action,
-        effect: json['effect'] as String? ?? PolicyEffect.deny,
-        allowed: json['allowed'] as bool? ?? false,
-        reason: json['reason'] as String? ?? '',
-        obligations: (json['obligations'] as List<dynamic>? ?? <dynamic>[])
-            .whereType<String>()
-            .toList(growable: false),
-        matchedRule: json['matchedRule'] as String?,
-      );
+  /// One `CapabilityDto` element: `{action, effect, allowed, reason, obligations}`.
+  /// The action is carried **in** the payload — `toCapabilityDtos` flattens the
+  /// engine's `explain` map into a list, so there is no map key to read it from.
+  factory PolicyCapability.fromJson(Json json) => PolicyCapability(
+    action: json['action'] as String? ?? '',
+    effect: json['effect'] as String? ?? PolicyEffect.deny,
+    allowed: json['allowed'] as bool? ?? false,
+    reason: json['reason'] as String? ?? '',
+    obligations: (json['obligations'] as List<dynamic>? ?? <dynamic>[])
+        .whereType<String>()
+        .toList(growable: false),
+  );
 
   /// A default-deny decision for an action the map does not carry.
   factory PolicyCapability.deny(String action) => PolicyCapability(
@@ -56,10 +56,13 @@ class PolicyCapability {
 
 /// The full capability map for the current viewer on one story.
 class StoryCapabilities {
-  const StoryCapabilities({required this.capabilities});
+  const StoryCapabilities({required this.capabilities, this.storyId = ''});
 
   /// action → decision.
   final Map<String, PolicyCapability> capabilities;
+
+  /// The story the decisions were evaluated against (`CapabilitiesDto.storyId`).
+  final String storyId;
 
   /// The decision for an action (default-deny when absent).
   PolicyCapability capabilityFor(String action) =>
@@ -68,20 +71,35 @@ class StoryCapabilities {
   /// Whether the viewer may perform [action] (the gate widgets read this).
   bool allows(String action) => capabilityFor(action).allowed;
 
+  /// Decodes `CapabilitiesDto` — `{storyId, capabilities: CapabilityDto[]}`.
+  ///
+  /// The payload is an object wrapping an **array**, not an `{action: decision}`
+  /// map. This factory used to iterate the top-level object as if it were that
+  /// map, so `storyId` (a String) and `capabilities` (a List) were both skipped
+  /// and every viewer got an EMPTY map — `allows()` false for everything, so
+  /// every `CapabilityGate` in the feature rendered its locked fallback on every
+  /// story, the owner included (defect **C-1**, `docs/56` §2.1).
   factory StoryCapabilities.fromJson(Json json) {
     final Map<String, PolicyCapability> caps = <String, PolicyCapability>{};
-    json.forEach((String action, dynamic value) {
-      if (value is Map) {
-        caps[action] = PolicyCapability.fromJson(
-          action,
-          Map<String, dynamic>.from(value),
-        );
-      }
-    });
-    return StoryCapabilities(capabilities: caps);
+    for (final Object? raw
+        in json['capabilities'] as List<dynamic>? ?? const <dynamic>[]) {
+      if (raw is! Map) continue;
+      final PolicyCapability capability = PolicyCapability.fromJson(
+        Map<String, dynamic>.from(raw),
+      );
+      // An element with no action cannot be keyed; dropping it keeps the map
+      // default-deny for that action rather than inventing an '' entry.
+      if (capability.action.isEmpty) continue;
+      caps[capability.action] = capability;
+    }
+    return StoryCapabilities(
+      capabilities: caps,
+      storyId: json['storyId'] as String? ?? '',
+    );
   }
 
-  /// A fail-closed default: view allowed, every mutation denied.
+  /// A fail-closed default: every action denied (`capabilityFor` → `deny`).
+  /// Used when the capability read itself fails — the engine re-checks anyway.
   static const StoryCapabilities readOnly = StoryCapabilities(
     capabilities: <String, PolicyCapability>{},
   );

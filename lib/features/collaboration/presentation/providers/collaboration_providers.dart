@@ -13,7 +13,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../../core/di/providers.dart';
 import '../../../../core/error/failure.dart';
 import '../../../../core/utils/result.dart';
-import '../../../../shared/domain/error_codes.dart';
+import '../../../../shared/api/api_envelope.dart';
 import '../../data/datasources/collaboration_remote_data_source.dart';
 import '../../data/datasources/publishing_remote_data_source.dart';
 import '../../data/datasources/trust_remote_data_source.dart';
@@ -24,6 +24,7 @@ import '../../domain/entities/block_entry.dart';
 import '../../domain/entities/collaboration_activity_entry.dart';
 import '../../domain/entities/collaboration_comment.dart';
 import '../../domain/entities/edit_suggestion.dart';
+import '../../domain/entities/invitee_candidate.dart';
 import '../../domain/entities/policy_capability.dart';
 import '../../domain/entities/presence_entry.dart';
 import '../../domain/entities/publication_event.dart';
@@ -93,25 +94,40 @@ Future<StoryCapabilities> storyCapabilities(Ref ref, String storyId) async {
   };
 }
 
-/// The threaded comments on a story.
+/// The first page of root comments on a story. The endpoint is cursor-paginated
+/// (C-10); this provider exposes the first page and [storyCommentThread] fetches a
+/// thread's replies on demand (C-5).
 @riverpod
-Future<List<CollaborationComment>> storyComments(
+Future<CursorPage<CollaborationComment>> storyComments(
   Ref ref,
   String storyId,
 ) async {
-  final Result<List<CollaborationComment>> result = await ref
+  final Result<CursorPage<CollaborationComment>> result = await ref
       .watch(collaborationRepositoryProvider)
       .comments(storyId);
-  return _unwrapList(result);
+  return _unwrap(result);
 }
 
-/// The edit suggestions on a story.
+/// A comment's replies (`GET /comments/:id/thread`). `CommentDto` carries no
+/// `replies`, so a thread is a separate read.
 @riverpod
-Future<List<EditSuggestion>> storySuggestions(Ref ref, String storyId) async {
-  final Result<List<EditSuggestion>> result = await ref
+Future<CommentThread> storyCommentThread(Ref ref, String commentId) async {
+  final Result<CommentThread> result = await ref
+      .watch(collaborationRepositoryProvider)
+      .commentThread(commentId);
+  return _unwrap(result);
+}
+
+/// The first page of edit suggestions on a story (cursor-paginated, C-10).
+@riverpod
+Future<CursorPage<EditSuggestion>> storySuggestions(
+  Ref ref,
+  String storyId,
+) async {
+  final Result<CursorPage<EditSuggestion>> result = await ref
       .watch(collaborationRepositoryProvider)
       .suggestions(storyId);
-  return _unwrapList(result);
+  return _unwrap(result);
 }
 
 /// The outstanding invitations issued for a story.
@@ -134,14 +150,14 @@ Future<List<PresenceEntry>> storyPresence(Ref ref, String storyId) async {
 
 /// The collaboration audit feed for a story.
 @riverpod
-Future<List<CollaborationActivityEntry>> storyActivity(
+Future<CursorPage<CollaborationActivityEntry>> storyActivity(
   Ref ref,
   String storyId,
 ) async {
-  final Result<List<CollaborationActivityEntry>> result = await ref
+  final Result<CursorPage<CollaborationActivityEntry>> result = await ref
       .watch(collaborationRepositoryProvider)
       .activity(storyId);
-  return _unwrapList(result);
+  return _unwrap(result);
 }
 
 /// The current user's inbound invitation inbox (`GET /me/invitations`).
@@ -153,18 +169,39 @@ Future<List<StoryInvitation>> myInvitations(Ref ref) async {
   return _unwrapList(result);
 }
 
+/// The viewer's own user id, or null if it cannot be resolved. Used only for
+/// self-service affordances the capability map cannot express (C-12); never for an
+/// authorization decision — the server re-checks every action.
+@riverpod
+Future<String?> viewerId(Ref ref) async {
+  final Result<InviteeCandidate> result = await ref
+      .watch(collaborationRepositoryProvider)
+      .me();
+  return switch (result) {
+    Ok<InviteeCandidate>(:final InviteeCandidate value) => value.id,
+    Err<InviteeCandidate>() => null,
+  };
+}
+
 // ── Publishing reads (story-scoped) ────────────────────────────────────────────
 
-/// The review session for a story, or null when review has never been requested.
+/// The review session for a story, or null when review has never been requested —
+/// which the endpoint expresses as `200 {data: null}`, not a 404.
+///
+/// This used to map `NOT_FOUND → null`, a code the endpoint never returns. The real
+/// null-data response became `API_MALFORMED_RESPONSE` inside `ApiClient.get` and was
+/// rethrown here, so the Review card showed an error for every story that had never
+/// been submitted — the default state — and its `review == null` branch was dead
+/// code. The nullability now comes from the data source via `getOrNull`
+/// (defect **P-4**, `docs/56` §2.2).
 @riverpod
 Future<ReviewSession?> storyReview(Ref ref, String storyId) async {
-  final Result<ReviewSession> result = await ref
+  final Result<ReviewSession?> result = await ref
       .watch(publishingRepositoryProvider)
       .review(storyId);
   return switch (result) {
-    Ok<ReviewSession>(:final ReviewSession value) => value,
-    Err<ReviewSession>(:final Failure failure) =>
-      failure.code == ErrorCodes.notFound ? null : throw failure,
+    Ok<ReviewSession?>(:final ReviewSession? value) => value,
+    Err<ReviewSession?>(:final Failure failure) => throw failure,
   };
 }
 
@@ -217,4 +254,10 @@ Future<List<BlockEntry>> myBlocks(Ref ref) async {
 List<T> _unwrapList<T>(Result<List<T>> result) => switch (result) {
   Ok<List<T>>(:final List<T> value) => value,
   Err<List<T>>(:final Failure failure) => throw failure,
+};
+
+/// Unwrap a single-value [Result] the same way.
+T _unwrap<T>(Result<T> result) => switch (result) {
+  Ok<T>(:final T value) => value,
+  Err<T>(:final Failure failure) => throw failure,
 };

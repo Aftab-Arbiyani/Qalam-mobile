@@ -6,6 +6,7 @@ library;
 import '../../../../core/error/result_guard.dart';
 import '../../../../core/utils/result.dart';
 import '../../../../core/utils/typedefs.dart';
+import '../../../../shared/api/api_envelope.dart';
 import '../../domain/entities/collaboration_activity_entry.dart';
 import '../../domain/entities/collaboration_comment.dart';
 import '../../domain/entities/edit_suggestion.dart';
@@ -14,6 +15,7 @@ import '../../domain/entities/policy_capability.dart';
 import '../../domain/entities/presence_entry.dart';
 import '../../domain/entities/story_invitation.dart';
 import '../../domain/entities/story_member.dart';
+import '../../domain/entities/text_anchor.dart';
 import '../../domain/repositories/collaboration_repository.dart';
 import '../datasources/collaboration_remote_data_source.dart';
 
@@ -63,6 +65,9 @@ class CollaborationRepositoryImpl implements CollaborationRepository {
       guardResult(() => _remote.resolveInvitee(username));
 
   @override
+  Future<Result<InviteeCandidate>> me() => guardResult(_remote.me);
+
+  @override
   Future<Result<StoryInvitation>> invite({
     required String storyId,
     required String inviteeId,
@@ -92,17 +97,27 @@ class CollaborationRepositoryImpl implements CollaborationRepository {
       guardUnit(() => _remote.revokeInvitation(invitationId));
 
   @override
-  Future<Result<List<CollaborationComment>>> comments(String storyId) =>
-      guardResult(() => _remote.comments(storyId));
+  Future<Result<CursorPage<CollaborationComment>>> comments(
+    String storyId, {
+    String? cursor,
+    int? limit,
+    String? status,
+  }) => guardResult(
+    () =>
+        _remote.comments(storyId, cursor: cursor, limit: limit, status: status),
+  );
+
+  @override
+  Future<Result<CommentThread>> commentThread(String commentId) =>
+      guardResult(() => _remote.commentThread(commentId));
 
   @override
   Future<Result<CollaborationComment>> addComment({
     required String storyId,
     required String body,
     required String kind,
-    CommentAnchor? anchor,
+    TextAnchor? anchor,
     List<String> mentions = const <String>[],
-    String? parentId,
   }) => guardResult(
     () => _remote.addComment(
       storyId: storyId,
@@ -110,7 +125,6 @@ class CollaborationRepositoryImpl implements CollaborationRepository {
       kind: kind,
       anchor: anchor,
       mentions: mentions,
-      parentId: parentId,
     ),
   );
 
@@ -136,23 +150,32 @@ class CollaborationRepositoryImpl implements CollaborationRepository {
       guardUnit(() => _remote.deleteComment(commentId));
 
   @override
-  Future<Result<List<EditSuggestion>>> suggestions(String storyId) =>
-      guardResult(() => _remote.suggestions(storyId));
+  Future<Result<CursorPage<EditSuggestion>>> suggestions(
+    String storyId, {
+    String? cursor,
+    int? limit,
+    String? status,
+  }) => guardResult(
+    () => _remote.suggestions(
+      storyId,
+      cursor: cursor,
+      limit: limit,
+      status: status,
+    ),
+  );
 
   @override
   Future<Result<EditSuggestion>> addSuggestion({
     required String storyId,
+    required TextAnchor anchor,
     required String originalText,
     required String suggestedText,
-    String? blockId,
-    String? rationale,
   }) => guardResult(
     () => _remote.addSuggestion(
       storyId: storyId,
+      anchor: anchor,
       originalText: originalText,
       suggestedText: suggestedText,
-      blockId: blockId,
-      rationale: rationale,
     ),
   );
 
@@ -169,8 +192,13 @@ class CollaborationRepositoryImpl implements CollaborationRepository {
       guardResult(() => _remote.withdrawSuggestion(suggestionId));
 
   @override
-  Future<Result<List<CollaborationActivityEntry>>> activity(String storyId) =>
-      guardResult(() => _remote.activity(storyId));
+  Future<Result<CursorPage<CollaborationActivityEntry>>> activity(
+    String storyId, {
+    String? cursor,
+    int? limit,
+  }) => guardResult(
+    () => _remote.activity(storyId, cursor: cursor, limit: limit),
+  );
 
   @override
   Future<Result<List<PresenceEntry>>> presence(String storyId) =>
@@ -180,8 +208,5 @@ class CollaborationRepositoryImpl implements CollaborationRepository {
   Future<Result<Unit>> heartbeat({
     required String storyId,
     required String state,
-    String? blockId,
-  }) => guardUnit(
-    () => _remote.heartbeat(storyId: storyId, state: state, blockId: blockId),
-  );
+  }) => guardUnit(() => _remote.heartbeat(storyId: storyId, state: state));
 }

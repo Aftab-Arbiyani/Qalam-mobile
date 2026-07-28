@@ -15,6 +15,7 @@ import '../../domain/entities/edit_suggestion.dart';
 import '../../domain/entities/invitee_candidate.dart';
 import '../../domain/entities/story_invitation.dart';
 import '../../domain/entities/story_member.dart';
+import '../../domain/entities/text_anchor.dart';
 import '../../domain/repositories/collaboration_repository.dart';
 import '../providers/collaboration_providers.dart';
 
@@ -94,9 +95,8 @@ class CollaborationController extends _$CollaborationController {
     required String storyId,
     required String body,
     String kind = CommentKind.general,
-    CommentAnchor? anchor,
+    TextAnchor? anchor,
     List<String> mentions = const <String>[],
-    String? parentId,
   }) => _run(
     () => _repo.addComment(
       storyId: storyId,
@@ -104,7 +104,6 @@ class CollaborationController extends _$CollaborationController {
       kind: kind,
       anchor: anchor,
       mentions: mentions,
-      parentId: parentId,
     ),
     () => ref.invalidate(storyCommentsProvider),
   );
@@ -133,19 +132,19 @@ class CollaborationController extends _$CollaborationController {
   );
 
   // ── Suggestions ────────────────────────────────────────────────────────────────
+  /// Propose an edit. [anchor] is required: `CreateSuggestionDto.anchor` is, and
+  /// omitting it was a guaranteed 400 (C-3).
   Future<EditSuggestion?> addSuggestion({
     required String storyId,
+    required TextAnchor anchor,
     required String originalText,
     required String suggestedText,
-    String? blockId,
-    String? rationale,
   }) => _run(
     () => _repo.addSuggestion(
       storyId: storyId,
+      anchor: anchor,
       originalText: originalText,
       suggestedText: suggestedText,
-      blockId: blockId,
-      rationale: rationale,
     ),
     () => ref.invalidate(storySuggestionsProvider),
   );
@@ -163,9 +162,8 @@ class CollaborationController extends _$CollaborationController {
   Future<bool> heartbeat({
     required String storyId,
     String state = PresenceState.active,
-    String? blockId,
   }) => _mutate(
-    () => _repo.heartbeat(storyId: storyId, state: state, blockId: blockId),
+    () => _repo.heartbeat(storyId: storyId, state: state),
     () => ref.invalidate(storyPresenceProvider),
   );
 

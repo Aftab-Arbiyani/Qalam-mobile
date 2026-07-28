@@ -21,9 +21,7 @@ void main() {
   late _MockCollaborationRepository repo;
 
   const StoryMember member = StoryMember(
-    id: 'm1',
-    storyId: 's1',
-    userId: 'u1',
+        userId: 'u1',
     role: StoryRole.editor,
   );
 

@@ -128,9 +128,7 @@ void main() {
         remote,
       );
       const StoryMember member = StoryMember(
-        id: 'm1',
-        storyId: 's1',
-        userId: 'u2',
+                userId: 'u2',
         role: StoryRole.editor,
       );
       when(

@@ -7,33 +7,52 @@ library;
 import '../../../../core/utils/typedefs.dart';
 import 'collaboration_enums.dart';
 
-/// One active or historical restriction on the account.
+/// One restriction on the account — mirrors `RestrictionDto`.
+///
+/// It used to read `active` (defaulting true) and `startsAt`, neither of which the
+/// wire sends, and ignored `scope` — the field that says *what* is restricted. The
+/// `active` default happened to be right because `TrustSummaryDto.restrictions` only
+/// ever contains currently-active rows, but it was right by luck, not contract; the
+/// wire expresses "no longer in force" as a non-null **`liftedAt`**
+/// (defect **T-2**, `docs/56` §2.3).
 class UserRestriction {
   const UserRestriction({
     required this.id,
     required this.type,
+    required this.scope,
     required this.reason,
-    required this.active,
-    this.startsAt,
     this.expiresAt,
+    this.liftedAt,
+    this.createdAt,
   });
 
   final String id;
   final String type;
+
+  /// Which surface it applies to: global / publishing / collaboration / comments /
+  /// reporting. `global` covers every scope.
+  final String scope;
   final String reason;
-  final bool active;
-  final DateTime? startsAt;
   final DateTime? expiresAt;
+
+  /// Set once a moderator lifts it; null while in force.
+  final DateTime? liftedAt;
+  final DateTime? createdAt;
+
+  /// In force = not lifted and not expired. Derived from the wire rather than from
+  /// an `active` flag the server does not send.
+  bool get active => liftedAt == null;
 
   bool get isPermanent => active && expiresAt == null;
 
   factory UserRestriction.fromJson(Json json) => UserRestriction(
     id: json['id'] as String? ?? '',
     type: json['type'] as String? ?? RestrictionType.restricted,
+    scope: json['scope'] as String? ?? RestrictionScope.global,
     reason: json['reason'] as String? ?? '',
-    active: json['active'] as bool? ?? true,
-    startsAt: _date(json['startsAt']),
     expiresAt: _date(json['expiresAt']),
+    liftedAt: _date(json['liftedAt']),
+    createdAt: _date(json['createdAt']),
   );
 }
 

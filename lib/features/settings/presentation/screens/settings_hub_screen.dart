@@ -23,6 +23,9 @@ class SettingsHubScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bool monetizationOn = ref.watch(appConfigProvider).enableMonetization;
+    final bool collaborationOn = ref
+        .watch(appConfigProvider)
+        .enableCollaboration;
     return QScaffold(
       appBar: const QAppBar(title: 'Settings'),
       body: ListView(
@@ -80,6 +83,23 @@ class SettingsHubScreen extends ConsumerWidget {
               ),
             ],
           ),
+          if (collaborationOn) ...<Widget>[
+            Gap.v5,
+            QSettingsSection(
+              title: 'Collaboration',
+              children: <Widget>[
+                // The inbound half of AF6 — the only entry point to `/me/invitations`,
+                // which had none before (defect **R-1**, `docs/56` §2.4). The
+                // story-scoped surfaces are reached from a story's overflow menu.
+                QSettingsTile(
+                  icon: Icons.mark_email_unread_outlined,
+                  title: 'Story invitations',
+                  subtitle: 'Invitations to collaborate on someone\'s story',
+                  onTap: () => context.push(Routes.invitationsInbox),
+                ),
+              ],
+            ),
+          ],
           if (monetizationOn) ...<Widget>[
             Gap.v5,
             QSettingsSection(

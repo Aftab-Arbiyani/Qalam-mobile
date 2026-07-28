@@ -477,24 +477,30 @@ final class StoryCapabilitiesFamily extends $Family
   String toString() => r'storyCapabilitiesProvider';
 }
 
-/// The threaded comments on a story.
+/// The first page of root comments on a story. The endpoint is cursor-paginated
+/// (C-10); this provider exposes the first page and [storyCommentThread] fetches a
+/// thread's replies on demand (C-5).
 
 @ProviderFor(storyComments)
 final storyCommentsProvider = StoryCommentsFamily._();
 
-/// The threaded comments on a story.
+/// The first page of root comments on a story. The endpoint is cursor-paginated
+/// (C-10); this provider exposes the first page and [storyCommentThread] fetches a
+/// thread's replies on demand (C-5).
 
 final class StoryCommentsProvider
     extends
         $FunctionalProvider<
-          AsyncValue<List<CollaborationComment>>,
-          List<CollaborationComment>,
-          FutureOr<List<CollaborationComment>>
+          AsyncValue<CursorPage<CollaborationComment>>,
+          CursorPage<CollaborationComment>,
+          FutureOr<CursorPage<CollaborationComment>>
         >
     with
-        $FutureModifier<List<CollaborationComment>>,
-        $FutureProvider<List<CollaborationComment>> {
-  /// The threaded comments on a story.
+        $FutureModifier<CursorPage<CollaborationComment>>,
+        $FutureProvider<CursorPage<CollaborationComment>> {
+  /// The first page of root comments on a story. The endpoint is cursor-paginated
+  /// (C-10); this provider exposes the first page and [storyCommentThread] fetches a
+  /// thread's replies on demand (C-5).
   StoryCommentsProvider._({
     required StoryCommentsFamily super.from,
     required String super.argument,
@@ -518,12 +524,12 @@ final class StoryCommentsProvider
 
   @$internal
   @override
-  $FutureProviderElement<List<CollaborationComment>> $createElement(
+  $FutureProviderElement<CursorPage<CollaborationComment>> $createElement(
     $ProviderPointer pointer,
   ) => $FutureProviderElement(pointer);
 
   @override
-  FutureOr<List<CollaborationComment>> create(Ref ref) {
+  FutureOr<CursorPage<CollaborationComment>> create(Ref ref) {
     final argument = this.argument as String;
     return storyComments(ref, argument);
   }
@@ -539,14 +545,16 @@ final class StoryCommentsProvider
   }
 }
 
-String _$storyCommentsHash() => r'2f212967949b658648b3e103a309f3b3540bb55e';
+String _$storyCommentsHash() => r'92f5c08fa34fe0ef0aff3f23b394aaab308354e6';
 
-/// The threaded comments on a story.
+/// The first page of root comments on a story. The endpoint is cursor-paginated
+/// (C-10); this provider exposes the first page and [storyCommentThread] fetches a
+/// thread's replies on demand (C-5).
 
 final class StoryCommentsFamily extends $Family
     with
         $FunctionalFamilyOverride<
-          FutureOr<List<CollaborationComment>>,
+          FutureOr<CursorPage<CollaborationComment>>,
           String
         > {
   StoryCommentsFamily._()
@@ -558,7 +566,9 @@ final class StoryCommentsFamily extends $Family
         isAutoDispose: true,
       );
 
-  /// The threaded comments on a story.
+  /// The first page of root comments on a story. The endpoint is cursor-paginated
+  /// (C-10); this provider exposes the first page and [storyCommentThread] fetches a
+  /// thread's replies on demand (C-5).
 
   StoryCommentsProvider call(String storyId) =>
       StoryCommentsProvider._(argument: storyId, from: this);
@@ -567,24 +577,114 @@ final class StoryCommentsFamily extends $Family
   String toString() => r'storyCommentsProvider';
 }
 
-/// The edit suggestions on a story.
+/// A comment's replies (`GET /comments/:id/thread`). `CommentDto` carries no
+/// `replies`, so a thread is a separate read.
+
+@ProviderFor(storyCommentThread)
+final storyCommentThreadProvider = StoryCommentThreadFamily._();
+
+/// A comment's replies (`GET /comments/:id/thread`). `CommentDto` carries no
+/// `replies`, so a thread is a separate read.
+
+final class StoryCommentThreadProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<CommentThread>,
+          CommentThread,
+          FutureOr<CommentThread>
+        >
+    with $FutureModifier<CommentThread>, $FutureProvider<CommentThread> {
+  /// A comment's replies (`GET /comments/:id/thread`). `CommentDto` carries no
+  /// `replies`, so a thread is a separate read.
+  StoryCommentThreadProvider._({
+    required StoryCommentThreadFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'storyCommentThreadProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$storyCommentThreadHash();
+
+  @override
+  String toString() {
+    return r'storyCommentThreadProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<CommentThread> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<CommentThread> create(Ref ref) {
+    final argument = this.argument as String;
+    return storyCommentThread(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is StoryCommentThreadProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$storyCommentThreadHash() =>
+    r'9b9f6eb9b577e8686c86f8b2b38580d6e749f8b0';
+
+/// A comment's replies (`GET /comments/:id/thread`). `CommentDto` carries no
+/// `replies`, so a thread is a separate read.
+
+final class StoryCommentThreadFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<CommentThread>, String> {
+  StoryCommentThreadFamily._()
+    : super(
+        retry: null,
+        name: r'storyCommentThreadProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// A comment's replies (`GET /comments/:id/thread`). `CommentDto` carries no
+  /// `replies`, so a thread is a separate read.
+
+  StoryCommentThreadProvider call(String commentId) =>
+      StoryCommentThreadProvider._(argument: commentId, from: this);
+
+  @override
+  String toString() => r'storyCommentThreadProvider';
+}
+
+/// The first page of edit suggestions on a story (cursor-paginated, C-10).
 
 @ProviderFor(storySuggestions)
 final storySuggestionsProvider = StorySuggestionsFamily._();
 
-/// The edit suggestions on a story.
+/// The first page of edit suggestions on a story (cursor-paginated, C-10).
 
 final class StorySuggestionsProvider
     extends
         $FunctionalProvider<
-          AsyncValue<List<EditSuggestion>>,
-          List<EditSuggestion>,
-          FutureOr<List<EditSuggestion>>
+          AsyncValue<CursorPage<EditSuggestion>>,
+          CursorPage<EditSuggestion>,
+          FutureOr<CursorPage<EditSuggestion>>
         >
     with
-        $FutureModifier<List<EditSuggestion>>,
-        $FutureProvider<List<EditSuggestion>> {
-  /// The edit suggestions on a story.
+        $FutureModifier<CursorPage<EditSuggestion>>,
+        $FutureProvider<CursorPage<EditSuggestion>> {
+  /// The first page of edit suggestions on a story (cursor-paginated, C-10).
   StorySuggestionsProvider._({
     required StorySuggestionsFamily super.from,
     required String super.argument,
@@ -608,12 +708,12 @@ final class StorySuggestionsProvider
 
   @$internal
   @override
-  $FutureProviderElement<List<EditSuggestion>> $createElement(
+  $FutureProviderElement<CursorPage<EditSuggestion>> $createElement(
     $ProviderPointer pointer,
   ) => $FutureProviderElement(pointer);
 
   @override
-  FutureOr<List<EditSuggestion>> create(Ref ref) {
+  FutureOr<CursorPage<EditSuggestion>> create(Ref ref) {
     final argument = this.argument as String;
     return storySuggestions(ref, argument);
   }
@@ -629,12 +729,16 @@ final class StorySuggestionsProvider
   }
 }
 
-String _$storySuggestionsHash() => r'32ce169f35a22a7b2a0397d631e4d7a1d1086f46';
+String _$storySuggestionsHash() => r'0abbaa008750e3014ba516fe7082de87328a57a6';
 
-/// The edit suggestions on a story.
+/// The first page of edit suggestions on a story (cursor-paginated, C-10).
 
 final class StorySuggestionsFamily extends $Family
-    with $FunctionalFamilyOverride<FutureOr<List<EditSuggestion>>, String> {
+    with
+        $FunctionalFamilyOverride<
+          FutureOr<CursorPage<EditSuggestion>>,
+          String
+        > {
   StorySuggestionsFamily._()
     : super(
         retry: null,
@@ -644,7 +748,7 @@ final class StorySuggestionsFamily extends $Family
         isAutoDispose: true,
       );
 
-  /// The edit suggestions on a story.
+  /// The first page of edit suggestions on a story (cursor-paginated, C-10).
 
   StorySuggestionsProvider call(String storyId) =>
       StorySuggestionsProvider._(argument: storyId, from: this);
@@ -835,13 +939,13 @@ final storyActivityProvider = StoryActivityFamily._();
 final class StoryActivityProvider
     extends
         $FunctionalProvider<
-          AsyncValue<List<CollaborationActivityEntry>>,
-          List<CollaborationActivityEntry>,
-          FutureOr<List<CollaborationActivityEntry>>
+          AsyncValue<CursorPage<CollaborationActivityEntry>>,
+          CursorPage<CollaborationActivityEntry>,
+          FutureOr<CursorPage<CollaborationActivityEntry>>
         >
     with
-        $FutureModifier<List<CollaborationActivityEntry>>,
-        $FutureProvider<List<CollaborationActivityEntry>> {
+        $FutureModifier<CursorPage<CollaborationActivityEntry>>,
+        $FutureProvider<CursorPage<CollaborationActivityEntry>> {
   /// The collaboration audit feed for a story.
   StoryActivityProvider._({
     required StoryActivityFamily super.from,
@@ -866,12 +970,12 @@ final class StoryActivityProvider
 
   @$internal
   @override
-  $FutureProviderElement<List<CollaborationActivityEntry>> $createElement(
+  $FutureProviderElement<CursorPage<CollaborationActivityEntry>> $createElement(
     $ProviderPointer pointer,
   ) => $FutureProviderElement(pointer);
 
   @override
-  FutureOr<List<CollaborationActivityEntry>> create(Ref ref) {
+  FutureOr<CursorPage<CollaborationActivityEntry>> create(Ref ref) {
     final argument = this.argument as String;
     return storyActivity(ref, argument);
   }
@@ -887,14 +991,14 @@ final class StoryActivityProvider
   }
 }
 
-String _$storyActivityHash() => r'960fbc2846945419efe19c2128877a63d92b96a8';
+String _$storyActivityHash() => r'2dd2304326c40d3cc7fba27b89cc7459cfb9b34d';
 
 /// The collaboration audit feed for a story.
 
 final class StoryActivityFamily extends $Family
     with
         $FunctionalFamilyOverride<
-          FutureOr<List<CollaborationActivityEntry>>,
+          FutureOr<CursorPage<CollaborationActivityEntry>>,
           String
         > {
   StoryActivityFamily._()
@@ -961,12 +1065,72 @@ final class MyInvitationsProvider
 
 String _$myInvitationsHash() => r'e7764504e4db57d009cdb3bdc0f458aebc1f6eee';
 
-/// The review session for a story, or null when review has never been requested.
+/// The viewer's own user id, or null if it cannot be resolved. Used only for
+/// self-service affordances the capability map cannot express (C-12); never for an
+/// authorization decision — the server re-checks every action.
+
+@ProviderFor(viewerId)
+final viewerIdProvider = ViewerIdProvider._();
+
+/// The viewer's own user id, or null if it cannot be resolved. Used only for
+/// self-service affordances the capability map cannot express (C-12); never for an
+/// authorization decision — the server re-checks every action.
+
+final class ViewerIdProvider
+    extends $FunctionalProvider<AsyncValue<String?>, String?, FutureOr<String?>>
+    with $FutureModifier<String?>, $FutureProvider<String?> {
+  /// The viewer's own user id, or null if it cannot be resolved. Used only for
+  /// self-service affordances the capability map cannot express (C-12); never for an
+  /// authorization decision — the server re-checks every action.
+  ViewerIdProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'viewerIdProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$viewerIdHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<String?> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<String?> create(Ref ref) {
+    return viewerId(ref);
+  }
+}
+
+String _$viewerIdHash() => r'3613abdd038e74ef1094b26337e7fc6a6e80b96c';
+
+/// The review session for a story, or null when review has never been requested —
+/// which the endpoint expresses as `200 {data: null}`, not a 404.
+///
+/// This used to map `NOT_FOUND → null`, a code the endpoint never returns. The real
+/// null-data response became `API_MALFORMED_RESPONSE` inside `ApiClient.get` and was
+/// rethrown here, so the Review card showed an error for every story that had never
+/// been submitted — the default state — and its `review == null` branch was dead
+/// code. The nullability now comes from the data source via `getOrNull`
+/// (defect **P-4**, `docs/56` §2.2).
 
 @ProviderFor(storyReview)
 final storyReviewProvider = StoryReviewFamily._();
 
-/// The review session for a story, or null when review has never been requested.
+/// The review session for a story, or null when review has never been requested —
+/// which the endpoint expresses as `200 {data: null}`, not a 404.
+///
+/// This used to map `NOT_FOUND → null`, a code the endpoint never returns. The real
+/// null-data response became `API_MALFORMED_RESPONSE` inside `ApiClient.get` and was
+/// rethrown here, so the Review card showed an error for every story that had never
+/// been submitted — the default state — and its `review == null` branch was dead
+/// code. The nullability now comes from the data source via `getOrNull`
+/// (defect **P-4**, `docs/56` §2.2).
 
 final class StoryReviewProvider
     extends
@@ -976,7 +1140,15 @@ final class StoryReviewProvider
           FutureOr<ReviewSession?>
         >
     with $FutureModifier<ReviewSession?>, $FutureProvider<ReviewSession?> {
-  /// The review session for a story, or null when review has never been requested.
+  /// The review session for a story, or null when review has never been requested —
+  /// which the endpoint expresses as `200 {data: null}`, not a 404.
+  ///
+  /// This used to map `NOT_FOUND → null`, a code the endpoint never returns. The real
+  /// null-data response became `API_MALFORMED_RESPONSE` inside `ApiClient.get` and was
+  /// rethrown here, so the Review card showed an error for every story that had never
+  /// been submitted — the default state — and its `review == null` branch was dead
+  /// code. The nullability now comes from the data source via `getOrNull`
+  /// (defect **P-4**, `docs/56` §2.2).
   StoryReviewProvider._({
     required StoryReviewFamily super.from,
     required String super.argument,
@@ -1021,9 +1193,17 @@ final class StoryReviewProvider
   }
 }
 
-String _$storyReviewHash() => r'a698d5bbb465542385613ce1d2c146e4c16089ab';
+String _$storyReviewHash() => r'6d82100138ddb755a0888ac3a544c076562d0e87';
 
-/// The review session for a story, or null when review has never been requested.
+/// The review session for a story, or null when review has never been requested —
+/// which the endpoint expresses as `200 {data: null}`, not a 404.
+///
+/// This used to map `NOT_FOUND → null`, a code the endpoint never returns. The real
+/// null-data response became `API_MALFORMED_RESPONSE` inside `ApiClient.get` and was
+/// rethrown here, so the Review card showed an error for every story that had never
+/// been submitted — the default state — and its `review == null` branch was dead
+/// code. The nullability now comes from the data source via `getOrNull`
+/// (defect **P-4**, `docs/56` §2.2).
 
 final class StoryReviewFamily extends $Family
     with $FunctionalFamilyOverride<FutureOr<ReviewSession?>, String> {
@@ -1036,7 +1216,15 @@ final class StoryReviewFamily extends $Family
         isAutoDispose: true,
       );
 
-  /// The review session for a story, or null when review has never been requested.
+  /// The review session for a story, or null when review has never been requested —
+  /// which the endpoint expresses as `200 {data: null}`, not a 404.
+  ///
+  /// This used to map `NOT_FOUND → null`, a code the endpoint never returns. The real
+  /// null-data response became `API_MALFORMED_RESPONSE` inside `ApiClient.get` and was
+  /// rethrown here, so the Review card showed an error for every story that had never
+  /// been submitted — the default state — and its `review == null` branch was dead
+  /// code. The nullability now comes from the data source via `getOrNull`
+  /// (defect **P-4**, `docs/56` §2.2).
 
   StoryReviewProvider call(String storyId) =>
       StoryReviewProvider._(argument: storyId, from: this);

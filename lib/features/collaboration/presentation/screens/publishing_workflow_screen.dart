@@ -334,12 +334,14 @@ class _SnapshotsCard extends ConsumerWidget {
                     ListTile(
                       contentPadding: EdgeInsets.zero,
                       leading: const Icon(Icons.history),
-                      title: Text(
-                        snapshot.label ??
-                            'Version ${snapshot.version ?? ''}'.trim(),
-                      ),
+                      title: Text(snapshot.label),
                       subtitle: Text(
-                        formatCollaborationDate(snapshot.createdAt),
+                        // `reason` is why the version exists (publish / manual /
+                        // pre_edit / review / restore) — a real wire field the
+                        // client used to ignore (P-7).
+                        '${formatCollaborationDate(snapshot.createdAt)}'
+                        ' · v${snapshot.version}'
+                        '${snapshot.reason.isEmpty ? '' : ' · ${snapshotReasonLabel(snapshot.reason)}'}',
                       ),
                       trailing: CapabilityGate(
                         storyId: storyId,

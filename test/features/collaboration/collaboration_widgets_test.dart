@@ -116,7 +116,7 @@ void main() {
             id: 'r1',
             type: RestrictionType.readOnly,
             reason: 'Repeated guideline violations',
-            active: true,
+            scope: RestrictionScope.global,
           ),
         ],
       );

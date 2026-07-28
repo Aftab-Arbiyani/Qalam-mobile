@@ -9,6 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/di/providers.dart';
 import '../../../../core/error/failure.dart';
+import '../../../../shared/api/api_envelope.dart';
 import '../../../../shared/domain/error_codes.dart';
 import '../../../../shared/theme/tokens/spacing_tokens.dart';
 import '../../../../shared/widgets/app_bar/q_app_bar.dart';
@@ -17,6 +18,7 @@ import '../../../../shared/widgets/states/q_empty_state.dart';
 import '../../../../shared/widgets/states/q_error_view.dart';
 import '../../domain/entities/collaboration_enums.dart';
 import '../../domain/entities/edit_suggestion.dart';
+import '../../domain/entities/story_invitation.dart' show shortActorId;
 import '../controllers/collaboration_controller.dart';
 import '../domain_labels.dart';
 import '../providers/collaboration_providers.dart';
@@ -43,16 +45,18 @@ class SuggestionsScreen extends ConsumerWidget {
   }
 
   Widget _body(BuildContext context, WidgetRef ref) {
-    final AsyncValue<List<EditSuggestion>> async = ref.watch(
+    final AsyncValue<CursorPage<EditSuggestion>> async = ref.watch(
       storySuggestionsProvider(storyId),
     );
+    final String? viewerId = ref.watch(viewerIdProvider).asData?.value;
     return async.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (Object error, StackTrace _) => QErrorView(
         failure: _failureOf(error),
         onRetry: () => ref.invalidate(storySuggestionsProvider(storyId)),
       ),
-      data: (List<EditSuggestion> suggestions) {
+      data: (CursorPage<EditSuggestion> page) {
+        final List<EditSuggestion> suggestions = page.items;
         if (suggestions.isEmpty) {
           return const QEmptyState(
             icon: Icons.edit_note_outlined,
@@ -70,6 +74,7 @@ class SuggestionsScreen extends ConsumerWidget {
             itemBuilder: (BuildContext context, int index) => _SuggestionCard(
               storyId: storyId,
               suggestion: suggestions[index],
+              viewerId: viewerId,
             ),
           ),
         );
@@ -79,10 +84,17 @@ class SuggestionsScreen extends ConsumerWidget {
 }
 
 class _SuggestionCard extends ConsumerWidget {
-  const _SuggestionCard({required this.storyId, required this.suggestion});
+  const _SuggestionCard({
+    required this.storyId,
+    required this.suggestion,
+    required this.viewerId,
+  });
 
   final String storyId;
   final EditSuggestion suggestion;
+
+  /// The viewer's id, for the self-service Withdraw affordance (C-12).
+  final String? viewerId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -96,7 +108,9 @@ class _SuggestionCard extends ConsumerWidget {
             children: <Widget>[
               Expanded(
                 child: Text(
-                  suggestion.authorName ?? suggestion.authorId,
+                  // `SuggestionDto` carries `authorId` and no name (C-4), so show a
+                  // shortened id rather than an invented display name.
+                  shortActorId(suggestion.authorId),
                   style: theme.textTheme.titleSmall,
                 ),
               ),
@@ -118,20 +132,27 @@ class _SuggestionCard extends ConsumerWidget {
             color: theme.colorScheme.primaryContainer,
             icon: Icons.add,
           ),
-          if (suggestion.rationale != null &&
-              suggestion.rationale!.isNotEmpty) ...<Widget>[
+          if (suggestion.anchor != null) ...<Widget>[
             Gap.v2,
-            Text(suggestion.rationale!, style: theme.textTheme.bodySmall),
+            // The anchor is the position the replacement applies at. The client used
+            // to drop it entirely, leaving a diff with no location (C-4).
+            Text(
+              'Characters ${suggestion.anchor!.from}–${suggestion.anchor!.to}',
+              style: theme.textTheme.labelSmall,
+            ),
           ],
           if (suggestion.isPending) ...<Widget>[
             Gap.v3,
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
-                CapabilityGate(
-                  storyId: storyId,
-                  action: PolicyAction.storySuggest,
-                  child: TextButton(
+                // Withdraw is the AUTHOR's own action. The backend authorizes it via
+                // `suggestion.resolve` + the engine's self-service rule (resource
+                // ownerId = the suggestion's author), so gating it on `story.suggest`
+                // showed Withdraw on other people's suggestions and 403'd on tap
+                // (defect **C-12**, `docs/56` §2.1).
+                if (suggestion.authorId == viewerId)
+                  TextButton(
                     onPressed: () => _act(
                       context,
                       ref,
@@ -142,7 +163,6 @@ class _SuggestionCard extends ConsumerWidget {
                     ),
                     child: const Text('Withdraw'),
                   ),
-                ),
                 CapabilityGate(
                   storyId: storyId,
                   action: PolicyAction.suggestionResolve,
@@ -167,7 +187,11 @@ class _SuggestionCard extends ConsumerWidget {
                           () => ref
                               .read(collaborationControllerProvider.notifier)
                               .acceptSuggestion(suggestion.id),
-                          'Suggestion accepted.',
+                          // The server marks the suggestion accepted; it does NOT
+                          // rewrite the story text (`suggestion.service.ts` accept
+                          // → settle). Saying "accepted" alone implies an edit that
+                          // did not happen (docs/45 §4.4 D1, docs/56 §3).
+                          'Marked accepted — apply the change in the editor.',
                         ),
                         child: const Text('Accept'),
                       ),

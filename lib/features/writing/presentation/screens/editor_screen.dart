@@ -28,6 +28,7 @@ import '../../../../shared/widgets/states/q_error_view.dart';
 import '../../../ai/domain/value_objects/ai_feature_ids.dart';
 import '../../../ai/presentation/panels/craft_coach_panel.dart';
 import '../../../ai/presentation/providers/ai_providers.dart';
+import '../../../collaboration/collaboration.dart' show RestrictedBanner;
 import '../../domain/entities/draft_sync.dart';
 import '../../domain/value_objects/editor_preferences.dart';
 import '../controllers/current_draft_controller.dart';
@@ -124,8 +125,14 @@ class _EditorScreenState extends ConsumerState<EditorScreen>
 
   PreferredSizeWidget _appBar(EditorState? st, QTokens tokens) {
     final bool aiOn = ref.watch(appConfigProvider).enableAi;
-    final bool coachEnabled = aiOn &&
-        (ref.watch(aiFeaturesProvider).asData?.value.isEnabled(AiFeatureIds.craftCoach) ?? false);
+    final bool coachEnabled =
+        aiOn &&
+        (ref
+                .watch(aiFeaturesProvider)
+                .asData
+                ?.value
+                .isEnabled(AiFeatureIds.craftCoach) ??
+            false);
     return AppBar(
       backgroundColor: Colors.transparent,
       elevation: 0,
@@ -168,7 +175,10 @@ class _EditorScreenState extends ConsumerState<EditorScreen>
                   onPressed: () => unawaited(
                     CraftCoachPanel.show(
                       context,
-                      writingContext: DraftAiEditorTarget.build(ref, widget.draftId).context,
+                      writingContext: DraftAiEditorTarget.build(
+                        ref,
+                        widget.draftId,
+                      ).context,
                     ),
                   ),
                 ),
@@ -216,23 +226,71 @@ class _EditorScreenState extends ConsumerState<EditorScreen>
 
   Widget _overflow(EditorState st) {
     final bool aiOn = ref.watch(appConfigProvider).enableAi;
-    final bool anyAi = aiOn &&
-        ((ref.watch(aiFeaturesProvider).asData?.value.isEnabled(AiFeatureIds.writingAssistant) ??
+    final bool collabOn = ref.watch(appConfigProvider).enableCollaboration;
+    final bool anyAi =
+        aiOn &&
+        ((ref
+                    .watch(aiFeaturesProvider)
+                    .asData
+                    ?.value
+                    .isEnabled(AiFeatureIds.writingAssistant) ??
                 false) ||
-            (ref.watch(aiFeaturesProvider).asData?.value.isEnabled(AiFeatureIds.craftCoach) ??
+            (ref
+                    .watch(aiFeaturesProvider)
+                    .asData
+                    ?.value
+                    .isEnabled(AiFeatureIds.craftCoach) ??
                 false));
     return PopupMenuButton<String>(
       icon: const Icon(Icons.more_vert),
       onSelected: (String value) => _onMenu(value, st),
       itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
         const PopupMenuItem<String>(value: 'save', child: Text('Save draft')),
-        const PopupMenuItem<String>(value: 'discard', child: Text('Discard changes')),
-        const PopupMenuItem<String>(value: 'delete', child: Text('Delete draft')),
+        const PopupMenuItem<String>(
+          value: 'discard',
+          child: Text('Discard changes'),
+        ),
+        const PopupMenuItem<String>(
+          value: 'delete',
+          child: Text('Delete draft'),
+        ),
         if (anyAi) ...<PopupMenuEntry<String>>[
           const PopupMenuDivider(),
-          const PopupMenuItem<String>(value: 'ai_conversations', child: Text('AI conversations')),
-          const PopupMenuItem<String>(value: 'ai_prompts', child: Text('Prompt library')),
-          const PopupMenuItem<String>(value: 'ai_usage', child: Text('AI usage')),
+          const PopupMenuItem<String>(
+            value: 'ai_conversations',
+            child: Text('AI conversations'),
+          ),
+          const PopupMenuItem<String>(
+            value: 'ai_prompts',
+            child: Text('Prompt library'),
+          ),
+          const PopupMenuItem<String>(
+            value: 'ai_usage',
+            child: Text('AI usage'),
+          ),
+        ],
+        // Collaboration is story-scoped: the routes take the SERVER piece id
+        // (`storyId === pieceId`) behind a `ParseUUIDPipe`, so a draft that has
+        // never synced has nothing to collaborate on and the entries stay hidden
+        // (defect **R-1**, `docs/56` §2.4 — the routes existed with no way in).
+        if (collabOn && st.draft.isRemote) ...<PopupMenuEntry<String>>[
+          const PopupMenuDivider(),
+          const PopupMenuItem<String>(
+            value: 'collaborators',
+            child: Text('Collaborators'),
+          ),
+          const PopupMenuItem<String>(
+            value: 'collab_comments',
+            child: Text('Review comments'),
+          ),
+          const PopupMenuItem<String>(
+            value: 'collab_suggestions',
+            child: Text('Suggestions'),
+          ),
+          const PopupMenuItem<String>(
+            value: 'collab_publishing',
+            child: Text('Publishing workflow'),
+          ),
         ],
       ],
     );
@@ -250,6 +308,10 @@ class _EditorScreenState extends ConsumerState<EditorScreen>
     return Column(
       children: <Widget>[
         const ConnectivityBanner(),
+        // A restricted account learns it is restricted here — there is no router
+        // interception (`guardRedirect` is pure + session-only) and no menu item
+        // for it, so this strip is the only route to `/restricted` (R-1).
+        const RestrictedBanner(),
         if (st.draft.syncState == DraftSyncState.conflict)
           _ConflictBanner(routeId: widget.draftId),
         Expanded(
@@ -363,8 +425,22 @@ class _EditorScreenState extends ConsumerState<EditorScreen>
         unawaited(context.push(Routes.promptLibrary));
       case 'ai_usage':
         unawaited(context.push(Routes.aiUsage));
+      case 'collaborators':
+        unawaited(context.push(Routes.storyCollaboratorsPath(_storyId(st))));
+      case 'collab_comments':
+        unawaited(context.push(Routes.storyCommentsPath(_storyId(st))));
+      case 'collab_suggestions':
+        unawaited(context.push(Routes.storySuggestionsPath(_storyId(st))));
+      case 'collab_publishing':
+        unawaited(context.push(Routes.storyPublishingPath(_storyId(st))));
     }
   }
+
+  /// The story id for the AF6 routes. `storyId === pieceId` server-side, so this is
+  /// the draft's **remoteId** — never `widget.draftId`, which is the local route id
+  /// and would be rejected by the endpoints' `ParseUUIDPipe`. Only reachable when
+  /// `st.draft.isRemote`, which is what gates the menu entries.
+  String _storyId(EditorState st) => st.draft.remoteId ?? '';
 
   Future<void> _openPublish(EditorState st) async {
     final bool? done = await QBottomSheet.show<bool>(

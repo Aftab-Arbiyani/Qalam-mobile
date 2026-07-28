@@ -5,51 +5,45 @@ library;
 
 import '../../../../core/utils/typedefs.dart';
 import 'collaboration_enums.dart';
+import 'story_invitation.dart' show shortActorId;
 
+/// Mirrors `MemberDto` — `{userId, role, invitedById, joinedAt}` and nothing else.
+///
+/// It used to parse `displayName`/`name`, `username`, `avatarKey`/`avatarUrl`,
+/// `storyId` and `invitedBy` (the wire says **`invitedById`**). None of the name
+/// fields exist on the wire, so `label` always fell through to the raw UUID and the
+/// collaborators screen rendered ids where names belong (defect **C-9**,
+/// `docs/56` §2.1). The backend has no by-id profile lookup — `GET /users/:username`
+/// is by handle — so a client cannot resolve names here without a contract change.
+/// Until `MemberDto` carries them, [label] is honest about showing an id.
 class StoryMember {
   const StoryMember({
-    required this.id,
-    required this.storyId,
     required this.userId,
     required this.role,
-    this.displayName,
-    this.username,
-    this.avatarKey,
-    this.invitedBy,
+    this.invitedById,
     this.joinedAt,
   });
 
-  /// Membership id (falls back to [userId] when the wire omits it).
-  final String id;
-  final String storyId;
   final String userId;
   final String role;
-  final String? displayName;
-  final String? username;
-  final String? avatarKey;
-  final String? invitedBy;
+
+  /// Who invited them; null for the owner and for a directly-added member.
+  final String? invitedById;
+
+  /// Join time — null for the owner, whose row is synthesised from the piece author.
   final DateTime? joinedAt;
 
   bool get isOwner => role == StoryRole.owner;
 
-  /// A best-effort display handle (name, else @username, else a short id).
-  String get label => displayName ?? (username != null ? '@$username' : userId);
+  /// A shortened id, clearly an id rather than a name — the wire gives no name.
+  String get label => shortActorId(userId);
 
-  factory StoryMember.fromJson(Json json) {
-    final String userId =
-        json['userId'] as String? ?? json['id'] as String? ?? '';
-    return StoryMember(
-      id: json['id'] as String? ?? userId,
-      storyId: json['storyId'] as String? ?? '',
-      userId: userId,
-      role: json['role'] as String? ?? StoryRole.betaReader,
-      displayName: json['displayName'] as String? ?? json['name'] as String?,
-      username: json['username'] as String?,
-      avatarKey: json['avatarKey'] as String? ?? json['avatarUrl'] as String?,
-      invitedBy: json['invitedBy'] as String?,
-      joinedAt: _date(json['joinedAt']),
-    );
-  }
+  factory StoryMember.fromJson(Json json) => StoryMember(
+    userId: json['userId'] as String? ?? '',
+    role: json['role'] as String? ?? StoryRole.betaReader,
+    invitedById: json['invitedById'] as String?,
+    joinedAt: _date(json['joinedAt']),
+  );
 }
 
 DateTime? _date(Object? raw) =>

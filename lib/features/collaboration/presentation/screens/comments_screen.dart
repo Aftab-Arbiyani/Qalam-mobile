@@ -9,6 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/di/providers.dart';
 import '../../../../core/error/failure.dart';
+import '../../../../shared/api/api_envelope.dart';
 import '../../../../shared/domain/error_codes.dart';
 import '../../../../shared/theme/tokens/spacing_tokens.dart';
 import '../../../../shared/widgets/app_bar/q_app_bar.dart';
@@ -18,6 +19,7 @@ import '../../../../shared/widgets/states/q_empty_state.dart';
 import '../../../../shared/widgets/states/q_error_view.dart';
 import '../../domain/entities/collaboration_comment.dart';
 import '../../domain/entities/collaboration_enums.dart';
+import '../../domain/entities/story_invitation.dart' show shortActorId;
 import '../controllers/collaboration_controller.dart';
 import '../domain_labels.dart';
 import '../providers/collaboration_providers.dart';
@@ -59,7 +61,7 @@ class _CommentsBody extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final AsyncValue<List<CollaborationComment>> async = ref.watch(
+    final AsyncValue<CursorPage<CollaborationComment>> async = ref.watch(
       storyCommentsProvider(storyId),
     );
     return async.when(
@@ -68,10 +70,10 @@ class _CommentsBody extends ConsumerWidget {
         failure: _failureOf(error),
         onRetry: () => ref.invalidate(storyCommentsProvider(storyId)),
       ),
-      data: (List<CollaborationComment> comments) {
-        final List<CollaborationComment> threads = comments
-            .where((CollaborationComment c) => !c.isReply)
-            .toList(growable: false);
+      data: (CursorPage<CollaborationComment> page) {
+        // The endpoint returns ROOT comments only (`listRootComments`), so no
+        // client-side filtering is needed — and replies are a separate read (C-5).
+        final List<CollaborationComment> threads = page.items;
         if (threads.isEmpty) {
           return const QEmptyState(
             icon: Icons.forum_outlined,
@@ -94,21 +96,89 @@ class _CommentsBody extends ConsumerWidget {
   }
 }
 
-class _CommentThread extends ConsumerWidget {
+/// A root comment with its replies fetched on demand.
+///
+/// `CommentDto` has no `replies` field — the list endpoint returns roots only and a
+/// thread comes from `GET /comments/:id/thread`. The screen used to iterate a
+/// `replies` array that was always empty, so no thread could ever render
+/// (defect **C-5**, `docs/56` §2.1).
+class _CommentThread extends ConsumerStatefulWidget {
   const _CommentThread({required this.storyId, required this.comment});
 
   final String storyId;
   final CollaborationComment comment;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_CommentThread> createState() => _CommentThreadState();
+}
+
+class _CommentThreadState extends ConsumerState<_CommentThread> {
+  bool _expanded = false;
+
+  @override
+  Widget build(BuildContext context) {
     return QCard(
       padding: QCardPadding.md,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          _CommentRow(storyId: storyId, comment: comment, isRoot: true),
-          for (final CollaborationComment reply in comment.replies) ...<Widget>[
+          _CommentRow(
+            storyId: widget.storyId,
+            comment: widget.comment,
+            isRoot: true,
+          ),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton.icon(
+              icon: Icon(
+                _expanded ? Icons.expand_less : Icons.forum_outlined,
+                size: 18,
+              ),
+              label: Text(_expanded ? 'Hide replies' : 'Replies'),
+              onPressed: () => setState(() => _expanded = !_expanded),
+            ),
+          ),
+          if (_expanded)
+            _Replies(storyId: widget.storyId, rootId: widget.comment.id),
+        ],
+      ),
+    );
+  }
+}
+
+/// The replies half of a thread (`CommentThreadDto.replies`) plus a composer.
+class _Replies extends ConsumerWidget {
+  const _Replies({required this.storyId, required this.rootId});
+
+  final String storyId;
+  final String rootId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final AsyncValue<CommentThread> async = ref.watch(
+      storyCommentThreadProvider(rootId),
+    );
+    return async.when(
+      loading: () => const Padding(
+        padding: EdgeInsets.all(QSpacing.s2),
+        child: LinearProgressIndicator(),
+      ),
+      error: (Object error, StackTrace _) => QErrorView(
+        failure: _failureOf(error),
+        onRetry: () => ref.invalidate(storyCommentThreadProvider(rootId)),
+      ),
+      data: (CommentThread thread) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          if (thread.replies.isEmpty)
+            Padding(
+              padding: const EdgeInsets.only(left: QSpacing.s5),
+              child: Text(
+                'No replies yet.',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ),
+          for (final CollaborationComment reply in thread.replies) ...<Widget>[
             const Divider(height: QSpacing.s5),
             Padding(
               padding: const EdgeInsets.only(left: QSpacing.s5),
@@ -119,6 +189,79 @@ class _CommentThread extends ConsumerWidget {
               ),
             ),
           ],
+          Gap.v2,
+          CapabilityGate(
+            storyId: storyId,
+            action: PolicyAction.storyComment,
+            child: _ReplyComposer(rootId: rootId),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Posts to `POST /comments/:id/replies` — `{body, mentions?}`. This is the only
+/// way to create a reply; `parentId` on the create-comment body is not accepted
+/// (C-7).
+class _ReplyComposer extends ConsumerStatefulWidget {
+  const _ReplyComposer({required this.rootId});
+
+  final String rootId;
+
+  @override
+  ConsumerState<_ReplyComposer> createState() => _ReplyComposerState();
+}
+
+class _ReplyComposerState extends ConsumerState<_ReplyComposer> {
+  final TextEditingController _controller = TextEditingController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    final String body = _controller.text.trim();
+    if (body.isEmpty) return;
+    final CollaborationComment? added = await ref
+        .read(collaborationControllerProvider.notifier)
+        .replyToComment(commentId: widget.rootId, body: body);
+    if (!mounted) return;
+    if (added != null) {
+      _controller.clear();
+      ref.invalidate(storyCommentThreadProvider(widget.rootId));
+    } else {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(_errorMessage(ref))));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: QSpacing.s5),
+      child: Row(
+        children: <Widget>[
+          Expanded(
+            child: TextField(
+              controller: _controller,
+              minLines: 1,
+              maxLines: 3,
+              decoration: const InputDecoration(
+                hintText: 'Reply…',
+                isDense: true,
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ),
+          Gap.h2,
+          IconButton(
+            icon: const Icon(Icons.send, size: 18),
+            onPressed: _submit,
+          ),
         ],
       ),
     );
@@ -144,11 +287,13 @@ class _CommentRow extends ConsumerWidget {
       children: <Widget>[
         Row(
           children: <Widget>[
-            QAvatar(name: comment.authorName ?? comment.authorId, size: 28),
+            // `CommentDto` carries `authorId` and no name; the entity used to
+            // parse an `authorName` the wire never sends (C-5 note).
+            QAvatar(name: shortActorId(comment.authorId), size: 28),
             Gap.h2,
             Expanded(
               child: Text(
-                comment.authorName ?? comment.authorId,
+                shortActorId(comment.authorId),
                 style: theme.textTheme.titleSmall,
               ),
             ),

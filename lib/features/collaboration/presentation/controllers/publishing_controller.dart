@@ -9,8 +9,8 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../../core/error/failure.dart';
 import '../../../../core/utils/result.dart';
-import '../../domain/entities/publication_event.dart';
 import '../../domain/entities/review_session.dart';
+import '../../domain/entities/story_publication_state.dart';
 import '../../domain/entities/story_snapshot.dart';
 import '../../domain/repositories/publishing_repository.dart';
 import '../providers/collaboration_providers.dart';
@@ -25,37 +25,25 @@ class PublishingController extends _$PublishingController {
   PublishingRepository get _repo => ref.read(publishingRepositoryProvider);
 
   // ── Publication ──────────────────────────────────────────────────────────────
-  Future<PublicationEvent?> publish({
+  //
+  // These four answer the piece in its new state ([StoryPublicationState]), not a
+  // publication event — and none of them takes a body the server reads, so the
+  // `visibility` / `note` parameters are gone (`docs/56` §2.2, P-1 + P-8).
+  Future<StoryPublicationState?> publish({required String storyId}) =>
+      _run(() => _repo.publish(storyId: storyId), _refreshPublication);
+
+  Future<StoryPublicationState?> unpublish({required String storyId}) =>
+      _run(() => _repo.unpublish(storyId: storyId), _refreshPublication);
+
+  Future<StoryPublicationState?> schedule({
     required String storyId,
-    String? visibility,
-    String? note,
+    required DateTime scheduledAt,
   }) => _run(
-    () => _repo.publish(storyId: storyId, visibility: visibility, note: note),
+    () => _repo.schedule(storyId: storyId, scheduledAt: scheduledAt),
     _refreshPublication,
   );
 
-  Future<PublicationEvent?> unpublish({
-    required String storyId,
-    String? note,
-  }) => _run(
-    () => _repo.unpublish(storyId: storyId, note: note),
-    _refreshPublication,
-  );
-
-  Future<PublicationEvent?> schedule({
-    required String storyId,
-    required DateTime scheduledFor,
-    String? visibility,
-  }) => _run(
-    () => _repo.schedule(
-      storyId: storyId,
-      scheduledFor: scheduledFor,
-      visibility: visibility,
-    ),
-    _refreshPublication,
-  );
-
-  Future<PublicationEvent?> changeVisibility({
+  Future<StoryPublicationState?> changeVisibility({
     required String storyId,
     required String visibility,
   }) => _run(
@@ -64,45 +52,30 @@ class PublishingController extends _$PublishingController {
   );
 
   // ── Review workflow ──────────────────────────────────────────────────────────
-  Future<ReviewSession?> requestReview({
-    required String storyId,
-    String? reviewerId,
-    String? note,
-  }) => _run(
-    () => _repo.requestReview(
-      storyId: storyId,
-      reviewerId: reviewerId,
-      note: note,
-    ),
+  Future<ReviewSession?> requestReview({required String storyId}) => _run(
+    () => _repo.requestReview(storyId: storyId),
     () => ref.invalidate(storyReviewProvider),
   );
 
-  Future<ReviewSession?> approveReview({
-    required String storyId,
-    String? note,
-  }) => _run(
-    () => _repo.approveReview(storyId: storyId, note: note),
-    _refreshReview,
-  );
+  Future<ReviewSession?> approveReview({required String storyId}) =>
+      _run(() => _repo.approveReview(storyId: storyId), _refreshReview);
 
   Future<ReviewSession?> requestChanges({
     required String storyId,
-    String? note,
+    String? notes,
   }) => _run(
-    () => _repo.requestChanges(storyId: storyId, note: note),
+    () => _repo.requestChanges(storyId: storyId, notes: notes),
     () => ref.invalidate(storyReviewProvider),
   );
 
   // ── Snapshots ──────────────────────────────────────────────────────────────────
-  Future<StorySnapshot?> createSnapshot({
-    required String storyId,
-    String? label,
-  }) => _run(
-    () => _repo.createSnapshot(storyId: storyId, label: label),
+  Future<StorySnapshot?> createSnapshot({required String storyId}) => _run(
+    () => _repo.createSnapshot(storyId: storyId),
     () => ref.invalidate(storySnapshotsProvider),
   );
 
-  Future<StorySnapshot?> revertToSnapshot({
+  /// Answers the reverted **piece**, not a snapshot.
+  Future<StoryPublicationState?> revertToSnapshot({
     required String storyId,
     required String snapshotId,
   }) => _run(

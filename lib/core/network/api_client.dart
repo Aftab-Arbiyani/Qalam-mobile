@@ -52,6 +52,35 @@ class ApiClient {
     return decode(_dataAsJson(response));
   }
 
+  /// GET where the endpoint legitimately answers `{success: true, data: null}` —
+  /// an "absent, not missing" read. Returns null for that case and decodes
+  /// normally otherwise.
+  ///
+  /// Distinct from [get] on purpose. [get] shares `_dataAsJson` with `post`,
+  /// `patch` and `upload`, where a null `data` really is a malformed response; a
+  /// nullable `data` is a property of the specific endpoint, so it is opted into
+  /// per call site rather than loosened for every feature. The first such endpoint
+  /// is `GET /stories/:id/review`, which returns `ReviewDto | null` — decoding it
+  /// with [get] raised `API_MALFORMED_RESPONSE`, so every story that had never
+  /// been submitted for review rendered an error card instead of "Draft"
+  /// (defect **P-4**, `docs/56` §2.2).
+  Future<T?> getOrNull<T>(
+    String path, {
+    Json? query,
+    required JsonDecoder<T> decode,
+    CancelToken? cancelToken,
+    bool deduplicate = true,
+  }) async {
+    final Response<dynamic> response = await _get(
+      path,
+      query,
+      cancelToken,
+      deduplicate,
+    );
+    final Json? data = _dataAsJsonOrNull(response);
+    return data == null ? null : decode(data);
+  }
+
   /// GET returning a decoded list (non-paginated list endpoints).
   Future<List<T>> getList<T>(
     String path, {
@@ -246,7 +275,9 @@ class ApiClient {
       buffer += utf8.decode(chunk, allowMalformed: true);
       int newlineIndex = buffer.indexOf('\n');
       while (newlineIndex != -1) {
-        final String line = buffer.substring(0, newlineIndex).replaceAll('\r', '');
+        final String line = buffer
+            .substring(0, newlineIndex)
+            .replaceAll('\r', '');
         buffer = buffer.substring(newlineIndex + 1);
         if (line.startsWith('data:')) {
           final String payload = line.substring(5).trimLeft();
@@ -327,6 +358,16 @@ class ApiClient {
     final Object? data = _extractData(response);
     if (data is Map) return Json.from(data);
     throw _malformed(response, 'expected an object');
+  }
+
+  /// Like [_dataAsJson] but treats a null `data` as a legitimate absence. Anything
+  /// else that is not an object is still malformed — a string or a number where an
+  /// object belongs stays an error (only `null` is special).
+  Json? _dataAsJsonOrNull(Response<dynamic> response) {
+    final Object? data = _extractData(response);
+    if (data == null) return null;
+    if (data is Map) return Json.from(data);
+    throw _malformed(response, 'expected an object or null');
   }
 
   List<Json> _dataAsList(Response<dynamic> response) {

@@ -112,6 +112,7 @@ abstract final class ApiPaths {
   static String storyComments(String id) => '/stories/$id/comments';
   static String collaborationCommentReplies(String id) =>
       '/comments/$id/replies';
+  static String collaborationCommentThread(String id) => '/comments/$id/thread';
   static String collaborationCommentResolve(String id) =>
       '/comments/$id/resolve';
   static String collaborationComment(String id) => '/comments/$id';

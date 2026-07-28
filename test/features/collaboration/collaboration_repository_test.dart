@@ -40,9 +40,7 @@ void main() {
 
     test('members() returns Ok with the decoded members', () async {
       const StoryMember member = StoryMember(
-        id: 'm1',
-        storyId: 's1',
-        userId: 'u1',
+                userId: 'u1',
         role: StoryRole.editor,
       );
       when(
@@ -106,9 +104,19 @@ void main() {
       );
       when(() => remote.review('s1')).thenAnswer((_) async => session);
 
-      final Result<ReviewSession> result = await repo.review('s1');
+      // Nullable: no session is a legitimate `data: null`, not an error (P-4).
+      final Result<ReviewSession?> result = await repo.review('s1');
 
       expect(result.valueOrNull, session);
+    });
+
+    test('review() returns Ok(null) when the story has no session (P-4)', () async {
+      when(() => remote.review('s1')).thenAnswer((_) async => null);
+
+      final Result<ReviewSession?> result = await repo.review('s1');
+
+      expect(result.isErr, isFalse);
+      expect(result.valueOrNull, isNull);
     });
 
     test('publish() maps an ApiException to a Failure (Err)', () async {

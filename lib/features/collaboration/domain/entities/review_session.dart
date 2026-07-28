@@ -7,29 +7,34 @@ library;
 import '../../../../core/utils/typedefs.dart';
 import 'collaboration_enums.dart';
 
+/// Mirrors `ReviewDto` field for field. It previously read `requestedBy` and
+/// `requestedAt`, which the wire calls `requestedById` and `submittedAt`, so both
+/// were permanently null; and it ignored `decision`, the field that says *why* a
+/// review left `in_review` (defect **P-6**, `docs/56` §2.2). There are no
+/// `*Name` fields on the wire — the DTO carries ids only, like `InvitationDto`.
 class ReviewSession {
   const ReviewSession({
     required this.id,
     required this.storyId,
     required this.state,
-    this.requestedBy,
-    this.requestedByName,
+    this.requestedById,
     this.reviewerId,
-    this.reviewerName,
+    this.decision,
     this.notes,
-    this.requestedAt,
+    this.submittedAt,
     this.decidedAt,
   });
 
   final String id;
   final String storyId;
   final String state;
-  final String? requestedBy;
-  final String? requestedByName;
+  final String? requestedById;
   final String? reviewerId;
-  final String? reviewerName;
+
+  /// `approve` / `request_changes` / `reject` — null until a reviewer decides.
+  final String? decision;
   final String? notes;
-  final DateTime? requestedAt;
+  final DateTime? submittedAt;
   final DateTime? decidedAt;
 
   bool get isInReview => state == ReviewState.inReview;
@@ -41,12 +46,11 @@ class ReviewSession {
     id: json['id'] as String? ?? '',
     storyId: json['storyId'] as String? ?? '',
     state: json['state'] as String? ?? ReviewState.draft,
-    requestedBy: json['requestedBy'] as String?,
-    requestedByName: json['requestedByName'] as String?,
+    requestedById: json['requestedById'] as String?,
     reviewerId: json['reviewerId'] as String?,
-    reviewerName: json['reviewerName'] as String?,
-    notes: json['notes'] as String? ?? json['note'] as String?,
-    requestedAt: _date(json['requestedAt']),
+    decision: json['decision'] as String?,
+    notes: json['notes'] as String?,
+    submittedAt: _date(json['submittedAt']),
     decidedAt: _date(json['decidedAt']),
   );
 }

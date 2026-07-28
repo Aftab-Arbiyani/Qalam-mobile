@@ -100,10 +100,19 @@ String restrictionTypeLabel(String type) => switch (type) {
   _ => type,
 };
 
+/// Why a snapshot was captured (`SnapshotReason` on the wire).
+String snapshotReasonLabel(String reason) => switch (reason) {
+  'publish' => 'On publish',
+  'manual' => 'Manual',
+  'pre_edit' => 'Before edit',
+  'review' => 'For review',
+  'restore' => 'Restore point',
+  _ => reason,
+};
+
 String visibilityLabel(String visibility) => switch (visibility) {
   StoryVisibility.private => 'Private',
   StoryVisibility.unlisted => 'Unlisted',
-  StoryVisibility.followers => 'Followers',
   StoryVisibility.public => 'Public',
   _ => visibility,
 };
