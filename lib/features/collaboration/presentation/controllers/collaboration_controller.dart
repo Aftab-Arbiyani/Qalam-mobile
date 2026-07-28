@@ -12,6 +12,7 @@ import '../../../../core/utils/result.dart';
 import '../../domain/entities/collaboration_comment.dart';
 import '../../domain/entities/collaboration_enums.dart';
 import '../../domain/entities/edit_suggestion.dart';
+import '../../domain/entities/invitee_candidate.dart';
 import '../../domain/entities/story_invitation.dart';
 import '../../domain/entities/story_member.dart';
 import '../../domain/repositories/collaboration_repository.dart';
@@ -58,23 +59,29 @@ class CollaborationController extends _$CollaborationController {
       _mutate(() => _repo.leave(storyId), _refreshMembers);
 
   // ── Invitations ──────────────────────────────────────────────────────────────
+  /// Resolve a typed `@handle` to the person behind it, so the sheet can confirm *who* is being
+  /// invited and hand the contract the `inviteeId` it requires (defect M-1).
+  Future<InviteeCandidate?> resolveInvitee(String username) =>
+      _run(() => _repo.resolveInvitee(username), null);
+
+  /// Invite by **user id**. The old signature took an `email`, which the contract cannot accept.
   Future<StoryInvitation?> invite({
     required String storyId,
+    required String inviteeId,
     required String role,
-    String? email,
-    String? userId,
   }) => _run(
-    () => _repo.invite(
-      storyId: storyId,
-      role: role,
-      email: email,
-      userId: userId,
-    ),
+    () => _repo.invite(storyId: storyId, inviteeId: inviteeId, role: role),
     () => ref.invalidate(storyInvitationsProvider),
   );
 
-  Future<StoryInvitation?> acceptInvitation(String invitationId) =>
-      _run(() => _repo.acceptInvitation(invitationId), _refreshInvitations);
+  /// Accepting yields the new **member** (the endpoint returns `MemberDto`). Refreshes the
+  /// invitation list *and* the story's members, since the viewer just joined.
+  Future<StoryMember?> acceptInvitation(String invitationId) =>
+      _run(() => _repo.acceptInvitation(invitationId), () {
+        _refreshInvitations();
+        // The viewer just became a collaborator, so the roster moved too.
+        _refreshMembers();
+      });
 
   Future<StoryInvitation?> declineInvitation(String invitationId) =>
       _run(() => _repo.declineInvitation(invitationId), _refreshInvitations);
@@ -166,16 +173,17 @@ class CollaborationController extends _$CollaborationController {
 
   /// Run an action that returns a value; tracks busy/error state and refreshes reads
   /// on success. Returns the value, or null on failure (state carries the error).
+  /// [onOk] is optional — a pure read (e.g. resolving a handle) has nothing to invalidate.
   Future<T?> _run<T>(
     Future<Result<T>> Function() op,
-    void Function() onOk,
+    void Function()? onOk,
   ) async {
     state = const AsyncValue<void>.loading();
     final Result<T> result = await op();
     switch (result) {
       case Ok<T>(:final T value):
         state = const AsyncValue<void>.data(null);
-        onOk();
+        onOk?.call();
         return value;
       case Err<T>(:final Failure failure):
         state = AsyncValue<void>.error(failure, StackTrace.current);

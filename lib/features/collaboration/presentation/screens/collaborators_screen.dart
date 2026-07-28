@@ -5,6 +5,8 @@
 /// re-checks on the action itself.
 library;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -18,6 +20,7 @@ import '../../../../shared/widgets/media/q_avatar.dart';
 import '../../../../shared/widgets/states/q_empty_state.dart';
 import '../../../../shared/widgets/states/q_error_view.dart';
 import '../../domain/entities/collaboration_enums.dart';
+import '../../domain/entities/invitee_candidate.dart';
 import '../../domain/entities/story_invitation.dart';
 import '../../domain/entities/story_member.dart';
 import '../controllers/collaboration_controller.dart';
@@ -108,72 +111,168 @@ class CollaboratorsScreen extends ConsumerWidget {
     );
   }
 
+  /// The invite sheet (defect **M-1**, `platfrom/docs/48` §3.1).
+  ///
+  /// It asks for a **handle**, not an email: `POST /stories/{id}/invitations` takes an `inviteeId`
+  /// and the backend has no invite-by-email path, so the old email field could never work. The
+  /// handle is resolved to a real person first, the sheet shows who that is, and **Send** stays
+  /// disabled until it resolves — so the writer confirms the target before anything is sent.
   Future<void> _showInviteSheet(BuildContext context, WidgetRef ref) async {
-    final TextEditingController emailController = TextEditingController();
-    String role = StoryRole.editor;
     await showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       builder: (BuildContext ctx) => Padding(
         padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
-        child: StatefulBuilder(
-          builder: (BuildContext ctx, StateSetter setState) => Padding(
-            padding: QSpacing.cardPadding,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                  'Invite a collaborator',
-                  style: Theme.of(ctx).textTheme.titleLarge,
-                ),
-                Gap.v3,
-                TextField(
-                  controller: emailController,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: const InputDecoration(
-                    labelText: 'Email',
-                    hintText: 'name@example.com',
-                  ),
-                ),
-                Gap.v3,
-                DropdownButtonFormField<String>(
-                  initialValue: role,
-                  decoration: const InputDecoration(labelText: 'Role'),
-                  items: <DropdownMenuItem<String>>[
-                    for (final String r in StoryRole.ordered)
-                      if (r != StoryRole.owner)
-                        DropdownMenuItem<String>(
-                          value: r,
-                          child: Text(roleLabel(r)),
-                        ),
-                  ],
-                  onChanged: (String? value) =>
-                      setState(() => role = value ?? role),
-                ),
-                Gap.v4,
-                FilledButton(
-                  onPressed: () => Navigator.pop(ctx),
-                  child: const Text('Cancel'),
-                ),
-              ],
-            ),
-          ),
+        child: _InviteSheet(storyId: storyId),
+      ),
+    );
+  }
+}
+
+/// Handle → person → invitation. Stateful because it owns the resolve-as-you-type lifecycle.
+class _InviteSheet extends ConsumerStatefulWidget {
+  const _InviteSheet({required this.storyId});
+
+  final String storyId;
+
+  @override
+  ConsumerState<_InviteSheet> createState() => _InviteSheetState();
+}
+
+class _InviteSheetState extends ConsumerState<_InviteSheet> {
+  final TextEditingController _handle = TextEditingController();
+  Timer? _debounce;
+  String _role = StoryRole.editor;
+  InviteeCandidate? _resolved;
+  bool _resolving = false;
+  bool _notFound = false;
+  bool _sending = false;
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    _handle.dispose();
+    super.dispose();
+  }
+
+  /// Resolve after the typing settles — one lookup per handle, not one per keystroke.
+  void _onHandleChanged(String raw) {
+    _debounce?.cancel();
+    final String username = raw.trim().replaceFirst(RegExp(r'^@+'), '');
+    setState(() {
+      _resolved = null;
+      _notFound = false;
+    });
+    if (username.isEmpty) return;
+    _debounce = Timer(
+      const Duration(milliseconds: 350),
+      () => _resolve(username),
+    );
+  }
+
+  Future<void> _resolve(String username) async {
+    setState(() => _resolving = true);
+    final InviteeCandidate? candidate = await ref
+        .read(collaborationControllerProvider.notifier)
+        .resolveInvitee(username);
+    if (!mounted) return;
+    setState(() {
+      _resolving = false;
+      _resolved = candidate;
+      // A typo is the common case, so say so rather than failing at send time.
+      _notFound = candidate == null;
+    });
+  }
+
+  Future<void> _send() async {
+    final InviteeCandidate? invitee = _resolved;
+    if (invitee == null) return;
+    setState(() => _sending = true);
+    final StoryInvitation? invite = await ref
+        .read(collaborationControllerProvider.notifier)
+        .invite(storyId: widget.storyId, inviteeId: invitee.id, role: _role);
+    if (!mounted) return;
+    setState(() => _sending = false);
+    final NavigatorState navigator = Navigator.of(context);
+    final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
+    if (invite != null) navigator.pop();
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(
+          invite == null
+              ? _errorMessage(ref)
+              : 'Invitation sent to ${invitee.label}.',
         ),
       ),
     );
-    final String email = emailController.text.trim();
-    emailController.dispose();
-    if (email.isEmpty || !context.mounted) return;
-    final StoryInvitation? invite = await ref
-        .read(collaborationControllerProvider.notifier)
-        .invite(storyId: storyId, role: role, email: email);
-    if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          invite == null ? _errorMessage(ref) : 'Invitation sent to $email.',
-        ),
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: QSpacing.cardPadding,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            'Invite a collaborator',
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          Gap.v3,
+          TextField(
+            controller: _handle,
+            autocorrect: false,
+            keyboardType: TextInputType.text,
+            decoration: InputDecoration(
+              labelText: 'Handle',
+              hintText: '@handle',
+              errorText: _notFound ? 'No writer with that handle.' : null,
+            ),
+            onChanged: _onHandleChanged,
+          ),
+          Gap.v2,
+          // Who is about to be invited — the confirmation the email field never gave.
+          Text(
+            _resolving
+                ? 'Looking up…'
+                : _resolved != null
+                ? 'Inviting ${_resolved!.label} (@${_resolved!.username})'
+                : 'Enter a handle to continue.',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+          Gap.v3,
+          DropdownButtonFormField<String>(
+            initialValue: _role,
+            decoration: const InputDecoration(labelText: 'Role'),
+            items: <DropdownMenuItem<String>>[
+              for (final String r in StoryRole.ordered)
+                if (r != StoryRole.owner)
+                  DropdownMenuItem<String>(value: r, child: Text(roleLabel(r))),
+            ],
+            onChanged: (String? value) =>
+                setState(() => _role = value ?? _role),
+          ),
+          Gap.v4,
+          Row(
+            children: <Widget>[
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('Cancel'),
+                ),
+              ),
+              Gap.h3,
+              Expanded(
+                child: FilledButton(
+                  // Disabled until a real person is resolved.
+                  onPressed: (_resolved == null || _sending) ? null : _send,
+                  child: const Text('Send invitation'),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -321,11 +420,10 @@ class _PendingInvitations extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
-                          Text(
-                            invite.inviteeEmail ??
-                                invite.inviteeUserId ??
-                                'Invited user',
-                          ),
+                          // Ids are all the wire gives for an invitee (no by-id profile
+                          // lookup exists), so show a recognisable fragment rather than a
+                          // fabricated name.
+                          Text(shortActorId(invite.inviteeId)),
                           Gap.v1,
                           RoleBadge(role: invite.role),
                         ],

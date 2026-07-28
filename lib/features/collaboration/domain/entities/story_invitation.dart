@@ -1,6 +1,12 @@
 /// Story invitation entity (AF6) — an outstanding or resolved invite to collaborate
 /// (`GET /stories/{id}/invitations`, `GET /me/invitations`). The server owns the
 /// lifecycle; the client renders it and drives accept / decline / revoke.
+///
+/// Mirrors `InvitationDto` **field for field**. It previously carried `inviteeEmail`,
+/// `inviteeUserId`, `invitedByName` and `storyTitle`, none of which the wire has ever sent — the
+/// same email-shaped assumption that made every invitation 400 (defect **M-1**,
+/// `platfrom/docs/48` §3.1). They parsed to null forever, so the screens that displayed them showed
+/// nothing. The wire gives **ids**, not names: `inviterId` and `inviteeId`.
 library;
 
 import '../../../../core/utils/typedefs.dart';
@@ -12,24 +18,26 @@ class StoryInvitation {
     required this.storyId,
     required this.role,
     required this.status,
-    this.storyTitle,
-    this.inviteeEmail,
-    this.inviteeUserId,
-    this.invitedByName,
+    this.inviterId,
+    this.inviteeId,
     this.createdAt,
     this.expiresAt,
+    this.respondedAt,
   });
 
   final String id;
   final String storyId;
   final String role;
   final String status;
-  final String? storyTitle;
-  final String? inviteeEmail;
-  final String? inviteeUserId;
-  final String? invitedByName;
+
+  /// Who sent it, and who it is for — **ids**; there is no by-id profile lookup, so a UI shows a
+  /// shortened id unless it already knows the handle from context.
+  final String? inviterId;
+  final String? inviteeId;
+
   final DateTime? createdAt;
   final DateTime? expiresAt;
+  final DateTime? respondedAt;
 
   bool get isPending => status == InvitationStatus.pending;
   bool get isExpired => status == InvitationStatus.expired;
@@ -39,15 +47,22 @@ class StoryInvitation {
     storyId: json['storyId'] as String? ?? '',
     role: json['role'] as String? ?? StoryRole.betaReader,
     status: json['status'] as String? ?? InvitationStatus.pending,
-    storyTitle: json['storyTitle'] as String? ?? json['title'] as String?,
-    inviteeEmail: json['inviteeEmail'] as String? ?? json['email'] as String?,
-    inviteeUserId: json['inviteeUserId'] as String?,
-    invitedByName:
-        json['invitedByName'] as String? ?? json['inviterName'] as String?,
+    inviterId: json['inviterId'] as String?,
+    inviteeId: json['inviteeId'] as String?,
     createdAt: _date(json['createdAt']),
     expiresAt: _date(json['expiresAt']),
+    respondedAt: _date(json['respondedAt']),
   );
 }
 
 DateTime? _date(Object? raw) =>
     raw is String && raw.isNotEmpty ? DateTime.tryParse(raw) : null;
+
+/// First and last four of an id — recognisable across a list, and obviously an id rather than a
+/// name, which is honest about what the wire provides.
+String shortActorId(String? id) {
+  if (id == null || id.isEmpty) return 'someone';
+  return id.length > 12
+      ? '${id.substring(0, 4)}…${id.substring(id.length - 4)}'
+      : id;
+}

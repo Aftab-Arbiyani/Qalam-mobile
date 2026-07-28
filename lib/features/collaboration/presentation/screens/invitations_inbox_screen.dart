@@ -88,19 +88,20 @@ class _InvitationCard extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text(
-            invitation.storyTitle ?? 'A story',
-            style: theme.textTheme.titleMedium,
-          ),
+          // The invitation payload carries no story title — only `storyId`. Naming the story
+          // would need a second fetch per row; the role + inviter below are what the decision
+          // actually rests on.
+          Text('A story invitation', style: theme.textTheme.titleMedium),
           Gap.v1,
           Row(
             children: <Widget>[
               RoleBadge(role: invitation.role),
-              if (invitation.invitedByName != null) ...<Widget>[
+              if (invitation.inviterId != null) ...<Widget>[
                 Gap.h2,
                 Expanded(
                   child: Text(
-                    'from ${invitation.invitedByName}',
+                    // The wire identifies the inviter by id only.
+                    'from ${shortActorId(invitation.inviterId)}',
                     style: theme.textTheme.bodySmall,
                   ),
                 ),
@@ -152,13 +153,16 @@ class _InvitationCard extends ConsumerWidget {
     );
   }
 
+  /// Accept and decline answer with different entities — a `MemberDto` and an `InvitationDto`
+  /// respectively — and this only needs to know whether the call succeeded, so it takes the
+  /// loosest type that says that.
   Future<void> _respond(
     BuildContext context,
     WidgetRef ref,
-    Future<StoryInvitation?> Function() op,
+    Future<Object?> Function() op,
     String okMessage,
   ) async {
-    final StoryInvitation? result = await op();
+    final Object? result = await op();
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(result == null ? _errorMessage(ref) : okMessage)),

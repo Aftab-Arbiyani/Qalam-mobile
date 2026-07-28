@@ -9,6 +9,7 @@ import '../../../../core/utils/typedefs.dart';
 import '../entities/collaboration_activity_entry.dart';
 import '../entities/collaboration_comment.dart';
 import '../entities/edit_suggestion.dart';
+import '../entities/invitee_candidate.dart';
 import '../entities/policy_capability.dart';
 import '../entities/presence_entry.dart';
 import '../entities/story_invitation.dart';
@@ -37,15 +38,22 @@ abstract interface class CollaborationRepository {
   Future<Result<StoryCapabilities>> capabilities(String storyId);
 
   // ── Invitations ──────────────────────────────────────────────────────────────
+  /// Resolve a `@handle` to the invite target's id — the invite contract takes an id, and there is
+  /// no invite-by-email path (defect M-1, `platfrom/docs/48` §3.1).
+  Future<Result<InviteeCandidate>> resolveInvitee(String username);
+
+  /// Invite by **user id** (`{inviteeId, role}`) — the only shape the contract accepts.
   Future<Result<StoryInvitation>> invite({
     required String storyId,
+    required String inviteeId,
     required String role,
-    String? email,
-    String? userId,
   });
   Future<Result<List<StoryInvitation>>> storyInvitations(String storyId);
   Future<Result<List<StoryInvitation>>> myInvitations();
-  Future<Result<StoryInvitation>> acceptInvitation(String invitationId);
+
+  /// Accepting returns the new **member** — the endpoint answers with `MemberDto`, not the
+  /// invitation.
+  Future<Result<StoryMember>> acceptInvitation(String invitationId);
   Future<Result<StoryInvitation>> declineInvitation(String invitationId);
   Future<Result<Unit>> revokeInvitation(String invitationId);
 

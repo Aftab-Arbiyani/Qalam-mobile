@@ -64,11 +64,39 @@ env `QALAM_ENABLE_COLLABORATION`, default off), and `test/support/harness.dart` 
 ## Manual testing
 
 Enable with `--dart-define=QALAM_ENABLE_COLLABORATION=true`. From a piece the user owns:
-open **Collaborators** (invite by role → the invitee sees it in **Invitations Inbox** →
+open **Collaborators** (invite by **handle** → the invitee sees it in **Invitations Inbox** →
 accept), **Comments** (inline thread + resolve), **Suggestions** (propose → owner accepts),
 **Publishing** (request review → approve → publish; snapshots + history). Sign in as a
 restricted user to see **Restricted State**; the capability gates hide disallowed actions
 throughout.
+
+> ⚠️ **Correction (2026-07-28).** This section originally described inviting **by email** and claimed
+> that flow had been manually verified. **It could not have been**: the client sent `{role, email}` to
+> an endpoint that requires `{inviteeId, role}` under `forbidNonWhitelisted`, so every invitation
+> returned `400 VALIDATION_FAILED` ("property email should not exist"). There is no invite-by-email
+> path anywhere in the backend. Treat the rest of this AF6 manual-test list as **unverified** until
+> re-run — the same "it must work" assumption may cover the other flows.
+>
+> Fixed the same day (defect **M-1**, `platfrom/docs/48` §3.1). See "Invite by handle" below.
+
+## Invite by handle (M-1 fix, 2026-07-28)
+
+The invite sheet now asks for a `@handle`, resolves it through `GET /users/{username}` (which returns
+the id), shows **who** is about to be invited, and keeps **Send** disabled until that resolves. Three
+further defects in the same flow were found and fixed with it:
+
+| Defect                                                                                                                  | Fix                                                                                          |
+| ----------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| Invite sent `{role, email?, userId?}` — rejected by validation                                                            | Sends exactly `{inviteeId, role}`                                                            |
+| The sheet's only button was **Cancel**, and the code invited *after* it popped — so "Cancel" submitted                   | Real **Cancel** / **Send invitation** pair; Send is disabled until a person resolves          |
+| `POST /invitations/:id/accept` returns `MemberDto`, but the client decoded it as `StoryInvitation`                        | Decodes `StoryMember`; accepting now also refreshes the roster                                |
+| `StoryInvitation` carried `inviteeEmail` / `inviteeUserId` / `invitedByName` / `storyTitle` — **keys the wire never sends**, so they were always null and the screens showed nothing | Entity mirrors `InvitationDto` (`inviterId`, `inviteeId`, `respondedAt`); UI shows a shortened id |
+
+**Verified against a live backend**, not just mocks: handle → id resolves, `{inviteeId, role}` returns
+`201 pending` (the old shape returns `400`), the invitation appears in `/me/invitations`, accept
+returns `{userId, role, invitedById, joinedAt}`, and the invitee then appears in
+`GET /stories/:id/members` as `editor`. Regression tests in
+`test/features/collaboration/invite_contract_test.dart` pin the request body and the accept type.
 
 ## Deferred
 

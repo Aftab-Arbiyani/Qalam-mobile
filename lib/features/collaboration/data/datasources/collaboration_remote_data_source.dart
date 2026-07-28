@@ -12,6 +12,7 @@ import '../../../../core/network/api_paths.dart';
 import '../../domain/entities/collaboration_activity_entry.dart';
 import '../../domain/entities/collaboration_comment.dart';
 import '../../domain/entities/edit_suggestion.dart';
+import '../../domain/entities/invitee_candidate.dart';
 import '../../domain/entities/policy_capability.dart';
 import '../../domain/entities/presence_entry.dart';
 import '../../domain/entities/story_invitation.dart';
@@ -70,14 +71,34 @@ class CollaborationRemoteDataSource {
   );
 
   // ── Invitations ──────────────────────────────────────────────────────────────
+
+  /// Resolve a `@handle` to the id the invite contract needs (`GET /users/{username}`).
+  ///
+  /// The collaboration feature makes this call itself rather than reusing the reading feature's
+  /// profile fetch, because a feature may never import another feature (docs/folder-structure).
+  Future<InviteeCandidate> resolveInvitee(
+    String username, {
+    CancelToken? cancelToken,
+  }) => _api.get(
+    ApiPaths.userByUsername(username),
+    decode: InviteeCandidate.fromJson,
+    cancelToken: cancelToken,
+  );
+
+  /// Invite by **user id**, the only shape the contract accepts.
+  ///
+  /// `CreateInvitationDto` requires exactly `{inviteeId, role}` and the API runs
+  /// `ValidationPipe({whitelist: true, forbidNonWhitelisted: true})`. The previous version sent
+  /// `{role, email?, userId?}` — an unknown property AND a missing required field, so every
+  /// invitation 400'd (defect **M-1**, `platfrom/docs/48` §3.1). Callers resolve the handle first
+  /// via [resolveInvitee].
   Future<StoryInvitation> invite({
     required String storyId,
+    required String inviteeId,
     required String role,
-    String? email,
-    String? userId,
   }) => _api.post(
     ApiPaths.storyInvitations(storyId),
-    body: <String, Object?>{'role': role, 'email': ?email, 'userId': ?userId},
+    body: <String, Object?>{'inviteeId': inviteeId, 'role': role},
     decode: StoryInvitation.fromJson,
   );
 
@@ -97,9 +118,13 @@ class CollaborationRemoteDataSource {
         cancelToken: cancelToken,
       );
 
-  Future<StoryInvitation> acceptInvitation(String invitationId) => _api.post(
+  /// Accept → become a collaborator. The response is the new **member**, not the invitation
+  /// (`MemberDto`), which is what the endpoint has always returned; decoding it as a
+  /// [StoryInvitation] silently produced an invitation with empty fields, because that entity's
+  /// `fromJson` defaults every missing key.
+  Future<StoryMember> acceptInvitation(String invitationId) => _api.post(
     ApiPaths.invitationAccept(invitationId),
-    decode: StoryInvitation.fromJson,
+    decode: StoryMember.fromJson,
   );
 
   Future<StoryInvitation> declineInvitation(String invitationId) => _api.post(

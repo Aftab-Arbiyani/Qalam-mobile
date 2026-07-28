@@ -9,6 +9,7 @@ import '../../../../core/utils/typedefs.dart';
 import '../../domain/entities/collaboration_activity_entry.dart';
 import '../../domain/entities/collaboration_comment.dart';
 import '../../domain/entities/edit_suggestion.dart';
+import '../../domain/entities/invitee_candidate.dart';
 import '../../domain/entities/policy_capability.dart';
 import '../../domain/entities/presence_entry.dart';
 import '../../domain/entities/story_invitation.dart';
@@ -58,18 +59,16 @@ class CollaborationRepositoryImpl implements CollaborationRepository {
       guardResult(() => _remote.capabilities(storyId));
 
   @override
+  Future<Result<InviteeCandidate>> resolveInvitee(String username) =>
+      guardResult(() => _remote.resolveInvitee(username));
+
+  @override
   Future<Result<StoryInvitation>> invite({
     required String storyId,
+    required String inviteeId,
     required String role,
-    String? email,
-    String? userId,
   }) => guardResult(
-    () => _remote.invite(
-      storyId: storyId,
-      role: role,
-      email: email,
-      userId: userId,
-    ),
+    () => _remote.invite(storyId: storyId, inviteeId: inviteeId, role: role),
   );
 
   @override
@@ -81,7 +80,7 @@ class CollaborationRepositoryImpl implements CollaborationRepository {
       guardResult(_remote.myInvitations);
 
   @override
-  Future<Result<StoryInvitation>> acceptInvitation(String invitationId) =>
+  Future<Result<StoryMember>> acceptInvitation(String invitationId) =>
       guardResult(() => _remote.acceptInvitation(invitationId));
 
   @override
