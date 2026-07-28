@@ -44,6 +44,7 @@ import '../widgets/quote_card.dart';
 import '../widgets/reader_action_bar.dart';
 import '../widgets/reader_author_card.dart';
 import '../widgets/reader_settings_sheet.dart';
+import '../widgets/related_pieces.dart';
 
 /// Hero tag for a piece cover, shared with list cards for a smooth transition.
 String pieceCoverHeroTag(String pieceId) => 'piece-cover-$pieceId';
@@ -494,6 +495,12 @@ class _ReaderBody extends ConsumerWidget {
           pieceId: piece.id,
           languageCode: piece.language?.code ?? 'ur',
         ),
+        // "More like this" (docs/48 §3.1) — last, after the piece is finished.
+        // Web renders it below its author card, which sits at the END of its
+        // page; mobile's author card is above the prose, so the faithful
+        // position here is the end of the reader, not directly under the card.
+        // It owns its own top gap so an absent section leaves no dangling space.
+        RelatedPieces(piece: piece),
       ],
     );
   }
@@ -511,10 +518,7 @@ class _SocialFooter extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final AppLocalizations l10n = AppLocalizations.of(context);
     final QTokens tokens = QTokens.of(context);
-    final e = ref
-        .watch(engagementControllerProvider(pieceId))
-        .asData
-        ?.value;
+    final e = ref.watch(engagementControllerProvider(pieceId)).asData?.value;
     return Column(
       children: <Widget>[
         Divider(color: tokens.colors.border),

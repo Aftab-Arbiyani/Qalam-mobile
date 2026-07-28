@@ -9,6 +9,8 @@ import '../../../../core/error/error_mapper.dart';
 import '../../../../core/error/failure.dart';
 import '../../../../core/storage/cache_policy.dart';
 import '../../../../core/utils/result.dart';
+import '../../../../shared/domain/entities/piece_summary.dart';
+import '../../../../shared/domain/entities/taxonomy.dart';
 import '../../../../shared/domain/error_codes.dart';
 import '../../domain/entities/piece_detail.dart';
 import '../../domain/entities/piece_engagement.dart';
@@ -103,6 +105,30 @@ class ReadingRepositoryImpl implements ReadingRepository {
       return Err<WriterProfile>(mapApiExceptionToFailure(e));
     } on Object catch (e) {
       return Err<WriterProfile>(
+        Failure.unexpected(
+          code: ErrorCodes.apiUnexpected,
+          message: e.toString(),
+        ),
+      );
+    }
+  }
+
+  @override
+  Future<Result<List<PieceSummary>>> getRelatedPieces(
+    TagRef tag, {
+    int limit = 5,
+  }) async {
+    // Deliberately NOT cached — the documented exception in docs/40 §25.4: a
+    // cached suggestion offline links to a piece that is not cached, and the
+    // section is non-critical, so showing nothing is a correct outcome.
+    try {
+      return Ok<List<PieceSummary>>(
+        await _remote.getRelatedPieces(tag, limit: limit),
+      );
+    } on ApiException catch (e) {
+      return Err<List<PieceSummary>>(mapApiExceptionToFailure(e));
+    } on Object catch (e) {
+      return Err<List<PieceSummary>>(
         Failure.unexpected(
           code: ErrorCodes.apiUnexpected,
           message: e.toString(),

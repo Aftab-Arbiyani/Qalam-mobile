@@ -1489,6 +1489,13 @@ refresh-failure **clears the whole cache** (it is user-scoped).
 - **Cached:** list pages, entity details, taxonomy, profile, notifications, analytics snapshots.
 - **Not cached:** cursors (opaque, transient), anything secret (tokens live in secure storage only),
   in-flight optimistic state (lives in the provider, reconciled to cache on settle).
+- **Not cached — suggestion & recommendation lists**, which the "list pages" bullet above does _not_
+  cover. Every one of them goes straight to the remote and keeps its result for the session only:
+  AI recommendations, semantic search, search suggestions (`features/ai`, all `guardResult` with no
+  cache write) and the reader's "More like this" (docs/48 §3.1). Two reasons, and they apply to any
+  future surface of this kind: a cached suggestion offline is a link to a piece that is _not_ cached,
+  so it offers the reader a dead end; and these surfaces are non-critical, so having nothing to show
+  is a correct outcome rather than a degradation worth spending disk on.
 
 ---
 

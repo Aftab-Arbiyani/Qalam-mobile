@@ -8,6 +8,8 @@ import 'package:qalam_mobile/features/reading/domain/entities/piece_detail.dart'
 import 'package:qalam_mobile/features/reading/domain/entities/piece_engagement.dart';
 import 'package:qalam_mobile/features/reading/domain/entities/writer_profile.dart';
 import 'package:qalam_mobile/features/reading/domain/repositories/reading_repository.dart';
+import 'package:qalam_mobile/shared/domain/entities/piece_summary.dart';
+import 'package:qalam_mobile/shared/domain/entities/taxonomy.dart';
 import 'package:qalam_mobile/shared/domain/enums.dart';
 import 'package:qalam_mobile/shared/social/domain/engagement_repository.dart';
 
@@ -16,11 +18,21 @@ class FakeReadingRepository implements ReadingRepository {
     this.piece,
     this.engagement = PieceEngagement.empty,
     this.profile,
+    this.related = const <PieceSummary>[],
+    this.relatedFails = false,
   });
 
   PieceDetail? piece;
   PieceEngagement engagement;
   WriterProfile? profile;
+
+  /// Canned "More like this" results, and whether that load fails.
+  List<PieceSummary> related;
+  bool relatedFails;
+
+  /// The tag + limit the last related-pieces call asked for.
+  TagRef? lastRelatedTag;
+  int? lastRelatedLimit;
 
   int viewBeacons = 0;
   int readBeacons = 0;
@@ -47,6 +59,21 @@ class FakeReadingRepository implements ReadingRepository {
       return const Err<WriterProfile>(NotFoundFailure(code: 'USER_NOT_FOUND'));
     }
     return Ok<WriterProfile>(p);
+  }
+
+  @override
+  Future<Result<List<PieceSummary>>> getRelatedPieces(
+    TagRef tag, {
+    int limit = 5,
+  }) async {
+    lastRelatedTag = tag;
+    lastRelatedLimit = limit;
+    if (relatedFails) {
+      return const Err<List<PieceSummary>>(
+        NetworkFailure(code: 'API_NETWORK_ERROR'),
+      );
+    }
+    return Ok<List<PieceSummary>>(related);
   }
 
   @override

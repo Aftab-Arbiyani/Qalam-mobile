@@ -597,6 +597,12 @@ information — they are transient.
   in the piece's reading direction (Urdu fills right→left).
 - **EditorToolbar** — docked above the keyboard on mobile; marks bold/italic/underline, align,
   blockquote, lists, footnotes, mentions (@), hashtags (#). Italic disabled in Urdu.
+- **RelatedPieces** ("More like this") — up to 4 pieces sharing the piece's first tag, at the END of
+  the reader; a compact list inside one card (title 2-line clamp at the piece's own direction, then
+  `author · N min read`), **not** the feed's `PieceCard`, which would out-weigh the piece being read.
+  Each row is one `Semantics(button:)` tap target opening the reader. It renders **nothing at all** —
+  no heading, no skeleton, no error — for an untagged piece, a failed load, or an empty result, and
+  owns its own top gap so an absent section leaves no dangling space (docs/48 §3.1).
 
 ---
 
@@ -1030,6 +1036,9 @@ The reading surface is where "the interface disappears." This is the most carefu
 - **Reading analytics** (view + read-completion) beacon quietly in the background (dwell ≥30s AND
   ≥50% scroll = a completed read), never interrupting.
 - **Reading settings** (size S/M/L, theme) are reachable without leaving the flow; changes apply live.
+- **"More like this"** closes the surface — up to four pieces sharing the first tag, after the piece
+  is finished, never before it. Non-critical: absent for an untagged piece or a failed load, and it
+  never shows a spinner or an error, because it must not cost the reader the piece they came for.
 
 ---
 
