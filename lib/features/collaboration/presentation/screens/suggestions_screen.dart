@@ -187,11 +187,12 @@ class _SuggestionCard extends ConsumerWidget {
                           () => ref
                               .read(collaborationControllerProvider.notifier)
                               .acceptSuggestion(suggestion.id),
-                          // The server marks the suggestion accepted; it does NOT
-                          // rewrite the story text (`suggestion.service.ts` accept
-                          // → settle). Saying "accepted" alone implies an edit that
-                          // did not happen (docs/45 §4.4 D1, docs/56 §3).
-                          'Marked accepted — apply the change in the editor.',
+                          // Accepting now rewrites the anchored range of the story
+                          // body server-side, in the same transaction that marks the
+                          // suggestion accepted (defect **D1**, `docs/56` §3). While
+                          // it only wrote the three resolution columns, this toast
+                          // said "apply the change in the editor" instead.
+                          'Suggestion accepted.',
                         ),
                         child: const Text('Accept'),
                       ),

@@ -9,6 +9,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../../core/error/failure.dart';
 import '../../../../core/utils/result.dart';
+import '../../../reading/presentation/controllers/piece_detail_controller.dart';
 import '../../domain/entities/collaboration_comment.dart';
 import '../../domain/entities/collaboration_enums.dart';
 import '../../domain/entities/edit_suggestion.dart';
@@ -149,8 +150,12 @@ class CollaborationController extends _$CollaborationController {
     () => ref.invalidate(storySuggestionsProvider),
   );
 
+  /// Accept is the one resolution that changes the STORY, not just the suggestion:
+  /// the server rewrites the anchored range of the piece body and captures a
+  /// snapshot (`docs/56` §3b). So it refreshes the piece read and the snapshot list
+  /// too — see [_refreshAppliedSuggestion].
   Future<EditSuggestion?> acceptSuggestion(String suggestionId) =>
-      _run(() => _repo.acceptSuggestion(suggestionId), _refreshSuggestions);
+      _run(() => _repo.acceptSuggestion(suggestionId), _refreshAppliedSuggestion);
 
   Future<EditSuggestion?> rejectSuggestion(String suggestionId) =>
       _run(() => _repo.rejectSuggestion(suggestionId), _refreshSuggestions);
@@ -221,5 +226,28 @@ class CollaborationController extends _$CollaborationController {
   void _refreshSuggestions() {
     ref.invalidate(storySuggestionsProvider);
     ref.invalidate(storyCapabilitiesProvider);
+  }
+
+  /// Refresh after an ACCEPT, which applies the edit server-side (defect **C-13**,
+  /// `docs/56` §2.6). Rejecting and withdrawing change no prose, so they keep the
+  /// narrower [_refreshSuggestions] and leave the cached piece alone.
+  ///
+  /// `pieceDetailControllerProvider` is a family; invalidating the whole family
+  /// re-reads whichever piece is live. `getPiece` is network-first (it only falls
+  /// back to the Hive copy on a transport error), so this is a real re-read and it
+  /// refreshes the cached body too. The snapshot list moves because the accept
+  /// captures a `pre_edit` version.
+  ///
+  /// **The open editor is NOT covered here, by design.** Its document is local-first
+  /// (`CurrentDraftController` hydrates from the Hive draft, not from this provider),
+  /// and force-adopting the server copy would discard unsynced local edits. The
+  /// writer is protected instead by the sync engine's existing stale-write check:
+  /// `_pushUpdate` compares the server `updatedAt` against the draft's sync base, so
+  /// a body the accept moved surfaces as a `conflict` with keep-server / keep-local
+  /// rather than a silent overwrite.
+  void _refreshAppliedSuggestion() {
+    _refreshSuggestions();
+    ref.invalidate(pieceDetailControllerProvider);
+    ref.invalidate(storySnapshotsProvider);
   }
 }

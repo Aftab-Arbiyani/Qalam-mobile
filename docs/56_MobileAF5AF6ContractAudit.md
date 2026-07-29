@@ -25,22 +25,62 @@ settle the behaviour, the finding is marked **NEEDS-LIVE-CONFIRMATION** rather t
 
 ## 0. Repair status (updated 2026-07-28, same day)
 
-**25 of 26 findings are FIXED**, each with a regression test that fails against the pre-fix code.
-The exception is **C-2, which is a backend change** and was therefore left open under the
-mobile-only constraint of the repair pass — see its entry for the one-line diff it needs.
+**All 26 findings are FIXED**, each with a regression test that fails against the pre-fix code.
+**C-2** was the last one open — a backend change, out of reach of the mobile-only repair pass — and
+landed in the cross-repo pass recorded in §0b, together with the server-side arm of **D1**.
+
+### 0b. C-2 + D1 pass (2026-07-28, later — backend + mobile together)
+
+| Change | Where |
+| --- | --- |
+| C-2: the three editorial actions appended to the explained set | `platfrom` `collaboration/collaboration.constants.ts` |
+| D1: accepting a suggestion applies it to the piece body | `platfrom` `collaboration/suggestion.service.ts`, `content-text.util.ts`, `pieces/pieces.service.ts` (`replaceContent`), `publishing/snapshot.service.ts` (`capture`) |
+| The mobile mirror folded to one list of 12; the accept toast reverted | `collaboration_enums.dart`, `suggestions_screen.dart`, `edit_suggestion.dart` |
+
+Live evidence, local stack, writer as story owner:
+
+- `GET /stories/:id/capabilities` returns **12** elements and the owner is `allowed: true` on
+  `story.edit`, `publication.publish` and `review.approve`. Verified on the **existing** dev DB, not a
+  fresh one: `story.edit`'s base permission is `collaboration.use` (the permission behind the PBAC
+  seed-grant defect), and `PermissionRule` (rule 3) runs *before* `OwnershipRule` (rule 4), so an
+  `allow` here proves the grant is present — `role_permissions` confirms the `user → collaboration.use`
+  row directly.
+- Accepting a suggestion rewrote the prose (`"Autosaved prose that…"` → `"Autosaved QALAMREWRITE
+  that…"`), captured a `pre_edit` snapshot whose content equals the **pre**-edit body, and returned an
+  unchanged `SuggestionDto`.
+- A stale anchor — `originalText` still present in the document but no longer at `[from, to)` —
+  returned **409 `SUGGESTION_CONFLICT`**, left the body byte-identical, and left the suggestion
+  `pending`.
+
+Three follow-on defects were found during this pass and recorded: **C-13, C-14, C-15** (§2.6).
+
+### 0c. C-13 fix + two-projection pin (2026-07-29)
+
+**C-13 is now FIXED on both clients** and the `extractPlainText` naming hazard is closed — §2.7.
+Web's accept invalidates `qk.pieces.all`; mobile's invalidates the piece read and the snapshot list;
+reject and withdraw deliberately still don't. The collaboration flattener is renamed `anchorText` and
+its divergence from `@qalam/utils` `extractPlainText` is pinned by a test that fails if either side
+moves. **C-14 and C-15 remain open** — both web-only, neither touched.
+
+Verification: backend `jest` **942 / 133 suites**, `tsc` + `eslint` clean. Frontend `vitest`
+**362 / 82 files**, `tsc` + `eslint` clean. Mobile `flutter analyze` clean, `flutter test`
+**566 pass / 1 skipped / 2 failed** (the same two pre-existing goldens), `live` suite **6 pass**.
+The D1 live checks were re-run end to end after the rename: rewrite applied, `pre_edit` snapshot
+equals the pre-edit body, stale anchor still 409 with the body untouched, fixture restored.
 
 | Test file | Covers |
 | --- | --- |
-| `test/features/collaboration/capability_contract_test.dart` | C-1, C-2 (13 tests, incl. a byte-for-byte captured live payload) |
+| `test/features/collaboration/capability_contract_test.dart` | C-1, C-2 (12 tests, incl. a byte-for-byte captured live payload — re-captured from the C-2-fixed server) |
 | `test/features/collaboration/publishing_contract_test.dart` | P-1 … P-8 (16 tests) |
 | `test/features/collaboration/collaboration_contract_test.dart` | C-3 … C-12, T-1, T-2 (20 tests) |
 | `test/features/collaboration/af6_live_observation_test.dart` | C-1, C-2, P-4, T-4 against a **real backend** (6 tests, tagged `live`) |
 | `test/features/collaboration/invite_contract_test.dart` | M-1 (pre-existing) |
 
-Verification at hand-off: `flutter analyze` clean; `flutter test` **564 pass / 1 skipped / 2 failed**,
+Verification at hand-off: `flutter analyze` clean; `flutter test` **563 pass / 1 skipped / 2 failed**,
 the two failures being the pre-existing `comment_tile_golden_test` drift documented in docs/50 and
 unrelated to AF6. The `live` suite is skipped by default (`dart_test.yaml`) and run with
-`flutter test --run-skipped --tags live` against `pnpm e2e:up`.
+`flutter test --run-skipped --tags live` against `pnpm e2e:up`; it passes (6 tests). On the backend
+side, `jest` is **936 pass / 132 suites** with `tsc --noEmit` and `eslint` clean.
 
 **The live suite is the process fix.** Every pre-existing AF6 test mocked the data source, so no test
 ever decoded a real capability payload — which is exactly why a defect that hid every affordance in
@@ -53,8 +93,8 @@ the feature (C-1) survived a green suite, a readiness report and three prior aud
 | Track | Verdict as audited | State after repair |
 | --- | --- | --- |
 | **AF5 — monetization** | Field-for-field correct on every one of the 19 endpoints it calls. Two integration gaps, no wire defects. | Unchanged — out of the repair pass's scope. |
-| **AF6 — collaboration** | The capability map — the single thing all AF6 UI gates on — is decoded from the wrong shape, so **every gate in the feature resolves to denied**. Plus 11 further defects. | C-1 fixed and verified live; 10 of 12 collaboration defects closed. C-2 needs one backend line. |
-| **AF6 — publishing** | Five of nine calls cannot succeed or return a different entity than the client decodes. | All 8 publishing defects closed. |
+| **AF6 — collaboration** | The capability map — the single thing all AF6 UI gates on — is decoded from the wrong shape, so **every gate in the feature resolves to denied**. Plus 11 further defects. | C-1 fixed and verified live; all 12 collaboration defects closed, C-2 by the backend change in §0b. Three follow-on defects opened (C-13/14/15, §2.6). |
+| **AF6 — publishing** | Five of nine calls cannot succeed or return a different entity than the client decodes. | All 8 publishing defects closed; the five publishing gates now receive a real verdict (C-2). |
 | **AF6 — trust** | Read path correct; the block list mis-identifies the blocked user, and the whole block/mute surface has no UI. | T-1/T-2 closed; the missing blocks UI remains a build. |
 
 Two facts that frame every estimate below:
@@ -154,7 +194,7 @@ action from the payload instead of a map key; `storyId` is read from the envelop
 
 ---
 
-#### C-2 · **high** · ⛔ **OPEN — needs a BACKEND change** · three gated actions are not in the capability map at all
+#### C-2 · **high** · ✅ **FIXED (backend + mobile, §0b)** · three gated actions are not in the capability map at all
 
 **Backend.** `collaboration/collaboration.constants.ts:44-54` — the set `explain` is asked for:
 
@@ -212,12 +252,24 @@ export const COLLABORATION_CAPABILITY_ACTIONS: readonly PolicyActionCode[] = [
 **What the mobile pass did instead**, without re-deriving authorization: `PolicyAction.all` — a dead
 list that *looked* like the request set and had zero consumers — was replaced by
 `PolicyAction.serverExplained` (the true 9) and `PolicyAction.notExplainedByServer` (the 3), both
-documented and pinned by tests. `capability_contract_test.dart` asserts the gap; the live test proves
-it on a running server (the story's **owner** is denied all three). Delete
-`notExplainedByServer` and its test when the backend line lands.
+documented and pinned by tests. `capability_contract_test.dart` asserted the gap; the live test proved
+it on a running server (the story's **owner** was denied all three).
 
-**Consequence for the Stage-1 observation:** the five publishing gates still render nothing. That is
-now a known, tested, one-line backend dependency rather than a mystery.
+**FIXED (2026-07-28, §0b).** The three actions were appended to `COLLABORATION_CAPABILITY_ACTIONS`
+exactly as diffed above. Nothing depended on the list's length: the only consumer is
+`membership.service.ts:253-261`, and both clients key decisions by action string
+(`StoryCapabilities.fromJson` on mobile, `useCapability` on web) — a grep over `backend/src`,
+`frontend/src` and `admin/src` for the constant and for `capabilities` found no length or index
+assumption, and no backend test asserted nine.
+
+On the mobile side `notExplainedByServer` was **deleted** and its three actions folded into
+`serverExplained` (now 12, in the backend constant's order). The two pins that were written to fail
+when this landed did fail, as designed, and were rewritten to assert the closed state: the captured
+live payload in `capability_contract_test.dart` was re-captured from the fixed server (12 elements,
+byte-for-byte), and `af6_live_observation_test.dart` now asserts the owner *is* allowed all three
+against the running stack.
+
+**Consequence for the Stage-1 observation:** the five publishing gates now receive a real verdict.
 
 ---
 
@@ -971,6 +1023,179 @@ lines.
 
 ---
 
+### 2.6 Found while landing C-2 + D1 (2026-07-28, later)
+
+Recorded, **not fixed** — each is outside the scope of the pass that found it.
+
+---
+
+#### C-13 · **high** · ✅ **FIXED (both clients, §2.7)** · accepting a suggestion rewrites the prose, and no client re-reads the piece
+
+**Precondition.** As of the D1 fix (§3b) `POST /suggestions/:id/accept` replaces the anchored range of
+the piece body server-side. Every client cache holding that body is stale the instant it returns.
+
+**Mobile.** `presentation/controllers/collaboration_controller.dart:221-224`:
+
+```dart
+void _refreshSuggestions() {
+  ref.invalidate(storySuggestionsProvider);
+  ref.invalidate(storyCapabilitiesProvider);
+}
+```
+
+That is the whole post-accept refresh, and it is what `acceptSuggestion` (`:152-153`) passes. Nothing
+invalidates the piece — not the reader's content provider, not the editor's draft.
+
+**Web.** `frontend/src/features/collaboration/hooks/use-suggestions.ts` — `invalidateSuggestions`
+invalidates `['stories', storyId, 'suggestions']` only, and `acceptSuggestion.onSuccess` is exactly
+that function. `qk.pieces.*` is untouched.
+
+**Why it matters more than a stale render.** A reader showing the pre-accept text is a display bug. An
+**editor** holding pre-accept content that then autosaves is a data-loss bug: the save writes the old
+passage back over the applied edit, and the suggestion stays marked accepted.
+
+**Correction (the original entry overstated the mobile half).** The two clients are not equally
+exposed, and the difference is the presence of a stale-write check:
+
+- **Web has no check.** `use-draft-autosave.ts:92-95` PATCHes `{title, content, languageCode}` on a
+  2s debounce with nothing compared against the server's `updatedAt`, and `use-piece.ts` hydrates
+  TipTap from `qk.pieces.detail` **once** with a 60s `staleTime`. Accept → return to the editor
+  inside that window → the editor seeds the PRE-accept body → the next keystroke PATCHes it back
+  over the applied edit. **This is the real data-loss path.**
+- **Mobile is already guarded.** `draft_sync_engine.dart:149-168` `_pushUpdate` re-reads the server
+  head and refuses when `serverAt.isAfter(base)`, yielding `DraftSyncState.conflict` /
+  `lastError: 'server_changed'` and the existing keep-server / keep-local resolution
+  (`current_draft_controller.dart:328-354`). So a body the accept moved surfaces as a conflict, not
+  a silent overwrite. Mobile's exposure was a stale *render*, not lost text.
+
+**FIXED (2026-07-29, §2.7).** Both clients now drop the piece caches in the accept path only —
+reject and withdraw move no prose and keep the narrow refresh. §3 point 3 predicted this
+requirement; the server arm landed without it.
+
+---
+
+#### C-14 · **medium** · ⛔ **OPEN** · the web suggestion UI tells the writer the opposite of what the server now does
+
+`frontend/src/features/collaboration/components/suggestion-card.tsx:75` renders, to the user:
+
+> Accepted — apply the replacement in the editor. Accepting records the decision; it does not …
+
+and the file header (`:16-19`) plus `use-suggestions.ts:17-19` state the same as contract fact
+("**Accepting does not rewrite the prose.**"). All three were true when written and are now wrong. The
+mobile equivalents were corrected in this pass (`suggestions_screen.dart`, `edit_suggestion.dart`);
+the web ones were out of scope. Web-only, text + doc-comment change.
+
+---
+
+#### C-15 · **medium** · ⛔ **OPEN** · the web composer's hand-typed offset cannot produce a reliable anchor
+
+`suggestion-composer.tsx:68-77` asks the writer to type "Starts at character" and derives `to` from the
+replaced text's length; its own header explains why (a standalone route with no editor selection to
+read). Under the old server behaviour a wrong offset was harmless — the conflict check was
+`text.includes(originalText)`, which ignored the anchor entirely. The D1 fix makes the check
+**offset-exact** (`text.slice(from, to) === originalText`; see §3b), so a hand-typed offset that is off
+by one now returns 409 instead of succeeding.
+
+This is the intended trade (never rewrite text at a position the reviewer did not point at), so the
+defect is the composer, not the check: it needs the editor-integrated selection seam already noted in
+`platfrom/docs/49` §4. Until then, proposing an edit on web is guesswork. Web-only. Mobile is
+unaffected in practice — its composer has the same limitation but AF6 has no entry point (R-1), so no
+anchor has ever been produced by a user there.
+
+---
+
+### 2.7 C-13 fix + the two-projection hazard (2026-07-29)
+
+Two follow-ups to the C-2 / D1 pass, one a defect fix and one a trap closed before it fired.
+
+---
+
+#### C-13 fix · the accept path drops the piece caches, on both clients
+
+**Web** — `frontend/src/features/collaboration/hooks/use-suggestions.ts`:
+
+```ts
+const invalidateAfterApply = async (): Promise<void> => {
+  await Promise.all([
+    invalidateSuggestions(),
+    client.invalidateQueries({ queryKey: qk.pieces.all }),
+  ]);
+};
+// acceptSuggestion.onSuccess = invalidateAfterApply  (reject/withdraw keep invalidateSuggestions)
+```
+
+The whole `qk.pieces` prefix, not `detail(storyId)`: the reader is **slug**-keyed
+(`qk.pieces.bySlug`) and the accept path has no slug to name, and `query-keys.ts` already documents
+the prefix as the way a content mutation clears both views at once.
+
+**Mobile** — `collaboration_controller.dart`, a second refresh next to the existing one:
+
+```dart
+void _refreshAppliedSuggestion() {
+  _refreshSuggestions();
+  ref.invalidate(pieceDetailControllerProvider);   // reader — getPiece is network-first
+  ref.invalidate(storySnapshotsProvider);          // the accept captured a pre_edit version
+}
+```
+
+`ReadingRepositoryImpl.getPiece` is network-first (the Hive copy is a transport-error fallback only),
+so the invalidation is a real re-read and it refreshes the cached body too.
+
+**The open mobile editor is deliberately NOT force-refreshed.** Its document is local-first
+(`CurrentDraftController` hydrates from the Hive draft, never from `pieceDetailControllerProvider`),
+so adopting the server copy would discard unsynced local edits. The writer is protected by the sync
+engine's existing stale-write check instead — see the correction in C-13. Reaching across into the
+editor's draft store to reconcile a server-applied edit is a real piece of work (it is the same
+problem `resolveConflict` already models) and is not in this fix.
+
+**Tests**, both written to fail against the pre-fix code and confirmed to do so:
+
+| Test | Asserts |
+| --- | --- |
+| `frontend/.../hooks/use-suggestions.spec.tsx` (4) | accept invalidates `qk.pieces.all` **and** the suggestions key; reject and withdraw touch no `pieces` key; both piece views share the prefix |
+| `test/features/collaboration/collaboration_controller_test.dart` (+3) | accept forces exactly one extra `getPiece`; reject and withdraw force none |
+
+Asserting the negative for reject/withdraw is the half that keeps this honest — a blanket
+"invalidate everything on any resolution" would pass the accept test and quietly refetch the piece
+on every rejection.
+
+---
+
+#### The two-projection hazard · `anchorText` vs `@qalam/utils` `extractPlainText`
+
+Not a defect — a trap. The platform flattens a TipTap document to a string in two places and the two
+**already disagree**, measurably:
+
+```
+{p:"first"}{p:"second"}  →  @qalam/utils: "first second" (12)   collaboration: "firstsecond" (11)
+```
+
+`@qalam/utils` inserts `' '` between text nodes and collapses/trims (it feeds FTS, word count and
+reading time); the collaboration copy concatenates verbatim. Every block boundary shifts every later
+offset by one.
+
+**They must not be unified, and the raw concatenation is the one anchors require.** Its offsets map
+one-to-one onto characters that really exist inside text leaves, which is what lets
+`replaceTextRange` find and rewrite the passage. Under the utils projection an offset can land on a
+separator no leaf contains — an anchor naming a character there is nothing to replace.
+
+So the hazard was not drift, it was the shared **name**: two functions called `extractPlainText`, one
+import line apart, inviting exactly the "deduplication" that would silently move every stored anchor.
+Closed by:
+
+1. **Renaming** the collaboration one to `anchorText`, with the comparison table and the reasoning in
+   the file header.
+2. **One leaf predicate** (`isTextLeaf`, `type === 'text'` + string `text`) shared by the read and the
+   write, and matching `@qalam/utils`. Previously the read accepted any node carrying a string
+   `text`; had the read and the write ever disagreed about what counts as text, offsets and edits
+   would have addressed different documents.
+3. **`content-text.divergence.spec.ts`** (6 tests) — imports both implementations and pins the
+   difference on one document: the two strings, the one-character-per-boundary delta, agreement on a
+   single block, agreement on which nodes are leaves, verbatim vs collapsed whitespace, and the
+   `anchorText` → `replaceTextRange` round trip. A change to **either** side fails here.
+
+---
+
 ## 3. D1 evidence — what accepting a suggestion actually does today
 
 The question in `platfrom/docs/45` §4.4 is whether the **server** rewrites the piece on accept or the
@@ -1051,6 +1276,69 @@ This section states facts only; the decision remains open.
 
 ---
 
+## 3b. D1 resolved — the SERVER applies the edit (2026-07-28, later)
+
+The decision landed on the server-side arm. §3 above is preserved as the pre-fix diagnosis; this is
+what replaced it.
+
+**`accept` now applies the suggestion.** `collaboration/suggestion.service.ts`:
+
+```ts
+this.assertPending(suggestion);
+const content = await this.resolveAnchor(suggestion, facts.authorId);
+
+await this.snapshots.capture(suggestion.storyId, user, SnapshotReason.PreEdit);
+const saved = await this.repo.withTransaction(async (manager) => {
+  await this.pieces.replaceContent(suggestion.storyId, facts.authorId, content, manager);
+  return this.settle(suggestion, SuggestionStatus.Accepted, user.id,
+    ActivityType.SuggestionAccepted, manager);
+});
+```
+
+Five decisions, each made to avoid a second mechanism:
+
+1. **One authorization path.** The existing `engine.assert(SuggestionResolve)` is the only decision.
+   The snapshot goes through a new non-asserting `SnapshotService.capture` rather than `create`,
+   because `create` asserts `PublicationPublish` — a *different* action with a different restriction
+   scope, which would deny a co-author who may legitimately accept but not publish. `create` is now
+   `assert → capture`; nothing about the publish path changed.
+2. **One transaction for the rewrite and the resolution.** `PiecesService.replaceContent(id, ownerId,
+   content, manager)` is new and takes a **required** `EntityManager`, so it enlists in the caller's
+   transaction (the house pattern per `common/database/transaction-runner.ts`). It reuses
+   `sanitizeContent` + `deriveContentMetrics`, so the content write is not reimplemented outside the
+   pieces module. `settle` gained an optional `manager` for the same reason. A failed apply can no
+   longer leave a suggestion marked accepted.
+3. **The snapshot sits outside that transaction**, before the write — the same ordering
+   `PublishingService.publish` uses. A `pre_edit` snapshot of content that then failed to change is
+   inert; the inverse (an accepted suggestion whose prose never changed) is the defect being fixed. No
+   new table and no migration: `story_snapshots` with `reason = 'pre_edit'` already existed for exactly
+   this case.
+4. **The anchor is offset-exact, and a stale anchor writes nothing.** `resolveAnchor` replaces the old
+   `assertNoConflict`: the text at `[from, to)` in the plain-text projection must still equal
+   `originalText`, and the range must still fit the document, else **409 `SUGGESTION_CONFLICT`**. No
+   fuzzy matching and no relocating to another occurrence — silently rewriting a passage the author
+   never agreed to is worse than refusing an acceptance the reviewer can re-propose. The old
+   `includes` check would have applied the edit at whatever offset the anchor named, however wrong.
+5. **The response shape is unchanged** — still the settled `SuggestionDto`.
+
+**The write itself** is `content-text.util.ts` `replaceTextRange`, the inverse of the
+`extractPlainText` projection the anchors are expressed in (confirmed as the contract from both
+clients: web's "Offset in the piece's text", mobile's `TextAnchor`). The replacement lands in the first
+text leaf the range actually covers, keeping that leaf's marks; the remainder is removed from the
+following leaves; a leaf left empty is dropped. Node types, attrs, marks and structure are otherwise
+untouched.
+
+**Tests.** `suggestion.service.spec.ts` grew four cases — the rewrite, the `pre_edit` capture, the
+single transaction (all three writes receive the same manager), and two stale-anchor branches
+including *"`originalText` still occurs elsewhere"*. `content-text.util.spec.ts` is new: eight cases
+over single-leaf, cross-leaf, cross-block, mark preservation, empty-leaf drop and insertion.
+Live evidence is in §0b.
+
+**What the clients owed:** re-reading the piece body after an accept — recorded as **C-13**, a real
+defect rather than the prediction §3 point 3 made, and fixed on both clients in §2.7.
+
+---
+
 ## 4. Per-surface verdict
 
 **PORTABLE** — mobile is a correct reference for the web port.
@@ -1065,9 +1353,9 @@ by a regression test — not because the estimate was revised.
 | --- | --- | --- | --- | --- | --- |
 | 1 | Membership (list / add / role / remove / leave) | 5 | FIX-THEN-PORT | **PORTABLE** | C-9 closed: `StoryMember` mirrors `MemberDto` exactly. Names still need a backend field — a product gap, not a client defect. |
 | 2 | Invitations | 6 | PORTABLE | **PORTABLE** | Unchanged (M-1 already live-verified). |
-| 3 | Capability map | 1 | BUILD-FROM-CONTRACT | **PORTABLE** | C-1 fixed and proven against a captured live payload. The decoder is now the clearest reference in the feature — web should copy its shape handling. C-2 is a server gap that affects both clients equally. |
+| 3 | Capability map | 1 | BUILD-FROM-CONTRACT | **PORTABLE** | C-1 fixed and proven against a captured live payload. The decoder is now the clearest reference in the feature — web should copy its shape handling. C-2 (the server-side gap that affected both clients equally) is closed; the explained set is 12. |
 | 4 | Comments | 5 (+1 now called) | BUILD-FROM-CONTRACT | **PORTABLE** | C-5/C-6/C-7/C-10 closed: the thread endpoint is called, the anchor is `{from,to,quote}`, `parentId` is gone, the list is paged. A web port can follow this shape directly. |
-| 5 | Suggestions | 4 | BUILD-FROM-CONTRACT | **FIX-THEN-PORT** | C-3/C-4/C-10/C-12 closed, so the read + resolve + withdraw paths are a valid reference. Held back from PORTABLE for one honest reason: **there is still no compose affordance**, so a web port has no create-UI precedent to copy — only the (now correct) request shape. |
+| 5 | Suggestions | 4 | BUILD-FROM-CONTRACT | **FIX-THEN-PORT** | C-3/C-4/C-10/C-12 closed, so the read + resolve + withdraw paths are a valid reference. Held back from PORTABLE for two reasons: **there is still no compose affordance**, so a web port has no create-UI precedent to copy — only the (now correct) request shape. The accept path itself IS now a reference: it applies the edit server-side and both clients drop the piece caches (C-13, §2.7). |
 | 6 | Presence + activity | 3 | FIX-THEN-PORT | **PORTABLE** | C-8/C-10/C-11 closed. The activity feed still has no consumer, so the *screen* is a build — the contract is a valid reference. |
 | 7 | Publication actions | 4 | BUILD-FROM-CONTRACT | **PORTABLE** | P-1/P-2/P-3/P-8 closed. All four now decode `PieceResponseDto` correctly and send only bodies the server reads. |
 | 8 | Review workflow | 4 | BUILD-FROM-CONTRACT | **PORTABLE** | P-4/P-5/P-6/P-8 closed — including the null-session path, which is the single most valuable thing for web to copy (it will hit the same `data: null`). |
@@ -1120,9 +1408,14 @@ W3b/W3c is now a port from a tested reference rather than a design-from-DTO.
 | **W7** (AF6 part) | unchanged | **unchanged** | Still `@mentions`, still unbuilt both sides. The `mentions` array is correctly sent when non-empty. |
 | **W8** (AF5 part) | ≈0.7 × pre-audit | **≈0.7 × pre-audit** | Untouched by this pass. M5-1 still stands: web builds its own lock affordances. |
 
-**One dependency to schedule, not absorb:** C-2 is a one-line backend change
-(`COLLABORATION_CAPABILITY_ACTIONS`). Until it lands, publishing affordances default-deny on **both**
-clients, so a web port of W3c will reproduce the empty publishing card unless it ships with that line.
+**~~One dependency to schedule, not absorb:~~ landed 2026-07-28 (§0b).** C-2 was a one-line backend
+change (`COLLABORATION_CAPABILITY_ACTIONS`); until it landed, publishing affordances default-denied on
+**both** clients. It is in, so a web port of W3c inherits working gates.
+
+**What a web port still needs to absorb** (§2.6): **C-14** and **C-15**, both web-only and both in
+already-existing web code — the suggestion card's now-false text, and the composer's hand-typed
+anchor. **C-13** is done on both clients (§2.7), so the accept path's cache handling is a reference
+rather than a debt.
 
 ---
 
@@ -1160,10 +1453,10 @@ Keep item 2 as the only verified flow.
 | 1 | "open Collaborators / Comments / Suggestions / Publishing from a piece" | REFUTED | **NOW TRUE** — R-1 fixed: the editor overflow and the drafts row menu both open all four for a synced draft. |
 | 2 | invite by handle → inbox → accept | CONFIRMED | **CONFIRMED** — plus the inbox now has an entry point (Settings → Collaboration). |
 | 3 | "Comments (inline thread + resolve)" | REFUTED twice | **THREAD: now true** (C-5 fixed — expandable replies + reply composer). **RESOLVE: now true** (C-1 fixed, so the gate resolves from a real decision). **INLINE COMPOSE: still not true** — the anchor contract is fixed (C-6) but no UI creates an inline anchor. |
-| 4 | "Suggestions (propose → owner accepts)" | REFUTED | **ACCEPT: now true.** **PROPOSE: still not true** — the request shape is correct (C-3) but there is no compose affordance. And per §3, "accepts" means *marked* accepted; the toast now says so. |
-| 5 | "Publishing (request review → approve → publish; snapshots + history)" | REFUTED | **PARTIALLY TRUE.** The Review card now reads Draft instead of erroring (P-4), and snapshots/history/visibility render real data. The **buttons are still absent** — blocked on C-2, the backend line. |
+| 4 | "Suggestions (propose → owner accepts)" | REFUTED | **ACCEPT: now true, and now real** — per §3b the server applies the edit, so "accepts" means the prose changed; the toast says "Suggestion accepted." again. **PROPOSE: still not true** — the request shape is correct (C-3) but there is no compose affordance. |
+| 5 | "Publishing (request review → approve → publish; snapshots + history)" | REFUTED | **NOW TRUE for display and for the gates.** The Review card reads Draft instead of erroring (P-4), snapshots/history/visibility render real data, and as of C-2 (§0b) all five gates receive a real verdict, so the buttons render for an owner. The flow itself is untested end-to-end. |
 | 6 | "Sign in as a restricted user to see Restricted State" | CANNOT JUDGE | **STILL CANNOT FULLY JUDGE**, but closer: the trust contract is confirmed live (a seeded writer decodes as `normal`, `isRestricted == false`, so the banner correctly stays hidden), and there is now a route in (the banner). Whether a *restricted* user resolves to a restricted status still needs a seeded restriction — the one remaining live item. |
-| 7 | "the capability gates hide disallowed actions throughout" | REFUTED — inverted | **NOW TRUE for the 9 explained actions**, verified against a live server: an owner is allowed all 9 and the gates render. Still false for the 3 unexplained ones (C-2). |
+| 7 | "the capability gates hide disallowed actions throughout" | REFUTED — inverted | **NOW TRUE for all 12 actions**, verified against a live server: an owner is allowed every one and the gates render. (Was true for 9 until C-2 landed; §0b.) |
 
 ---
 
@@ -1194,8 +1487,13 @@ touched.
 ### 8.2 The misleading "Suggestion accepted." toast
 
 `lib/features/collaboration/presentation/screens/suggestions_screen.dart:170` claimed success for an
-operation that, per §3, changes three columns and rewrites nothing. Replaced with a message that
-states what actually happened. This is the correction docs/45 §4.4 asks for "whichever way D1 lands".
+operation that, per §3, changed three columns and rewrote nothing. Replaced with a message that stated
+what actually happened. This is the correction docs/45 §4.4 asks for "whichever way D1 lands".
+
+**Reverted 2026-07-28 (§0b/§3b):** D1 landed on the server-side arm, so the accept *does* rewrite the
+prose and `'Suggestion accepted.'` is accurate again. The interim wording ("Marked accepted — apply the
+change in the editor.") was correct for exactly as long as the server behaviour it described. The web
+card still carries the interim claim — **C-14**.
 
 ---
 
@@ -1204,10 +1502,15 @@ states what actually happened. This is the correction docs/45 §4.4 asks for "wh
 | Severity | AF6 | AF5 | Total | Fixed | Open |
 | --- | --- | --- | --- | --- | --- |
 | critical | 1 | 0 | **1** | 1 | 0 |
-| high | 10 | 0 | **10** | 9 | 1 (C-2 — backend) |
-| medium | 8 | 3 | **11** | 8 | 3 (AF5, out of scope) |
+| high | 11 | 0 | **11** | 11 | 0 |
+| medium | 10 | 3 | **13** | 8 | 5 (C-14, C-15 web; 3 AF5) |
 | low | 2 | 2 | **4** | 2 | 2 (AF5, out of scope) |
-| **Total** | **21** | **5** | **26** | **20 of 21 AF6** | **1 AF6 + 5 AF5** |
+| **Total** | **24** | **5** | **29** | **22 of 24 AF6** | **2 AF6 + 5 AF5** |
+
+The register grew by three after the original 26: **C-13, C-14, C-15** were found while landing C-2 and
+D1 (§2.6). C-2 — the one finding the mobile-only repair pass could not close — is fixed (§0b), and so
+is C-13 (§0c/§2.7). The two still open are **web-only**: the suggestion card's now-false text (C-14)
+and the composer's hand-typed anchor (C-15).
 
 All 5 AF5 findings remain open by design: this repair pass was scoped to AF6, and none of the AF5
 items is a wire defect (they are two integration gaps, one seam-by-design note, and two low-severity

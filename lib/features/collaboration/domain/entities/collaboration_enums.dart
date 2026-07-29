@@ -138,9 +138,14 @@ abstract final class PolicyAction {
   static const String publicationPublish = 'publication.publish';
   static const String reviewApprove = 'review.approve';
 
-  /// Exactly what `COLLABORATION_CAPABILITY_ACTIONS` explains today. Keep this in
-  /// step with that constant — a gate keyed on anything absent here gets no
-  /// decision and default-denies (`PolicyCapability.deny`, reason `no_policy`).
+  /// Exactly what `COLLABORATION_CAPABILITY_ACTIONS` explains, in that constant's
+  /// order. Keep this in step with it — a gate keyed on anything absent here gets
+  /// no decision and default-denies (`PolicyCapability.deny`, reason `no_policy`).
+  ///
+  /// The last three arrived with the fix for defect **C-2** (`docs/56` §2.1): the
+  /// publishing screen's five gates key on `story.edit` / `publication.publish` /
+  /// `review.approve`, which the endpoint did not explain, so every one of them
+  /// rendered nothing — for the story's owner included.
   static const List<String> serverExplained = <String>[
     storyView,
     storyComment,
@@ -151,14 +156,6 @@ abstract final class PolicyAction {
     commentResolve,
     commentDelete,
     suggestionResolve,
-  ];
-
-  /// Real, rule-governed actions (`ACTION_MIN_STORY_ROLE` in `policy.constants.ts`)
-  /// that the capabilities endpoint does **not** explain, so no client can gate on
-  /// them yet. The publishing screen's five gates key on these three: they render
-  /// nothing until `COLLABORATION_CAPABILITY_ACTIONS` grows to include them
-  /// (defect **C-2**, `docs/56` §2.1 — a backend change, tracked there).
-  static const List<String> notExplainedByServer = <String>[
     storyEdit,
     publicationPublish,
     reviewApprove,

@@ -7,9 +7,11 @@
 /// leaving the client with a before/after diff and no location for it
 /// (defect **C-4**, `docs/56` §2.1).
 ///
-/// Accepting a suggestion does NOT rewrite the story: the server marks it accepted
-/// after a conflict check and the piece body is untouched
-/// (`suggestion.service.ts` accept → settle; `docs/56` §3).
+/// Accepting a suggestion rewrites the story: the server replaces the anchored range
+/// with `suggestedText` and marks the suggestion accepted in one transaction. A stale
+/// anchor — the text at `[from, to)` is no longer `originalText` — is refused with
+/// `409 SUGGESTION_CONFLICT` and nothing is written, so the piece must be re-read
+/// after an accept (defect **D1**, `docs/56` §3).
 library;
 
 import '../../../../core/utils/typedefs.dart';

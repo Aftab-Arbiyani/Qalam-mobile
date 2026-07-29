@@ -155,7 +155,7 @@ void main() {
   );
 
   test(
-    'C-2 remains open on a live server — the publishing gates get nothing',
+    'C-2 is closed on a live server — the publishing gates get a verdict',
     () async {
       final ProviderContainer c = container();
       addTearDown(c.dispose);
@@ -164,11 +164,20 @@ void main() {
         storyCapabilitiesProvider(storyId).future,
       );
 
-      // The owner of the story is denied these purely because the server does not
-      // explain them. Fixing that is a backend change (docs/56 §2.1 C-2).
-      for (final String action in PolicyAction.notExplainedByServer) {
-        expect(caps.capabilities.containsKey(action), isFalse);
-        expect(caps.allows(action), isFalse);
+      // The owner used to be denied these purely because the server did not explain
+      // them, so all five publishing gates rendered nothing (docs/56 §2.1 C-2).
+      expect(caps.capabilities, hasLength(PolicyAction.serverExplained.length));
+      for (final String action in <String>[
+        PolicyAction.storyEdit,
+        PolicyAction.publicationPublish,
+        PolicyAction.reviewApprove,
+      ]) {
+        expect(
+          caps.capabilities.containsKey(action),
+          isTrue,
+          reason: '$action missing — COLLABORATION_CAPABILITY_ACTIONS moved',
+        );
+        expect(caps.allows(action), isTrue, reason: 'the owner may $action');
       }
     },
   );

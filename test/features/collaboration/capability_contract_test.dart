@@ -10,8 +10,9 @@
 ///
 /// **C-2.** The action set is chosen server-side (`COLLABORATION_CAPABILITY_ACTIONS` →
 /// `PolicyEngineService.explain`); the endpoint takes no query or body. Three actions the
-/// publishing screen gates on are NOT in that set, so they cannot be decided by any
-/// client. These tests pin which actions the client may rely on, so the gap stays visible.
+/// publishing screen gates on were NOT in that set, so no client could decide them and all
+/// five gates rendered nothing. The backend fix appended them; these tests pin the set the
+/// client may rely on, so a future divergence is loud rather than silent.
 ///
 /// Asserts the wire shape, not the mobile abstraction — the payloads below are the real
 /// `toCapabilityDtos` output.
@@ -160,7 +161,10 @@ void main() {
 {"action":"story.manage_roles","effect":"allow","allowed":true,"reason":"You own this resource.","obligations":[]},
 {"action":"comment.resolve","effect":"allow","allowed":true,"reason":"You own this resource.","obligations":[]},
 {"action":"comment.delete","effect":"allow","allowed":true,"reason":"You own this resource.","obligations":[]},
-{"action":"suggestion.resolve","effect":"allow","allowed":true,"reason":"You own this resource.","obligations":[]}]}}
+{"action":"suggestion.resolve","effect":"allow","allowed":true,"reason":"You own this resource.","obligations":[]},
+{"action":"story.edit","effect":"allow","allowed":true,"reason":"You own this resource.","obligations":[]},
+{"action":"publication.publish","effect":"allow","allowed":true,"reason":"You own this resource.","obligations":[]},
+{"action":"review.approve","effect":"allow","allowed":true,"reason":"You own this resource.","obligations":[]}]}}
 ''';
 
     test('an owner is allowed every action the server explains', () {
@@ -170,7 +174,7 @@ void main() {
         envelope['data'] as Map<String, dynamic>,
       );
 
-      expect(caps.capabilities, hasLength(9));
+      expect(caps.capabilities, hasLength(12));
       for (final String action in PolicyAction.serverExplained) {
         expect(
           caps.allows(action),
@@ -180,28 +184,32 @@ void main() {
       }
     });
 
-    test('the live payload confirms C-2 — the three gates get no decision', () {
+    test('the live payload decides the three publishing gates (C-2 closed)', () {
       final Map<String, dynamic> envelope =
           jsonDecode(liveBody) as Map<String, dynamic>;
       final StoryCapabilities caps = StoryCapabilities.fromJson(
         envelope['data'] as Map<String, dynamic>,
       );
 
-      // Even as the OWNER, these are absent from the response, so the publishing
-      // screen's five gates default-deny. Backend fix; see C-2.
-      for (final String action in PolicyAction.notExplainedByServer) {
-        expect(caps.capabilities.containsKey(action), isFalse);
-        expect(caps.allows(action), isFalse);
-        expect(caps.capabilityFor(action).reason, 'no_policy');
+      // These three used to be absent from the response, so the publishing screen's
+      // five gates default-denied for the owner too. They now carry a real verdict.
+      for (final String action in <String>[
+        PolicyAction.storyEdit,
+        PolicyAction.publicationPublish,
+        PolicyAction.reviewApprove,
+      ]) {
+        expect(caps.capabilities.containsKey(action), isTrue);
+        expect(caps.allows(action), isTrue);
+        expect(caps.capabilityFor(action).reason, isNot('no_policy'));
       }
     });
   });
 
   group('the mirror matches what the server explains (C-2)', () {
     test('serverExplained is exactly COLLABORATION_CAPABILITY_ACTIONS', () {
-      // Mirrors `collaboration.constants.ts`. If the backend constant changes,
-      // change this list with it — a gate keyed on an action absent from the
-      // server's set silently default-denies.
+      // Mirrors `collaboration.constants.ts`, in its order. If the backend constant
+      // changes, change this list with it — a gate keyed on an action absent from
+      // the server's set silently default-denies.
       expect(PolicyAction.serverExplained, <String>[
         'story.view',
         'story.comment',
@@ -212,27 +220,30 @@ void main() {
         'comment.resolve',
         'comment.delete',
         'suggestion.resolve',
-      ]);
-    });
-
-    test('the three publishing actions are still not explained', () {
-      // C-2 is a BACKEND fix (append to `COLLABORATION_CAPABILITY_ACTIONS`). Until
-      // it lands, the publishing screen's five gates receive no decision. This test
-      // documents the gap and fails the day it closes, as the prompt to delete it.
-      expect(PolicyAction.notExplainedByServer, <String>[
         'story.edit',
         'publication.publish',
         'review.approve',
       ]);
-      for (final String action in PolicyAction.notExplainedByServer) {
-        expect(PolicyAction.serverExplained, isNot(contains(action)));
-      }
     });
 
-    test('no action appears in both lists', () {
+    test('every action constant on PolicyAction is explained', () {
+      // There is no longer a second, unexplained list: a `PolicyAction` the server
+      // does not decide would be a gate that renders nothing, which is the defect.
       expect(
-        PolicyAction.serverExplained
-            .where(PolicyAction.notExplainedByServer.contains),
+        <String>[
+          PolicyAction.storyView,
+          PolicyAction.storyEdit,
+          PolicyAction.storyComment,
+          PolicyAction.storySuggest,
+          PolicyAction.storyInvite,
+          PolicyAction.storyManageMembers,
+          PolicyAction.storyManageRoles,
+          PolicyAction.commentResolve,
+          PolicyAction.commentDelete,
+          PolicyAction.suggestionResolve,
+          PolicyAction.publicationPublish,
+          PolicyAction.reviewApprove,
+        ].where((String a) => !PolicyAction.serverExplained.contains(a)),
         isEmpty,
       );
     });
