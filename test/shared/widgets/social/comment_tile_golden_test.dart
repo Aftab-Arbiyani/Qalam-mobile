@@ -9,6 +9,18 @@ import 'package:qalam_mobile/shared/widgets/social/comment_tile.dart';
 
 import '../../../support/harness.dart';
 
+/// `CommentTile` formats its meta with [relativeTime], which falls back to
+/// `DateTime.now()`. A fixed absolute `createdAt` therefore renders a string whose
+/// *length* changes as wall-clock time passes ("now" -> "6d" -> "1w" -> "1mo"),
+/// which silently drifts these goldens — it already did once. Anchoring the fixture
+/// to now keeps the rendered label pinned at "3h" for good.
+final DateTime _createdAt = DateTime.now().toUtc().subtract(
+  const Duration(hours: 3),
+);
+final DateTime _editedAt = DateTime.now().toUtc().subtract(
+  const Duration(hours: 2),
+);
+
 Widget _scene(Brightness brightness) => ProviderScope(
   overrides: [appConfigProvider.overrideWithValue(testConfig)],
   child: MaterialApp(
@@ -31,8 +43,8 @@ Widget _scene(Brightness brightness) => ProviderScope(
                 ),
                 body: 'This ghazal undid me — the last couplet especially.',
                 replyCount: 2,
-                createdAt: DateTime.utc(2026, 7, 16, 10),
-                editedAt: DateTime.utc(2026, 7, 16, 11),
+                createdAt: _createdAt,
+                editedAt: _editedAt,
               ),
               pieceId: 'p1',
             ),
