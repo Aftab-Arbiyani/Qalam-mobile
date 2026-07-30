@@ -1,0 +1,11 @@
+{
+  "QALAM_ENV": "production",
+  "QALAM_API_URL": "https://api.qalam.app",
+  "QALAM_CDN_URL": "https://cdn.qalam.app",
+  "QALAM_WEB_URL": "https://qalam.app",
+  "QALAM_SENTRY_DSN": "",
+  "QALAM_ENABLE_PUSH": false,
+  "QALAM_ENABLE_AI": false,
+  "QALAM_ENABLE_MONETIZATION": false,
+  "QALAM_ENABLE_COLLABORATION": false
+}

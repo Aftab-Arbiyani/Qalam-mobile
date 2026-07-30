@@ -1,0 +1,11 @@
+{
+  "QALAM_ENV": "staging",
+  "QALAM_API_URL": "https://staging-api.qalam.app",
+  "QALAM_CDN_URL": "https://staging-cdn.qalam.app",
+  "QALAM_WEB_URL": "https://staging.qalam.app",
+  "QALAM_SENTRY_DSN": "",
+  "QALAM_ENABLE_PUSH": false,
+  "QALAM_ENABLE_AI": true,
+  "QALAM_ENABLE_MONETIZATION": true,
+  "QALAM_ENABLE_COLLABORATION": true
+}

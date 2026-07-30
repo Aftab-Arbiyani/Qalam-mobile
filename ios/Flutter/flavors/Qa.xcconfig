@@ -1,0 +1,10 @@
+// Qalam iOS flavor config — qa (docs/40 §28.1, docs/51).
+// Mirrors AppFlavor.qa + dart_defines/qa.json + the Android `qa` product flavor.
+// Wire this to a QA scheme in Xcode (see docs/51 "iOS scheme wiring").
+#include "../Generated.xcconfig"
+
+PRODUCT_BUNDLE_IDENTIFIER = com.qalam.qalam_mobile.qa
+PRODUCT_NAME = Runner
+// Reference from Info.plist: <key>CFBundleDisplayName</key><string>$(DISPLAY_NAME)</string>
+DISPLAY_NAME = Qalam QA
+FLUTTER_TARGET = lib/main.dart

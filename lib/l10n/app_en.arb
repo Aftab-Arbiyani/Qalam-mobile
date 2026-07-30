@@ -1,0 +1,458 @@
+{
+  "@@locale": "en",
+
+  "appTitle": "Qalam",
+  "@appTitle": { "description": "The application name." },
+
+  "navFeed": "Feed",
+  "navSearch": "Search",
+  "navWrite": "Write",
+  "navNotifications": "Notifications",
+  "navProfile": "Profile",
+
+  "actionRetry": "Try again",
+  "actionDismiss": "Dismiss",
+  "actionClose": "Close",
+  "actionCancel": "Cancel",
+  "actionOk": "OK",
+  "actionContinue": "Continue",
+
+  "connectivityOffline": "You're offline — showing saved content.",
+  "connectivityRestored": "Back online.",
+
+  "loadingLabel": "Loading…",
+
+  "errorGenericTitle": "Something went wrong.",
+  "errorGenericBody": "We couldn't complete that just now. Please try again.",
+  "errorOfflineTitle": "You're offline.",
+  "errorOfflineBody": "Check your connection and try again.",
+  "errorNotFoundTitle": "Not found.",
+  "errorNotFoundBody": "That page has wandered off.",
+  "errorUnauthorizedTitle": "Please sign in.",
+  "errorUnauthorizedBody": "You need to be signed in to see that.",
+  "errorForbiddenTitle": "Not allowed.",
+  "errorForbiddenBody": "You don't have access to that.",
+  "errorRequestIdLabel": "Reference: {requestId}",
+  "@errorRequestIdLabel": {
+    "description": "Support correlation id shown on error screens.",
+    "placeholders": { "requestId": { "type": "String" } }
+  },
+
+  "emptyGenericTitle": "Nothing here yet.",
+  "emptyGenericBody": "When there's something to show, it'll appear here.",
+
+  "unknownRouteTitle": "Lost the thread.",
+  "unknownRouteBody": "This page doesn't exist.",
+
+  "comingSoonLabel": "Coming in a later chapter.",
+  "placeholderFeedBody": "Your feed will live here.",
+  "placeholderSearchBody": "Search will live here.",
+  "placeholderWriteBody": "The editor will live here.",
+  "placeholderNotificationsBody": "Notifications will live here.",
+  "placeholderProfileBody": "Your profile will live here.",
+
+  "settingsTitle": "Settings",
+  "settingsBody": "A protected surface — settings arrive in a later chapter.",
+
+  "galleryTitle": "Design gallery",
+
+  "onboardingSkip": "Skip",
+  "onboardingNext": "Next",
+  "onboardingGetStarted": "Get started",
+  "onboardingWelcomeTitle": "A place for your words",
+  "onboardingWelcomeBody": "Qalam is a quiet writing sanctuary — warm paper and ink, for Hindi and Urdu writers first.",
+  "onboardingFeaturesTitle": "Read and write, beautifully",
+  "onboardingFeaturesBody": "Follow writers you love, save what moves you, and publish prose that reads the way it should.",
+  "onboardingPrivacyTitle": "Your words, your control",
+  "onboardingPrivacyBody": "You decide what you share. We keep only what we need, and never sell your writing.",
+
+  "authLoginTitle": "Welcome back",
+  "authLoginSubtitle": "Sign in to continue writing.",
+  "authRegisterTitle": "Create your account",
+  "authRegisterSubtitle": "Join a sanctuary for writers.",
+  "authForgotTitle": "Reset your password",
+  "authForgotSubtitle": "We'll send a link to set a new one.",
+  "authResetTitle": "Choose a new password",
+  "authResetSubtitle": "Set a strong password you'll remember.",
+  "authVerifyTitle": "Verify your email",
+
+  "fieldEmailLabel": "Email",
+  "fieldPasswordLabel": "Password",
+  "fieldUsernameLabel": "Username",
+  "fieldNewPasswordLabel": "New password",
+  "fieldConfirmPasswordLabel": "Confirm password",
+  "fieldEmailHint": "you@example.com",
+
+  "authUsernameHint": "Lowercase letters, numbers, and underscores.",
+  "authUsernamePermanent": "Your username is permanent — choose it with care.",
+
+  "actionSignIn": "Sign in",
+  "actionCreateAccount": "Create account",
+  "actionSendResetLink": "Send reset link",
+  "actionResetPassword": "Reset password",
+  "actionResend": "Resend email",
+  "actionForgotPassword": "Forgot password?",
+  "actionSignOut": "Log out",
+  "actionSignOutEverywhere": "Sign out everywhere",
+  "actionShowPassword": "Show password",
+  "actionHidePassword": "Hide password",
+
+  "authRememberMe": "Keep me signed in",
+  "authNoAccount": "New to Qalam?",
+  "authCreateOne": "Create an account",
+  "authHaveAccount": "Already have an account?",
+  "authSignInLink": "Sign in",
+  "authBackToLogin": "Back to sign in",
+
+  "authOrDivider": "or",
+  "authContinueWith": "Continue with {provider}",
+  "@authContinueWith": {
+    "description": "Social sign-in button label.",
+    "placeholders": { "provider": { "type": "String" } }
+  },
+  "authSocialUnavailable": "{provider} sign-in isn't available in this build yet.",
+  "@authSocialUnavailable": {
+    "description": "Shown when a social provider seam is not wired.",
+    "placeholders": { "provider": { "type": "String" } }
+  },
+
+  "pwStrengthLabel": "Password strength: {level}",
+  "@pwStrengthLabel": {
+    "description": "Accessible label for the password strength meter.",
+    "placeholders": { "level": { "type": "String" } }
+  },
+  "pwStrengthWeak": "weak",
+  "pwStrengthFair": "fair",
+  "pwStrengthGood": "good",
+  "pwStrengthStrong": "strong",
+
+  "validationRequired": "This field is required.",
+  "validationEmailInvalid": "Enter a valid email address.",
+  "validationUsernameFormat": "Use only lowercase letters, numbers, and underscores.",
+  "validationUsernameLength": "Username must be 3–30 characters.",
+  "validationPasswordTooShort": "Use at least 10 characters.",
+  "validationPasswordTooLong": "That's too long — 128 characters at most.",
+  "validationPasswordsMismatch": "Those passwords don't match.",
+  "validationEmailTaken": "That email is already registered.",
+  "validationUsernameTaken": "That username is already taken.",
+  "validationPasswordWeak": "Please choose a stronger password.",
+  "validationTokenInvalid": "This link is invalid or has expired.",
+
+  "authForgotSentTitle": "Check your inbox",
+  "authForgotSentBody": "If an account exists for {email}, a reset link is on its way.",
+  "@authForgotSentBody": {
+    "description": "Enumeration-safe confirmation after requesting a reset.",
+    "placeholders": { "email": { "type": "String" } }
+  },
+
+  "authResetDoneTitle": "Password updated",
+  "authResetDoneBody": "Sign in with your new password.",
+
+  "authVerifyingLabel": "Verifying your email…",
+  "authVerifiedTitle": "Email verified",
+  "authVerifiedBody": "Thank you — your email is confirmed.",
+  "authVerifySentToBody": "We sent a verification link to {email}. Open it to confirm your account.",
+  "@authVerifySentToBody": {
+    "description": "Verify-email body when the address is known.",
+    "placeholders": { "email": { "type": "String" } }
+  },
+  "authVerifyGenericBody": "We sent a verification link to your email. Open it to confirm your account.",
+  "authVerifyWhyBody": "You can keep using Qalam — some actions need a verified email.",
+  "authResentBody": "Sent. Check your inbox again.",
+
+  "accountSignedInAs": "Signed in as @{username}",
+  "@accountSignedInAs": {
+    "description": "Account surface header with the current username.",
+    "placeholders": { "username": { "type": "String" } }
+  },
+  "accountSignedIn": "You're signed in.",
+  "accountEmailUnverified": "Your email isn't verified yet.",
+
+  "verifyBannerText": "Verify your email to unlock everything.",
+  "verifyBannerAction": "Verify",
+
+  "signOutConfirmTitle": "Sign out everywhere?",
+  "signOutConfirmBody": "This ends every active session on all your devices.",
+
+  "searchHint": "Search writers, pieces, tags…",
+  "searchClearTooltip": "Clear search",
+  "searchTooShortHint": "Type at least {min} letters to search.",
+  "@searchTooShortHint": {
+    "description": "Hint shown when the query is below the minimum length.",
+    "placeholders": { "min": { "type": "int" } }
+  },
+
+  "searchTabAll": "All",
+  "searchTabPieces": "Pieces",
+  "searchTabWriters": "Writers",
+  "searchTabTags": "Tags",
+  "searchTabGenres": "Genres",
+  "searchTabLanguages": "Languages",
+
+  "searchSeeAll": "See all",
+  "searchEmptyTitle": "Nothing matched.",
+  "searchEmptyBody": "Try a different word, or loosen your filters.",
+  "searchOfflineResultsBody": "Showing your last results — you're offline.",
+
+  "searchRecentTitle": "Recent searches",
+  "searchRecentClear": "Clear all",
+  "searchClearHistoryTitle": "Clear search history?",
+  "searchClearHistoryBody": "This removes every recent search on this device.",
+
+  "searchTrendingTitle": "Trending searches",
+  "searchTrendingTags": "Trending tags",
+
+  "searchSuggestWriters": "Writers",
+  "searchSuggestTags": "Tags",
+  "searchSuggestGenres": "Genres",
+  "searchSuggestPieces": "Pieces",
+
+  "searchFiltersTitle": "Filters",
+  "searchFiltersButton": "Filters",
+  "searchFilterReset": "Reset",
+  "searchFilterApply": "Show results",
+  "searchFilterSortLabel": "Sort by",
+  "searchFilterLanguageLabel": "Language",
+  "searchFilterGenreLabel": "Genre",
+  "searchFilterTagLabel": "Tag",
+  "searchFilterReadingTimeLabel": "Reading time",
+  "searchSortRelevance": "Most relevant",
+  "searchSortLatest": "Newest",
+  "searchSortTrending": "Trending",
+  "searchSortMostClapped": "Most clapped",
+  "searchSortMostCommented": "Most discussed",
+  "searchReadingAny": "Any length",
+  "searchReadingShort": "Under 5 min",
+  "searchReadingMedium": "5–15 min",
+  "searchReadingLong": "Over 15 min",
+
+  "searchDiscoverFeatured": "Featured",
+  "searchDiscoverRecent": "Recently published",
+  "searchDiscoverPopularWriters": "Popular writers",
+  "searchDiscoverPopularGenres": "Popular genres",
+  "searchDiscoverContinue": "Continue discovering",
+  "searchDiscoverEmptyTitle": "A quiet beginning.",
+  "searchDiscoverEmptyBody": "Search above, or come back as the community publishes.",
+
+  "searchWriterPrivate": "Private account",
+  "searchPieceCount": "{count, plural, =0{No pieces} =1{1 piece} other{{count} pieces}}",
+  "@searchPieceCount": {
+    "description": "Count of pieces on a tag/genre/language result.",
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "searchFollowerCount": "{count, plural, =0{No followers} =1{1 follower} other{{count} followers}}",
+  "@searchFollowerCount": {
+    "description": "Follower count on a writer result.",
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "followFollow": "Follow",
+  "followFollowing": "Following",
+  "followRequested": "Requested",
+  "followSignInPrompt": "Sign in to follow writers.",
+  "socialActionFailed": "That didn't go through. Please try again.",
+  "socialQueuedOffline": "You're offline — we'll sync this when you reconnect.",
+  "socialPendingSync": "{count, plural, =1{1 change waiting to sync} other{{count} changes waiting to sync}}",
+  "@socialPendingSync": {
+    "description": "Banner text for queued offline social actions.",
+    "placeholders": { "count": { "type": "int" } }
+  },
+
+  "followersTitle": "Followers",
+  "followingTitle": "Following",
+  "followRequestsTitle": "Follow requests",
+  "followRequestsEmptyTitle": "No pending requests.",
+  "followRequestsEmptyBody": "When someone asks to follow you, they'll appear here.",
+  "followRequestAccept": "Accept",
+  "followRequestReject": "Decline",
+  "followersEmptyTitle": "No followers yet.",
+  "followersEmptyBody": "Followers will appear here.",
+  "followingEmptyTitle": "Not following anyone yet.",
+  "followingEmptyBody": "Writers this reader follows will appear here.",
+
+  "commentsTitle": "Comments",
+  "commentsCount": "{count, plural, =0{No comments} =1{1 comment} other{{count} comments}}",
+  "@commentsCount": {
+    "description": "Comment count header.",
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "commentComposerHint": "Add a comment…",
+  "commentReplyHint": "Write a reply…",
+  "commentSend": "Post",
+  "commentReply": "Reply",
+  "commentEdit": "Edit",
+  "commentDelete": "Delete",
+  "commentEdited": "edited",
+  "commentDeletedTombstone": "This comment has been deleted.",
+  "commentViewReplies": "{count, plural, =1{View 1 reply} other{View {count} replies}}",
+  "@commentViewReplies": {
+    "description": "Expand-replies affordance.",
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "commentHideReplies": "Hide replies",
+  "commentsEmptyTitle": "No comments yet.",
+  "commentsEmptyBody": "Be the first to share a thought.",
+  "commentSignInPrompt": "Sign in to join the conversation.",
+  "commentDeleteConfirmTitle": "Delete comment?",
+  "commentDeleteConfirmBody": "This can't be undone. Replies stay visible.",
+  "commentSortNewest": "Newest",
+  "commentSortOldest": "Oldest",
+
+  "responsesTitle": "Responses",
+  "responsesCount": "{count, plural, =0{No responses} =1{1 response} other{{count} responses}}",
+  "@responsesCount": {
+    "description": "Response count header.",
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "responseWrite": "Write a response",
+  "responsesEmptyTitle": "No responses yet.",
+  "responsesEmptyBody": "Start the conversation with your own piece.",
+  "responseSignInPrompt": "Sign in to write a response.",
+
+  "collectionsTitle": "Collections",
+  "collectionsEmptyTitle": "No collections yet.",
+  "collectionsEmptyBody": "Create a collection to gather pieces you love.",
+  "collectionCreate": "New collection",
+  "collectionCreateTitle": "New collection",
+  "collectionRename": "Rename",
+  "collectionDelete": "Delete",
+  "collectionNameLabel": "Name",
+  "collectionNameHint": "e.g. Rainy-day ghazals",
+  "collectionDescriptionLabel": "Description (optional)",
+  "collectionMakePrivate": "Private",
+  "collectionSave": "Save",
+  "collectionDeleteConfirmTitle": "Delete collection?",
+  "collectionDeleteConfirmBody": "The pieces stay published — only this collection is removed.",
+  "collectionEmptyPiecesTitle": "Nothing saved yet.",
+  "collectionEmptyPiecesBody": "Pieces you add to this collection will appear here.",
+  "collectionPieceCount": "{count, plural, =0{Empty} =1{1 piece} other{{count} pieces}}",
+  "@collectionPieceCount": {
+    "description": "Piece count on a collection card.",
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "collectionRemovePiece": "Remove",
+  "collectionPrivateLabel": "Private",
+  "saveToCollectionTitle": "Save to collection",
+  "saveToCollectionAdded": "Saved to {name}.",
+  "@saveToCollectionAdded": {
+    "description": "Snackbar after adding a piece to a collection.",
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "saveAction": "Save",
+
+  "reportTitle": "Report",
+  "reportPieceTitle": "Report this piece",
+  "reportCommentTitle": "Report this comment",
+  "reportUserTitle": "Report this account",
+  "reportResponseTitle": "Report this response",
+  "reportReasonPrompt": "Why are you reporting this?",
+  "reportDetailsHint": "Add any details (optional)",
+  "reportSubmit": "Submit report",
+  "reportSubmitted": "Thanks — our team will take a look.",
+  "reportReasonSpam": "Spam",
+  "reportReasonHarassment": "Harassment",
+  "reportReasonHateSpeech": "Hate speech",
+  "reportReasonViolence": "Violence",
+  "reportReasonSexualContent": "Sexual content",
+  "reportReasonSelfHarm": "Self-harm",
+  "reportReasonMisinformation": "Misinformation",
+  "reportReasonCopyright": "Copyright",
+  "reportReasonImpersonation": "Impersonation",
+  "reportReasonOther": "Something else",
+
+  "notificationsTitle": "Notifications",
+  "notificationsSettingsTooltip": "Notification settings",
+  "notificationsMarkAllRead": "Mark all read",
+  "notificationsFilterAll": "All",
+  "notificationsFilterUnread": "Unread",
+  "notificationsFilterRead": "Read",
+  "notificationsFilterArchived": "Archived",
+  "notificationsEmptyTitle": "You're all caught up",
+  "notificationsEmptyBody": "New activity on your writing will appear here.",
+  "notificationsUnreadEmptyTitle": "Nothing unread",
+  "notificationsUnreadEmptyBody": "You've seen everything for now.",
+  "notificationsReadEmptyTitle": "Nothing read yet",
+  "notificationsReadEmptyBody": "Notifications you've opened will rest here.",
+  "notificationsArchivedEmptyTitle": "Your archive is empty",
+  "notificationsArchivedEmptyBody": "Archived notifications will rest here.",
+  "notificationsStaleNotice": "Showing saved notifications — you're offline.",
+  "notificationsUnreadBadge": "{count} unread notifications",
+  "@notificationsUnreadBadge": {
+    "description": "Screen-reader label for the unread-count nav badge.",
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "notificationActionMarkRead": "Mark read",
+  "notificationActionArchive": "Archive",
+  "notificationActionDelete": "Delete",
+  "notificationDeleted": "Notification deleted",
+  "notificationUndo": "Undo",
+  "notificationQueuedOffline": "You're offline — we'll sync this when you're back.",
+  "notificationSectionToday": "Today",
+  "notificationSectionYesterday": "Yesterday",
+  "notificationSectionEarlier": "Earlier",
+  "notificationFollow": "{name} started following you.",
+  "@notificationFollow": {
+    "description": "New-follower notification summary.",
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "notificationFollowRequest": "{name} asked to follow you.",
+  "@notificationFollowRequest": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "notificationFollowAccepted": "{name} accepted your follow request.",
+  "@notificationFollowAccepted": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "notificationLike": "{name} appreciated your piece.",
+  "@notificationLike": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "notificationClap": "{name} applauded your piece.",
+  "@notificationClap": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "notificationComment": "{name} commented on your piece.",
+  "@notificationComment": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "notificationCommentReply": "{name} replied to your comment.",
+  "@notificationCommentReply": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "notificationResponse": "{name} wrote a response to your piece.",
+  "@notificationResponse": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "notificationMention": "{name} mentioned you.",
+  "@notificationMention": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "notificationRepost": "{name} shared your piece.",
+  "@notificationRepost": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "notificationCollectionFollow": "{name} followed your collection.",
+  "@notificationCollectionFollow": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "notificationFeatured": "Your piece was featured.",
+  "notificationSystem": "Announcement",
+  "notificationGeneric": "New activity.",
+  "notificationPrefsTitle": "Notification preferences",
+  "notificationPrefsSubtitle": "Choose what you're notified about.",
+  "notificationPrefFollow": "Follows",
+  "notificationPrefFollowDesc": "New followers and follow requests.",
+  "notificationPrefComment": "Comments",
+  "notificationPrefCommentDesc": "Comments on your pieces.",
+  "notificationPrefReply": "Replies",
+  "notificationPrefReplyDesc": "Replies to your comments.",
+  "notificationPrefReaction": "Reactions",
+  "notificationPrefReactionDesc": "Appreciation and applause on your pieces.",
+  "notificationPrefMention": "Mentions",
+  "notificationPrefMentionDesc": "When someone mentions you.",
+  "notificationPrefResponse": "Responses",
+  "notificationPrefResponseDesc": "Responses written to your pieces.",
+  "notificationPrefSystem": "Announcements",
+  "notificationPrefSystemDesc": "Service and account updates.",
+  "settingsNotifications": "Notifications"
+}

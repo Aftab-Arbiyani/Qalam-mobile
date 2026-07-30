@@ -1,0 +1,17 @@
+// Qalam iOS flavor config — development (docs/40 §28.1, docs/51).
+// Mirrors AppFlavor.development + dart_defines/development.json + the Android
+// `development` product flavor. Wire this to a Debug/dev scheme in Xcode (see
+// docs/51 "iOS scheme wiring" — do NOT hand-edit project.pbxproj).
+#include "../Generated.xcconfig"
+
+// Distinct bundle id (suffix mirrors the Android applicationIdSuffix) so all
+// flavors install side by side.
+PRODUCT_BUNDLE_IDENTIFIER = com.qalam.qalam_mobile.dev
+// Xcode product/target name — unchanged from the default Runner target.
+PRODUCT_NAME = Runner
+// User-facing launcher name. Reference from Info.plist:
+//   <key>CFBundleDisplayName</key><string>$(DISPLAY_NAME)</string>
+DISPLAY_NAME = Qalam Dev
+// Dart entrypoint for this flavor (single entrypoint — flavor comes from the
+// --dart-define-from-file passed by tool/build_flavor.sh).
+FLUTTER_TARGET = lib/main.dart

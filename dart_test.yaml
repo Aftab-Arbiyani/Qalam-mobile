@@ -1,0 +1,11 @@
+# Test tags. `live` tests talk to a real backend on http://localhost:4000 and are
+# EXCLUDED from the default run (`flutter test`), because CI has no stack. Run them
+# deliberately after `pnpm e2e:up` in the platfrom repo:
+#
+#   flutter test --tags live
+#
+# They exist to observe the real wire shape end-to-end (envelope → entity → widget),
+# which is the only thing that would have caught defect C-1 (docs/56 §2.1).
+tags:
+  live:
+    skip: "needs a local backend — run with `flutter test --tags live`"

@@ -1,0 +1,11 @@
+{
+  "QALAM_ENV": "development",
+  "QALAM_API_URL": "http://localhost:4000",
+  "QALAM_CDN_URL": "",
+  "QALAM_WEB_URL": "http://localhost:5173",
+  "QALAM_SENTRY_DSN": "",
+  "QALAM_ENABLE_PUSH": true,
+  "QALAM_ENABLE_AI": true,
+  "QALAM_ENABLE_MONETIZATION": true,
+  "QALAM_ENABLE_COLLABORATION": true
+}

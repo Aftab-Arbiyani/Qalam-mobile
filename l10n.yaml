@@ -1,0 +1,8 @@
+# Localization codegen config (see docs/40 §28, "Localization" epic requirement).
+# English ships in M1; adding a locale = drop a new app_<locale>.arb, no refactor.
+arb-dir: lib/l10n
+template-arb-file: app_en.arb
+output-localization-file: app_localizations.dart
+output-class: AppLocalizations
+output-dir: lib/l10n/generated
+nullable-getter: false
