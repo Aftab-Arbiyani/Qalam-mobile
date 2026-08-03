@@ -7,7 +7,9 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../app/router/routes.dart';
 import '../../../../core/di/providers.dart';
 import '../../../../shared/theme/q_tokens.dart';
 import '../../../../shared/theme/tokens/color_tokens.dart';
@@ -182,6 +184,18 @@ class _AnswerView extends StatelessWidget {
                 label: 'Try again',
                 icon: Icons.refresh,
                 onPressed: onRetry,
+              ),
+            ],
+            // An entitlement denial (as opposed to a spent allowance) is resolved by a
+            // plan, not by waiting or retrying — so it is the one blocked state that
+            // carries an action.
+            if (copy.canUpgrade) ...<Widget>[
+              Gap.v3,
+              QButton(
+                label: 'See plans',
+                icon: Icons.workspace_premium_outlined,
+                variant: QButtonVariant.primary,
+                onPressed: () => context.push(Routes.billingPlans),
               ),
             ],
           ],

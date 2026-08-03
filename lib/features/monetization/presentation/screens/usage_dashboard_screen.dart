@@ -6,6 +6,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/di/providers.dart';
 import '../../../../core/error/failure.dart';
 import '../../../../shared/domain/error_codes.dart';
 import '../../../../shared/theme/tokens/spacing_tokens.dart';
@@ -15,12 +16,22 @@ import '../../../../shared/widgets/states/q_error_view.dart';
 import '../../domain/entities/usage_summary.dart';
 import '../monetization_format.dart';
 import '../providers/monetization_providers.dart';
+import '../widgets/monetization_off_screen.dart';
 
 class UsageDashboardScreen extends ConsumerWidget {
   const UsageDashboardScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    if (!ref.watch(appConfigProvider).enableMonetization) {
+      return const MonetizationOffScreen(
+        appBarTitle: 'AI usage',
+        icon: Icons.insights_outlined,
+        title: 'Usage isn’t available yet',
+        message: 'AI allowances arrive with subscriptions.',
+      );
+    }
+
     final AsyncValue<MonetizationUsageSummary> async = ref.watch(monetizationUsageProvider);
     return Scaffold(
       appBar: QAppBar(

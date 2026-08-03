@@ -31,6 +31,19 @@ class EntitlementDecision {
   bool get isGrace => status == EntitlementStatus.gracePeriod;
   bool get isLimited => status == EntitlementStatus.limited;
 
+  /// Time-bounded access — a trial or a grace period. Worth distinguishing from a
+  /// plain allow because the copy differs: access that ends on a date deserves to say
+  /// so before it ends, not after.
+  bool get isTimeBounded => isTrial || isGrace;
+
+  /// Whether a denial is a **spent allowance** rather than a **missing plan**.
+  ///
+  /// The whole remedy hangs on this: `quota_exceeded` resets on its own and upgrading
+  /// is optional; every other denial reason never resets and a plan is the only path.
+  /// A lock that offers "See plans" to someone who simply needs to wait until tomorrow
+  /// is misleading them into a purchase (docs/48 §5.2).
+  bool get isQuotaDenial => reason == EntitlementReason.quotaExceeded;
+
   factory EntitlementDecision.fromJson(Json json) => EntitlementDecision(
     feature: json['feature'] as String? ?? '',
     status: json['status'] as String? ?? EntitlementStatus.deny,
@@ -75,7 +88,7 @@ class EntitlementSnapshot {
       feature: feature,
       status: EntitlementStatus.deny,
       allowed: false,
-      reason: 'plan_excludes',
+      reason: EntitlementReason.planExcludes,
     ),
   );
 

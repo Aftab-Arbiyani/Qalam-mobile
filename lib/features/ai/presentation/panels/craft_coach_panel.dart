@@ -18,6 +18,7 @@ import '../../domain/value_objects/ai_writing_context.dart';
 import '../../domain/value_objects/coach_tool.dart';
 import '../controllers/craft_coach_controller.dart';
 import '../support/ai_error_copy.dart';
+import '../support/ai_plans_link.dart';
 import '../widgets/ai_markdown.dart';
 import '../widgets/coach_report_view.dart';
 import '../widgets/token_usage_line.dart';
@@ -27,11 +28,13 @@ class CraftCoachPanel extends ConsumerWidget {
 
   final AiWritingContext writingContext;
 
-  static Future<void> show(BuildContext context, {required AiWritingContext writingContext}) =>
-      QBottomSheet.show<void>(
-        context,
-        builder: (_) => CraftCoachPanel(writingContext: writingContext),
-      );
+  static Future<void> show(
+    BuildContext context, {
+    required AiWritingContext writingContext,
+  }) => QBottomSheet.show<void>(
+    context,
+    builder: (_) => CraftCoachPanel(writingContext: writingContext),
+  );
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -39,22 +42,38 @@ class CraftCoachPanel extends ConsumerWidget {
     final CraftCoachState state = ref.watch(craftCoachControllerProvider);
     final Size screen = MediaQuery.sizeOf(context);
     final int words = writingContext.hasSelection
-        ? writingContext.selectionText.trim().split(RegExp(r'\s+')).where((String w) => w.isNotEmpty).length
+        ? writingContext.selectionText
+              .trim()
+              .split(RegExp(r'\s+'))
+              .where((String w) => w.isNotEmpty)
+              .length
         : writingContext.wordCount;
 
     return ConstrainedBox(
       constraints: BoxConstraints(maxHeight: screen.height * 0.85),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(QSpacing.s4, 0, QSpacing.s4, QSpacing.s4),
+        padding: const EdgeInsets.fromLTRB(
+          QSpacing.s4,
+          0,
+          QSpacing.s4,
+          QSpacing.s4,
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Row(
               children: <Widget>[
-                Icon(Icons.school_outlined, size: 20, color: tokens.colors.accent),
+                Icon(
+                  Icons.school_outlined,
+                  size: 20,
+                  color: tokens.colors.accent,
+                ),
                 const SizedBox(width: QSpacing.s2),
-                Text('Craft coach', style: Theme.of(context).textTheme.titleMedium),
+                Text(
+                  'Craft coach',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
               ],
             ),
             Gap.v2,
@@ -62,8 +81,12 @@ class CraftCoachPanel extends ConsumerWidget {
               label: writingContext.hasSelection
                   ? 'Scene selection · $words words'
                   : 'Whole chapter · $words words',
-              tone: writingContext.hasSelection ? QChipTone.accent : QChipTone.neutral,
-              icon: writingContext.hasSelection ? Icons.text_fields : Icons.article_outlined,
+              tone: writingContext.hasSelection
+                  ? QChipTone.accent
+                  : QChipTone.neutral,
+              icon: writingContext.hasSelection
+                  ? Icons.text_fields
+                  : Icons.article_outlined,
             ),
             Gap.v3,
             Flexible(child: _body(context, ref, state)),
@@ -90,65 +113,87 @@ class CraftCoachPanel extends ConsumerWidget {
   }
 
   Widget _chooser(BuildContext context, WidgetRef ref) => SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Text('Choose a lens', style: Theme.of(context).textTheme.labelLarge),
-            Gap.v2,
-            for (final CraftCoachTool tool in CraftCoachTool.values)
-              Padding(
-                padding: const EdgeInsets.only(bottom: QSpacing.s2),
-                child: ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: Text(tool.label),
-                  subtitle: Text(tool.description),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => unawaited(
-                    ref.read(craftCoachControllerProvider.notifier).run(tool, writingContext),
-                  ),
-                ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text('Choose a lens', style: Theme.of(context).textTheme.labelLarge),
+        Gap.v2,
+        for (final CraftCoachTool tool in CraftCoachTool.values)
+          Padding(
+            padding: const EdgeInsets.only(bottom: QSpacing.s2),
+            child: ListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(tool.label),
+              subtitle: Text(tool.description),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => unawaited(
+                ref
+                    .read(craftCoachControllerProvider.notifier)
+                    .run(tool, writingContext),
               ),
-          ],
-        ),
-      );
+            ),
+          ),
+      ],
+    ),
+  );
 
-  Widget _report(BuildContext context, WidgetRef ref, CraftCoachState state) => Column(
+  Widget _report(BuildContext context, WidgetRef ref, CraftCoachState state) =>
+      Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text(state.tool?.label ?? 'Coaching', style: Theme.of(context).textTheme.labelLarge),
+          Text(
+            state.tool?.label ?? 'Coaching',
+            style: Theme.of(context).textTheme.labelLarge,
+          ),
           Gap.v2,
           Flexible(
-            child: SingleChildScrollView(child: CoachReportView(report: state.report!)),
+            child: SingleChildScrollView(
+              child: CoachReportView(report: state.report!),
+            ),
           ),
-          TokenUsageLine(usage: state.usage, provider: state.provider, model: state.model),
+          TokenUsageLine(
+            usage: state.usage,
+            provider: state.provider,
+            model: state.model,
+          ),
           Gap.v2,
           _footerActions(context, ref),
         ],
       );
 
-  Widget _raw(BuildContext context, WidgetRef ref, CraftCoachState state) => Column(
+  Widget _raw(BuildContext context, WidgetRef ref, CraftCoachState state) =>
+      Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Flexible(child: SingleChildScrollView(child: AiMarkdown(state.rawText ?? ''))),
-          TokenUsageLine(usage: state.usage, provider: state.provider, model: state.model),
+          Flexible(
+            child: SingleChildScrollView(
+              child: AiMarkdown(state.rawText ?? ''),
+            ),
+          ),
+          TokenUsageLine(
+            usage: state.usage,
+            provider: state.provider,
+            model: state.model,
+          ),
           Gap.v2,
           _footerActions(context, ref),
         ],
       );
 
   Widget _footerActions(BuildContext context, WidgetRef ref) => Row(
-        children: <Widget>[
-          Expanded(
-            child: QButton(
-              label: 'New analysis',
-              icon: Icons.refresh,
-              onPressed: () => ref.read(craftCoachControllerProvider.notifier).reset(),
-            ),
-          ),
-        ],
-      );
+    children: <Widget>[
+      Expanded(
+        child: QButton(
+          label: 'New analysis',
+          icon: Icons.refresh,
+          onPressed: () =>
+              ref.read(craftCoachControllerProvider.notifier).reset(),
+        ),
+      ),
+    ],
+  );
 
   Widget _error(BuildContext context, WidgetRef ref, CraftCoachState state) {
     final QTokens tokens = QTokens.of(context);
@@ -160,12 +205,19 @@ class CraftCoachPanel extends ConsumerWidget {
         Gap.v2,
         Icon(Icons.error_outline, size: 36, color: tokens.colors.danger),
         Gap.v2,
-        Center(child: Text(copy.title, style: Theme.of(context).textTheme.titleMedium)),
+        Center(
+          child: Text(
+            copy.title,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+        ),
         Gap.v1,
         Center(
-          child: Text(copy.message,
-              textAlign: TextAlign.center,
-              style: TextStyle(color: tokens.colors.textSecondary)),
+          child: Text(
+            copy.message,
+            textAlign: TextAlign.center,
+            style: TextStyle(color: tokens.colors.textSecondary),
+          ),
         ),
         Gap.v4,
         Row(
@@ -173,7 +225,8 @@ class CraftCoachPanel extends ConsumerWidget {
             Expanded(
               child: QButton(
                 label: 'Back',
-                onPressed: () => ref.read(craftCoachControllerProvider.notifier).reset(),
+                onPressed: () =>
+                    ref.read(craftCoachControllerProvider.notifier).reset(),
               ),
             ),
             if (copy.canRetry) ...<Widget>[
@@ -182,7 +235,23 @@ class CraftCoachPanel extends ConsumerWidget {
                 child: QButton(
                   label: 'Try again',
                   variant: QButtonVariant.primary,
-                  onPressed: () => unawaited(ref.read(craftCoachControllerProvider.notifier).retry()),
+                  onPressed: () => unawaited(
+                    ref.read(craftCoachControllerProvider.notifier).retry(),
+                  ),
+                ),
+              ),
+            ],
+            // See the note on the assistant panel's own upgrade action: an entitlement
+            // denial is the one blocked state with a remedy the writer controls, and
+            // the router is captured before the sheet closes.
+            if (copy.canUpgrade) ...<Widget>[
+              const SizedBox(width: QSpacing.s2),
+              Expanded(
+                child: QButton(
+                  label: 'See plans',
+                  icon: Icons.workspace_premium_outlined,
+                  variant: QButtonVariant.primary,
+                  onPressed: () => openPlansFromSheet(context),
                 ),
               ),
             ],
@@ -206,10 +275,16 @@ class _CoachProgress extends StatelessWidget {
           SizedBox(
             width: 28,
             height: 28,
-            child: CircularProgressIndicator(strokeWidth: 3, color: tokens.colors.accent),
+            child: CircularProgressIndicator(
+              strokeWidth: 3,
+              color: tokens.colors.accent,
+            ),
           ),
           Gap.v3,
-          Text('Reading your writing…', style: TextStyle(color: tokens.colors.textSecondary)),
+          Text(
+            'Reading your writing…',
+            style: TextStyle(color: tokens.colors.textSecondary),
+          ),
         ],
       ),
     );

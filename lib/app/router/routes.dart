@@ -99,6 +99,11 @@ abstract final class Routes {
   static const String settingsNotifications = '/settings/notifications';
   static const String settingsStorage = '/settings/storage';
 
+  /// Safety — blocks, mutes and the viewer's account standing (AF6). Lives under
+  /// `/settings` on both clients: it is account-scoped, not story-scoped, so it does
+  /// not belong with the `/stories/:id/*` collaboration surfaces.
+  static const String settingsBlocks = '/settings/blocks';
+
   // Analytics & insights (M9). Full-screen, session-gated. The creator dashboard,
   // the reader's own reading analytics, and the owner-only per-piece detail.
   static const String creatorAnalytics = '/analytics';

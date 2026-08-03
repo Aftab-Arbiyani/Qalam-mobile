@@ -27,6 +27,7 @@ import '../controllers/assistant_session_controller.dart';
 import '../controllers/prompt_library_controller.dart';
 import '../editor/ai_editor_target.dart';
 import '../support/ai_error_copy.dart';
+import '../support/ai_plans_link.dart';
 import '../widgets/ai_markdown.dart';
 import '../widgets/ai_streaming_text.dart';
 import '../widgets/suggestion_diff_view.dart';
@@ -37,11 +38,17 @@ class WritingAssistantPanel extends ConsumerStatefulWidget {
 
   final AiEditorTarget target;
 
-  static Future<void> show(BuildContext context, {required AiEditorTarget target}) =>
-      QBottomSheet.show<void>(context, builder: (_) => WritingAssistantPanel(target: target));
+  static Future<void> show(
+    BuildContext context, {
+    required AiEditorTarget target,
+  }) => QBottomSheet.show<void>(
+    context,
+    builder: (_) => WritingAssistantPanel(target: target),
+  );
 
   @override
-  ConsumerState<WritingAssistantPanel> createState() => _WritingAssistantPanelState();
+  ConsumerState<WritingAssistantPanel> createState() =>
+      _WritingAssistantPanelState();
 }
 
 class _WritingAssistantPanelState extends ConsumerState<WritingAssistantPanel> {
@@ -67,13 +74,20 @@ class _WritingAssistantPanelState extends ConsumerState<WritingAssistantPanel> {
   @override
   Widget build(BuildContext context) {
     final QTokens tokens = QTokens.of(context);
-    final AssistantSessionState session = ref.watch(assistantSessionControllerProvider);
+    final AssistantSessionState session = ref.watch(
+      assistantSessionControllerProvider,
+    );
     final Size screen = MediaQuery.sizeOf(context);
 
     return ConstrainedBox(
       constraints: BoxConstraints(maxHeight: screen.height * 0.82),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(QSpacing.s4, 0, QSpacing.s4, QSpacing.s4),
+        padding: const EdgeInsets.fromLTRB(
+          QSpacing.s4,
+          0,
+          QSpacing.s4,
+          QSpacing.s4,
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -90,17 +104,21 @@ class _WritingAssistantPanelState extends ConsumerState<WritingAssistantPanel> {
   }
 
   Widget _header(QTokens tokens) => Row(
-        children: <Widget>[
-          Icon(Icons.auto_awesome, size: 20, color: tokens.colors.accent),
-          const SizedBox(width: QSpacing.s2),
-          Text('Writing assistant', style: Theme.of(context).textTheme.titleMedium),
-        ],
-      );
+    children: <Widget>[
+      Icon(Icons.auto_awesome, size: 20, color: tokens.colors.accent),
+      const SizedBox(width: QSpacing.s2),
+      Text('Writing assistant', style: Theme.of(context).textTheme.titleMedium),
+    ],
+  );
 
   Widget _contextChip(QTokens tokens) {
     final bool sel = widget.target.canReplaceSelection;
     final int words = widget.target.context.hasSelection
-        ? widget.target.context.selectionText.trim().split(RegExp(r'\s+')).where((String w) => w.isNotEmpty).length
+        ? widget.target.context.selectionText
+              .trim()
+              .split(RegExp(r'\s+'))
+              .where((String w) => w.isNotEmpty)
+              .length
         : widget.target.context.wordCount;
     return QChip(
       label: sel ? 'Selection · $words words' : 'Whole chapter · $words words',
@@ -140,11 +158,31 @@ class _WritingAssistantPanelState extends ConsumerState<WritingAssistantPanel> {
             spacing: QSpacing.s2,
             runSpacing: QSpacing.s2,
             children: <Widget>[
-              _quickAction('Continue', Icons.arrow_forward, AssistantActionKind.continueWriting),
-              _quickAction('Rewrite', Icons.autorenew, AssistantActionKind.rewrite),
-              _quickAction('Expand', Icons.unfold_more, AssistantActionKind.expand),
-              _quickAction('Condense', Icons.unfold_less, AssistantActionKind.condense),
-              _quickAction('Simplify', Icons.spellcheck, AssistantActionKind.simplify),
+              _quickAction(
+                'Continue',
+                Icons.arrow_forward,
+                AssistantActionKind.continueWriting,
+              ),
+              _quickAction(
+                'Rewrite',
+                Icons.autorenew,
+                AssistantActionKind.rewrite,
+              ),
+              _quickAction(
+                'Expand',
+                Icons.unfold_more,
+                AssistantActionKind.expand,
+              ),
+              _quickAction(
+                'Condense',
+                Icons.unfold_less,
+                AssistantActionKind.condense,
+              ),
+              _quickAction(
+                'Simplify',
+                Icons.spellcheck,
+                AssistantActionKind.simplify,
+              ),
               _menuChip('Improve…', Icons.tune, _pickImprove),
               _menuChip('Tone…', Icons.palette_outlined, _pickTone),
             ],
@@ -158,17 +196,24 @@ class _WritingAssistantPanelState extends ConsumerState<WritingAssistantPanel> {
     );
   }
 
-  Widget _quickAction(String label, IconData icon, AssistantActionKind kind) => QChip(
+  Widget _quickAction(String label, IconData icon, AssistantActionKind kind) =>
+      QChip(
         label: label,
         icon: icon,
-        onTap: widget.target.context.hasOperand ? () => _run(WritingAction.of(kind)) : null,
+        onTap: widget.target.context.hasOperand
+            ? () => _run(WritingAction.of(kind))
+            : null,
       );
 
-  Widget _menuChip(String label, IconData icon, Future<void> Function() onTap) => QChip(
-        label: label,
-        icon: icon,
-        onTap: widget.target.context.hasOperand ? () => unawaited(onTap()) : null,
-      );
+  Widget _menuChip(
+    String label,
+    IconData icon,
+    Future<void> Function() onTap,
+  ) => QChip(
+    label: label,
+    icon: icon,
+    onTap: widget.target.context.hasOperand ? () => unawaited(onTap()) : null,
+  );
 
   Widget _askField() {
     final QTokens tokens = QTokens.of(context);
@@ -177,7 +222,10 @@ class _WritingAssistantPanelState extends ConsumerState<WritingAssistantPanel> {
       children: <Widget>[
         Row(
           children: <Widget>[
-            Text('Ask the assistant', style: Theme.of(context).textTheme.labelLarge),
+            Text(
+              'Ask the assistant',
+              style: Theme.of(context).textTheme.labelLarge,
+            ),
             const Spacer(),
             TextButton.icon(
               onPressed: () => unawaited(_openPromptLibrary()),
@@ -259,7 +307,8 @@ class _WritingAssistantPanelState extends ConsumerState<WritingAssistantPanel> {
             label: 'Stop',
             icon: Icons.stop_circle_outlined,
             variant: QButtonVariant.ghost,
-            onPressed: () => ref.read(assistantSessionControllerProvider.notifier).cancel(),
+            onPressed: () =>
+                ref.read(assistantSessionControllerProvider.notifier).cancel(),
           ),
         ),
       ],
@@ -277,12 +326,19 @@ class _WritingAssistantPanelState extends ConsumerState<WritingAssistantPanel> {
         Row(
           children: <Widget>[
             Expanded(
-              child: Text(suggestion.sourceLabel, style: Theme.of(context).textTheme.labelLarge),
+              child: Text(
+                suggestion.sourceLabel,
+                style: Theme.of(context).textTheme.labelLarge,
+              ),
             ),
-            if (!suggestion.diff.isNoChange && suggestion.originalText.isNotEmpty)
+            if (!suggestion.diff.isNoChange &&
+                suggestion.originalText.isNotEmpty)
               TextButton.icon(
                 onPressed: () => setState(() => _showDiff = !_showDiff),
-                icon: Icon(_showDiff ? Icons.notes : Icons.difference_outlined, size: 16),
+                icon: Icon(
+                  _showDiff ? Icons.notes : Icons.difference_outlined,
+                  size: 16,
+                ),
                 label: Text(_showDiff ? 'Preview' : 'Compare'),
               ),
           ],
@@ -322,7 +378,8 @@ class _WritingAssistantPanelState extends ConsumerState<WritingAssistantPanel> {
       children: <Widget>[
         QButton(
           label: switch (suggestion.placement) {
-            AiSuggestionPlacement.replaceSelection => 'Apply (replace selection)',
+            AiSuggestionPlacement.replaceSelection =>
+              'Apply (replace selection)',
             AiSuggestionPlacement.insertBelow => 'Apply (insert below)',
             AiSuggestionPlacement.append => 'Apply (append)',
           },
@@ -337,16 +394,37 @@ class _WritingAssistantPanelState extends ConsumerState<WritingAssistantPanel> {
           runSpacing: QSpacing.s2,
           children: <Widget>[
             if (canReplace)
-              _barChip('Replace selection', Icons.find_replace,
-                  () => _apply(suggestion, AiSuggestionPlacement.replaceSelection)),
-            _barChip('Insert below', Icons.subdirectory_arrow_right,
-                () => _apply(suggestion, AiSuggestionPlacement.insertBelow)),
-            _barChip('Append', Icons.vertical_align_bottom,
-                () => _apply(suggestion, AiSuggestionPlacement.append)),
+              _barChip(
+                'Replace selection',
+                Icons.find_replace,
+                () =>
+                    _apply(suggestion, AiSuggestionPlacement.replaceSelection),
+              ),
+            _barChip(
+              'Insert below',
+              Icons.subdirectory_arrow_right,
+              () => _apply(suggestion, AiSuggestionPlacement.insertBelow),
+            ),
+            _barChip(
+              'Append',
+              Icons.vertical_align_bottom,
+              () => _apply(suggestion, AiSuggestionPlacement.append),
+            ),
             _barChip('Copy', Icons.copy, () => _copy(suggestion.content)),
-            _barChip('Save as draft', Icons.note_add_outlined, () => unawaited(_saveDraft(suggestion))),
-            _barChip('Regenerate', Icons.refresh,
-                () => unawaited(ref.read(assistantSessionControllerProvider.notifier).regenerate())),
+            _barChip(
+              'Save as draft',
+              Icons.note_add_outlined,
+              () => unawaited(_saveDraft(suggestion)),
+            ),
+            _barChip(
+              'Regenerate',
+              Icons.refresh,
+              () => unawaited(
+                ref
+                    .read(assistantSessionControllerProvider.notifier)
+                    .regenerate(),
+              ),
+            ),
             _barChip('Discard', Icons.close, _discard),
           ],
         ),
@@ -366,10 +444,17 @@ class _WritingAssistantPanelState extends ConsumerState<WritingAssistantPanel> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
         Gap.v3,
-        Icon(Icons.check_circle_outline, size: 40, color: tokens.colors.success),
+        Icon(
+          Icons.check_circle_outline,
+          size: 40,
+          color: tokens.colors.success,
+        ),
         Gap.v2,
         Center(
-          child: Text('Applied to your draft', style: Theme.of(context).textTheme.titleMedium),
+          child: Text(
+            'Applied to your draft',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
         ),
         Gap.v1,
         Center(
@@ -383,11 +468,7 @@ class _WritingAssistantPanelState extends ConsumerState<WritingAssistantPanel> {
         Row(
           children: <Widget>[
             Expanded(
-              child: QButton(
-                label: 'Undo',
-                icon: Icons.undo,
-                onPressed: _undo,
-              ),
+              child: QButton(label: 'Undo', icon: Icons.undo, onPressed: _undo),
             ),
             const SizedBox(width: QSpacing.s2),
             Expanded(
@@ -413,12 +494,19 @@ class _WritingAssistantPanelState extends ConsumerState<WritingAssistantPanel> {
         Gap.v2,
         Icon(Icons.error_outline, size: 36, color: tokens.colors.danger),
         Gap.v2,
-        Center(child: Text(copy.title, style: Theme.of(context).textTheme.titleMedium)),
+        Center(
+          child: Text(
+            copy.title,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+        ),
         Gap.v1,
         Center(
-          child: Text(copy.message,
-              textAlign: TextAlign.center,
-              style: TextStyle(color: tokens.colors.textSecondary)),
+          child: Text(
+            copy.message,
+            textAlign: TextAlign.center,
+            style: TextStyle(color: tokens.colors.textSecondary),
+          ),
         ),
         Gap.v4,
         Row(
@@ -426,7 +514,9 @@ class _WritingAssistantPanelState extends ConsumerState<WritingAssistantPanel> {
             Expanded(
               child: QButton(
                 label: 'Back',
-                onPressed: () => ref.read(assistantSessionControllerProvider.notifier).reset(),
+                onPressed: () => ref
+                    .read(assistantSessionControllerProvider.notifier)
+                    .reset(),
               ),
             ),
             if (copy.canRetry) ...<Widget>[
@@ -435,8 +525,25 @@ class _WritingAssistantPanelState extends ConsumerState<WritingAssistantPanel> {
                 child: QButton(
                   label: 'Try again',
                   variant: QButtonVariant.primary,
-                  onPressed: () =>
-                      unawaited(ref.read(assistantSessionControllerProvider.notifier).regenerate()),
+                  onPressed: () => unawaited(
+                    ref
+                        .read(assistantSessionControllerProvider.notifier)
+                        .regenerate(),
+                  ),
+                ),
+              ),
+            ],
+            // An entitlement denial is the one blocked state the writer can resolve
+            // themselves. The router is read before the sheet closes — `context` is
+            // defunct once the pop completes.
+            if (copy.canUpgrade) ...<Widget>[
+              const SizedBox(width: QSpacing.s2),
+              Expanded(
+                child: QButton(
+                  label: 'See plans',
+                  icon: Icons.workspace_premium_outlined,
+                  variant: QButtonVariant.primary,
+                  onPressed: () => openPlansFromSheet(context),
                 ),
               ),
             ],
@@ -450,16 +557,22 @@ class _WritingAssistantPanelState extends ConsumerState<WritingAssistantPanel> {
 
   void _run(WritingAction action) {
     unawaited(
-      ref.read(assistantSessionControllerProvider.notifier).runAction(action, widget.target.context),
+      ref
+          .read(assistantSessionControllerProvider.notifier)
+          .runAction(action, widget.target.context),
     );
   }
 
   void _runFreeform() {
     final String instruction = _ask.text.trim();
     if (instruction.isEmpty) return;
-    unawaited(ref.read(promptLibraryControllerProvider.notifier).recordUse(instruction));
     unawaited(
-      ref.read(assistantSessionControllerProvider.notifier).runAction(
+      ref.read(promptLibraryControllerProvider.notifier).recordUse(instruction),
+    );
+    unawaited(
+      ref
+          .read(assistantSessionControllerProvider.notifier)
+          .runAction(
             WritingAction.of(AssistantActionKind.freeform),
             widget.target.context,
             instruction: instruction,
@@ -489,47 +602,60 @@ class _WritingAssistantPanelState extends ConsumerState<WritingAssistantPanel> {
     required String title,
     required List<T> options,
     required String Function(T) label,
-  }) =>
-      QBottomSheet.show<T>(
-        context,
-        builder: (BuildContext sheetContext) => SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.all(QSpacing.s4),
-                child: Text(title, style: Theme.of(sheetContext).textTheme.titleMedium),
-              ),
-              for (final T option in options)
-                ListTile(
-                  title: Text(label(option)),
-                  onTap: () => Navigator.of(sheetContext).pop(option),
-                ),
-              Gap.v2,
-            ],
+  }) => QBottomSheet.show<T>(
+    context,
+    builder: (BuildContext sheetContext) => SafeArea(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(QSpacing.s4),
+            child: Text(
+              title,
+              style: Theme.of(sheetContext).textTheme.titleMedium,
+            ),
           ),
-        ),
-      );
+          for (final T option in options)
+            ListTile(
+              title: Text(label(option)),
+              onTap: () => Navigator.of(sheetContext).pop(option),
+            ),
+          Gap.v2,
+        ],
+      ),
+    ),
+  );
 
   Future<void> _openPromptLibrary() async {
     final PromptPreset? preset = await QBottomSheet.show<PromptPreset>(
       context,
       builder: (BuildContext sheetContext) {
-        final PromptLibraryState lib = ref.read(promptLibraryControllerProvider);
+        final PromptLibraryState lib = ref.read(
+          promptLibraryControllerProvider,
+        );
         return SafeArea(
           child: ListView(
             shrinkWrap: true,
             children: <Widget>[
               Padding(
                 padding: const EdgeInsets.all(QSpacing.s4),
-                child: Text('Prompt library', style: Theme.of(sheetContext).textTheme.titleMedium),
+                child: Text(
+                  'Prompt library',
+                  style: Theme.of(sheetContext).textTheme.titleMedium,
+                ),
               ),
               for (final PromptPreset p in lib.presets)
                 ListTile(
-                  leading: Icon(p.isBuiltIn ? Icons.star_border : Icons.edit_note),
+                  leading: Icon(
+                    p.isBuiltIn ? Icons.star_border : Icons.edit_note,
+                  ),
                   title: Text(p.title),
-                  subtitle: Text(p.instruction, maxLines: 2, overflow: TextOverflow.ellipsis),
+                  subtitle: Text(
+                    p.instruction,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                   onTap: () => Navigator.of(sheetContext).pop(p),
                 ),
             ],
@@ -545,12 +671,20 @@ class _WritingAssistantPanelState extends ConsumerState<WritingAssistantPanel> {
 
   void _apply(AiSuggestion suggestion, AiSuggestionPlacement placement) {
     final AiApplyHandle? handle = switch (placement) {
-      AiSuggestionPlacement.replaceSelection => widget.target.replaceSelection(suggestion.content),
-      AiSuggestionPlacement.insertBelow => widget.target.insertBelow(suggestion.content),
+      AiSuggestionPlacement.replaceSelection => widget.target.replaceSelection(
+        suggestion.content,
+      ),
+      AiSuggestionPlacement.insertBelow => widget.target.insertBelow(
+        suggestion.content,
+      ),
       AiSuggestionPlacement.append => widget.target.append(suggestion.content),
     };
     if (handle == null) {
-      QSnackbar.show(context, message: 'Nothing to apply here.', variant: QSnackbarVariant.danger);
+      QSnackbar.show(
+        context,
+        message: 'Nothing to apply here.',
+        variant: QSnackbarVariant.danger,
+      );
       return;
     }
     ref.read(assistantSessionControllerProvider.notifier).markApplied();
@@ -565,7 +699,11 @@ class _WritingAssistantPanelState extends ConsumerState<WritingAssistantPanel> {
 
   void _copy(String content) {
     unawaited(Clipboard.setData(ClipboardData(text: content)));
-    QSnackbar.show(context, message: 'Copied.', variant: QSnackbarVariant.success);
+    QSnackbar.show(
+      context,
+      message: 'Copied.',
+      variant: QSnackbarVariant.success,
+    );
   }
 
   Future<void> _saveDraft(AiSuggestion suggestion) async {
@@ -573,7 +711,9 @@ class _WritingAssistantPanelState extends ConsumerState<WritingAssistantPanel> {
     if (!mounted) return;
     QSnackbar.show(
       context,
-      message: id != null ? 'Saved as a new draft.' : 'Could not save the draft.',
+      message: id != null
+          ? 'Saved as a new draft.'
+          : 'Could not save the draft.',
       variant: id != null ? QSnackbarVariant.success : QSnackbarVariant.danger,
     );
   }
@@ -595,7 +735,10 @@ class _ThinkingIndicator extends StatelessWidget {
         SizedBox(
           width: 16,
           height: 16,
-          child: CircularProgressIndicator(strokeWidth: 2, color: tokens.colors.accent),
+          child: CircularProgressIndicator(
+            strokeWidth: 2,
+            color: tokens.colors.accent,
+          ),
         ),
         const SizedBox(width: QSpacing.s2),
         Text('Thinking…', style: TextStyle(color: tokens.colors.textSecondary)),

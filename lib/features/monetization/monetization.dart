@@ -6,5 +6,5 @@ library;
 export 'domain/entities/entitlement.dart';
 export 'domain/entities/monetization_enums.dart';
 export 'presentation/providers/monetization_providers.dart'
-    show entitlementSnapshotProvider, premiumFeatureAllowedProvider;
+    show entitlementSnapshotProvider;
 export 'presentation/widgets/premium_gate.dart' show PremiumBadge, PremiumGate;

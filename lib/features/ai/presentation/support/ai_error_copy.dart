@@ -2,6 +2,16 @@
 /// stable `ERROR_CODES` string (not a [Failure]), so this maps each to a friendly
 /// title/message and whether a retry can help (Provider Failure, Timeout, Quota,
 /// Safety, Context Too Large, Network, …). Never shows a raw code or message.
+///
+/// **A spent allowance and a denied entitlement are not the same wall (AF5, docs/48
+/// §5.2).** Every AI request meters through the `AI_USAGE_METER` hook, and
+/// `AiUsageMeterService.checkQuota` can refuse it two ways: `assertAllowed(ai_budget)`
+/// fails when the plan grants no AI budget at all, and `assertWithinQuota` fails when
+/// the budget is spent. The remedies diverge completely — an allowance resets on its own
+/// and waiting is enough; a denied entitlement never resets and only a plan changes it.
+/// `ENTITLEMENT_DENIED` and `INSUFFICIENT_CREDITS` were unmapped here, so both fell
+/// through to the generic retryable failure, which told a blocked writer to try again
+/// and then to wait for a reset that would never help. They now carry [canUpgrade].
 library;
 
 import '../../../../shared/domain/error_codes.dart';
@@ -11,11 +21,17 @@ class AiErrorCopy {
     required this.title,
     required this.message,
     required this.canRetry,
+    this.canUpgrade = false,
   });
 
   final String title;
   final String message;
   final bool canRetry;
+
+  /// The writer can resolve this themselves by changing plan — the only blocked state
+  /// that carries an action. Retrying and waiting are not remedies for it, so this is
+  /// never set together with [canRetry].
+  final bool canUpgrade;
 
   static AiErrorCopy forCode(String? code) => switch (code) {
     ErrorCodes.aiDisabled => const AiErrorCopy(
@@ -28,11 +44,25 @@ class AiErrorCopy {
       message: 'This AI feature isn’t enabled for you yet.',
       canRetry: false,
     ),
-    ErrorCodes.aiUsageLimitExceeded => const AiErrorCopy(
-      title: 'You’ve hit your AI limit',
+    // The AI module's own token cap and the monetization plan's cap are
+    // indistinguishable to a writer, who only needs to know they are out of allowance
+    // and that it comes back.
+    ErrorCodes.aiUsageLimitExceeded ||
+    ErrorCodes.quotaExceeded => const AiErrorCopy(
+      title: 'You’ve used your AI allowance',
       message:
-          'You’ve used your AI quota for now. It refreshes soon — try again later.',
+          'Your allowance resets at the start of the next period. Your writing is unaffected.',
       canRetry: false,
+    ),
+    // Not a spent allowance — a plan that grants no AI budget, or a credit balance that
+    // cannot cover the request. Neither resets on its own, so the remedy is a plan.
+    ErrorCodes.entitlementDenied ||
+    ErrorCodes.insufficientCredits => const AiErrorCopy(
+      title: 'This needs a paid plan',
+      message:
+          'Your plan doesn’t include an AI allowance. Your writing is unaffected — everything else works as usual.',
+      canRetry: false,
+      canUpgrade: true,
     ),
     ErrorCodes.aiProviderNotConfigured => const AiErrorCopy(
       title: 'AI isn’t set up',

@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/billing/store_billing_gateway.dart';
+import '../../../../core/di/providers.dart';
 import '../../../../core/error/failure.dart';
 import '../../../../shared/domain/error_codes.dart';
 import '../../../../shared/theme/tokens/spacing_tokens.dart';
@@ -24,6 +25,8 @@ import '../../domain/entities/subscription.dart';
 import '../controllers/subscription_controller.dart';
 import '../monetization_format.dart';
 import '../providers/monetization_providers.dart';
+import '../widgets/coupon_field.dart';
+import '../widgets/monetization_off_screen.dart';
 
 class PlansScreen extends ConsumerStatefulWidget {
   const PlansScreen({super.key});
@@ -35,15 +38,30 @@ class PlansScreen extends ConsumerStatefulWidget {
 class _PlansScreenState extends ConsumerState<PlansScreen> {
   bool _yearly = false;
 
-  String get _interval => _yearly ? BillingInterval.yearly : BillingInterval.monthly;
+  /// The promo code the server has already accepted a preview for, or null. Handed to
+  /// checkout; cleared whenever the field's contents change.
+  String? _coupon;
+
+  String get _interval =>
+      _yearly ? BillingInterval.yearly : BillingInterval.monthly;
 
   @override
   Widget build(BuildContext context) {
+    if (!ref.watch(appConfigProvider).enableMonetization) {
+      return const MonetizationOffScreen(
+        appBarTitle: 'Plans',
+        icon: Icons.credit_card_outlined,
+        title: 'Plans aren’t available yet',
+        message: 'Subscriptions and AI credits arrive with the next release.',
+      );
+    }
+
     final AsyncValue<PlanCatalogue> plansAsync = ref.watch(plansProvider);
-    final AsyncValue<Subscription?> subAsync = ref.watch(currentSubscriptionProvider);
+    final AsyncValue<Subscription?> subAsync = ref.watch(
+      currentSubscriptionProvider,
+    );
     final AsyncValue<void> action = ref.watch(subscriptionControllerProvider);
-    final String currentTier =
-        subAsync.asData?.value?.tier ?? PlanTier.free;
+    final String currentTier = subAsync.asData?.value?.tier ?? PlanTier.free;
 
     return Scaffold(
       appBar: const QAppBar(title: 'Plans'),
@@ -52,7 +70,10 @@ class _PlansScreenState extends ConsumerState<PlansScreen> {
         error: (Object error, StackTrace _) => QErrorView(
           failure: error is Failure
               ? error
-              : Failure.unexpected(code: ErrorCodes.apiUnexpected, message: '$error'),
+              : Failure.unexpected(
+                  code: ErrorCodes.apiUnexpected,
+                  message: '$error',
+                ),
           onRetry: () => ref.invalidate(plansProvider),
         ),
         data: (PlanCatalogue catalogue) => ListView(
@@ -72,26 +93,70 @@ class _PlansScreenState extends ConsumerState<PlansScreen> {
                   currency: catalogue.currency,
                   isCurrent: plan.tier == currentTier,
                   busy: action.isLoading,
-                  onSelect: () => _select(plan, currentTier, hasSub: subAsync.asData?.value != null),
+                  onSelect: () => _select(
+                    plan,
+                    currentTier,
+                    hasSub: subAsync.asData?.value != null,
+                  ),
                 ),
               ),
+            // A promo code applies to a NEW subscription only, and the field is hidden
+            // from existing subscribers rather than ignored for them: `ChangePlanDto`
+            // has no `couponCode` property and the API runs
+            // `ValidationPipe({whitelist: true, forbidNonWhitelisted: true})`, so
+            // sending one would 400 the whole plan change — the same trap the M-1
+            // invite defect fell into.
+            //
+            // No `tier` is passed: the reader has not chosen a plan when they enter the
+            // code, so the server confirms the code without a figure rather than
+            // pricing it against a guess.
+            if (subAsync.asData?.value == null) ...<Widget>[
+              Gap.v2,
+              QCard(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      'Have a promo code?',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    Gap.v2,
+                    CouponField(
+                      interval: _interval,
+                      currency: catalogue.currency,
+                      onApplied: (String? code) =>
+                          setState(() => _coupon = code),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ],
         ),
       ),
     );
   }
 
-  Future<void> _select(Plan plan, String currentTier, {required bool hasSub}) async {
+  Future<void> _select(
+    Plan plan,
+    String currentTier, {
+    required bool hasSub,
+  }) async {
     if (plan.isFree || plan.tier == currentTier) {
       return;
     }
-    final SubscriptionController controller = ref.read(subscriptionControllerProvider.notifier);
+    final SubscriptionController controller = ref.read(
+      subscriptionControllerProvider.notifier,
+    );
     try {
       if (!hasSub) {
         final CheckoutResult? result = await controller.subscribe(
           tier: plan.tier,
           interval: _interval,
           provider: PaymentProvider.stripe,
+          // The previewed code, if the server accepted one. Redemption happens here,
+          // server-side — the preview only kept the reader from typing a dead code.
+          couponCode: _coupon,
         );
         if (!mounted) return;
         if (result == null) {
@@ -118,11 +183,14 @@ class _PlansScreenState extends ConsumerState<PlansScreen> {
   void _showError() {
     final AsyncValue<void> state = ref.read(subscriptionControllerProvider);
     final Object? err = state.error;
-    _snack(err is Failure ? err.message : 'Something went wrong. Please try again.');
+    _snack(
+      err is Failure ? err.message : 'Something went wrong. Please try again.',
+    );
   }
 
-  void _snack(String message) =>
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+  void _snack(String message) => ScaffoldMessenger.of(
+    context,
+  ).showSnackBar(SnackBar(content: Text(message)));
 
   void _showCheckoutSheet(String url) {
     showModalBottomSheet<void>(
@@ -133,10 +201,14 @@ class _PlansScreenState extends ConsumerState<PlansScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text('Complete your purchase',
-                style: Theme.of(ctx).textTheme.titleMedium),
+            Text(
+              'Complete your purchase',
+              style: Theme.of(ctx).textTheme.titleMedium,
+            ),
             Gap.v2,
-            const Text('Open this secure checkout link in your browser to finish:'),
+            const Text(
+              'Open this secure checkout link in your browser to finish:',
+            ),
             Gap.v2,
             SelectableText(url, style: Theme.of(ctx).textTheme.bodySmall),
             Gap.v3,
@@ -192,7 +264,10 @@ class _PlanCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final int price = plan.priceMinor(interval, currency);
-    final EntitlementSnapshot? snapshot = ref.watch(entitlementSnapshotProvider).asData?.value;
+    final EntitlementSnapshot? snapshot = ref
+        .watch(entitlementSnapshotProvider)
+        .asData
+        ?.value;
     final String currentTier = snapshot?.tier ?? PlanTier.free;
     return QCard(
       child: Column(
@@ -203,12 +278,17 @@ class _PlanCard extends ConsumerWidget {
               Text(plan.name, style: Theme.of(context).textTheme.titleLarge),
               const Spacer(),
               if (isCurrent)
-                const Chip(label: Text('Current'), visualDensity: VisualDensity.compact),
+                const Chip(
+                  label: Text('Current'),
+                  visualDensity: VisualDensity.compact,
+                ),
             ],
           ),
           Gap.v1,
           Text(
-            plan.isFree ? 'Free' : '${formatMoney(price, currency)} / ${_short(interval)}',
+            plan.isFree
+                ? 'Free'
+                : '${formatMoney(price, currency)} / ${_short(interval)}',
             style: Theme.of(context).textTheme.headlineSmall,
           ),
           Gap.v2,
@@ -225,8 +305,10 @@ class _PlanCard extends ConsumerWidget {
             ),
           if (plan.monthlyCredits > 0) ...<Widget>[
             Gap.v1,
-            Text('${formatCount(plan.monthlyCredits)} AI credits / month',
-                style: Theme.of(context).textTheme.bodySmall),
+            Text(
+              '${formatCount(plan.monthlyCredits)} AI credits / month',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
           ],
           if (!plan.isFree && !isCurrent) ...<Widget>[
             Gap.v3,
@@ -246,5 +328,6 @@ class _PlanCard extends ConsumerWidget {
   String _cta(String currentTier) =>
       isPlanUpgrade(currentTier, plan.tier) ? 'Upgrade' : 'Switch';
 
-  String _short(String interval) => interval == BillingInterval.yearly ? 'yr' : 'mo';
+  String _short(String interval) =>
+      interval == BillingInterval.yearly ? 'yr' : 'mo';
 }

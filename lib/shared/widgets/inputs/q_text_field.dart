@@ -22,6 +22,7 @@ class QTextField extends StatelessWidget {
     this.focusNode,
     this.maxLength,
     this.autofillHints,
+    this.textCapitalization = TextCapitalization.none,
     this.contentDirectionAuto = false,
     this.trailing,
     this.onTapOutside,
@@ -44,6 +45,11 @@ class QTextField extends StatelessWidget {
   final FocusNode? focusNode;
   final int? maxLength;
   final Iterable<String>? autofillHints;
+
+  /// Keyboard capitalisation. Fields whose value has a canonical case on the wire —
+  /// a coupon code, which the server looks up upper-cased — set this so what is typed
+  /// matches what is sent.
+  final TextCapitalization textCapitalization;
 
   /// User-content fields (bio, comment) set this so text follows its own script.
   final bool contentDirectionAuto;
@@ -88,6 +94,7 @@ class QTextField extends StatelessWidget {
           minLines: minLines,
           maxLength: maxLength,
           autofillHints: autofillHints,
+          textCapitalization: textCapitalization,
           onChanged: onChanged,
           onSubmitted: onSubmitted,
           onTapOutside: onTapOutside,

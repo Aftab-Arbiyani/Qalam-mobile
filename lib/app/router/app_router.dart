@@ -30,6 +30,7 @@ import '../../features/analytics/presentation/screens/creator_analytics_screen.d
 import '../../features/analytics/presentation/screens/piece_analytics_screen.dart';
 import '../../features/analytics/presentation/screens/reading_analytics_screen.dart';
 import '../../features/auth/auth.dart';
+import '../../features/collaboration/presentation/screens/blocks_screen.dart';
 import '../../features/collaboration/presentation/screens/collaborators_screen.dart';
 import '../../features/collaboration/presentation/screens/comments_screen.dart'
     as collaboration;
@@ -592,6 +593,13 @@ GoRouter goRouter(Ref ref) {
         parentNavigatorKey: _rootKey,
         pageBuilder: (BuildContext context, GoRouterState state) =>
             _fade(state, const InvitationsInboxScreen()),
+      ),
+      GoRoute(
+        path: Routes.settingsBlocks,
+        name: 'settingsBlocks',
+        parentNavigatorKey: _rootKey,
+        pageBuilder: (BuildContext context, GoRouterState state) =>
+            _fade(state, const BlocksScreen()),
       ),
       GoRoute(
         path: Routes.trustRestricted,

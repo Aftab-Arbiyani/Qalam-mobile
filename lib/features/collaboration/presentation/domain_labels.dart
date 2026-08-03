@@ -100,6 +100,18 @@ String restrictionTypeLabel(String type) => switch (type) {
   _ => type,
 };
 
+/// Which surface a restriction applies to (`RestrictionScope`). The scope is what says
+/// *what* is restricted — a comments-scoped mute and a global one are different
+/// sentences — so a standing that lists restrictions has to render it.
+String restrictionScopeLabel(String scope) => switch (scope) {
+  RestrictionScope.global => 'Everywhere',
+  RestrictionScope.publishing => 'Publishing',
+  RestrictionScope.collaboration => 'Collaboration',
+  RestrictionScope.comments => 'Comments',
+  RestrictionScope.reporting => 'Reporting',
+  _ => scope,
+};
+
 /// Why a snapshot was captured (`SnapshotReason` on the wire).
 String snapshotReasonLabel(String reason) => switch (reason) {
   'publish' => 'On publish',

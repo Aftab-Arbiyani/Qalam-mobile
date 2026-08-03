@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/billing/store_billing_gateway.dart';
+import '../../../../core/di/providers.dart';
 import '../../../../core/error/failure.dart';
 import '../../../../shared/domain/error_codes.dart';
 import '../../../../shared/theme/tokens/spacing_tokens.dart';
@@ -19,21 +20,40 @@ import '../../domain/entities/monetization_enums.dart';
 import '../controllers/subscription_controller.dart';
 import '../monetization_format.dart';
 import '../providers/monetization_providers.dart';
+import '../widgets/monetization_off_screen.dart';
+import '../widgets/premium_gate.dart';
 
 /// Credit-pack options (store product ids follow the `com.qalam.credits.<n>` convention).
-const List<({int credits, String productId})> _packs = <({int credits, String productId})>[
-  (credits: 1000, productId: 'com.qalam.credits.1000'),
-  (credits: 5000, productId: 'com.qalam.credits.5000'),
-  (credits: 20000, productId: 'com.qalam.credits.20000'),
-];
+const List<({int credits, String productId})> _packs =
+    <({int credits, String productId})>[
+      (credits: 1000, productId: 'com.qalam.credits.1000'),
+      (credits: 5000, productId: 'com.qalam.credits.5000'),
+      (credits: 20000, productId: 'com.qalam.credits.20000'),
+    ];
 
 class CreditDashboardScreen extends ConsumerWidget {
   const CreditDashboardScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final AsyncValue<CreditBalance> balanceAsync = ref.watch(creditBalanceProvider);
-    final AsyncValue<List<CreditTransaction>> ledgerAsync = ref.watch(creditLedgerProvider);
+    final AsyncValue<CreditBalance> balanceAsync = ref.watch(
+      creditBalanceProvider,
+    );
+    final AsyncValue<List<CreditTransaction>> ledgerAsync = ref.watch(
+      creditLedgerProvider,
+    );
+
+    // A dark build has no wallet to show, and — since the entitlement snapshot answers
+    // the free-tier default without asking while the flag is down — the balance gate
+    // below would otherwise read as a paywall on an unreleased feature.
+    if (!ref.watch(appConfigProvider).enableMonetization) {
+      return const MonetizationOffScreen(
+        appBarTitle: 'AI credits',
+        icon: Icons.toll_outlined,
+        title: 'Credits aren’t available yet',
+        message: 'AI credits arrive with subscriptions.',
+      );
+    }
 
     return Scaffold(
       appBar: const QAppBar(title: 'AI credits'),
@@ -42,25 +62,48 @@ class CreditDashboardScreen extends ConsumerWidget {
         error: (Object error, StackTrace _) => QErrorView(
           failure: error is Failure
               ? error
-              : Failure.unexpected(code: ErrorCodes.apiUnexpected, message: '$error'),
+              : Failure.unexpected(
+                  code: ErrorCodes.apiUnexpected,
+                  message: '$error',
+                ),
           onRetry: () => ref.invalidate(creditBalanceProvider),
         ),
         data: (CreditBalance balance) => ListView(
           padding: QSpacing.pagePadding,
           children: <Widget>[
-            QCard(
-              child: Column(
-                children: <Widget>[
-                  Text(formatCount(balance.balance),
-                      style: Theme.of(context).textTheme.displaySmall),
-                  Text('credits available', style: Theme.of(context).textTheme.bodyMedium),
-                  Gap.v2,
-                  Text(
-                    '${formatCount(balance.lifetimeGranted)} granted · '
-                    '${formatCount(balance.lifetimeConsumed)} used',
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ],
+            // Gated on `ai_budget` — the one premium feature the server actually
+            // asserts (`AiUsageMeterService.checkQuota`). This is a real gate, not
+            // decoration: credits are only spendable through an AI request, so an
+            // account whose budget is denied — a deny override, a suspended standing —
+            // cannot spend one. Announcing a balance to someone the server will refuse
+            // on every request is the misleading half of the W3c-1 defect class; the
+            // lock replaces the number with the reason.
+            //
+            // `optimistic` because the free tier passes (`DEFAULT_PLAN_FEATURES` grants
+            // `ai_budget`), so the common case is a lock that never appears — and a
+            // flash of one on every open would be the only thing most readers ever see.
+            PremiumGate(
+              feature: PremiumFeature.aiBudget,
+              optimistic: true,
+              child: QCard(
+                child: Column(
+                  children: <Widget>[
+                    Text(
+                      formatCount(balance.balance),
+                      style: Theme.of(context).textTheme.displaySmall,
+                    ),
+                    Text(
+                      'credits available',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    Gap.v2,
+                    Text(
+                      '${formatCount(balance.lifetimeGranted)} granted · '
+                      '${formatCount(balance.lifetimeConsumed)} used',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
+                ),
               ),
             ),
             Gap.v4,
@@ -72,19 +115,25 @@ class CreditDashboardScreen extends ConsumerWidget {
                 onBuy: () => _buy(context, ref, pack.credits, pack.productId),
               ),
             Gap.v4,
-            Text('Recent activity', style: Theme.of(context).textTheme.titleMedium),
+            Text(
+              'Recent activity',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
             Gap.v2,
             ledgerAsync.when(
-              loading: () => const Center(child: Padding(
-                padding: EdgeInsets.all(16),
-                child: CircularProgressIndicator(),
-              )),
+              loading: () => const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(16),
+                  child: CircularProgressIndicator(),
+                ),
+              ),
               error: (_, _) => const Text('Could not load recent activity.'),
               data: (List<CreditTransaction> txns) => txns.isEmpty
                   ? const Text('No activity yet.')
                   : Column(
                       children: <Widget>[
-                        for (final CreditTransaction t in txns) _LedgerRow(txn: t),
+                        for (final CreditTransaction t in txns)
+                          _LedgerRow(txn: t),
                       ],
                     ),
             ),
@@ -94,8 +143,15 @@ class CreditDashboardScreen extends ConsumerWidget {
     );
   }
 
-  Future<void> _buy(BuildContext context, WidgetRef ref, int credits, String productId) async {
-    final SubscriptionController controller = ref.read(subscriptionControllerProvider.notifier);
+  Future<void> _buy(
+    BuildContext context,
+    WidgetRef ref,
+    int credits,
+    String productId,
+  ) async {
+    final SubscriptionController controller = ref.read(
+      subscriptionControllerProvider.notifier,
+    );
     try {
       final result = await controller.purchaseCredits(
         credits: credits,
@@ -103,14 +159,20 @@ class CreditDashboardScreen extends ConsumerWidget {
         productId: productId,
       );
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(result == null
-            ? _errorMessage(ref)
-            : 'Added ${formatCount(credits)} credits.'),
-      ));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            result == null
+                ? _errorMessage(ref)
+                : 'Added ${formatCount(credits)} credits.',
+          ),
+        ),
+      );
     } on StoreBillingUnavailable catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(e.message)));
       }
     }
   }
@@ -135,8 +197,10 @@ class _CreditPackTile extends ConsumerWidget {
         child: Row(
           children: <Widget>[
             Expanded(
-              child: Text('${formatCount(credits)} credits',
-                  style: Theme.of(context).textTheme.titleMedium),
+              child: Text(
+                '${formatCount(credits)} credits',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
             ),
             QButton(
               label: 'Buy',
@@ -156,11 +220,13 @@ class _LedgerRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color color = txn.isGrant ? Colors.green : Theme.of(context).colorScheme.onSurface;
+    final Color color = txn.isGrant
+        ? Colors.green
+        : Theme.of(context).colorScheme.onSurface;
     return ListTile(
       dense: true,
       contentPadding: EdgeInsets.zero,
-      title: Text(txn.reason.replaceAll('_', ' ')),
+      title: Text(creditReasonLabel(txn.reason)),
       subtitle: Text(formatDate(txn.createdAt)),
       trailing: Text(
         '${txn.isGrant ? '+' : ''}${txn.delta}',

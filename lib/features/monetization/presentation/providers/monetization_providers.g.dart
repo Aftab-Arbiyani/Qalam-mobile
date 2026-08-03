@@ -213,6 +213,15 @@ String _$storeBillingGatewayHash() =>
 /// The server-authoritative entitlement snapshot — the SINGLE thing premium UI gates
 /// on. Never throws: on a network failure it falls back to the last cached snapshot,
 /// then to the free-tier default, so gating always resolves (server re-checks anyway).
+///
+/// **A dark build answers the free-tier default without asking.** With
+/// `QALAM_ENABLE_MONETIZATION` down there is no premium surface to gate and no plan to
+/// report, so issuing the request would spend a round trip on an answer nothing reads —
+/// the same reasoning behind web's `enabled: isMonetizationEnabled()` (W4). The default
+/// denies every feature, which is the correct reading of "monetization is off" for a
+/// gate and, for the one feature the server enforces, matches what the meter does:
+/// `checkQuota` returns early when the platform flag is down, so nothing is withheld
+/// that the server would have granted.
 
 @ProviderFor(entitlementSnapshot)
 final entitlementSnapshotProvider = EntitlementSnapshotProvider._();
@@ -220,6 +229,15 @@ final entitlementSnapshotProvider = EntitlementSnapshotProvider._();
 /// The server-authoritative entitlement snapshot — the SINGLE thing premium UI gates
 /// on. Never throws: on a network failure it falls back to the last cached snapshot,
 /// then to the free-tier default, so gating always resolves (server re-checks anyway).
+///
+/// **A dark build answers the free-tier default without asking.** With
+/// `QALAM_ENABLE_MONETIZATION` down there is no premium surface to gate and no plan to
+/// report, so issuing the request would spend a round trip on an answer nothing reads —
+/// the same reasoning behind web's `enabled: isMonetizationEnabled()` (W4). The default
+/// denies every feature, which is the correct reading of "monetization is off" for a
+/// gate and, for the one feature the server enforces, matches what the meter does:
+/// `checkQuota` returns early when the platform flag is down, so nothing is withheld
+/// that the server would have granted.
 
 final class EntitlementSnapshotProvider
     extends
@@ -234,6 +252,15 @@ final class EntitlementSnapshotProvider
   /// The server-authoritative entitlement snapshot — the SINGLE thing premium UI gates
   /// on. Never throws: on a network failure it falls back to the last cached snapshot,
   /// then to the free-tier default, so gating always resolves (server re-checks anyway).
+  ///
+  /// **A dark build answers the free-tier default without asking.** With
+  /// `QALAM_ENABLE_MONETIZATION` down there is no premium surface to gate and no plan to
+  /// report, so issuing the request would spend a round trip on an answer nothing reads —
+  /// the same reasoning behind web's `enabled: isMonetizationEnabled()` (W4). The default
+  /// denies every feature, which is the correct reading of "monetization is off" for a
+  /// gate and, for the one feature the server enforces, matches what the meter does:
+  /// `checkQuota` returns early when the platform flag is down, so nothing is withheld
+  /// that the server would have granted.
   EntitlementSnapshotProvider._()
     : super(
         from: null,
@@ -261,86 +288,7 @@ final class EntitlementSnapshotProvider
 }
 
 String _$entitlementSnapshotHash() =>
-    r'ab53517630f91d3ec05c439de97b29f68ea93bd9';
-
-/// Whether the current user may use a premium [feature] (the gate widgets read this).
-
-@ProviderFor(premiumFeatureAllowed)
-final premiumFeatureAllowedProvider = PremiumFeatureAllowedFamily._();
-
-/// Whether the current user may use a premium [feature] (the gate widgets read this).
-
-final class PremiumFeatureAllowedProvider
-    extends $FunctionalProvider<AsyncValue<bool>, bool, FutureOr<bool>>
-    with $FutureModifier<bool>, $FutureProvider<bool> {
-  /// Whether the current user may use a premium [feature] (the gate widgets read this).
-  PremiumFeatureAllowedProvider._({
-    required PremiumFeatureAllowedFamily super.from,
-    required String super.argument,
-  }) : super(
-         retry: null,
-         name: r'premiumFeatureAllowedProvider',
-         isAutoDispose: true,
-         dependencies: null,
-         $allTransitiveDependencies: null,
-       );
-
-  @override
-  String debugGetCreateSourceHash() => _$premiumFeatureAllowedHash();
-
-  @override
-  String toString() {
-    return r'premiumFeatureAllowedProvider'
-        ''
-        '($argument)';
-  }
-
-  @$internal
-  @override
-  $FutureProviderElement<bool> $createElement($ProviderPointer pointer) =>
-      $FutureProviderElement(pointer);
-
-  @override
-  FutureOr<bool> create(Ref ref) {
-    final argument = this.argument as String;
-    return premiumFeatureAllowed(ref, argument);
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return other is PremiumFeatureAllowedProvider && other.argument == argument;
-  }
-
-  @override
-  int get hashCode {
-    return argument.hashCode;
-  }
-}
-
-String _$premiumFeatureAllowedHash() =>
-    r'2f264e715b4cf2b2387e57c1a1fb6d6217964331';
-
-/// Whether the current user may use a premium [feature] (the gate widgets read this).
-
-final class PremiumFeatureAllowedFamily extends $Family
-    with $FunctionalFamilyOverride<FutureOr<bool>, String> {
-  PremiumFeatureAllowedFamily._()
-    : super(
-        retry: null,
-        name: r'premiumFeatureAllowedProvider',
-        dependencies: null,
-        $allTransitiveDependencies: null,
-        isAutoDispose: true,
-      );
-
-  /// Whether the current user may use a premium [feature] (the gate widgets read this).
-
-  PremiumFeatureAllowedProvider call(String feature) =>
-      PremiumFeatureAllowedProvider._(argument: feature, from: this);
-
-  @override
-  String toString() => r'premiumFeatureAllowedProvider';
-}
+    r'dc2c6534cb0d8382bed860a3bf4409e90e1f3b83';
 
 /// The current subscription, or null when the user has none (free).
 
@@ -639,3 +587,115 @@ final class PaymentHistoryProvider
 }
 
 String _$paymentHistoryHash() => r'93107d2c086eb5c57847771d267ef0e3eedbcdb6';
+
+/// Recent purchases (first page) — credit packs and one-off buys, which are neither
+/// invoices nor payments and had no surface until the fourth billing tab existed.
+
+@ProviderFor(purchaseHistory)
+final purchaseHistoryProvider = PurchaseHistoryProvider._();
+
+/// Recent purchases (first page) — credit packs and one-off buys, which are neither
+/// invoices nor payments and had no surface until the fourth billing tab existed.
+
+final class PurchaseHistoryProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<Purchase>>,
+          List<Purchase>,
+          FutureOr<List<Purchase>>
+        >
+    with $FutureModifier<List<Purchase>>, $FutureProvider<List<Purchase>> {
+  /// Recent purchases (first page) — credit packs and one-off buys, which are neither
+  /// invoices nor payments and had no surface until the fourth billing tab existed.
+  PurchaseHistoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'purchaseHistoryProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$purchaseHistoryHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<List<Purchase>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<Purchase>> create(Ref ref) {
+    return purchaseHistory(ref);
+  }
+}
+
+String _$purchaseHistoryHash() => r'9f3f230e3ce7ab7d4d0532d74235b0fa6ba5427a';
+
+/// The subscription event log (first page) — plan changes, pauses, cancellations.
+///
+/// This endpoint used to answer 404 `SUBSCRIPTION_NOT_FOUND` for a viewer with no
+/// subscription, where its three sibling ledgers answer an empty page. It was fixed at
+/// the endpoint (owner-scoped by `user_id`, W4-1) and web's compensating client-side
+/// mapping was deleted with it — so a 404 here is now a real error and surfaces as one
+/// rather than being absorbed into an empty list.
+
+@ProviderFor(subscriptionEvents)
+final subscriptionEventsProvider = SubscriptionEventsProvider._();
+
+/// The subscription event log (first page) — plan changes, pauses, cancellations.
+///
+/// This endpoint used to answer 404 `SUBSCRIPTION_NOT_FOUND` for a viewer with no
+/// subscription, where its three sibling ledgers answer an empty page. It was fixed at
+/// the endpoint (owner-scoped by `user_id`, W4-1) and web's compensating client-side
+/// mapping was deleted with it — so a 404 here is now a real error and surfaces as one
+/// rather than being absorbed into an empty list.
+
+final class SubscriptionEventsProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<SubscriptionEvent>>,
+          List<SubscriptionEvent>,
+          FutureOr<List<SubscriptionEvent>>
+        >
+    with
+        $FutureModifier<List<SubscriptionEvent>>,
+        $FutureProvider<List<SubscriptionEvent>> {
+  /// The subscription event log (first page) — plan changes, pauses, cancellations.
+  ///
+  /// This endpoint used to answer 404 `SUBSCRIPTION_NOT_FOUND` for a viewer with no
+  /// subscription, where its three sibling ledgers answer an empty page. It was fixed at
+  /// the endpoint (owner-scoped by `user_id`, W4-1) and web's compensating client-side
+  /// mapping was deleted with it — so a 404 here is now a real error and surfaces as one
+  /// rather than being absorbed into an empty list.
+  SubscriptionEventsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'subscriptionEventsProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$subscriptionEventsHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<List<SubscriptionEvent>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<SubscriptionEvent>> create(Ref ref) {
+    return subscriptionEvents(ref);
+  }
+}
+
+String _$subscriptionEventsHash() =>
+    r'40ec428989736ac50f4752c125aa5fdcb437ac28';

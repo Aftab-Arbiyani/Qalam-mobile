@@ -97,6 +97,15 @@ class SettingsHubScreen extends ConsumerWidget {
                   subtitle: 'Invitations to collaborate on someone\'s story',
                   onTap: () => context.push(Routes.invitationsInbox),
                 ),
+                // The only entry point to `/settings/blocks`. Its data layer shipped
+                // with AF6 and reached no screen at all (defect **M-4**, docs/48 §3.3);
+                // a screen without this tile would be the same defect one layer up.
+                QSettingsTile(
+                  icon: Icons.shield_outlined,
+                  title: 'Safety',
+                  subtitle: 'Blocked and muted people, your account standing',
+                  onTap: () => context.push(Routes.settingsBlocks),
+                ),
               ],
             ),
           ],

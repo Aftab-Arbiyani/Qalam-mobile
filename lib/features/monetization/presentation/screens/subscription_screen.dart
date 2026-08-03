@@ -9,6 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/routes.dart';
+import '../../../../core/di/providers.dart';
 import '../../../../core/error/failure.dart';
 import '../../../../shared/domain/error_codes.dart';
 import '../../../../shared/theme/tokens/spacing_tokens.dart';
@@ -21,13 +22,26 @@ import '../../domain/entities/subscription.dart';
 import '../controllers/subscription_controller.dart';
 import '../monetization_format.dart';
 import '../providers/monetization_providers.dart';
+import '../widgets/monetization_off_screen.dart';
+import '../widgets/premium_gate.dart';
 
 class SubscriptionScreen extends ConsumerWidget {
   const SubscriptionScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final AsyncValue<Subscription?> async = ref.watch(currentSubscriptionProvider);
+    if (!ref.watch(appConfigProvider).enableMonetization) {
+      return const MonetizationOffScreen(
+        appBarTitle: 'Subscription',
+        icon: Icons.credit_card_outlined,
+        title: 'Plans aren’t available yet',
+        message: 'Subscriptions and AI credits arrive with the next release.',
+      );
+    }
+
+    final AsyncValue<Subscription?> async = ref.watch(
+      currentSubscriptionProvider,
+    );
     return Scaffold(
       appBar: const QAppBar(title: 'Subscription'),
       body: async.when(
@@ -35,7 +49,10 @@ class SubscriptionScreen extends ConsumerWidget {
         error: (Object error, StackTrace _) => QErrorView(
           failure: error is Failure
               ? error
-              : Failure.unexpected(code: ErrorCodes.apiUnexpected, message: '$error'),
+              : Failure.unexpected(
+                  code: ErrorCodes.apiUnexpected,
+                  message: '$error',
+                ),
           onRetry: () => ref.invalidate(currentSubscriptionProvider),
         ),
         data: (Subscription? sub) => RefreshIndicator(
@@ -56,8 +73,10 @@ class SubscriptionScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text('You are on the Free plan',
-              style: Theme.of(context).textTheme.titleLarge),
+          Text(
+            'You are on the Free plan',
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
           Gap.v1,
           const Text('Upgrade to unlock AI writing, discovery, and more.'),
           Gap.v3,
@@ -74,7 +93,11 @@ class SubscriptionScreen extends ConsumerWidget {
     ..._navTiles(context),
   ];
 
-  List<Widget> _subscribedBody(BuildContext context, WidgetRef ref, Subscription sub) {
+  List<Widget> _subscribedBody(
+    BuildContext context,
+    WidgetRef ref,
+    Subscription sub,
+  ) {
     final Widget? banner = _statusBanner(context, sub);
     return <Widget>[
       if (banner != null) ...<Widget>[banner, Gap.v3],
@@ -116,14 +139,16 @@ class SubscriptionScreen extends ConsumerWidget {
       return _Banner(
         color: cs.errorContainer,
         icon: Icons.lock_clock,
-        text: 'Your subscription has ended. Resubscribe to restore premium access.',
+        text:
+            'Your subscription has ended. Resubscribe to restore premium access.',
       );
     }
     if (sub.cancelAtPeriodEnd && sub.currentPeriodEnd != null) {
       return _Banner(
         color: cs.secondaryContainer,
         icon: Icons.event_busy,
-        text: 'Cancels on ${formatDate(sub.currentPeriodEnd!)}. You keep access until then.',
+        text:
+            'Cancels on ${formatDate(sub.currentPeriodEnd!)}. You keep access until then.',
       );
     }
     return null;
@@ -165,8 +190,18 @@ class _PlanSummaryCard extends StatelessWidget {
         children: <Widget>[
           Row(
             children: <Widget>[
-              Text('${planLabel(sub.tier)} plan',
-                  style: Theme.of(context).textTheme.titleLarge),
+              Text(
+                '${planLabel(sub.tier)} plan',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              // A marker, never a gate — it annotates the tier, it withholds nothing.
+              // Most of the AF5 catalogue is computed and asserted by nothing
+              // (docs/48 §5.2), so a badge is the honest treatment for everything but
+              // `ai_budget`; only that one gets a PremiumGate.
+              if (sub.tier != PlanTier.free) ...<Widget>[
+                const SizedBox(width: QSpacing.s2),
+                PremiumBadge(tier: sub.tier),
+              ],
               const Spacer(),
               Chip(
                 label: Text(subscriptionStatusLabel(sub.status)),
@@ -176,18 +211,24 @@ class _PlanSummaryCard extends StatelessWidget {
           ),
           if (sub.interval != BillingInterval.none) ...<Widget>[
             Gap.v1,
-            Text('Billed ${intervalLabel(sub.interval).toLowerCase()}',
-                style: Theme.of(context).textTheme.bodySmall),
+            Text(
+              'Billed ${intervalLabel(sub.interval).toLowerCase()}',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
           ],
           if (sub.currentPeriodEnd != null) ...<Widget>[
             Gap.v1,
-            Text('Renews ${formatDate(sub.currentPeriodEnd!)}',
-                style: Theme.of(context).textTheme.bodySmall),
+            Text(
+              'Renews ${formatDate(sub.currentPeriodEnd!)}',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
           ],
           if (sub.hasScheduledChange) ...<Widget>[
             Gap.v1,
-            Text('Scheduled change to ${planLabel(sub.scheduledTier!)} at period end.',
-                style: Theme.of(context).textTheme.bodySmall),
+            Text(
+              'Scheduled change to ${planLabel(sub.scheduledTier!)} at period end.',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
           ],
         ],
       ),
@@ -202,16 +243,17 @@ class _ActionsCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final AsyncValue<void> action = ref.watch(subscriptionControllerProvider);
-    final SubscriptionController controller =
-        ref.read(subscriptionControllerProvider.notifier);
+    final SubscriptionController controller = ref.read(
+      subscriptionControllerProvider.notifier,
+    );
     final bool busy = action.isLoading;
 
     Future<void> run(Future<bool> Function() op, String okMsg) async {
       final bool ok = await op();
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(ok ? okMsg : _errorMessage(ref))),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(ok ? okMsg : _errorMessage(ref))));
     }
 
     final List<Widget> actions = <Widget>[
@@ -223,51 +265,71 @@ class _ActionsCard extends ConsumerWidget {
     ];
 
     if (sub.isPaused) {
-      actions.add(QButton(
-        label: 'Resume',
-        block: true,
-        loading: busy,
-        variant: QButtonVariant.primary,
-        onPressed: busy ? null : () => run(controller.resume, 'Subscription resumed.'),
-      ));
+      actions.add(
+        QButton(
+          label: 'Resume',
+          block: true,
+          loading: busy,
+          variant: QButtonVariant.primary,
+          onPressed: busy
+              ? null
+              : () => run(controller.resume, 'Subscription resumed.'),
+        ),
+      );
     } else if (sub.cancelAtPeriodEnd || sub.isCanceled) {
-      actions.add(QButton(
-        label: 'Reactivate',
-        block: true,
-        loading: busy,
-        variant: QButtonVariant.primary,
-        onPressed: busy ? null : () => run(controller.reactivate, 'Subscription reactivated.'),
-      ));
+      actions.add(
+        QButton(
+          label: 'Reactivate',
+          block: true,
+          loading: busy,
+          variant: QButtonVariant.primary,
+          onPressed: busy
+              ? null
+              : () => run(controller.reactivate, 'Subscription reactivated.'),
+        ),
+      );
     } else if (sub.isActive) {
       actions
-        ..add(QButton(
-          label: 'Pause',
-          block: true,
-          onPressed: busy ? null : () => run(controller.pause, 'Subscription paused.'),
-        ))
-        ..add(QButton(
-          label: 'Cancel subscription',
-          block: true,
-          variant: QButtonVariant.danger,
-          onPressed: busy ? null : () => _confirmCancel(context, ref),
-        ));
+        ..add(
+          QButton(
+            label: 'Pause',
+            block: true,
+            onPressed: busy
+                ? null
+                : () => run(controller.pause, 'Subscription paused.'),
+          ),
+        )
+        ..add(
+          QButton(
+            label: 'Cancel subscription',
+            block: true,
+            variant: QButtonVariant.danger,
+            onPressed: busy ? null : () => _confirmCancel(context, ref),
+          ),
+        );
     }
-    actions.add(QButton(
-      label: 'Restore purchases',
-      block: true,
-      variant: QButtonVariant.ghost,
-      onPressed: busy
-          ? null
-          : () async {
-              final result = await controller.restore(provider: sub.provider);
-              if (!context.mounted) return;
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text(result == null
-                    ? _errorMessage(ref)
-                    : 'Restored ${result.restored} purchase(s).'),
-              ));
-            },
-    ));
+    actions.add(
+      QButton(
+        label: 'Restore purchases',
+        block: true,
+        variant: QButtonVariant.ghost,
+        onPressed: busy
+            ? null
+            : () async {
+                final result = await controller.restore(provider: sub.provider);
+                if (!context.mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      result == null
+                          ? _errorMessage(ref)
+                          : 'Restored ${result.restored} purchase(s).',
+                    ),
+                  ),
+                );
+              },
+      ),
+    );
 
     return QCard(
       child: Column(
@@ -290,16 +352,28 @@ class _ActionsCard extends ConsumerWidget {
           'You will keep premium access until the end of the current billing period.',
         ),
         actions: <Widget>[
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Keep')),
-          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Cancel plan')),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Keep'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Cancel plan'),
+          ),
         ],
       ),
     );
     if (confirm != true || !context.mounted) return;
-    final bool ok = await ref.read(subscriptionControllerProvider.notifier).cancel();
+    final bool ok = await ref
+        .read(subscriptionControllerProvider.notifier)
+        .cancel();
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(ok ? 'Subscription will cancel at period end.' : _errorMessage(ref))),
+      SnackBar(
+        content: Text(
+          ok ? 'Subscription will cancel at period end.' : _errorMessage(ref),
+        ),
+      ),
     );
   }
 
@@ -319,7 +393,10 @@ class _Banner extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(12)),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(12),
+      ),
       child: Row(
         children: <Widget>[
           Icon(icon, size: 20),
@@ -332,7 +409,11 @@ class _Banner extends StatelessWidget {
 }
 
 class _NavTile extends StatelessWidget {
-  const _NavTile({required this.icon, required this.label, required this.onTap});
+  const _NavTile({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
   final IconData icon;
   final String label;
   final VoidCallback onTap;
