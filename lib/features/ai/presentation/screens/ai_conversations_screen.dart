@@ -82,7 +82,28 @@ class _AiConversationsScreenState extends ConsumerState<AiConversationsScreen> {
         ),
         data: _content,
       ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => unawaited(_startConversation()),
+        icon: const Icon(Icons.add),
+        label: const Text('New conversation'),
+      ),
     );
+  }
+
+  Future<void> _startConversation() async {
+    final AiConversationSummary? created = await ref
+        .read(conversationsControllerProvider.notifier)
+        .create();
+    if (!mounted) return;
+    if (created == null) {
+      QSnackbar.show(
+        context,
+        message: 'Couldn’t start a conversation.',
+        variant: QSnackbarVariant.danger,
+      );
+      return;
+    }
+    unawaited(context.push(Routes.aiConversationPath(created.id)));
   }
 
   Widget _content(ConversationsState state) {

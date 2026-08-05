@@ -20,6 +20,7 @@ class PromptLibraryStore {
   static const String _kCustom = 'ai_prompt_custom';
   static const String _kHistory = 'ai_prompt_history';
   static const String _kPinnedConversations = 'ai_pinned_conversations';
+  static const String _kHistoryBindings = 'ai_history_bindings';
 
   /// Cap on remembered history entries (newest kept).
   static const int historyCap = 30;
@@ -42,14 +43,19 @@ class PromptLibraryStore {
     if (decoded is! List) return <PromptPreset>[];
     return decoded
         .whereType<Map<dynamic, dynamic>>()
-        .map((Map<dynamic, dynamic> m) => PromptPreset.fromJson(Map<String, dynamic>.from(m)))
+        .map(
+          (Map<dynamic, dynamic> m) =>
+              PromptPreset.fromJson(Map<String, dynamic>.from(m)),
+        )
         .toList(growable: false);
   }
 
   Future<void> setCustomPresets(List<PromptPreset> presets) => _box.put(
-        _kCustom,
-        jsonEncode(presets.map((PromptPreset p) => p.toJson()).toList(growable: false)),
-      );
+    _kCustom,
+    jsonEncode(
+      presets.map((PromptPreset p) => p.toJson()).toList(growable: false),
+    ),
+  );
 
   List<String> history() {
     final Object? raw = _box.get(_kHistory);
@@ -60,9 +66,9 @@ class PromptLibraryStore {
   }
 
   Future<void> setHistory(List<String> entries) => _box.put(
-        _kHistory,
-        jsonEncode(entries.take(historyCap).toList(growable: false)),
-      );
+    _kHistory,
+    jsonEncode(entries.take(historyCap).toList(growable: false)),
+  );
 
   Future<void> clearHistory() => _box.delete(_kHistory);
 
@@ -76,6 +82,34 @@ class PromptLibraryStore {
 
   Future<void> setPinnedConversationIds(Set<String> ids) =>
       _box.put(_kPinnedConversations, jsonEncode(ids.toList(growable: false)));
+
+  /// The conversation a draft's in-editor "Keep history" is bound to, or null.
+  /// Device-scoped, keyed by the draft's local route id — deliberately durable
+  /// (survives app restart) rather than session-only, the mobile analogue of
+  /// web's URL binding (`?conversation=<id>`, `use-assistant-conversation.ts`)
+  /// surviving a reload.
+  String? historyBinding(String draftId) => _historyBindings()[draftId];
+
+  /// Bind (or, with `null`, unbind) a draft's assistant session to a conversation.
+  Future<void> setHistoryBinding(String draftId, String? conversationId) {
+    final Map<String, String> bindings = _historyBindings();
+    if (conversationId == null) {
+      bindings.remove(draftId);
+    } else {
+      bindings[draftId] = conversationId;
+    }
+    return _box.put(_kHistoryBindings, jsonEncode(bindings));
+  }
+
+  Map<String, String> _historyBindings() {
+    final Object? raw = _box.get(_kHistoryBindings);
+    if (raw is! String) return <String, String>{};
+    final Object? decoded = _tryDecode(raw);
+    if (decoded is! Map) return <String, String>{};
+    return decoded.map(
+      (dynamic k, dynamic v) => MapEntry(k.toString(), v.toString()),
+    );
+  }
 
   static Object? _tryDecode(String raw) {
     try {

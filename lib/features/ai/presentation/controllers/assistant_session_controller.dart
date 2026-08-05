@@ -45,13 +45,12 @@ class AssistantSessionState {
     String? errorCode,
     bool clearSuggestion = false,
     bool clearError = false,
-  }) =>
-      AssistantSessionState(
-        phase: phase ?? this.phase,
-        action: action ?? this.action,
-        suggestion: clearSuggestion ? null : (suggestion ?? this.suggestion),
-        errorCode: clearError ? null : (errorCode ?? this.errorCode),
-      );
+  }) => AssistantSessionState(
+    phase: phase ?? this.phase,
+    action: action ?? this.action,
+    suggestion: clearSuggestion ? null : (suggestion ?? this.suggestion),
+    errorCode: clearError ? null : (errorCode ?? this.errorCode),
+  );
 }
 
 @riverpod
@@ -59,6 +58,7 @@ class AssistantSessionController extends _$AssistantSessionController {
   WritingAction? _lastAction;
   AiWritingContext? _lastContext;
   String? _lastInstruction;
+  String? _lastConversationId;
 
   @override
   AssistantSessionState build() => const AssistantSessionState();
@@ -66,17 +66,26 @@ class AssistantSessionController extends _$AssistantSessionController {
   /// Run a writing action, streaming the result. For the free-form "Ask AI" action
   /// pass [instruction] (the user's message); for quick actions the operand text is
   /// the message and [instruction] is ignored.
+  ///
+  /// [conversationId] is sent only when the writer has opted into keeping history
+  /// (the panel's "Keep history" control). Omitted, the server answers and stores
+  /// nothing — `persist()` returns early without one (`ai-completion.service.ts:338`)
+  /// — which is why mobile's conversations list could never fill (docs/48 §3.12,
+  /// W8-1). Present, it appends this turn to that conversation.
   Future<void> runAction(
     WritingAction action,
     AiWritingContext context, {
     String? instruction,
+    String? conversationId,
   }) async {
     _lastAction = action;
     _lastContext = context;
     _lastInstruction = instruction;
+    _lastConversationId = conversationId;
 
-    final String message =
-        action.kind == AssistantActionKind.freeform ? (instruction ?? '').trim() : context.operand;
+    final String message = action.kind == AssistantActionKind.freeform
+        ? (instruction ?? '').trim()
+        : context.operand;
     if (message.isEmpty) {
       state = state.copyWith(
         phase: AssistantPhase.error,
@@ -90,15 +99,21 @@ class AssistantSessionController extends _$AssistantSessionController {
 
     final AiCompletionRequest request = AiCompletionRequest(
       feature: AiFeatureIds.writingAssistant,
+      conversationId: conversationId,
       promptKey: action.promptKey,
-      promptVariables: action.promptVariables.isEmpty ? null : action.promptVariables,
+      promptVariables: action.promptVariables.isEmpty
+          ? null
+          : action.promptVariables,
       messages: <AiMessage>[AiMessage(role: 'user', content: message)],
       context: context.contextRequests(
         includeSelection: action.kind == AssistantActionKind.freeform,
       ),
     );
 
-    state = AssistantSessionState(phase: AssistantPhase.streaming, action: action);
+    state = AssistantSessionState(
+      phase: AssistantPhase.streaming,
+      action: action,
+    );
     ref.read(aiStreamControllerProvider.notifier).reset();
     await ref.read(aiStreamControllerProvider.notifier).start(request);
 
@@ -111,7 +126,12 @@ class AssistantSessionController extends _$AssistantSessionController {
     final WritingAction? action = _lastAction;
     final AiWritingContext? context = _lastContext;
     if (action == null || context == null) return;
-    await runAction(action, context, instruction: _lastInstruction);
+    await runAction(
+      action,
+      context,
+      instruction: _lastInstruction,
+      conversationId: _lastConversationId,
+    );
   }
 
   /// Cancel the in-flight generation (aborts the request).
@@ -124,7 +144,9 @@ class AssistantSessionController extends _$AssistantSessionController {
   void markApplied() {
     final AiSuggestion? current = state.suggestion;
     if (current == null) return;
-    state = state.copyWith(suggestion: current.withStatus(AiSuggestionStatus.applied));
+    state = state.copyWith(
+      suggestion: current.withStatus(AiSuggestionStatus.applied),
+    );
   }
 
   /// Discard the current suggestion (leaves the document untouched).
@@ -150,7 +172,10 @@ class AssistantSessionController extends _$AssistantSessionController {
       case AiStreamStatus.done:
         final String content = streamState.text.trim();
         if (content.isEmpty) {
-          state = state.copyWith(phase: AssistantPhase.error, errorCode: 'AI_EMPTY_OUTPUT');
+          state = state.copyWith(
+            phase: AssistantPhase.error,
+            errorCode: 'AI_EMPTY_OUTPUT',
+          );
           return;
         }
         final AiSuggestion suggestion = AiSuggestion(
@@ -168,7 +193,9 @@ class AssistantSessionController extends _$AssistantSessionController {
           },
           content: content,
           originalText: action.isContinuation ? '' : context.operand,
-          placement: action.defaultPlacement(hasSelection: context.hasSelection),
+          placement: action.defaultPlacement(
+            hasSelection: context.hasSelection,
+          ),
           createdAt: DateTime.now(),
           status: AiSuggestionStatus.ready,
           provider: streamState.provider ?? '',
@@ -186,7 +213,10 @@ class AssistantSessionController extends _$AssistantSessionController {
           errorCode: streamState.errorCode ?? 'AI_STREAM_ERROR',
         );
       case AiStreamStatus.cancelled:
-        state = state.copyWith(phase: AssistantPhase.idle, clearSuggestion: true);
+        state = state.copyWith(
+          phase: AssistantPhase.idle,
+          clearSuggestion: true,
+        );
       case AiStreamStatus.idle:
       case AiStreamStatus.streaming:
         state = state.copyWith(phase: AssistantPhase.idle);

@@ -57,14 +57,23 @@ class FormattingToolbar extends ConsumerWidget {
 
     // AI assistant entry — gated by the compile-time kill switch AND the server
     // `writing_assistant` flag (docs/34 §9). Hidden entirely when off.
-    final bool aiEnabled = ref.watch(appConfigProvider).enableAi &&
-        (ref.watch(aiFeaturesProvider).asData?.value.isEnabled(AiFeatureIds.writingAssistant) ??
+    final bool aiEnabled =
+        ref.watch(appConfigProvider).enableAi &&
+        (ref
+                .watch(aiFeaturesProvider)
+                .asData
+                ?.value
+                .isEnabled(AiFeatureIds.writingAssistant) ??
             false);
 
     void openAssistant() {
       QHaptics.selection();
       unawaited(
-        WritingAssistantPanel.show(context, target: DraftAiEditorTarget.build(ref, routeId)),
+        WritingAssistantPanel.show(
+          context,
+          target: DraftAiEditorTarget.build(ref, routeId),
+          routeId: routeId,
+        ),
       );
     }
 

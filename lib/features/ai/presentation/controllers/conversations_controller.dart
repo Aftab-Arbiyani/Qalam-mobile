@@ -9,6 +9,7 @@ import '../../../../core/error/failure.dart';
 import '../../../../core/utils/result.dart';
 import '../../../../shared/api/api_envelope.dart';
 import '../../domain/entities/ai_conversation.dart';
+import '../../domain/value_objects/ai_feature_ids.dart';
 import '../providers/ai_providers.dart';
 
 part 'conversations_controller.g.dart';
@@ -32,10 +33,12 @@ class ConversationsState {
 
   /// Pinned rows first (each group already newest-first from the server).
   List<AiConversationSummary> get ordered {
-    final List<AiConversationSummary> pinned =
-        items.where((AiConversationSummary c) => pinnedIds.contains(c.id)).toList();
-    final List<AiConversationSummary> rest =
-        items.where((AiConversationSummary c) => !pinnedIds.contains(c.id)).toList();
+    final List<AiConversationSummary> pinned = items
+        .where((AiConversationSummary c) => pinnedIds.contains(c.id))
+        .toList();
+    final List<AiConversationSummary> rest = items
+        .where((AiConversationSummary c) => !pinnedIds.contains(c.id))
+        .toList();
     return <AiConversationSummary>[...pinned, ...rest];
   }
 
@@ -45,14 +48,13 @@ class ConversationsState {
     String? nextCursor,
     bool? hasMore,
     bool? loadingMore,
-  }) =>
-      ConversationsState(
-        items: items ?? this.items,
-        pinnedIds: pinnedIds ?? this.pinnedIds,
-        nextCursor: nextCursor ?? this.nextCursor,
-        hasMore: hasMore ?? this.hasMore,
-        loadingMore: loadingMore ?? this.loadingMore,
-      );
+  }) => ConversationsState(
+    items: items ?? this.items,
+    pinnedIds: pinnedIds ?? this.pinnedIds,
+    nextCursor: nextCursor ?? this.nextCursor,
+    hasMore: hasMore ?? this.hasMore,
+    loadingMore: loadingMore ?? this.loadingMore,
+  );
 }
 
 @riverpod
@@ -69,11 +71,16 @@ class ConversationsController extends _$ConversationsController {
   }
 
   Future<CursorPage<AiConversationSummary>> _loadPage(String? cursor) async {
-    final Result<CursorPage<AiConversationSummary>> result =
-        await ref.read(aiRepositoryProvider).listConversations(cursor: cursor);
+    final Result<CursorPage<AiConversationSummary>> result = await ref
+        .read(aiRepositoryProvider)
+        .listConversations(cursor: cursor);
     return switch (result) {
-      Ok<CursorPage<AiConversationSummary>>(:final CursorPage<AiConversationSummary> value) => value,
-      Err<CursorPage<AiConversationSummary>>(:final Failure failure) => throw failure,
+      Ok<CursorPage<AiConversationSummary>>(
+        :final CursorPage<AiConversationSummary> value,
+      ) =>
+        value,
+      Err<CursorPage<AiConversationSummary>>(:final Failure failure) =>
+        throw failure,
     };
   }
 
@@ -86,15 +93,21 @@ class ConversationsController extends _$ConversationsController {
     if (current == null || !current.hasMore || current.loadingMore) return;
     state = AsyncData<ConversationsState>(current.copyWith(loadingMore: true));
     try {
-      final CursorPage<AiConversationSummary> page = await _loadPage(current.nextCursor);
-      state = AsyncData<ConversationsState>(current.copyWith(
-        items: <AiConversationSummary>[...current.items, ...page.items],
-        nextCursor: page.meta.nextCursor,
-        hasMore: page.hasMore,
-        loadingMore: false,
-      ));
+      final CursorPage<AiConversationSummary> page = await _loadPage(
+        current.nextCursor,
+      );
+      state = AsyncData<ConversationsState>(
+        current.copyWith(
+          items: <AiConversationSummary>[...current.items, ...page.items],
+          nextCursor: page.meta.nextCursor,
+          hasMore: page.hasMore,
+          loadingMore: false,
+        ),
+      );
     } on Object {
-      state = AsyncData<ConversationsState>(current.copyWith(loadingMore: false));
+      state = AsyncData<ConversationsState>(
+        current.copyWith(loadingMore: false),
+      );
     }
   }
 
@@ -107,9 +120,36 @@ class ConversationsController extends _$ConversationsController {
     state = AsyncData<ConversationsState>(current.copyWith(pinnedIds: next));
   }
 
+  /// Start a new conversation and prepend it to the list. Returns null on
+  /// failure so the caller can report it rather than navigating nowhere.
+  ///
+  /// Defect **W8-1** (`platfrom/docs/48` §3.12): `createConversation` existed in
+  /// every mobile AI layer with zero UI callers, so `GET /ai/conversations`
+  /// returned an empty page forever and the whole screen behind it was dead
+  /// code. This is the entry point that was missing.
+  Future<AiConversationSummary?> create({
+    String feature = AiFeatureIds.writingAssistant,
+  }) async {
+    final Result<AiConversationSummary> result = await ref
+        .read(aiRepositoryProvider)
+        .createConversation(feature: feature);
+    return result.fold((AiConversationSummary created) {
+      final ConversationsState? current = state.asData?.value;
+      if (current != null) {
+        state = AsyncData<ConversationsState>(
+          current.copyWith(
+            items: <AiConversationSummary>[created, ...current.items],
+          ),
+        );
+      }
+      return created;
+    }, (_) => null);
+  }
+
   Future<bool> rename(String id, String title) async {
-    final Result<AiConversationSummary> result =
-        await ref.read(aiRepositoryProvider).renameConversation(id, title);
+    final Result<AiConversationSummary> result = await ref
+        .read(aiRepositoryProvider)
+        .renameConversation(id, title);
     return result.fold((AiConversationSummary updated) {
       _replace(updated);
       return true;
@@ -132,7 +172,9 @@ class ConversationsController extends _$ConversationsController {
     if (current == null) return false;
     // Optimistic removal; restore on failure.
     _remove(id);
-    final Result<void> result = await ref.read(aiRepositoryProvider).deleteConversation(id);
+    final Result<void> result = await ref
+        .read(aiRepositoryProvider)
+        .deleteConversation(id);
     return result.fold((_) => true, (_) {
       state = AsyncData<ConversationsState>(current);
       return false;
@@ -142,20 +184,26 @@ class ConversationsController extends _$ConversationsController {
   void _replace(AiConversationSummary updated) {
     final ConversationsState? current = state.asData?.value;
     if (current == null) return;
-    state = AsyncData<ConversationsState>(current.copyWith(
-      items: current.items
-          .map((AiConversationSummary c) => c.id == updated.id ? updated : c)
-          .toList(growable: false),
-    ));
+    state = AsyncData<ConversationsState>(
+      current.copyWith(
+        items: current.items
+            .map((AiConversationSummary c) => c.id == updated.id ? updated : c)
+            .toList(growable: false),
+      ),
+    );
   }
 
   void _remove(String id) {
     final ConversationsState? current = state.asData?.value;
     if (current == null) return;
     final Set<String> pins = <String>{...current.pinnedIds}..remove(id);
-    state = AsyncData<ConversationsState>(current.copyWith(
-      items: current.items.where((AiConversationSummary c) => c.id != id).toList(growable: false),
-      pinnedIds: pins,
-    ));
+    state = AsyncData<ConversationsState>(
+      current.copyWith(
+        items: current.items
+            .where((AiConversationSummary c) => c.id != id)
+            .toList(growable: false),
+        pinnedIds: pins,
+      ),
+    );
   }
 }

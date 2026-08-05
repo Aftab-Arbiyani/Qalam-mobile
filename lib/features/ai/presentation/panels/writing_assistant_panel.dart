@@ -12,20 +12,26 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../app/router/routes.dart';
+import '../../../../core/utils/result.dart';
 import '../../../../shared/theme/q_tokens.dart';
 import '../../../../shared/theme/tokens/spacing_tokens.dart';
 import '../../../../shared/widgets/buttons/q_button.dart';
 import '../../../../shared/widgets/cards/q_chip.dart';
 import '../../../../shared/widgets/feedback/q_bottom_sheet.dart';
 import '../../../../shared/widgets/feedback/q_snackbar.dart';
+import '../../domain/entities/ai_conversation.dart';
 import '../../domain/entities/ai_suggestion.dart';
+import '../../domain/value_objects/ai_feature_ids.dart';
 import '../../domain/value_objects/prompt_preset.dart';
 import '../../domain/value_objects/writing_action.dart';
 import '../controllers/ai_stream_controller.dart';
 import '../controllers/assistant_session_controller.dart';
 import '../controllers/prompt_library_controller.dart';
 import '../editor/ai_editor_target.dart';
+import '../providers/ai_providers.dart';
 import '../support/ai_error_copy.dart';
 import '../support/ai_plans_link.dart';
 import '../widgets/ai_markdown.dart';
@@ -34,16 +40,26 @@ import '../widgets/suggestion_diff_view.dart';
 import '../widgets/token_usage_line.dart';
 
 class WritingAssistantPanel extends ConsumerStatefulWidget {
-  const WritingAssistantPanel({required this.target, super.key});
+  const WritingAssistantPanel({
+    required this.target,
+    required this.routeId,
+    super.key,
+  });
 
   final AiEditorTarget target;
+
+  /// The draft's local route id — keys the on-device "Keep history" binding
+  /// (docs/48 §3.12, W8-1). Never the server piece id: the binding is a
+  /// per-editing-session device preference, not a server-scoped resource.
+  final String routeId;
 
   static Future<void> show(
     BuildContext context, {
     required AiEditorTarget target,
+    required String routeId,
   }) => QBottomSheet.show<void>(
     context,
-    builder: (_) => WritingAssistantPanel(target: target),
+    builder: (_) => WritingAssistantPanel(target: target, routeId: routeId),
   );
 
   @override
@@ -56,9 +72,18 @@ class _WritingAssistantPanelState extends ConsumerState<WritingAssistantPanel> {
   bool _showDiff = false;
   AiApplyHandle? _applied;
 
+  /// The conversation this draft is currently bound to, or null — read from
+  /// the on-device store so "Keep history" survives closing and reopening
+  /// this sheet, not just this one open.
+  String? _conversationId;
+  bool _startingHistory = false;
+
   @override
   void initState() {
     super.initState();
+    _conversationId = ref
+        .read(promptLibraryStoreProvider)
+        .historyBinding(widget.routeId);
     // Fresh session per open.
     Future<void>.microtask(
       () => ref.read(assistantSessionControllerProvider.notifier).reset(),
@@ -95,6 +120,8 @@ class _WritingAssistantPanelState extends ConsumerState<WritingAssistantPanel> {
             _header(tokens),
             Gap.v2,
             _contextChip(tokens),
+            Gap.v2,
+            _keepHistoryRow(),
             Gap.v3,
             Flexible(child: _body(session)),
           ],
@@ -193,6 +220,61 @@ class _WritingAssistantPanelState extends ConsumerState<WritingAssistantPanel> {
           _historyRow(),
         ],
       ),
+    );
+  }
+
+  /// The opt-in that makes this session survive it (W8-1).
+  ///
+  /// Without a bound conversation the server answers and stores nothing —
+  /// `persist()` returns early when no `conversationId` was sent
+  /// (`ai-completion.service.ts:338`). That is why mobile's conversations
+  /// screen could never fill (docs/48 §3.12), and why the screen needs this
+  /// control to be worth having: it is what causes a conversation to gain
+  /// messages from the in-editor assistant. Opt-in rather than automatic:
+  /// persisting every turn by default would quietly build a server-side
+  /// transcript of a writer's drafts.
+  Widget _keepHistoryRow() {
+    final QTokens tokens = QTokens.of(context);
+    final String? id = _conversationId;
+    if (id != null) {
+      return Row(
+        children: <Widget>[
+          Expanded(
+            child: Text(
+              'Keeping this session’s history.',
+              style: TextStyle(
+                color: tokens.colors.textSecondary,
+                fontSize: 12,
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () => _viewConversation(id),
+            child: const Text('View'),
+          ),
+          TextButton(
+            onPressed: () => unawaited(_stopKeepingHistory()),
+            child: const Text('Stop keeping'),
+          ),
+        ],
+      );
+    }
+    return Row(
+      children: <Widget>[
+        Expanded(
+          child: Text(
+            'This session isn’t being saved.',
+            style: TextStyle(color: tokens.colors.textSecondary, fontSize: 12),
+          ),
+        ),
+        TextButton.icon(
+          onPressed: _startingHistory
+              ? null
+              : () => unawaited(_startKeepingHistory()),
+          icon: const Icon(Icons.history, size: 16),
+          label: const Text('Keep history'),
+        ),
+      ],
     );
   }
 
@@ -559,7 +641,11 @@ class _WritingAssistantPanelState extends ConsumerState<WritingAssistantPanel> {
     unawaited(
       ref
           .read(assistantSessionControllerProvider.notifier)
-          .runAction(action, widget.target.context),
+          .runAction(
+            action,
+            widget.target.context,
+            conversationId: _conversationId,
+          ),
     );
   }
 
@@ -576,8 +662,50 @@ class _WritingAssistantPanelState extends ConsumerState<WritingAssistantPanel> {
             WritingAction.of(AssistantActionKind.freeform),
             widget.target.context,
             instruction: instruction,
+            conversationId: _conversationId,
           ),
     );
+  }
+
+  Future<void> _startKeepingHistory() async {
+    setState(() => _startingHistory = true);
+    final Result<AiConversationSummary> result = await ref
+        .read(aiRepositoryProvider)
+        .createConversation(feature: AiFeatureIds.writingAssistant);
+    if (!mounted) return;
+    setState(() => _startingHistory = false);
+    result.fold(
+      (AiConversationSummary created) {
+        unawaited(
+          ref
+              .read(promptLibraryStoreProvider)
+              .setHistoryBinding(widget.routeId, created.id),
+        );
+        setState(() => _conversationId = created.id);
+      },
+      (_) => QSnackbar.show(
+        context,
+        message: 'Couldn’t start keeping history.',
+        variant: QSnackbarVariant.danger,
+      ),
+    );
+  }
+
+  Future<void> _stopKeepingHistory() async {
+    await ref
+        .read(promptLibraryStoreProvider)
+        .setHistoryBinding(widget.routeId, null);
+    if (!mounted) return;
+    setState(() => _conversationId = null);
+  }
+
+  /// Close the sheet, then open the conversation. Mirrors [openPlansFromSheet]:
+  /// the router is captured **before** the pop, since the sheet's [BuildContext]
+  /// is defunct once its route is gone.
+  void _viewConversation(String conversationId) {
+    final GoRouter router = GoRouter.of(context);
+    Navigator.of(context).maybePop();
+    unawaited(router.push(Routes.aiConversationPath(conversationId)));
   }
 
   Future<void> _pickImprove() async {
