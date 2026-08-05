@@ -1,0 +1,302 @@
+/// Regression guard for defect **W5-3** (`platfrom/docs/48` §3.9).
+///
+/// `app_router.dart` registered `/ai/explorer/:storyId` and `/ai/ask/:storyId`, and **no
+/// `push`/`go` site for either existed anywhere in `lib/`**. `AskBookScreen` was pushed
+/// from exactly one place — the Story Explorer's app bar — i.e. from a screen nobody
+/// could open. Both surfaces compiled, had tests, and could not be reached by a user;
+/// the AF4 readiness report's own manual-test steps say "deep-link `/ai/explorer/…`",
+/// which is the tell.
+///
+/// Third instance of the class: **R-1** registered six AF6 routes nothing navigated to,
+/// **M5-1** shipped `PremiumGate` with zero call sites, now this. So these tests assert
+/// what those defects slipped past — that a **user action opens the screen**, not that a
+/// route exists:
+///
+/// 1. **The entry point navigates and the real screen mounts.** Both routes are served by
+///    the actual `StoryExplorerScreen` / `AskBookScreen`, not stub targets, so a tap has
+///    to survive the whole push.
+/// 2. **The Explorer → Ask hop still works**, since that chain was the only thing keeping
+///    Ask alive and it must not regress into being the only thing again.
+/// 3. **The gates match the routes they open.** `GET /ai/explorer/:storyId/:view` is
+///    `ai.use` only; `POST /ai/ask` also needs `feature.ai.askBook`. Gating the explorer
+///    on askBook would hide a surface the server would serve — the mirror-image mistake.
+/// 4. **The app's own router serves both names**, closing the loop the other half opens.
+library;
+
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
+import 'package:qalam_mobile/app/router/app_router.dart';
+import 'package:qalam_mobile/app/router/routes.dart';
+import 'package:qalam_mobile/core/config/app_config.dart';
+import 'package:qalam_mobile/core/config/app_flavor.dart';
+import 'package:qalam_mobile/core/di/providers.dart';
+import 'package:qalam_mobile/features/ai/domain/entities/ai_feature_flag.dart';
+import 'package:qalam_mobile/features/ai/domain/value_objects/ai_feature_ids.dart';
+import 'package:qalam_mobile/features/ai/presentation/screens/ask_book_screen.dart';
+import 'package:qalam_mobile/features/ai/presentation/screens/story_explorer_screen.dart';
+import 'package:qalam_mobile/features/writing/domain/entities/draft.dart';
+import 'package:qalam_mobile/features/writing/presentation/controllers/current_draft_controller.dart';
+import 'package:qalam_mobile/features/writing/presentation/providers/writing_providers.dart';
+import 'package:qalam_mobile/features/writing/presentation/screens/editor_screen.dart';
+import 'package:qalam_mobile/shared/theme/app_theme.dart';
+
+import '../../support/fake_ai_repository.dart';
+import '../../support/fake_writing.dart';
+import '../../support/harness.dart';
+
+const AppConfig _aiOn = AppConfig(
+  flavor: AppFlavor.development,
+  apiUrl: 'http://localhost:4000',
+  cdnUrl: '',
+  webUrl: '',
+  sentryDsn: '',
+  enablePush: false,
+  enableAi: true,
+  enableMonetization: false,
+  enableCollaboration: false,
+);
+
+/// `storyId === pieceId` server-side, so the routes take the draft's **remoteId**. A draft
+/// that has never synced has no story to explore, which is what hides the entries.
+const String _remoteId = 'a1b2c3d4-0000-4000-8000-000000000001';
+const String _localId = 'loc-1';
+
+Draft _draft({String? remoteId = _remoteId}) => Draft(
+  localId: _localId,
+  remoteId: remoteId,
+  title: 'The Cartographer',
+  languageCode: 'en',
+  wordCount: 4,
+  content: const <String, dynamic>{
+    'type': 'doc',
+    'content': <dynamic>[
+      <String, dynamic>{
+        'type': 'paragraph',
+        'content': <dynamic>[
+          <String, dynamic>{'type': 'text', 'text': 'once upon a time'},
+        ],
+      },
+    ],
+  },
+  createdAt: DateTime.utc(2026, 7),
+  localUpdatedAt: DateTime.utc(2026, 7, 2),
+);
+
+AiFeatures _features({required bool askBook}) => AiFeatures(
+  aiEnabled: true,
+  features: <AiFeatureFlag>[
+    // The editor's AI group is gated on these two; without one of them the overflow's
+    // whole AI section is absent and the AF4 group would have nothing to sit under.
+    const AiFeatureFlag(
+      feature: AiFeatureIds.writingAssistant,
+      flagKey: 'feature.ai.writingAssistant.enabled',
+      enabled: true,
+    ),
+    AiFeatureFlag(
+      feature: AiFeatureIds.askBook,
+      flagKey: 'feature.ai.askBook.enabled',
+      enabled: askBook,
+    ),
+  ],
+);
+
+/// The editor mounted inside a router that serves the two **real** AF4 screens.
+Future<void> _pumpEditor(
+  WidgetTester tester, {
+  AppConfig config = _aiOn,
+  bool askBook = true,
+  String? remoteId = _remoteId,
+}) async {
+  tester.view.physicalSize = const Size(700, 2200);
+  tester.view.devicePixelRatio = 1.0;
+  addTearDown(tester.view.reset);
+
+  late final ProviderContainer container;
+  await tester.runAsync(() async {
+    container = await buildTestContainer(
+      config: config,
+      pieceEditorRepository: FakePieceEditorRepository(),
+      taxonomyRepository: FakeTaxonomyRepository(),
+      aiRepository: FakeAiRepository(features: _features(askBook: askBook)),
+    );
+    // No debounced autosave timers bleeding across tests.
+    await container.read(preferencesStoreProvider).setEditorAutosave(false);
+    await container
+        .read(draftLocalDataSourceProvider)
+        .write(_draft(remoteId: remoteId));
+    container.listen(currentDraftControllerProvider(_localId), (_, _) {});
+    await container.read(currentDraftControllerProvider(_localId).future);
+  });
+  addTearDown(container.dispose);
+
+  final GoRouter router = GoRouter(
+    initialLocation: '${Routes.write}/$_localId',
+    routes: <RouteBase>[
+      GoRoute(
+        path: '${Routes.write}/:id',
+        builder: (_, GoRouterState s) =>
+            EditorScreen(draftId: s.pathParameters['id'] ?? ''),
+      ),
+      GoRoute(
+        path: '${Routes.aiExplorer}/:storyId',
+        builder: (_, GoRouterState s) =>
+            StoryExplorerScreen(storyId: s.pathParameters['storyId'] ?? ''),
+      ),
+      GoRoute(
+        path: '${Routes.aiAsk}/:storyId',
+        builder: (_, GoRouterState s) =>
+            AskBookScreen(storyId: s.pathParameters['storyId'] ?? ''),
+      ),
+    ],
+  );
+  addTearDown(router.dispose);
+
+  await tester.pumpWidget(
+    UncontrolledProviderScope(
+      container: container,
+      child: MaterialApp.router(
+        theme: buildQalamTheme(brightness: Brightness.light),
+        routerConfig: router,
+      ),
+    ),
+  );
+  await settleFrames(tester);
+}
+
+Future<void> _openOverflow(WidgetTester tester) async {
+  await tester.tap(find.byIcon(Icons.more_vert));
+  await tester.pumpAndSettle();
+}
+
+void main() {
+  group('Story Explorer is reachable by a user (W5-3)', () {
+    testWidgets('the editor overflow opens the real explorer for this story', (
+      WidgetTester tester,
+    ) async {
+      await _pumpEditor(tester);
+      await _openOverflow(tester);
+
+      expect(find.text('Story explorer'), findsOneWidget);
+      await tester.tap(find.text('Story explorer'));
+      await tester.pumpAndSettle();
+
+      // The screen itself, not a stub target — a tap that 404s the route or throws on
+      // build would fail here rather than pass as "navigated".
+      final StoryExplorerScreen screen = tester.widget<StoryExplorerScreen>(
+        find.byType(StoryExplorerScreen),
+      );
+      // The SERVER piece id. `widget.draftId` is the local route id and the endpoint's
+      // `ParseUUIDPipe` would reject it — the same trap the AF6 group documents.
+      expect(screen.storyId, _remoteId);
+      expect(find.text('Story Explorer'), findsOneWidget);
+    });
+  });
+
+  group('Ask My Book is reachable by a user (W5-3)', () {
+    testWidgets('the editor overflow opens it directly', (
+      WidgetTester tester,
+    ) async {
+      await _pumpEditor(tester);
+      await _openOverflow(tester);
+
+      expect(find.text('Ask my book'), findsOneWidget);
+      await tester.tap(find.text('Ask my book'));
+      await tester.pumpAndSettle();
+
+      final AskBookScreen screen = tester.widget<AskBookScreen>(
+        find.byType(AskBookScreen),
+      );
+      expect(screen.storyId, _remoteId);
+      expect(find.text('Ask My Book'), findsOneWidget);
+    });
+
+    testWidgets(
+      'and the Explorer hop that used to be its only door still works',
+      (WidgetTester tester) async {
+        await _pumpEditor(tester);
+        await _openOverflow(tester);
+        await tester.tap(find.text('Story explorer'));
+        await tester.pumpAndSettle();
+
+        await tester.tap(find.byTooltip('Ask about this story'));
+        await tester.pumpAndSettle();
+
+        expect(find.byType(AskBookScreen), findsOneWidget);
+        expect(
+          tester.widget<AskBookScreen>(find.byType(AskBookScreen)).storyId,
+          _remoteId,
+        );
+      },
+    );
+  });
+
+  group('the entries respect the gates their routes carry (W5-3)', () {
+    testWidgets('askBook down hides Ask and keeps the Explorer', (
+      WidgetTester tester,
+    ) async {
+      // The asymmetry is the point: the explorer route is `ai.use` only and renders from
+      // the graph with no LLM, so hiding it behind askBook would withhold a surface the
+      // server would have served.
+      await _pumpEditor(tester, askBook: false);
+      await _openOverflow(tester);
+
+      expect(find.text('Story explorer'), findsOneWidget);
+      expect(find.text('Ask my book'), findsNothing);
+    });
+
+    testWidgets('a draft that never synced offers neither', (
+      WidgetTester tester,
+    ) async {
+      await _pumpEditor(tester, remoteId: null);
+      await _openOverflow(tester);
+
+      expect(find.text('Story explorer'), findsNothing);
+      expect(find.text('Ask my book'), findsNothing);
+    });
+
+    testWidgets('a build with AI dark offers neither', (
+      WidgetTester tester,
+    ) async {
+      await _pumpEditor(tester, config: testConfig);
+      await _openOverflow(tester);
+
+      expect(find.text('Story explorer'), findsNothing);
+      expect(find.text('Ask my book'), findsNothing);
+      // And the AI management group is gone with it, so this is the kill switch working
+      // rather than the new entries being special-cased.
+      expect(find.text('AI conversations'), findsNothing);
+    });
+  });
+
+  group('the app router serves both paths (W5-3)', () {
+    test('namedLocation resolves aiExplorer and aiAsk', () async {
+      // The other half of the loop. `namedLocation` throws for an unregistered name, so
+      // this fails loudly if a route is dropped while the menu entry survives.
+      final ProviderContainer container = await buildTestContainer(
+        config: _aiOn,
+      );
+      addTearDown(container.dispose);
+
+      final GoRouter router = container.read(goRouterProvider);
+      expect(
+        router.namedLocation(
+          'aiExplorer',
+          pathParameters: <String, String>{'storyId': _remoteId},
+        ),
+        Routes.aiExplorerPath(_remoteId),
+      );
+      expect(
+        router.namedLocation(
+          'aiAsk',
+          pathParameters: <String, String>{'storyId': _remoteId},
+        ),
+        Routes.aiAskPath(_remoteId),
+      );
+      // Both are session-gated, like every other `/ai` surface.
+      expect(Routes.isProtected(Routes.aiExplorerPath(_remoteId)), isTrue);
+      expect(Routes.isProtected(Routes.aiAskPath(_remoteId)), isTrue);
+    });
+  });
+}

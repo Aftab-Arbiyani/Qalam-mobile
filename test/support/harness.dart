@@ -298,6 +298,11 @@ Future<ProviderContainer> buildTestContainer({
   Map<String, String>? tokens,
   bool onboardingComplete = true,
   bool rememberMe = false,
+
+  /// Build-time flags. Defaults to [testConfig] (every feature dark); pass a config
+  /// with `enableAi`/`enableCollaboration`/`enableMonetization` on to exercise a
+  /// surface that is gated behind one.
+  AppConfig config = testConfig,
   AuthRepository? authRepository,
   FeedRepository? feedRepository,
   DiscoveryRepository? discoveryRepository,
@@ -335,7 +340,7 @@ Future<ProviderContainer> buildTestContainer({
 
   return ProviderContainer(
     overrides: [
-      appConfigProvider.overrideWithValue(testConfig),
+      appConfigProvider.overrideWithValue(config),
       appLoggerProvider.overrideWithValue(
         AppLogger(flavor: AppFlavor.development),
       ),
