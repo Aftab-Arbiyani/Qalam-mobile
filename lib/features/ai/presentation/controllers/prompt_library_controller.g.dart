@@ -42,7 +42,7 @@ final class PromptLibraryControllerProvider
 }
 
 String _$promptLibraryControllerHash() =>
-    r'4d8e0a929d554757e1ce8f654fcd506b23217df4';
+    r'10fd234a7f550e48a57e716219677fd537dd9732';
 
 abstract class _$PromptLibraryController extends $Notifier<PromptLibraryState> {
   PromptLibraryState build();

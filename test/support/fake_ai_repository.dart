@@ -26,6 +26,7 @@ class FakeAiRepository implements AiRepository {
     List<AskStreamEvent>? askStreamEvents,
     ExplorerViewResult? explorer,
     RecommendationResponse? recommendations,
+    this.recommendationsFailure,
   }) : streamEvents = streamEvents ?? const <AiStreamEvent>[],
        _completion = completion,
        _features = features,
@@ -56,6 +57,12 @@ class FakeAiRepository implements AiRepository {
 
   /// When set, every call fails with this failure.
   final Failure? failure;
+
+  /// When set, ONLY [recommendations] fails with this — lets a test fail the
+  /// recommendation fetch specifically while `features()` still succeeds
+  /// (falls back to [failure] when unset, so every existing caller is
+  /// unaffected).
+  final Failure? recommendationsFailure;
 
   // Recorded inputs for assertions.
   AiCompletionRequest? lastCompletionRequest;
@@ -311,7 +318,10 @@ class FakeAiRepository implements AiRepository {
     RecommendationQuery query,
   ) async {
     lastRecommendationQuery = query;
-    if (failure != null) return Err<RecommendationResponse>(failure!);
+    final Failure? effectiveFailure = recommendationsFailure ?? failure;
+    if (effectiveFailure != null) {
+      return Err<RecommendationResponse>(effectiveFailure);
+    }
     return Ok<RecommendationResponse>(
       _recommendations ??
           RecommendationResponse(

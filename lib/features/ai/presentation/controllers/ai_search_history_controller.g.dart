@@ -42,7 +42,7 @@ final class AiSearchHistoryControllerProvider
 }
 
 String _$aiSearchHistoryControllerHash() =>
-    r'e90be5362940a99d6b0eefa5c3df7e4a964b7f5e';
+    r'b2947aaf586eb4897e73e048e3c41bd26eb2c9b3';
 
 abstract class _$AiSearchHistoryController extends $Notifier<List<String>> {
   List<String> build();

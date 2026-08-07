@@ -1,14 +1,21 @@
-/// The reader's "More like this" section (docs/48 §3.1, docs/41 §11.19) — up to
-/// four other pieces sharing this one's FIRST tag, at the end of the reader.
+/// The reader's "More like this" section (docs/48 §3.9, W5-2 upgrade; docs/41
+/// §11.19) — up to four pieces to read next, at the end of the reader.
+///
+/// The items come from the AF4 recommender for a signed-in reader and from a tag
+/// search otherwise (`relatedSuggestionsProvider` decides — see its docs for the
+/// full rule). When a suggestion carries a `reason`, it renders under the title
+/// and author line: a recommendation that does not say why it was recommended is
+/// just a list, and AF4's whole design law is that every result explains itself.
+/// The tag-search fallback has no reason to give and shows none.
 ///
 /// A compact link list, deliberately **not** the feed's `PieceCard`: the card is
 /// the feed unit (cover, excerpt, stats, its own padding) and would out-weigh the
 /// piece the reader is actually on. Same information as web ships: title, author,
-/// read time.
+/// read time, reason.
 ///
 /// Renders nothing at all — no heading, no skeleton, no error — when there is
-/// nothing to suggest: an untagged piece, a failed load, or an empty result. It
-/// must never cost the reader the piece they came for.
+/// nothing to suggest: neither source usable, a failed load, or an empty result.
+/// It must never cost the reader the piece they came for.
 library;
 
 import 'package:flutter/material.dart';
@@ -16,7 +23,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/routes.dart';
-import '../../../../shared/domain/entities/piece_summary.dart';
 import '../../../../shared/domain/entities/taxonomy.dart';
 import '../../../../shared/domain/enums.dart';
 import '../../../../shared/theme/q_tokens.dart';
@@ -33,16 +39,13 @@ class RelatedPieces extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // No tags → no section, and no request either (web disables the query).
     final TagRef? tag = piece.tags.isEmpty ? null : piece.tags.first;
-    if (tag == null || tag.slug.isEmpty) return const SizedBox.shrink();
-
-    final List<PieceSummary> related =
+    final List<RelatedSuggestion> related =
         ref
-            .watch(relatedPiecesProvider((pieceId: piece.id, tag: tag)))
+            .watch(relatedSuggestionsProvider((pieceId: piece.id, tag: tag)))
             .asData
             ?.value ??
-        const <PieceSummary>[];
+        const <RelatedSuggestion>[];
     if (related.isEmpty) return const SizedBox.shrink();
 
     final QTokens tokens = QTokens.of(context);
@@ -67,11 +70,11 @@ class RelatedPieces extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                for (final (int i, PieceSummary p)
+                for (final (int i, RelatedSuggestion s)
                     in related.indexed) ...<Widget>[
                   if (i > 0)
                     Divider(height: QSpacing.s4, color: tokens.colors.border),
-                  _RelatedTile(piece: p),
+                  _RelatedTile(suggestion: s),
                 ],
               ],
             ),
@@ -83,14 +86,15 @@ class RelatedPieces extends ConsumerWidget {
 }
 
 class _RelatedTile extends StatelessWidget {
-  const _RelatedTile({required this.piece});
+  const _RelatedTile({required this.suggestion});
 
-  final PieceSummary piece;
+  final RelatedSuggestion suggestion;
 
   @override
   Widget build(BuildContext context) {
     final QTokens tokens = QTokens.of(context);
     final ThemeData theme = Theme.of(context);
+    final piece = suggestion.piece;
     final TextDirection dir = piece.direction == TextDirectionKind.rtl
         ? TextDirection.rtl
         : TextDirection.ltr;
@@ -99,6 +103,7 @@ class _RelatedTile extends StatelessWidget {
       piece.author.displayName,
       if (readTime.isNotEmpty) readTime,
     ].join('  ·  ');
+    final String? reason = suggestion.reason;
 
     return Semantics(
       button: true,
@@ -128,6 +133,17 @@ class _RelatedTile extends StatelessWidget {
                   color: tokens.colors.textSecondary,
                 ),
               ),
+              if (reason != null && reason.isNotEmpty) ...<Widget>[
+                Gap.v1,
+                Text(
+                  reason,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: tokens.colors.textMuted,
+                  ),
+                ),
+              ],
             ],
           ),
         ),

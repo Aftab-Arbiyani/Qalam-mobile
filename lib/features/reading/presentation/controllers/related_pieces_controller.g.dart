@@ -9,55 +9,63 @@ part of 'related_pieces_controller.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
-@ProviderFor(relatedPieces)
-final relatedPiecesProvider = RelatedPiecesFamily._();
+@ProviderFor(relatedSuggestions)
+final relatedSuggestionsProvider = RelatedSuggestionsFamily._();
 
-final class RelatedPiecesProvider
+final class RelatedSuggestionsProvider
     extends
         $FunctionalProvider<
-          AsyncValue<List<PieceSummary>>,
-          List<PieceSummary>,
-          FutureOr<List<PieceSummary>>
+          AsyncValue<List<RelatedSuggestion>>,
+          AsyncValue<List<RelatedSuggestion>>,
+          AsyncValue<List<RelatedSuggestion>>
         >
-    with
-        $FutureModifier<List<PieceSummary>>,
-        $FutureProvider<List<PieceSummary>> {
-  RelatedPiecesProvider._({
-    required RelatedPiecesFamily super.from,
-    required RelatedPiecesArgs super.argument,
+    with $Provider<AsyncValue<List<RelatedSuggestion>>> {
+  RelatedSuggestionsProvider._({
+    required RelatedSuggestionsFamily super.from,
+    required RelatedSuggestionsArgs super.argument,
   }) : super(
          retry: null,
-         name: r'relatedPiecesProvider',
+         name: r'relatedSuggestionsProvider',
          isAutoDispose: true,
          dependencies: null,
          $allTransitiveDependencies: null,
        );
 
   @override
-  String debugGetCreateSourceHash() => _$relatedPiecesHash();
+  String debugGetCreateSourceHash() => _$relatedSuggestionsHash();
 
   @override
   String toString() {
-    return r'relatedPiecesProvider'
+    return r'relatedSuggestionsProvider'
         ''
         '($argument)';
   }
 
   @$internal
   @override
-  $FutureProviderElement<List<PieceSummary>> $createElement(
+  $ProviderElement<AsyncValue<List<RelatedSuggestion>>> $createElement(
     $ProviderPointer pointer,
-  ) => $FutureProviderElement(pointer);
+  ) => $ProviderElement(pointer);
 
   @override
-  FutureOr<List<PieceSummary>> create(Ref ref) {
-    final argument = this.argument as RelatedPiecesArgs;
-    return relatedPieces(ref, argument);
+  AsyncValue<List<RelatedSuggestion>> create(Ref ref) {
+    final argument = this.argument as RelatedSuggestionsArgs;
+    return relatedSuggestions(ref, argument);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(AsyncValue<List<RelatedSuggestion>> value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<AsyncValue<List<RelatedSuggestion>>>(
+        value,
+      ),
+    );
   }
 
   @override
   bool operator ==(Object other) {
-    return other is RelatedPiecesProvider && other.argument == argument;
+    return other is RelatedSuggestionsProvider && other.argument == argument;
   }
 
   @override
@@ -66,26 +74,137 @@ final class RelatedPiecesProvider
   }
 }
 
-String _$relatedPiecesHash() => r'5f235c959f37e70e20ba4474896f1f632aa20682';
+String _$relatedSuggestionsHash() =>
+    r'34ac0e5ce35dee52ae39dcc7591d947992f499e9';
 
-final class RelatedPiecesFamily extends $Family
+final class RelatedSuggestionsFamily extends $Family
     with
         $FunctionalFamilyOverride<
-          FutureOr<List<PieceSummary>>,
-          RelatedPiecesArgs
+          AsyncValue<List<RelatedSuggestion>>,
+          RelatedSuggestionsArgs
         > {
-  RelatedPiecesFamily._()
+  RelatedSuggestionsFamily._()
     : super(
         retry: null,
-        name: r'relatedPiecesProvider',
+        name: r'relatedSuggestionsProvider',
         dependencies: null,
         $allTransitiveDependencies: null,
         isAutoDispose: true,
       );
 
-  RelatedPiecesProvider call(RelatedPiecesArgs args) =>
-      RelatedPiecesProvider._(argument: args, from: this);
+  RelatedSuggestionsProvider call(RelatedSuggestionsArgs args) =>
+      RelatedSuggestionsProvider._(argument: args, from: this);
 
   @override
-  String toString() => r'relatedPiecesProvider';
+  String toString() => r'relatedSuggestionsProvider';
+}
+
+/// The tag search itself — a self-contained `Future` provider with exactly one
+/// upstream dependency ([readingRepositoryProvider]), and one that never rejects
+/// (a failed [Result] resolves to an empty list rather than throwing), so it
+/// carries none of the `.future`-across-autoDispose-providers risk documented on
+/// [relatedSuggestions].
+
+@ProviderFor(_tagSearch)
+final _tagSearchProvider = _TagSearchFamily._();
+
+/// The tag search itself — a self-contained `Future` provider with exactly one
+/// upstream dependency ([readingRepositoryProvider]), and one that never rejects
+/// (a failed [Result] resolves to an empty list rather than throwing), so it
+/// carries none of the `.future`-across-autoDispose-providers risk documented on
+/// [relatedSuggestions].
+
+final class _TagSearchProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<RelatedSuggestion>>,
+          List<RelatedSuggestion>,
+          FutureOr<List<RelatedSuggestion>>
+        >
+    with
+        $FutureModifier<List<RelatedSuggestion>>,
+        $FutureProvider<List<RelatedSuggestion>> {
+  /// The tag search itself — a self-contained `Future` provider with exactly one
+  /// upstream dependency ([readingRepositoryProvider]), and one that never rejects
+  /// (a failed [Result] resolves to an empty list rather than throwing), so it
+  /// carries none of the `.future`-across-autoDispose-providers risk documented on
+  /// [relatedSuggestions].
+  _TagSearchProvider._({
+    required _TagSearchFamily super.from,
+    required _TagSearchArgs super.argument,
+  }) : super(
+         retry: null,
+         name: r'_tagSearchProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$_tagSearchHash();
+
+  @override
+  String toString() {
+    return r'_tagSearchProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<List<RelatedSuggestion>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<RelatedSuggestion>> create(Ref ref) {
+    final argument = this.argument as _TagSearchArgs;
+    return _tagSearch(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is _TagSearchProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$_tagSearchHash() => r'08f38f2454baaa24c234a203aaf788980797fdfd';
+
+/// The tag search itself — a self-contained `Future` provider with exactly one
+/// upstream dependency ([readingRepositoryProvider]), and one that never rejects
+/// (a failed [Result] resolves to an empty list rather than throwing), so it
+/// carries none of the `.future`-across-autoDispose-providers risk documented on
+/// [relatedSuggestions].
+
+final class _TagSearchFamily extends $Family
+    with
+        $FunctionalFamilyOverride<
+          FutureOr<List<RelatedSuggestion>>,
+          _TagSearchArgs
+        > {
+  _TagSearchFamily._()
+    : super(
+        retry: null,
+        name: r'_tagSearchProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// The tag search itself — a self-contained `Future` provider with exactly one
+  /// upstream dependency ([readingRepositoryProvider]), and one that never rejects
+  /// (a failed [Result] resolves to an empty list rather than throwing), so it
+  /// carries none of the `.future`-across-autoDispose-providers risk documented on
+  /// [relatedSuggestions].
+
+  _TagSearchProvider call(_TagSearchArgs args) =>
+      _TagSearchProvider._(argument: args, from: this);
+
+  @override
+  String toString() => r'_tagSearchProvider';
 }
