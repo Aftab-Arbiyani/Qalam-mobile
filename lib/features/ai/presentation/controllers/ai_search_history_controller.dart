@@ -15,15 +15,21 @@ class AiSearchHistoryController extends _$AiSearchHistoryController {
   List<String> build() => ref.watch(aiSearchHistoryStoreProvider).readAll();
 
   Future<void> record(String query) async {
-    state = await ref.read(aiSearchHistoryStoreProvider).add(query);
+    final List<String> next = await ref
+        .read(aiSearchHistoryStoreProvider)
+        .add(query);
+    if (ref.mounted) state = next;
   }
 
   Future<void> remove(String query) async {
-    state = await ref.read(aiSearchHistoryStoreProvider).remove(query);
+    final List<String> next = await ref
+        .read(aiSearchHistoryStoreProvider)
+        .remove(query);
+    if (ref.mounted) state = next;
   }
 
   Future<void> clear() async {
     await ref.read(aiSearchHistoryStoreProvider).clear();
-    state = const <String>[];
+    if (ref.mounted) state = const <String>[];
   }
 }
