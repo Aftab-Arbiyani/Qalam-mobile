@@ -28,6 +28,7 @@ import '../../../../shared/widgets/states/q_error_view.dart';
 import '../../../ai/domain/entities/ai_feature_flag.dart';
 import '../../../ai/domain/value_objects/ai_feature_ids.dart';
 import '../../../ai/presentation/panels/craft_coach_panel.dart';
+import '../../../ai/presentation/panels/writing_assistant_panel.dart';
 import '../../../ai/presentation/providers/ai_providers.dart';
 import '../../../collaboration/collaboration.dart' show RestrictedBanner;
 import '../../domain/entities/draft_sync.dart';
@@ -441,7 +442,7 @@ class _EditorScreenState extends ConsumerState<EditorScreen>
       case 'ai_conversations':
         unawaited(context.push(Routes.aiConversations));
       case 'ai_prompts':
-        unawaited(context.push(Routes.promptLibrary));
+        unawaited(_openPromptLibrary());
       case 'ai_usage':
         unawaited(context.push(Routes.aiUsage));
       case 'ai_explorer':
@@ -457,6 +458,26 @@ class _EditorScreenState extends ConsumerState<EditorScreen>
       case 'collab_publishing':
         unawaited(context.push(Routes.storyPublishingPath(_storyId(st))));
     }
+  }
+
+  /// Push the Prompt Library carrying this draft's route id, then — if the writer
+  /// picked "Use in assistant" there (docs/48 §3.12) — open the Writing Assistant
+  /// pre-filled with the returned instruction. The library hands the instruction
+  /// back rather than opening the panel itself: it doesn't have an [AiEditorTarget]
+  /// to build one from, only this screen does.
+  Future<void> _openPromptLibrary() async {
+    final String? instruction = await context.push<String>(
+      Routes.promptLibraryPath(routeId: widget.draftId),
+    );
+    if (instruction == null || !mounted) return;
+    unawaited(
+      WritingAssistantPanel.show(
+        context,
+        target: DraftAiEditorTarget.build(ref, widget.draftId),
+        routeId: widget.draftId,
+        initialInstruction: instruction,
+      ),
+    );
   }
 
   /// The story id for the AF4 and AF6 routes. `storyId === pieceId` server-side, so this

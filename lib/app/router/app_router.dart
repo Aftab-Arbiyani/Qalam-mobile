@@ -464,8 +464,10 @@ GoRouter goRouter(Ref ref) {
         path: Routes.promptLibrary,
         name: 'promptLibrary',
         parentNavigatorKey: _rootKey,
-        pageBuilder: (BuildContext context, GoRouterState state) =>
-            _fade(state, const PromptLibraryScreen()),
+        pageBuilder: (BuildContext context, GoRouterState state) => _fade(
+          state,
+          PromptLibraryScreen(routeId: state.uri.queryParameters['routeId']),
+        ),
       ),
       GoRoute(
         path: Routes.aiUsage,

@@ -43,6 +43,7 @@ class WritingAssistantPanel extends ConsumerStatefulWidget {
   const WritingAssistantPanel({
     required this.target,
     required this.routeId,
+    this.initialInstruction,
     super.key,
   });
 
@@ -53,13 +54,23 @@ class WritingAssistantPanel extends ConsumerStatefulWidget {
   /// per-editing-session device preference, not a server-scoped resource.
   final String routeId;
 
+  /// Pre-fills the "Ask the assistant" field (e.g. a prompt-library preset
+  /// handed off from `PromptLibraryScreen`, docs/48 §3.12). Populated only —
+  /// never sent automatically; the writer still confirms with Send.
+  final String? initialInstruction;
+
   static Future<void> show(
     BuildContext context, {
     required AiEditorTarget target,
     required String routeId,
+    String? initialInstruction,
   }) => QBottomSheet.show<void>(
     context,
-    builder: (_) => WritingAssistantPanel(target: target, routeId: routeId),
+    builder: (_) => WritingAssistantPanel(
+      target: target,
+      routeId: routeId,
+      initialInstruction: initialInstruction,
+    ),
   );
 
   @override
@@ -81,6 +92,9 @@ class _WritingAssistantPanelState extends ConsumerState<WritingAssistantPanel> {
   @override
   void initState() {
     super.initState();
+    if (widget.initialInstruction != null) {
+      _ask.text = widget.initialInstruction!;
+    }
     _conversationId = ref
         .read(promptLibraryStoreProvider)
         .historyBinding(widget.routeId);

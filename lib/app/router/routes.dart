@@ -36,6 +36,16 @@ abstract final class Routes {
   static const String aiConversations = '/ai/conversations';
   static String aiConversationPath(String id) => '/ai/conversations/$id';
   static const String promptLibrary = '/ai/prompts';
+
+  /// Carries the opening draft's local route id as a query param so a preset can be
+  /// handed to that draft's Writing Assistant (docs/48 §3.12) instead of only the
+  /// clipboard. Omitted when there is no draft in context (e.g. a bare deep link).
+  static String promptLibraryPath({String? routeId}) => routeId == null
+      ? promptLibrary
+      : Uri(
+          path: promptLibrary,
+          queryParameters: <String, String>{'routeId': routeId},
+        ).toString();
   static const String aiUsage = '/ai/usage';
 
   // AI Discovery / Search / Ask / Explorer (AF4). Full-screen, session-gated (`/ai`).

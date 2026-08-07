@@ -29,8 +29,9 @@ class PromptLibraryState {
       presets.where((PromptPreset p) => p.isBuiltIn).toList(growable: false);
   List<PromptPreset> get custom =>
       presets.where((PromptPreset p) => !p.isBuiltIn).toList(growable: false);
-  List<PromptPreset> get favorites =>
-      presets.where((PromptPreset p) => favoriteIds.contains(p.id)).toList(growable: false);
+  List<PromptPreset> get favorites => presets
+      .where((PromptPreset p) => favoriteIds.contains(p.id))
+      .toList(growable: false);
 
   bool isFavorite(String id) => favoriteIds.contains(id);
 }
@@ -43,7 +44,10 @@ class PromptLibraryController extends _$PromptLibraryController {
   PromptLibraryState _read() {
     final store = ref.read(promptLibraryStoreProvider);
     return PromptLibraryState(
-      presets: <PromptPreset>[...kBuiltInPromptPresets, ...store.customPresets()],
+      presets: <PromptPreset>[
+        ...kBuiltInPromptPresets,
+        ...store.customPresets(),
+      ],
       favoriteIds: store.favoriteIds(),
       history: store.history(),
     );
@@ -54,11 +58,14 @@ class PromptLibraryController extends _$PromptLibraryController {
     final Set<String> next = <String>{...state.favoriteIds};
     if (!next.remove(id)) next.add(id);
     await store.setFavoriteIds(next);
-    state = _read();
+    if (ref.mounted) state = _read();
   }
 
   /// Save a new custom preset from a title + instruction. Returns the created preset.
-  Future<PromptPreset> addCustom({required String title, required String instruction}) async {
+  Future<PromptPreset> addCustom({
+    required String title,
+    required String instruction,
+  }) async {
     final store = ref.read(promptLibraryStoreProvider);
     final PromptPreset preset = PromptPreset.custom(
       id: 'custom-${DateTime.now().microsecondsSinceEpoch}',
@@ -66,19 +73,25 @@ class PromptLibraryController extends _$PromptLibraryController {
       instruction: instruction,
       createdAt: DateTime.now(),
     );
-    await store.setCustomPresets(<PromptPreset>[...store.customPresets(), preset]);
-    state = _read();
+    await store.setCustomPresets(<PromptPreset>[
+      ...store.customPresets(),
+      preset,
+    ]);
+    if (ref.mounted) state = _read();
     return preset;
   }
 
   Future<void> deleteCustom(String id) async {
     final store = ref.read(promptLibraryStoreProvider);
     await store.setCustomPresets(
-      store.customPresets().where((PromptPreset p) => p.id != id).toList(growable: false),
+      store
+          .customPresets()
+          .where((PromptPreset p) => p.id != id)
+          .toList(growable: false),
     );
     final Set<String> favs = <String>{...state.favoriteIds}..remove(id);
     await store.setFavoriteIds(favs);
-    state = _read();
+    if (ref.mounted) state = _read();
   }
 
   /// Record a used instruction in history (deduped, newest first, capped).
@@ -91,11 +104,11 @@ class PromptLibraryController extends _$PromptLibraryController {
       ...store.history().where((String h) => h != trimmed),
     ];
     await store.setHistory(next);
-    state = _read();
+    if (ref.mounted) state = _read();
   }
 
   Future<void> clearHistory() async {
     await ref.read(promptLibraryStoreProvider).clearHistory();
-    state = _read();
+    if (ref.mounted) state = _read();
   }
 }

@@ -1,7 +1,10 @@
 /// Prompt Library screen (AF2) — browse and manage reusable prompt STARTERS:
 /// built-in presets, favourites, custom presets (add/delete), and prompt history.
-/// Tapping a preset copies its instruction for use in the assistant. On-device only
-/// (presets are saved user messages, never AI system prompts).
+/// Tapping a preset copies its instruction. Each preset also offers **Use in
+/// assistant** (docs/48 §3.12), which hands the instruction to the Writing
+/// Assistant's Ask AI field directly — for when the clipboard is blocked or
+/// unavailable, Copy's dead end. On-device only (presets are saved user messages,
+/// never AI system prompts).
 library;
 
 import 'dart:async';
@@ -18,12 +21,20 @@ import '../../domain/value_objects/prompt_preset.dart';
 import '../controllers/prompt_library_controller.dart';
 
 class PromptLibraryScreen extends ConsumerWidget {
-  const PromptLibraryScreen({super.key});
+  const PromptLibraryScreen({this.routeId, super.key});
+
+  /// The draft this screen was opened from, if any (docs/48 §3.12). Only the
+  /// editor overflow pushes this route today, always carrying its draft's local
+  /// route id, so **Use in assistant** is offered whenever it's set and hidden
+  /// otherwise — there is no editor to hand a preset to without it.
+  final String? routeId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final PromptLibraryState lib = ref.watch(promptLibraryControllerProvider);
-    final PromptLibraryController notifier = ref.read(promptLibraryControllerProvider.notifier);
+    final PromptLibraryController notifier = ref.read(
+      promptLibraryControllerProvider.notifier,
+    );
 
     return Scaffold(
       appBar: QAppBar(
@@ -71,6 +82,13 @@ class PromptLibraryScreen extends ConsumerWidget {
                 leading: const Icon(Icons.history, size: 18),
                 title: Text(h, maxLines: 2, overflow: TextOverflow.ellipsis),
                 onTap: () => _copy(context, h),
+                trailing: routeId == null
+                    ? null
+                    : IconButton(
+                        icon: const Icon(Icons.auto_awesome, size: 18),
+                        tooltip: 'Use in assistant',
+                        onPressed: () => _useInAssistant(context, ref, h),
+                      ),
               ),
           ],
         ],
@@ -79,16 +97,27 @@ class PromptLibraryScreen extends ConsumerWidget {
   }
 
   Widget _section(BuildContext context, String label) => Padding(
-        padding: const EdgeInsets.only(bottom: QSpacing.s2),
-        child: Text(label, style: Theme.of(context).textTheme.titleMedium),
-      );
+    padding: const EdgeInsets.only(bottom: QSpacing.s2),
+    child: Text(label, style: Theme.of(context).textTheme.titleMedium),
+  );
 
-  Widget _presetTile(BuildContext context, WidgetRef ref, PromptPreset p, bool favorite) {
+  Widget _presetTile(
+    BuildContext context,
+    WidgetRef ref,
+    PromptPreset p,
+    bool favorite,
+  ) {
     final QTokens tokens = QTokens.of(context);
-    final PromptLibraryController notifier = ref.read(promptLibraryControllerProvider.notifier);
+    final PromptLibraryController notifier = ref.read(
+      promptLibraryControllerProvider.notifier,
+    );
     return ListTile(
       title: Text(p.title),
-      subtitle: Text(p.instruction, maxLines: 2, overflow: TextOverflow.ellipsis),
+      subtitle: Text(
+        p.instruction,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+      ),
       onTap: () => _copy(context, p.instruction),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
@@ -101,6 +130,12 @@ class PromptLibraryScreen extends ConsumerWidget {
             tooltip: favorite ? 'Unfavourite' : 'Favourite',
             onPressed: () => unawaited(notifier.toggleFavorite(p.id)),
           ),
+          if (routeId != null)
+            IconButton(
+              icon: Icon(Icons.auto_awesome, color: tokens.colors.accent),
+              tooltip: 'Use in assistant',
+              onPressed: () => _useInAssistant(context, ref, p.instruction),
+            ),
           if (!p.isBuiltIn)
             IconButton(
               icon: Icon(Icons.delete_outline, color: tokens.colors.textMuted),
@@ -114,10 +149,27 @@ class PromptLibraryScreen extends ConsumerWidget {
 
   void _copy(BuildContext context, String text) {
     unawaited(Clipboard.setData(ClipboardData(text: text)));
-    QSnackbar.show(context, message: 'Prompt copied.', variant: QSnackbarVariant.success);
+    QSnackbar.show(
+      context,
+      message: 'Prompt copied.',
+      variant: QSnackbarVariant.success,
+    );
   }
 
-  Future<void> _addCustom(BuildContext context, PromptLibraryController notifier) async {
+  /// Hand the instruction to the Writing Assistant instead of the clipboard
+  /// (docs/48 §3.12). Pops this screen back to the editor it was opened from,
+  /// returning the instruction — the editor opens the panel pre-filled with it.
+  void _useInAssistant(BuildContext context, WidgetRef ref, String text) {
+    unawaited(
+      ref.read(promptLibraryControllerProvider.notifier).recordUse(text),
+    );
+    Navigator.of(context).pop(text);
+  }
+
+  Future<void> _addCustom(
+    BuildContext context,
+    PromptLibraryController notifier,
+  ) async {
     final TextEditingController title = TextEditingController();
     final TextEditingController instruction = TextEditingController();
     final bool? save = await showDialog<bool>(
@@ -154,7 +206,10 @@ class PromptLibraryScreen extends ConsumerWidget {
       ),
     );
     if (save == true && instruction.text.trim().isNotEmpty) {
-      await notifier.addCustom(title: title.text, instruction: instruction.text);
+      await notifier.addCustom(
+        title: title.text,
+        instruction: instruction.text,
+      );
     }
   }
 }
