@@ -61,6 +61,28 @@ class _StoryExplorerScreenState extends ConsumerState<StoryExplorerScreen> {
     final AiFeatures? flags = ref.watch(aiFeaturesProvider).asData?.value;
     final bool askOn = flags == null || flags.isEnabled(AiFeatureIds.askBook);
 
+    // **B5 (`platfrom/docs/45` §4.10).** The Explorer route carries no feature flag, so
+    // this screen consulted the flags only for the Ask action and never for AI itself —
+    // a writer who turned AI off could still open it (from a deep link, or from a menu
+    // rendered before the switch was flipped) onto a screen whose every read 403s.
+    // Unresolved reads stay usable, as everywhere else here: the request is authoritative.
+    final bool aiOn = flags?.aiEnabled ?? true;
+    if (!aiOn) {
+      return QScaffold(
+        appBar: const QAppBar(title: 'Story Explorer'),
+        body: QEmptyState(
+          icon: Icons.auto_awesome_outlined,
+          title: flags!.disabledByUser
+              ? 'You turned AI off'
+              : 'AI is turned off',
+          message: flags.disabledByUser
+              ? 'Story Explorer is off for your account. Turn AI back on in '
+                    'Settings \u203A AI.'
+              : 'AI features aren\u2019t enabled right now.',
+        ),
+      );
+    }
+
     return QScaffold(
       appBar: QAppBar(
         title: 'Story Explorer',

@@ -111,6 +111,11 @@ abstract final class ErrorCodes {
   // ── AI platform (AF1, Phase 2) ──────────────────────────────────────────────
   static const String aiDisabled = 'AI_DISABLED';
   static const String aiFeatureDisabled = 'AI_FEATURE_DISABLED';
+
+  /// B5 (`platfrom/docs/45` §4.10) — the WRITER turned AI off for their own account.
+  /// Its own code, and its own remedy: their settings. Never the platform switch's
+  /// ("wait for an admin"), never quota's ("wait for reset"), never a plan's.
+  static const String aiDisabledByUser = 'AI_DISABLED_BY_USER';
   static const String aiProviderNotConfigured = 'AI_PROVIDER_NOT_CONFIGURED';
   static const String aiProviderError = 'AI_PROVIDER_ERROR';
   static const String aiProviderUnavailable = 'AI_PROVIDER_UNAVAILABLE';

@@ -18,9 +18,11 @@ import '../../../../shared/widgets/cards/q_card.dart';
 import '../../../../shared/widgets/layout/q_scaffold.dart';
 import '../../../../shared/widgets/loading/q_skeleton.dart';
 import '../../../../shared/widgets/states/q_empty_state.dart';
+import '../../domain/entities/ai_feature_flag.dart';
 import '../../domain/entities/retrieval.dart';
 import '../../domain/value_objects/retrieval_vocab.dart';
 import '../controllers/recommendations_controller.dart';
+import '../providers/ai_providers.dart';
 import '../widgets/retrieval_cards.dart';
 import '../widgets/retrieval_navigation.dart';
 
@@ -37,7 +39,19 @@ class AiDiscoveryScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final bool enabled = ref.watch(appConfigProvider).enableAi;
+    /// **B5 (`platfrom/docs/45` §4.10).** This screen used to read the compile-time
+    /// [AppConfig.enableAi] kill switch ALONE, which meant a writer who turned AI off for
+    /// their account still got a full "Discover with AI" hub whose every shelf then 403'd.
+    /// The server's answer is the runtime source of truth for gating (`GET /ai/features`),
+    /// so the account's switch is ANDed in here.
+    ///
+    /// A gate read that has not resolved yet is treated as ON (`?? true`): flashing the
+    /// off-state and then filling in reads as a broken screen, and every shelf below
+    /// resolves its own failure honestly anyway.
+    final AiFeatures? aiFeatures = ref.watch(aiFeaturesProvider).asData?.value;
+    final bool enabled =
+        ref.watch(appConfigProvider).enableAi &&
+        (aiFeatures?.aiEnabled ?? true);
     return QScaffold(
       appBar: const QAppBar(title: 'Discover with AI'),
       body: enabled
@@ -58,7 +72,8 @@ class AiDiscoveryScreen extends ConsumerWidget {
           : const QEmptyState(
               icon: Icons.auto_awesome_outlined,
               title: 'AI discovery is off',
-              message: 'Enable AI in settings to explore recommendations.',
+              message:
+                  'Turn AI on in Settings \u203A AI to explore recommendations.',
             ),
     );
   }

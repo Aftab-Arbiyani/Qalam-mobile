@@ -52,6 +52,7 @@ import '../../features/profile/profile.dart';
 import '../../features/reading/presentation/screens/appearance_settings_screen.dart';
 import '../../features/reading/presentation/screens/reading_screen.dart';
 import '../../features/search/search.dart';
+import '../../features/settings/presentation/screens/ai_settings_screen.dart';
 import '../../features/settings/presentation/screens/settings_hub_screen.dart';
 import '../../features/shell/presentation/pages/app_error_page.dart';
 import '../../features/shell/presentation/widgets/unknown_route_page.dart';
@@ -325,6 +326,13 @@ GoRouter goRouter(Ref ref) {
         parentNavigatorKey: _rootKey,
         pageBuilder: (BuildContext context, GoRouterState state) =>
             _fade(state, const AppearanceSettingsScreen()),
+      ),
+      GoRoute(
+        path: Routes.settingsAi,
+        name: 'settingsAi',
+        parentNavigatorKey: _rootKey,
+        pageBuilder: (BuildContext context, GoRouterState state) =>
+            _fade(state, const AiSettingsScreen()),
       ),
       GoRoute(
         path: Routes.settingsPrivacy,

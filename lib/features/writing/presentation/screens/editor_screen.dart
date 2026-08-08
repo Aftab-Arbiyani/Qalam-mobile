@@ -230,6 +230,9 @@ class _EditorScreenState extends ConsumerState<EditorScreen>
     final bool aiOn = ref.watch(appConfigProvider).enableAi;
     final bool collabOn = ref.watch(appConfigProvider).enableCollaboration;
     final AiFeatures? aiFeatures = ref.watch(aiFeaturesProvider).asData?.value;
+    // `isEnabled` already ANDs the master switch, and since B5 that master value is
+    // itself "platform flag AND this writer's own switch" — so these three entries
+    // disappear for an opted-out writer with no change needed here.
     final bool anyAi =
         aiOn &&
         ((aiFeatures?.isEnabled(AiFeatureIds.writingAssistant) ?? false) ||
@@ -242,7 +245,15 @@ class _EditorScreenState extends ConsumerState<EditorScreen>
     // `ai.use` only (`story-explorer.controller.ts`) and renders straight from the graph with
     // no LLM, while `POST /ai/ask` also requires `feature.ai.askBook`. Gating the explorer on
     // askBook would hide a surface the server would have served.
-    final bool explorerOn = aiOn && st.draft.isRemote;
+    // **B5 (`platfrom/docs/45` §4.10).** The Explorer route carries no feature flag, so
+    // this gate was `aiOn && isRemote` — the COMPILE-TIME switch and nothing from the
+    // server. A writer who turned AI off kept a "Story explorer" entry that 403s. The
+    // account's own switch is `aiFeatures.aiEnabled`, which is the master flag ANDed with
+    // it, so reading it here fixes both that and a stale compile-time-only master read.
+    // Still NOT gated on a neighbouring feature's flag — that would hide a surface the
+    // server would have served (the mistake called out at the top of this method).
+    final bool explorerOn =
+        aiOn && (aiFeatures?.aiEnabled ?? true) && st.draft.isRemote;
     final bool askOn =
         explorerOn && (aiFeatures?.isEnabled(AiFeatureIds.askBook) ?? false);
     return PopupMenuButton<String>(

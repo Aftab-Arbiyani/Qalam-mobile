@@ -104,6 +104,7 @@ abstract final class ApiPaths {
       '/stories/$id/members/$userId';
   static String storyLeave(String id) => '/stories/$id/leave';
   static String storyCapabilities(String id) => '/stories/$id/capabilities';
+
   /// B6 — the story's collaborator seat allowance, charged to its owner's plan.
   static String storyCollaboratorLimit(String id) =>
       '/stories/$id/collaborators/limit';
@@ -228,6 +229,11 @@ abstract final class ApiPaths {
   static String notificationArchive(String id) => '/notifications/$id/archive';
   static String notification(String id) => '/notifications/$id';
   static const String notificationPreferences = '/notification-preferences';
+
+  // The user_settings preference bag (`GET/PATCH /settings`). Distinct from
+  // `/notification-preferences` above, which is the E9 delivery-gating set: this one is
+  // the DB-only bag (theme, default visibility, and B5's per-account AI switch).
+  static const String userSettings = '/settings';
 
   // Analytics (M9). Self-scoped creator + reader aggregates and the growth series.
   // `me` and `readers/me` are LIFETIME (no range param); the growth series is the

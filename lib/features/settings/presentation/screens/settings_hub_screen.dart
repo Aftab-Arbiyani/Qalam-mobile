@@ -51,6 +51,16 @@ class SettingsHubScreen extends ConsumerWidget {
                 subtitle: 'Private account, what you show',
                 onTap: () => context.push(Routes.settingsPrivacy),
               ),
+              // B5 (`platfrom/docs/45` §4.10) — the account's own AI switch. Listed
+              // unconditionally, including when AI is off: this is the one screen that
+              // turns it back on, so gating it on AI being enabled would strand the
+              // remedy behind the state it fixes.
+              QSettingsTile(
+                icon: Icons.auto_awesome_outlined,
+                title: 'AI',
+                subtitle: 'Use AI on this account',
+                onTap: () => context.push(Routes.settingsAi),
+              ),
               QSettingsTile(
                 icon: Icons.notifications_outlined,
                 title: 'Notifications',

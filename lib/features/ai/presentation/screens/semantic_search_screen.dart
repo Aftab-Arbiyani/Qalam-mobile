@@ -26,10 +26,12 @@ import '../../../../shared/widgets/layout/q_scaffold.dart';
 import '../../../../shared/widgets/loading/feed_skeleton_list.dart';
 import '../../../../shared/widgets/states/q_empty_state.dart';
 import '../../../../shared/widgets/states/q_error_view.dart';
+import '../../domain/entities/ai_feature_flag.dart';
 import '../../domain/entities/retrieval.dart';
 import '../controllers/ai_search_history_controller.dart';
 import '../controllers/saved_searches_controller.dart';
 import '../controllers/semantic_search_controller.dart';
+import '../providers/ai_providers.dart';
 import '../widgets/ai_markdown.dart' show AiMarkdown;
 import '../widgets/retrieval_cards.dart';
 import '../widgets/retrieval_navigation.dart';
@@ -113,11 +115,21 @@ class _SemanticSearchScreenState extends ConsumerState<SemanticSearchScreen> {
     );
     final bool showResults = session.submitted && session.canSubmit;
 
+    /// **B5 (`platfrom/docs/45` §4.10).** This screen carried NO runtime gate at all — it
+    /// was reachable only from the AI Discovery hub, which was itself gated on the
+    /// compile-time flag, so nothing here consulted the server. A writer who turned AI off
+    /// would still get a live search box that 403s on the first keystroke. The account's
+    /// switch is the outer gate now; per-feature flags still belong to the requests below.
+    ///
+    /// An unresolved read is treated as ON, so the search box never flickers off and back.
+    final AiFeatures? aiFeatures = ref.watch(aiFeaturesProvider).asData?.value;
+    final bool aiOn = aiFeatures?.aiEnabled ?? true;
+
     return QScaffold(
       appBar: QAppBar(
         title: 'AI Search',
         actions: <Widget>[
-          if (showResults)
+          if (showResults && aiOn)
             IconButton(
               icon: const Icon(Icons.bookmark_add_outlined),
               tooltip: 'Save this search',
@@ -125,43 +137,51 @@ class _SemanticSearchScreenState extends ConsumerState<SemanticSearchScreen> {
             ),
         ],
       ),
-      body: Column(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(QSpacing.s4),
-            child: QSearchField(
-              controller: _controller,
-              focusNode: _focus,
-              autofocus: true,
-              hint: 'Ask or search across your stories…',
-              onChanged: _onChanged,
-              onSubmitted: (_) => _submit(),
-              onClear: () {
-                ref
-                    .read(retrievalSessionControllerProvider.notifier)
-                    .onQueryChanged('');
-                setState(() => _prefix = '');
-              },
+      body: !aiOn
+          ? const QEmptyState(
+              icon: Icons.auto_awesome_outlined,
+              title: 'You turned AI off',
+              message:
+                  'AI search is off for your account. Turn AI back on in '
+                  'Settings \u203A AI.',
+            )
+          : Column(
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.all(QSpacing.s4),
+                  child: QSearchField(
+                    controller: _controller,
+                    focusNode: _focus,
+                    autofocus: true,
+                    hint: 'Ask or search across your stories…',
+                    onChanged: _onChanged,
+                    onSubmitted: (_) => _submit(),
+                    onClear: () {
+                      ref
+                          .read(retrievalSessionControllerProvider.notifier)
+                          .onQueryChanged('');
+                      setState(() => _prefix = '');
+                    },
+                  ),
+                ),
+                Expanded(
+                  child: showResults
+                      ? _ResultsView(
+                          session: session,
+                          onToggleSynthesize: () => ref
+                              .read(retrievalSessionControllerProvider.notifier)
+                              .toggleSynthesize(),
+                        )
+                      : _prefix.length >= 2
+                      ? _SuggestionsView(
+                          prefix: _prefix,
+                          storyId: session.storyId,
+                          onPick: _runQuery,
+                        )
+                      : _LandingView(onRun: _runQuery),
+                ),
+              ],
             ),
-          ),
-          Expanded(
-            child: showResults
-                ? _ResultsView(
-                    session: session,
-                    onToggleSynthesize: () => ref
-                        .read(retrievalSessionControllerProvider.notifier)
-                        .toggleSynthesize(),
-                  )
-                : _prefix.length >= 2
-                ? _SuggestionsView(
-                    prefix: _prefix,
-                    storyId: session.storyId,
-                    onPick: _runQuery,
-                  )
-                : _LandingView(onRun: _runQuery),
-          ),
-        ],
-      ),
     );
   }
 }

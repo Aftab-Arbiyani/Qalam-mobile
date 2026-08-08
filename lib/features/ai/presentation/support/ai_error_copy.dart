@@ -44,6 +44,17 @@ class AiErrorCopy {
       message: 'This AI feature isn’t enabled for you yet.',
       canRetry: false,
     ),
+    // B5 (`platfrom/docs/45` §4.10). Same wall as [aiDisabled], completely different
+    // sentence: that one is an administrator's switch and the writer can only wait,
+    // this one is their own and is one screen away. Folding it into [aiDisabled] would
+    // tell a writer who turned AI off that it "isn't available on your account" — the
+    // right-shaped wall with the wrong remedy, which is the W4 defect (docs/48 §3.6).
+    ErrorCodes.aiDisabledByUser => const AiErrorCopy(
+      title: 'You turned AI off',
+      message:
+          'AI is off for your account. Turn it back on in Settings › AI. Your writing is unaffected.',
+      canRetry: false,
+    ),
     // The AI module's own token cap and the monetization plan's cap are
     // indistinguishable to a writer, who only needs to know they are out of allowance
     // and that it comes back.

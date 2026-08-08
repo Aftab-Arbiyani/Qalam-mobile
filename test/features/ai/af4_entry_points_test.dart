@@ -117,6 +117,25 @@ const AiFeatures _allAiOff = AiFeatures(
   ],
 );
 
+/// B5 — the account's OWN switch down, with every platform flag up. `aiEnabled` is the
+/// server's AND of the two, so it arrives false while `userAiEnabled` names the cause.
+const AiFeatures _userTurnedAiOff = AiFeatures(
+  aiEnabled: false,
+  userAiEnabled: false,
+  features: <AiFeatureFlag>[
+    AiFeatureFlag(
+      feature: AiFeatureIds.writingAssistant,
+      flagKey: 'feature.ai.writingAssistant.enabled',
+      enabled: true,
+    ),
+    AiFeatureFlag(
+      feature: AiFeatureIds.askBook,
+      flagKey: 'feature.ai.askBook.enabled',
+      enabled: true,
+    ),
+  ],
+);
+
 /// The editor mounted inside a router that serves the two **real** AF4 screens.
 Future<void> _pumpEditor(
   WidgetTester tester, {
@@ -185,6 +204,14 @@ Future<void> _pumpEditor(
 
 Future<void> _openOverflow(WidgetTester tester) async {
   await tester.tap(find.byIcon(Icons.more_vert));
+  await tester.pumpAndSettle();
+}
+
+/// Open Story Explorer the way a **deep link** does — straight at the route. B5's gate
+/// has to hold on the destination too, or hiding the overflow entry is theatre.
+Future<void> _pushExplorer(WidgetTester tester) async {
+  final BuildContext context = tester.element(find.byType(EditorScreen));
+  unawaited(GoRouter.of(context).push(Routes.aiExplorerPath(_remoteId)));
   await tester.pumpAndSettle();
 }
 
@@ -356,6 +383,43 @@ void main() {
       // rather than the new entries being special-cased.
       expect(find.text('AI conversations'), findsNothing);
     });
+
+    /// **B5 (`platfrom/docs/45` §4.10)** — a writer who turned AI off must not be left
+    /// with entry points into it.
+    ///
+    /// Story Explorer is the one that was actually broken: its route carries no feature
+    /// flag, so the overflow gated it on the COMPILE-TIME switch and `isRemote` alone and
+    /// never consulted the server at all. On a build with AI compiled in, an opted-out
+    /// writer kept a live "Story explorer" entry whose first request 403s.
+    testWidgets(
+      'a writer who turned AI off keeps NO AI entry in the overflow',
+      (WidgetTester tester) async {
+        await _pumpEditor(tester, features: _userTurnedAiOff);
+        await _openOverflow(tester);
+
+        expect(find.text('Story explorer'), findsNothing);
+        expect(find.text('Ask my book'), findsNothing);
+        expect(find.text('AI conversations'), findsNothing);
+        expect(find.text('Prompt library'), findsNothing);
+        expect(find.text('AI usage'), findsNothing);
+        // The non-AI entries are untouched — B5 turns AI off, not the editor.
+        expect(find.text('Save draft'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'the Story Explorer screen itself refuses, naming the writer\u2019s own switch',
+      (WidgetTester tester) async {
+        // Deep links and stale menus both reach the screen directly, so the affordance
+        // disappearing is not enough — the destination has to refuse too.
+        await _pumpEditor(tester, features: _userTurnedAiOff);
+        await _pushExplorer(tester);
+
+        expect(find.text('You turned AI off'), findsOneWidget);
+        // Never the platform copy: the remedy differs (docs/48 §3.6).
+        expect(find.text('AI is turned off'), findsNothing);
+      },
+    );
   });
 
   group('the app router serves both paths (W5-3)', () {

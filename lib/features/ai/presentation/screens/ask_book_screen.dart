@@ -156,7 +156,17 @@ class _AskBookScreenState extends ConsumerState<AskBookScreen> {
 AiErrorCopy? _blockedBy(WidgetRef ref) {
   final AiFeatures? flags = ref.watch(aiFeaturesProvider).asData?.value;
   if (flags == null) return null;
-  if (!flags.aiEnabled) return AiErrorCopy.forCode(ErrorCodes.aiDisabled);
+  // B5 (`platfrom/docs/45` §4.10): same wall, two causes, two remedies. The writer's own
+  // switch is one screen away; the platform switch is an administrator's and they can only
+  // wait. Reporting both as `AI_DISABLED` would hand the wrong remedy to whoever turned it
+  // off themselves — the W4 defect (`docs/48` §3.6).
+  if (!flags.aiEnabled) {
+    return AiErrorCopy.forCode(
+      flags.disabledByUser
+          ? ErrorCodes.aiDisabledByUser
+          : ErrorCodes.aiDisabled,
+    );
+  }
   if (!flags.isEnabled(AiFeatureIds.askBook)) {
     return AiErrorCopy.forCode(ErrorCodes.aiFeatureDisabled);
   }

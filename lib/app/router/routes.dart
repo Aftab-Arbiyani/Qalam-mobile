@@ -109,6 +109,11 @@ abstract final class Routes {
   static const String settingsNotifications = '/settings/notifications';
   static const String settingsStorage = '/settings/storage';
 
+  /// B5 (`platfrom/docs/45` §4.10) — the account's own "turn AI off" switch. Under
+  /// `/settings`, not `/ai`, because it is an ACCOUNT setting: it must stay reachable
+  /// when AI is off, which is precisely when a writer needs it.
+  static const String settingsAi = '/settings/ai';
+
   /// Safety — blocks, mutes and the viewer's account standing (AF6). Lives under
   /// `/settings` on both clients: it is account-scoped, not story-scoped, so it does
   /// not belong with the `/stories/:id/*` collaboration surfaces.
