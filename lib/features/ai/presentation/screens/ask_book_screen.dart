@@ -11,6 +11,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/routes.dart';
 import '../../../../core/di/providers.dart';
+import '../../../../shared/domain/error_codes.dart';
 import '../../../../shared/theme/q_tokens.dart';
 import '../../../../shared/theme/tokens/color_tokens.dart';
 import '../../../../shared/theme/tokens/spacing_tokens.dart';
@@ -20,10 +21,13 @@ import '../../../../shared/widgets/cards/q_chip.dart';
 import '../../../../shared/widgets/inputs/q_text_field.dart';
 import '../../../../shared/widgets/layout/q_scaffold.dart';
 import '../../../../shared/widgets/states/q_empty_state.dart';
+import '../../domain/entities/ai_feature_flag.dart';
 import '../../domain/entities/ask_answer.dart';
+import '../../domain/value_objects/ai_feature_ids.dart';
 import '../../domain/value_objects/retrieval_requests.dart';
 import '../../domain/value_objects/retrieval_vocab.dart';
 import '../controllers/ask_book_controller.dart';
+import '../providers/ai_providers.dart';
 import '../support/ai_error_copy.dart';
 import '../widgets/ai_markdown.dart' show AiMarkdown;
 import '../widgets/ai_streaming_text.dart' show AiStreamingText;
@@ -62,6 +66,7 @@ class _AskBookScreenState extends ConsumerState<AskBookScreen> {
   Widget build(BuildContext context) {
     final bool enabled = ref.watch(appConfigProvider).enableAi;
     final AskBookState state = ref.watch(askBookControllerProvider);
+    final AiErrorCopy? blocked = _blockedBy(ref);
 
     return QScaffold(
       appBar: const QAppBar(title: 'Ask My Book'),
@@ -71,6 +76,20 @@ class _AskBookScreenState extends ConsumerState<AskBookScreen> {
               title: 'Ask is off',
               message:
                   'Enable AI in settings to ask questions about your story.',
+            )
+          // Defect **W9-2**: the server gates `POST /ai/ask` on `feature.ai.askBook` as
+          // well as `ai.use`, and AF1 seeds every AI flag DARK — so this is the state
+          // every deployment starts in. Only the editor's overflow resolved it; the
+          // Explorer's "Ask about this story" action and a deep link both landed here
+          // ungated, and the writer met the wall only after composing a question. The
+          // gate belongs on the screen because that is the one place all three doors
+          // lead. Same copy as the failed-request path, so pre-flight and post-flight
+          // read identically.
+          : blocked != null
+          ? QEmptyState(
+              icon: Icons.auto_awesome_outlined,
+              title: blocked.title,
+              message: blocked.message,
             )
           : ListView(
               padding: const EdgeInsets.all(QSpacing.s4),
@@ -119,6 +138,29 @@ class _AskBookScreenState extends ConsumerState<AskBookScreen> {
             ),
     );
   }
+}
+
+/// The server-side gate, resolved BEFORE the writer composes anything — or null when the
+/// surface is usable (defect **W9-2**).
+///
+/// Returns the same [AiErrorCopy] a failed request would produce, so a wall detected up
+/// front and one hit mid-flight say the same thing. Ordered as the server checks:
+/// `assertEnabled` raises `AI_DISABLED` before `AI_FEATURE_DISABLED`
+/// (`ai-feature.service.ts:49-58`), so a master switch that is down must not be reported
+/// as this feature being unavailable.
+///
+/// **Flags that have not loaded yet are treated as usable, not as blocked.** `GET
+/// /ai/features` is a courtesy read; the authoritative answer always comes back from the
+/// ask itself. Resolving an unknown to "blocked" would flash a wall on every open — and
+/// would lock the surface out entirely whenever that read fails.
+AiErrorCopy? _blockedBy(WidgetRef ref) {
+  final AiFeatures? flags = ref.watch(aiFeaturesProvider).asData?.value;
+  if (flags == null) return null;
+  if (!flags.aiEnabled) return AiErrorCopy.forCode(ErrorCodes.aiDisabled);
+  if (!flags.isEnabled(AiFeatureIds.askBook)) {
+    return AiErrorCopy.forCode(ErrorCodes.aiFeatureDisabled);
+  }
+  return null;
 }
 
 class _ScopeSelector extends StatelessWidget {

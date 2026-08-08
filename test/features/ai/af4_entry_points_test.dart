@@ -23,6 +23,8 @@
 /// 4. **The app's own router serves both names**, closing the loop the other half opens.
 library;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -102,12 +104,26 @@ AiFeatures _features({required bool askBook}) => AiFeatures(
   ],
 );
 
+/// The server's master switch down, with this feature's own flag irrelevant — the state
+/// `assertEnabled` reports as `AI_DISABLED` rather than `AI_FEATURE_DISABLED`.
+const AiFeatures _allAiOff = AiFeatures(
+  aiEnabled: false,
+  features: <AiFeatureFlag>[
+    AiFeatureFlag(
+      feature: AiFeatureIds.askBook,
+      flagKey: 'feature.ai.askBook.enabled',
+      enabled: true,
+    ),
+  ],
+);
+
 /// The editor mounted inside a router that serves the two **real** AF4 screens.
 Future<void> _pumpEditor(
   WidgetTester tester, {
   AppConfig config = _aiOn,
   bool askBook = true,
   String? remoteId = _remoteId,
+  AiFeatures? features,
 }) async {
   tester.view.physicalSize = const Size(700, 2200);
   tester.view.devicePixelRatio = 1.0;
@@ -119,7 +135,9 @@ Future<void> _pumpEditor(
       config: config,
       pieceEditorRepository: FakePieceEditorRepository(),
       taxonomyRepository: FakeTaxonomyRepository(),
-      aiRepository: FakeAiRepository(features: _features(askBook: askBook)),
+      aiRepository: FakeAiRepository(
+        features: features ?? _features(askBook: askBook),
+      ),
     );
     // No debounced autosave timers bleeding across tests.
     await container.read(preferencesStoreProvider).setEditorAutosave(false);
@@ -167,6 +185,16 @@ Future<void> _pumpEditor(
 
 Future<void> _openOverflow(WidgetTester tester) async {
   await tester.tap(find.byIcon(Icons.more_vert));
+  await tester.pumpAndSettle();
+}
+
+/// Open Ask My Book the way a **deep link** does — straight at the route, with no menu
+/// and no explorer in between. The gate has to hold here or hiding the buttons is theatre
+/// (defect **W9-2**).
+Future<void> _pushAsk(WidgetTester tester) async {
+  final BuildContext context = tester.element(find.byType(EditorScreen));
+  // The push's future completes when the route is POPPED, which never happens here.
+  unawaited(GoRouter.of(context).push(Routes.aiAskPath(_remoteId)));
   await tester.pumpAndSettle();
 }
 
@@ -245,6 +273,66 @@ void main() {
       expect(find.text('Story explorer'), findsOneWidget);
       expect(find.text('Ask my book'), findsNothing);
     });
+
+    testWidgets(
+      'askBook down: the Explorer no longer offers a door to a walled screen (W9-2)',
+      (WidgetTester tester) async {
+        // The hole the editor's gate left. `story_explorer_screen.dart` pushed
+        // `Routes.aiAskPath` with no flag check at all, so the surface the overflow
+        // correctly hid was one tap away from the surface it did open.
+        await _pumpEditor(tester, askBook: false);
+        await _openOverflow(tester);
+        await tester.tap(find.text('Story explorer'));
+        await tester.pumpAndSettle();
+
+        expect(find.byType(StoryExplorerScreen), findsOneWidget);
+        expect(find.byTooltip('Ask about this story'), findsNothing);
+      },
+    );
+
+    testWidgets(
+      'and the screen itself refuses, so a deep link cannot walk around the gate (W9-2)',
+      (WidgetTester tester) async {
+        // Hiding the affordance is not the fix on its own: `/ai/ask/:storyId` is a
+        // registered route, so a notification or a pasted link reaches it directly. The
+        // screen resolves the gate, which is why this asserts the DESTINATION rather than
+        // the button — and asserts the wall arrives BEFORE a question can be composed.
+        await _pumpEditor(tester, askBook: false);
+        await _pushAsk(tester);
+
+        expect(find.byType(AskBookScreen), findsOneWidget);
+        expect(find.text('Not available yet'), findsOneWidget);
+        // The controls are absent, not merely disabled — nothing invites a request the
+        // server has already said it will refuse.
+        expect(find.text('Ask'), findsNothing);
+        expect(find.text('Whole book'), findsNothing);
+      },
+    );
+
+    testWidgets('askBook up: the same deep link gets the real surface (W9-2)', (
+      WidgetTester tester,
+    ) async {
+      // The other half — the gate must not be a wall in front of everyone.
+      await _pumpEditor(tester);
+      await _pushAsk(tester);
+
+      expect(find.text('Not available yet'), findsNothing);
+      expect(find.text('Whole book'), findsOneWidget);
+    });
+
+    testWidgets(
+      'the master switch reads as off, not as this feature being unavailable (W9-2)',
+      (WidgetTester tester) async {
+        // Ordered as the server checks: `assertEnabled` raises AI_DISABLED before
+        // AI_FEATURE_DISABLED, so a stack with AI turned off must not tell the writer
+        // that Ask specifically is not enabled for them.
+        await _pumpEditor(tester, features: _allAiOff);
+        await _pushAsk(tester);
+
+        expect(find.text('AI is turned off'), findsOneWidget);
+        expect(find.text('Not available yet'), findsNothing);
+      },
+    );
 
     testWidgets('a draft that never synced offers neither', (
       WidgetTester tester,

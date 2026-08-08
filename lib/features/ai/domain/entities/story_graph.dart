@@ -87,6 +87,7 @@ class StoryGraphEdge {
     required this.label,
     required this.data,
     required this.confidence,
+    required this.evidence,
   });
 
   final String id;
@@ -97,6 +98,16 @@ class StoryGraphEdge {
   final Json data;
   final double confidence;
 
+  /// What grounds the RELATIONSHIP — distinct from the evidence on either endpoint.
+  ///
+  /// Defect **W9-3** (`platfrom/docs/48` §6.2): this was the one field of `StoryEdgeDto`
+  /// the parser dropped, while [StoryGraphNode] parsed the identical field beside it. The
+  /// backend populates it on every edge (`story.mappers.ts` `toEdgeDto`), so the quote
+  /// explaining *why the graph believes these two are connected* arrived on the wire and
+  /// was discarded before any widget could ask for it. Required, not defaulted, so the
+  /// asymmetry cannot silently return.
+  final List<StoryGraphEvidence> evidence;
+
   factory StoryGraphEdge.fromJson(Json json) => StoryGraphEdge(
     id: rjString(json['id']),
     type: rjString(json['type']),
@@ -105,6 +116,7 @@ class StoryGraphEdge {
     label: rjString(json['label']),
     data: rjMap(json['data']),
     confidence: rjDouble(json['confidence']),
+    evidence: rjList(json['evidence'], StoryGraphEvidence.fromJson),
   );
 
   Json toJson() => <String, dynamic>{
@@ -115,6 +127,7 @@ class StoryGraphEdge {
     'label': label,
     'data': data,
     'confidence': confidence,
+    'evidence': evidence.map((StoryGraphEvidence e) => e.toJson()).toList(),
   };
 }
 

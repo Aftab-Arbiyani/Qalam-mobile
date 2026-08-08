@@ -22,9 +22,12 @@ import '../../../../shared/widgets/layout/q_scaffold.dart';
 import '../../../../shared/widgets/loading/feed_skeleton_list.dart';
 import '../../../../shared/widgets/states/q_empty_state.dart';
 import '../../../../shared/widgets/states/q_error_view.dart';
+import '../../domain/entities/ai_feature_flag.dart';
 import '../../domain/entities/story_graph.dart';
+import '../../domain/value_objects/ai_feature_ids.dart';
 import '../../domain/value_objects/retrieval_vocab.dart';
 import '../controllers/story_explorer_controller.dart';
+import '../providers/ai_providers.dart';
 import '../widgets/retrieval_cards.dart';
 import '../widgets/story_node_sheet.dart';
 
@@ -47,15 +50,27 @@ class _StoryExplorerScreenState extends ConsumerState<StoryExplorerScreen> {
       explorerViewProvider((storyId: widget.storyId, view: _view)),
     );
 
+    // Defect **W9-2**: this action pushed to Ask My Book unconditionally, while the
+    // editor's overflow — the only other door — gated the same route on `feature.ai
+    // .askBook`. With the flag down (which is every deployment until an admin raises it)
+    // it handed the writer a fully-armed Ask screen whose first request 403s.
+    //
+    // Offered unless the flags say otherwise: an unresolved read leaves the action in
+    // place rather than popping it in a frame later, and `AskBookScreen` now resolves the
+    // gate itself, so this is the affordance, not the enforcement.
+    final AiFeatures? flags = ref.watch(aiFeaturesProvider).asData?.value;
+    final bool askOn = flags == null || flags.isEnabled(AiFeatureIds.askBook);
+
     return QScaffold(
       appBar: QAppBar(
         title: 'Story Explorer',
         actions: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.chat_bubble_outline),
-            tooltip: 'Ask about this story',
-            onPressed: () => context.push(Routes.aiAskPath(widget.storyId)),
-          ),
+          if (askOn)
+            IconButton(
+              icon: const Icon(Icons.chat_bubble_outline),
+              tooltip: 'Ask about this story',
+              onPressed: () => context.push(Routes.aiAskPath(widget.storyId)),
+            ),
         ],
       ),
       body: Column(

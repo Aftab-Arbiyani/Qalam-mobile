@@ -52,6 +52,7 @@ ExplorerViewResult _graph() => const ExplorerViewResult(
       label: 'mentored by',
       data: <String, dynamic>{},
       confidence: 0.8,
+      evidence: <StoryGraphEvidence>[],
     ),
   ],
   nodeCount: 2,
