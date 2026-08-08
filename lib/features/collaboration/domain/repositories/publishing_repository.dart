@@ -14,6 +14,7 @@ import '../entities/publication_event.dart';
 import '../entities/review_session.dart';
 import '../entities/story_publication_state.dart';
 import '../entities/story_snapshot.dart';
+import '../entities/story_snapshot_history.dart';
 
 abstract interface class PublishingRepository {
   // ── Publication ──────────────────────────────────────────────────────────────
@@ -41,7 +42,8 @@ abstract interface class PublishingRepository {
   });
 
   // ── Snapshots ──────────────────────────────────────────────────────────────────
-  Future<Result<List<StorySnapshot>>> snapshots(String storyId);
+  /// The version history: the versions the owner's plan shows + the true total (B7).
+  Future<Result<StorySnapshotHistory>> snapshots(String storyId);
   Future<Result<StorySnapshot>> createSnapshot({required String storyId});
   Future<Result<StorySnapshot>> snapshot(String snapshotId);
 

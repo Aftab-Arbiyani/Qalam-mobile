@@ -8,6 +8,7 @@ import '../../domain/entities/publication_event.dart';
 import '../../domain/entities/review_session.dart';
 import '../../domain/entities/story_publication_state.dart';
 import '../../domain/entities/story_snapshot.dart';
+import '../../domain/entities/story_snapshot_history.dart';
 import '../../domain/repositories/publishing_repository.dart';
 import '../datasources/publishing_remote_data_source.dart';
 
@@ -64,7 +65,7 @@ class PublishingRepositoryImpl implements PublishingRepository {
       guardResult(() => _remote.requestChanges(storyId: storyId, notes: notes));
 
   @override
-  Future<Result<List<StorySnapshot>>> snapshots(String storyId) =>
+  Future<Result<StorySnapshotHistory>> snapshots(String storyId) =>
       guardResult(() => _remote.snapshots(storyId));
 
   @override

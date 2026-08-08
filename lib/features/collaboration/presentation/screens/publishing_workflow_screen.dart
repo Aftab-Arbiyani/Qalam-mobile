@@ -20,10 +20,12 @@ import '../../domain/entities/collaboration_enums.dart';
 import '../../domain/entities/publication_event.dart';
 import '../../domain/entities/review_session.dart';
 import '../../domain/entities/story_snapshot.dart';
+import '../../domain/entities/story_snapshot_history.dart';
 import '../controllers/publishing_controller.dart';
 import '../domain_labels.dart';
 import '../providers/collaboration_providers.dart';
 import '../widgets/capability_gate.dart';
+import '../widgets/snapshot_history_notice.dart';
 
 class PublishingWorkflowScreen extends ConsumerWidget {
   const PublishingWorkflowScreen({required this.storyId, super.key});
@@ -280,7 +282,7 @@ class _SnapshotsCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ThemeData theme = Theme.of(context);
-    final AsyncValue<List<StorySnapshot>> async = ref.watch(
+    final AsyncValue<StorySnapshotHistory> async = ref.watch(
       storySnapshotsProvider(storyId),
     );
     final bool busy = ref.watch(publishingControllerProvider).isLoading;
@@ -292,10 +294,19 @@ class _SnapshotsCard extends ConsumerWidget {
           Row(
             children: <Widget>[
               Text('Snapshots', style: theme.textTheme.titleMedium),
+              Gap.h2,
+              // "5 of 32 versions" (B7). Present only once the plan is withholding some;
+              // it reads off the server's true total, not the length of the clamped list.
+              SnapshotHistoryCount(
+                history: async.value ?? StorySnapshotHistory.empty,
+              ),
               const Spacer(),
               CapabilityGate(
                 storyId: storyId,
                 action: PolicyAction.storyEdit,
+                // Never disabled by the history depth. B7 clamps the READ: an author at
+                // their limit still gets new versions and simply stops seeing the oldest,
+                // and the accept-a-suggestion path depends on that capture succeeding.
                 child: TextButton.icon(
                   icon: const Icon(Icons.add_a_photo_outlined, size: 18),
                   label: const Text('Capture'),
@@ -321,8 +332,8 @@ class _SnapshotsCard extends ConsumerWidget {
               failure: _failureOf(error),
               onRetry: () => ref.invalidate(storySnapshotsProvider(storyId)),
             ),
-            data: (List<StorySnapshot> snapshots) {
-              if (snapshots.isEmpty) {
+            data: (StorySnapshotHistory history) {
+              if (history.items.isEmpty) {
                 return Text(
                   'No snapshots yet.',
                   style: theme.textTheme.bodySmall,
@@ -330,7 +341,7 @@ class _SnapshotsCard extends ConsumerWidget {
               }
               return Column(
                 children: <Widget>[
-                  for (final StorySnapshot snapshot in snapshots)
+                  for (final StorySnapshot snapshot in history.items)
                     ListTile(
                       contentPadding: EdgeInsets.zero,
                       leading: const Icon(Icons.history),
@@ -362,6 +373,12 @@ class _SnapshotsCard extends ConsumerWidget {
                         ),
                       ),
                     ),
+                  // The offer stands where the hidden versions would be — after the oldest
+                  // one shown, since the list is newest-first.
+                  if (history.isLimited) ...<Widget>[
+                    Gap.v2,
+                    SnapshotHistoryNotice(history: history),
+                  ],
                 ],
               );
             },

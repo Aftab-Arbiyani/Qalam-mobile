@@ -18,6 +18,7 @@ import '../../domain/entities/publication_event.dart';
 import '../../domain/entities/review_session.dart';
 import '../../domain/entities/story_publication_state.dart';
 import '../../domain/entities/story_snapshot.dart';
+import '../../domain/entities/story_snapshot_history.dart';
 
 class PublishingRemoteDataSource {
   const PublishingRemoteDataSource(this._api);
@@ -113,12 +114,18 @@ class PublishingRemoteDataSource {
 
   // ── Snapshots ──────────────────────────────────────────────────────────────────
 
-  Future<List<StorySnapshot>> snapshots(
+  /// The versions the story OWNER's plan shows, plus the TRUE total (B7,
+  /// `platfrom/docs/45` §4.12).
+  ///
+  /// `getList`, not `get`, was right until B7: the route now answers an OBJECT so the
+  /// clamped list can carry the real count with it. Decoding it as a list again would
+  /// yield an empty history — the shape defect P-1/P-7 class, at a new door.
+  Future<StorySnapshotHistory> snapshots(
     String storyId, {
     CancelToken? cancelToken,
-  }) => _api.getList(
+  }) => _api.get(
     ApiPaths.storySnapshots(storyId),
-    decodeItem: StorySnapshot.fromJson,
+    decode: StorySnapshotHistory.fromJson,
     cancelToken: cancelToken,
   );
 

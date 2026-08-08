@@ -1361,24 +1361,36 @@ final class StoryReviewFamily extends $Family
   String toString() => r'storyReviewProvider';
 }
 
-/// The snapshots (versions) of a story, newest first as the server returns them.
+/// A story's version history — the versions the OWNER's plan shows, newest first, plus
+/// the true total of everything stored (B7, `platfrom/docs/45` §4.12).
+///
+/// Read the count from `total`, never from `items.length`: the latter is the clamped
+/// number and would report a thirty-two-version story as having five.
 
 @ProviderFor(storySnapshots)
 final storySnapshotsProvider = StorySnapshotsFamily._();
 
-/// The snapshots (versions) of a story, newest first as the server returns them.
+/// A story's version history — the versions the OWNER's plan shows, newest first, plus
+/// the true total of everything stored (B7, `platfrom/docs/45` §4.12).
+///
+/// Read the count from `total`, never from `items.length`: the latter is the clamped
+/// number and would report a thirty-two-version story as having five.
 
 final class StorySnapshotsProvider
     extends
         $FunctionalProvider<
-          AsyncValue<List<StorySnapshot>>,
-          List<StorySnapshot>,
-          FutureOr<List<StorySnapshot>>
+          AsyncValue<StorySnapshotHistory>,
+          StorySnapshotHistory,
+          FutureOr<StorySnapshotHistory>
         >
     with
-        $FutureModifier<List<StorySnapshot>>,
-        $FutureProvider<List<StorySnapshot>> {
-  /// The snapshots (versions) of a story, newest first as the server returns them.
+        $FutureModifier<StorySnapshotHistory>,
+        $FutureProvider<StorySnapshotHistory> {
+  /// A story's version history — the versions the OWNER's plan shows, newest first, plus
+  /// the true total of everything stored (B7, `platfrom/docs/45` §4.12).
+  ///
+  /// Read the count from `total`, never from `items.length`: the latter is the clamped
+  /// number and would report a thirty-two-version story as having five.
   StorySnapshotsProvider._({
     required StorySnapshotsFamily super.from,
     required String super.argument,
@@ -1402,12 +1414,12 @@ final class StorySnapshotsProvider
 
   @$internal
   @override
-  $FutureProviderElement<List<StorySnapshot>> $createElement(
+  $FutureProviderElement<StorySnapshotHistory> $createElement(
     $ProviderPointer pointer,
   ) => $FutureProviderElement(pointer);
 
   @override
-  FutureOr<List<StorySnapshot>> create(Ref ref) {
+  FutureOr<StorySnapshotHistory> create(Ref ref) {
     final argument = this.argument as String;
     return storySnapshots(ref, argument);
   }
@@ -1423,12 +1435,16 @@ final class StorySnapshotsProvider
   }
 }
 
-String _$storySnapshotsHash() => r'c857c4e0eaf4d04e70dacb2d39f21cff004e5357';
+String _$storySnapshotsHash() => r'2c7110f8af971f1650b12a6c57e32576c88e7adf';
 
-/// The snapshots (versions) of a story, newest first as the server returns them.
+/// A story's version history — the versions the OWNER's plan shows, newest first, plus
+/// the true total of everything stored (B7, `platfrom/docs/45` §4.12).
+///
+/// Read the count from `total`, never from `items.length`: the latter is the clamped
+/// number and would report a thirty-two-version story as having five.
 
 final class StorySnapshotsFamily extends $Family
-    with $FunctionalFamilyOverride<FutureOr<List<StorySnapshot>>, String> {
+    with $FunctionalFamilyOverride<FutureOr<StorySnapshotHistory>, String> {
   StorySnapshotsFamily._()
     : super(
         retry: null,
@@ -1438,7 +1454,11 @@ final class StorySnapshotsFamily extends $Family
         isAutoDispose: true,
       );
 
-  /// The snapshots (versions) of a story, newest first as the server returns them.
+  /// A story's version history — the versions the OWNER's plan shows, newest first, plus
+  /// the true total of everything stored (B7, `platfrom/docs/45` §4.12).
+  ///
+  /// Read the count from `total`, never from `items.length`: the latter is the clamped
+  /// number and would report a thirty-two-version story as having five.
 
   StorySnapshotsProvider call(String storyId) =>
       StorySnapshotsProvider._(argument: storyId, from: this);

@@ -14,6 +14,7 @@ import 'package:qalam_mobile/features/collaboration/domain/entities/collaboratio
 import 'package:qalam_mobile/features/collaboration/domain/entities/review_session.dart';
 import 'package:qalam_mobile/features/collaboration/domain/entities/story_publication_state.dart';
 import 'package:qalam_mobile/features/collaboration/domain/entities/story_snapshot.dart';
+import 'package:qalam_mobile/features/collaboration/domain/entities/story_snapshot_history.dart';
 
 class _MockApiClient extends Mock implements ApiClient {}
 
@@ -324,6 +325,42 @@ void main() {
       );
 
       expect(snapshot.label, 'Version 3');
+    });
+
+    /// B7 (`platfrom/docs/45` §4.12) changed this route's shape: it answers an OBJECT so
+    /// the clamped list can carry the true total with it. Pinned at the data source, which
+    /// is the layer that knows the wire — decoding it as a list again would yield an empty
+    /// history and no count, the same class as P-1/P-7.
+    test('snapshots reads the history OBJECT, not a bare list (B7)', () async {
+      when(
+        () => api.get<StorySnapshotHistory>(
+          any(),
+          decode: any(named: 'decode'),
+          cancelToken: any(named: 'cancelToken'),
+        ),
+      ).thenAnswer(
+        (_) async => StorySnapshotHistory.fromJson(<String, dynamic>{
+          'items': <Object?>[_snapshotResponse()],
+          'total': 32,
+          'visible': 1,
+          'hidden': 31,
+          'limit': 5,
+          'unlimited': false,
+        }),
+      );
+
+      final StorySnapshotHistory history = await remote.snapshots('s1');
+
+      verify(
+        () => api.get<StorySnapshotHistory>(
+          '/stories/s1/snapshots',
+          decode: any(named: 'decode'),
+          cancelToken: any(named: 'cancelToken'),
+        ),
+      ).called(1);
+      expect(history.items, hasLength(1));
+      expect(history.total, 32);
+      expect(history.isLimited, isTrue);
     });
 
     test('createSnapshot sends no body — the handler has no @Body() (P-7/P-8)', () async {

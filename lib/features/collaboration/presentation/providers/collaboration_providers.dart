@@ -32,7 +32,7 @@ import '../../domain/entities/publication_event.dart';
 import '../../domain/entities/review_session.dart';
 import '../../domain/entities/story_invitation.dart';
 import '../../domain/entities/story_member.dart';
-import '../../domain/entities/story_snapshot.dart';
+import '../../domain/entities/story_snapshot_history.dart';
 import '../../domain/entities/trust_summary.dart';
 import '../../domain/repositories/collaboration_repository.dart';
 import '../../domain/repositories/publishing_repository.dart';
@@ -226,13 +226,20 @@ Future<ReviewSession?> storyReview(Ref ref, String storyId) async {
   };
 }
 
-/// The snapshots (versions) of a story, newest first as the server returns them.
+/// A story's version history — the versions the OWNER's plan shows, newest first, plus
+/// the true total of everything stored (B7, `platfrom/docs/45` §4.12).
+///
+/// Read the count from `total`, never from `items.length`: the latter is the clamped
+/// number and would report a thirty-two-version story as having five.
 @riverpod
-Future<List<StorySnapshot>> storySnapshots(Ref ref, String storyId) async {
-  final Result<List<StorySnapshot>> result = await ref
+Future<StorySnapshotHistory> storySnapshots(Ref ref, String storyId) async {
+  final Result<StorySnapshotHistory> result = await ref
       .watch(publishingRepositoryProvider)
       .snapshots(storyId);
-  return _unwrapList(result);
+  return switch (result) {
+    Ok<StorySnapshotHistory>(:final StorySnapshotHistory value) => value,
+    Err<StorySnapshotHistory>(:final Failure failure) => throw failure,
+  };
 }
 
 /// The publication history for a story.

@@ -160,6 +160,7 @@ abstract final class ErrorCodes {
   /// pieces — nothing resets, and the only things that help are deleting a piece or
   /// changing plan. Conflating the two remedies is the W4 defect (docs/48 §3.6).
   static const String pieceLimitReached = 'PIECE_LIMIT_REACHED';
+
   /// B6 (`platfrom/docs/45` §4.11) — the story has no collaborator seat left on its
   /// OWNER's plan, so the owner cannot invite or add another (402).
   ///
@@ -177,6 +178,17 @@ abstract final class ErrorCodes {
   /// plan, so this must never be shown as an upsell.
   static const String collaboratorSeatsUnavailable =
       'COLLABORATOR_SEATS_UNAVAILABLE';
+
+  /// B7 (`platfrom/docs/45` §4.12) — the requested story version is older than the
+  /// OWNER's plan shows, so reading or reverting to it is refused (402).
+  ///
+  /// **Nothing was deleted.** B7 is a read-time clamp: the version is stored and comes
+  /// back, revertible, the moment the plan grows. So this is not a 404, and unlike
+  /// [pieceLimitReached] and [collaboratorLimitReached] its remedy is not "delete
+  /// something" — deleting is exactly what does NOT reveal an older version. Not
+  /// `QUOTA_EXCEEDED` either: nothing resets, so "wait" would never come true (the W4
+  /// defect, docs/48 §3.6). The one remedy is a larger plan.
+  static const String snapshotHistoryLimited = 'SNAPSHOT_HISTORY_LIMITED';
   static const String insufficientCredits = 'INSUFFICIENT_CREDITS';
   static const String paymentFailed = 'PAYMENT_FAILED';
   static const String paymentNotFound = 'PAYMENT_NOT_FOUND';
