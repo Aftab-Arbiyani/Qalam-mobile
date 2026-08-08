@@ -23,6 +23,7 @@ import '../../data/repositories/trust_repository_impl.dart';
 import '../../domain/entities/block_entry.dart';
 import '../../domain/entities/collaboration_activity_entry.dart';
 import '../../domain/entities/collaboration_comment.dart';
+import '../../domain/entities/collaborator_limit.dart';
 import '../../domain/entities/edit_suggestion.dart';
 import '../../domain/entities/invitee_candidate.dart';
 import '../../domain/entities/policy_capability.dart';
@@ -91,6 +92,26 @@ Future<StoryCapabilities> storyCapabilities(Ref ref, String storyId) async {
   return switch (result) {
     Ok<StoryCapabilities>(:final StoryCapabilities value) => value,
     Err<StoryCapabilities>() => StoryCapabilities.readOnly,
+  };
+}
+
+/// The story's collaborator seat allowance (B6, `platfrom/docs/45` §4.11) — used / limit /
+/// remaining, charged to the story OWNER's plan.
+///
+/// **Never throws.** The route is `story.invite`-authorized, so a reader gets a 403 and a
+/// story whose allowance cannot be read would otherwise take the collaborators screen down
+/// with it. It falls back to [CollaboratorLimit.unknown], which the screen reads as "no
+/// number to show" rather than as a refusal: the invite control stays live unless the
+/// server actually said there is no seat. Losing an upsell is a missed sale; hiding the
+/// only management action on the screen is a broken app.
+@riverpod
+Future<CollaboratorLimit> storyCollaboratorLimit(Ref ref, String storyId) async {
+  final Result<CollaboratorLimit> result = await ref
+      .watch(collaborationRepositoryProvider)
+      .collaboratorLimit(storyId);
+  return switch (result) {
+    Ok<CollaboratorLimit>(:final CollaboratorLimit value) => value,
+    Err<CollaboratorLimit>() => CollaboratorLimit.unknown,
   };
 }
 

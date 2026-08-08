@@ -160,6 +160,23 @@ abstract final class ErrorCodes {
   /// pieces — nothing resets, and the only things that help are deleting a piece or
   /// changing plan. Conflating the two remedies is the W4 defect (docs/48 §3.6).
   static const String pieceLimitReached = 'PIECE_LIMIT_REACHED';
+  /// B6 (`platfrom/docs/45` §4.11) — the story has no collaborator seat left on its
+  /// OWNER's plan, so the owner cannot invite or add another (402).
+  ///
+  /// Not [pieceLimitReached]: that caps the author's own library and is cleared by
+  /// deleting a piece. Not `QUOTA_EXCEEDED`: nothing about a seat resets, so "wait" is
+  /// never the remedy here (the W4 defect, docs/48 §3.6). The two that help are removing
+  /// a collaborator and changing plan.
+  static const String collaboratorLimitReached = 'COLLABORATOR_LIMIT_REACHED';
+
+  /// B6 — the invitee cannot accept: the owner has downgraded or filled the story since
+  /// the invitation was sent (409).
+  ///
+  /// A separate code from [collaboratorLimitReached] because the person reading it is
+  /// not the person who can fix it. The invitee cannot buy a seat on someone else's
+  /// plan, so this must never be shown as an upsell.
+  static const String collaboratorSeatsUnavailable =
+      'COLLABORATOR_SEATS_UNAVAILABLE';
   static const String insufficientCredits = 'INSUFFICIENT_CREDITS';
   static const String paymentFailed = 'PAYMENT_FAILED';
   static const String paymentNotFound = 'PAYMENT_NOT_FOUND';

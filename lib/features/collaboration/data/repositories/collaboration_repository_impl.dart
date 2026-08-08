@@ -9,6 +9,7 @@ import '../../../../core/utils/typedefs.dart';
 import '../../../../shared/api/api_envelope.dart';
 import '../../domain/entities/collaboration_activity_entry.dart';
 import '../../domain/entities/collaboration_comment.dart';
+import '../../domain/entities/collaborator_limit.dart';
 import '../../domain/entities/edit_suggestion.dart';
 import '../../domain/entities/invitee_candidate.dart';
 import '../../domain/entities/policy_capability.dart';
@@ -55,6 +56,10 @@ class CollaborationRepositoryImpl implements CollaborationRepository {
   @override
   Future<Result<Unit>> leave(String storyId) =>
       guardUnit(() => _remote.leave(storyId));
+
+  @override
+  Future<Result<CollaboratorLimit>> collaboratorLimit(String storyId) =>
+      guardResult(() => _remote.collaboratorLimit(storyId));
 
   @override
   Future<Result<StoryCapabilities>> capabilities(String storyId) =>

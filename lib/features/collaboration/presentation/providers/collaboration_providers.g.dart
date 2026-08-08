@@ -477,6 +477,134 @@ final class StoryCapabilitiesFamily extends $Family
   String toString() => r'storyCapabilitiesProvider';
 }
 
+/// The story's collaborator seat allowance (B6, `platfrom/docs/45` §4.11) — used / limit /
+/// remaining, charged to the story OWNER's plan.
+///
+/// **Never throws.** The route is `story.invite`-authorized, so a reader gets a 403 and a
+/// story whose allowance cannot be read would otherwise take the collaborators screen down
+/// with it. It falls back to [CollaboratorLimit.unknown], which the screen reads as "no
+/// number to show" rather than as a refusal: the invite control stays live unless the
+/// server actually said there is no seat. Losing an upsell is a missed sale; hiding the
+/// only management action on the screen is a broken app.
+
+@ProviderFor(storyCollaboratorLimit)
+final storyCollaboratorLimitProvider = StoryCollaboratorLimitFamily._();
+
+/// The story's collaborator seat allowance (B6, `platfrom/docs/45` §4.11) — used / limit /
+/// remaining, charged to the story OWNER's plan.
+///
+/// **Never throws.** The route is `story.invite`-authorized, so a reader gets a 403 and a
+/// story whose allowance cannot be read would otherwise take the collaborators screen down
+/// with it. It falls back to [CollaboratorLimit.unknown], which the screen reads as "no
+/// number to show" rather than as a refusal: the invite control stays live unless the
+/// server actually said there is no seat. Losing an upsell is a missed sale; hiding the
+/// only management action on the screen is a broken app.
+
+final class StoryCollaboratorLimitProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<CollaboratorLimit>,
+          CollaboratorLimit,
+          FutureOr<CollaboratorLimit>
+        >
+    with
+        $FutureModifier<CollaboratorLimit>,
+        $FutureProvider<CollaboratorLimit> {
+  /// The story's collaborator seat allowance (B6, `platfrom/docs/45` §4.11) — used / limit /
+  /// remaining, charged to the story OWNER's plan.
+  ///
+  /// **Never throws.** The route is `story.invite`-authorized, so a reader gets a 403 and a
+  /// story whose allowance cannot be read would otherwise take the collaborators screen down
+  /// with it. It falls back to [CollaboratorLimit.unknown], which the screen reads as "no
+  /// number to show" rather than as a refusal: the invite control stays live unless the
+  /// server actually said there is no seat. Losing an upsell is a missed sale; hiding the
+  /// only management action on the screen is a broken app.
+  StoryCollaboratorLimitProvider._({
+    required StoryCollaboratorLimitFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'storyCollaboratorLimitProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$storyCollaboratorLimitHash();
+
+  @override
+  String toString() {
+    return r'storyCollaboratorLimitProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<CollaboratorLimit> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<CollaboratorLimit> create(Ref ref) {
+    final argument = this.argument as String;
+    return storyCollaboratorLimit(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is StoryCollaboratorLimitProvider &&
+        other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$storyCollaboratorLimitHash() =>
+    r'e929d2099cca1edee3fc1171d674cd0bdcb720a4';
+
+/// The story's collaborator seat allowance (B6, `platfrom/docs/45` §4.11) — used / limit /
+/// remaining, charged to the story OWNER's plan.
+///
+/// **Never throws.** The route is `story.invite`-authorized, so a reader gets a 403 and a
+/// story whose allowance cannot be read would otherwise take the collaborators screen down
+/// with it. It falls back to [CollaboratorLimit.unknown], which the screen reads as "no
+/// number to show" rather than as a refusal: the invite control stays live unless the
+/// server actually said there is no seat. Losing an upsell is a missed sale; hiding the
+/// only management action on the screen is a broken app.
+
+final class StoryCollaboratorLimitFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<CollaboratorLimit>, String> {
+  StoryCollaboratorLimitFamily._()
+    : super(
+        retry: null,
+        name: r'storyCollaboratorLimitProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// The story's collaborator seat allowance (B6, `platfrom/docs/45` §4.11) — used / limit /
+  /// remaining, charged to the story OWNER's plan.
+  ///
+  /// **Never throws.** The route is `story.invite`-authorized, so a reader gets a 403 and a
+  /// story whose allowance cannot be read would otherwise take the collaborators screen down
+  /// with it. It falls back to [CollaboratorLimit.unknown], which the screen reads as "no
+  /// number to show" rather than as a refusal: the invite control stays live unless the
+  /// server actually said there is no seat. Losing an upsell is a missed sale; hiding the
+  /// only management action on the screen is a broken app.
+
+  StoryCollaboratorLimitProvider call(String storyId) =>
+      StoryCollaboratorLimitProvider._(argument: storyId, from: this);
+
+  @override
+  String toString() => r'storyCollaboratorLimitProvider';
+}
+
 /// The first page of root comments on a story. The endpoint is cursor-paginated
 /// (C-10); this provider exposes the first page and [storyCommentThread] fetches a
 /// thread's replies on demand (C-5).

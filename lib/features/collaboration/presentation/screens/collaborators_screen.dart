@@ -20,6 +20,7 @@ import '../../../../shared/widgets/media/q_avatar.dart';
 import '../../../../shared/widgets/states/q_empty_state.dart';
 import '../../../../shared/widgets/states/q_error_view.dart';
 import '../../domain/entities/collaboration_enums.dart';
+import '../../domain/entities/collaborator_limit.dart';
 import '../../domain/entities/invitee_candidate.dart';
 import '../../domain/entities/story_invitation.dart';
 import '../../domain/entities/story_member.dart';
@@ -27,6 +28,7 @@ import '../controllers/collaboration_controller.dart';
 import '../domain_labels.dart';
 import '../providers/collaboration_providers.dart';
 import '../widgets/capability_gate.dart';
+import '../widgets/collaborator_seat_notice.dart';
 import '../widgets/presence_bar.dart';
 import '../widgets/role_badge.dart';
 
@@ -38,6 +40,16 @@ class CollaboratorsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bool enabled = ref.watch(appConfigProvider).enableCollaboration;
+    // B6 seats (`platfrom/docs/45` §4.11). Read only while collaboration is on — a kill
+    // switch that still talks to the server is not a kill switch. The provider never
+    // throws, so a 403 (this route is `story.invite`-authorized) cannot break the screen.
+    final CollaboratorLimit allowance = enabled
+        ? ref
+              .watch(storyCollaboratorLimitProvider(storyId))
+              .asData
+              ?.value ??
+              CollaboratorLimit.unknown
+        : CollaboratorLimit.unknown;
     return Scaffold(
       appBar: QAppBar(
         title: 'Collaborators',
@@ -48,14 +60,25 @@ class CollaboratorsScreen extends ConsumerWidget {
               action: PolicyAction.storyInvite,
               child: IconButton(
                 icon: const Icon(Icons.person_add_alt_1_outlined),
-                tooltip: 'Invite',
-                onPressed: () => _showInviteSheet(context, ref),
+                tooltip: allowance.canInvite
+                    ? 'Invite'
+                    : 'Invite — no collaborator seats left on this plan',
+                /*
+                 * Disabled, never hidden. A free author must be able to SEE that
+                 * collaboration exists and what it costs — hiding the affordance is the C-1
+                 * defect (docs/48) and must not repeat here, while leaving it live to 402 is
+                 * W3c-1. The tooltip carries the reason, so the disabled state explains
+                 * itself to a screen reader instead of just going quiet.
+                 */
+                onPressed: allowance.canInvite
+                    ? () => _showInviteSheet(context, ref)
+                    : null,
               ),
             ),
         ],
       ),
       body: enabled
-          ? _body(context, ref)
+          ? _body(context, ref, allowance)
           : const QEmptyState(
               icon: Icons.group_outlined,
               title: 'Collaboration is off',
@@ -65,7 +88,11 @@ class CollaboratorsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _body(BuildContext context, WidgetRef ref) {
+  Widget _body(
+    BuildContext context,
+    WidgetRef ref,
+    CollaboratorLimit allowance,
+  ) {
     final AsyncValue<List<StoryMember>> async = ref.watch(
       storyMembersProvider(storyId),
     );
@@ -80,7 +107,9 @@ class CollaboratorsScreen extends ConsumerWidget {
           ref
             ..invalidate(storyMembersProvider(storyId))
             ..invalidate(storyInvitationsProvider(storyId))
-            ..invalidate(storyPresenceProvider(storyId));
+            ..invalidate(storyPresenceProvider(storyId))
+            // The seat count moves with the roster, so it refreshes with it.
+            ..invalidate(storyCollaboratorLimitProvider(storyId));
         },
         child: ListView(
           children: <Widget>[
@@ -90,10 +119,27 @@ class CollaboratorsScreen extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
+                  // The upsell / limit notice sits ABOVE the roster, where the writer is
+                  // already looking, and only for someone who could actually spend a seat.
+                  CapabilityGate(
+                    storyId: storyId,
+                    action: PolicyAction.storyInvite,
+                    child: CollaboratorSeatNotice(allowance: allowance),
+                  ),
                   if (members.isEmpty)
                     const _SectionHeader('No collaborators yet')
                   else ...<Widget>[
-                    const _SectionHeader('Members'),
+                    Row(
+                      children: <Widget>[
+                        const Expanded(child: _SectionHeader('Members')),
+                        // "2 of 3 collaborators" — the count BEFORE the wall.
+                        CapabilityGate(
+                          storyId: storyId,
+                          action: PolicyAction.storyInvite,
+                          child: CollaboratorSeatCount(allowance: allowance),
+                        ),
+                      ],
+                    ),
                     Gap.v2,
                     for (final StoryMember member in members) ...<Widget>[
                       _MemberTile(storyId: storyId, member: member),

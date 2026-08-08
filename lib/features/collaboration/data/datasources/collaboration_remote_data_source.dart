@@ -12,6 +12,7 @@ import '../../../../core/network/api_paths.dart';
 import '../../../../shared/api/api_envelope.dart';
 import '../../domain/entities/collaboration_activity_entry.dart';
 import '../../domain/entities/collaboration_comment.dart';
+import '../../domain/entities/collaborator_limit.dart';
 import '../../domain/entities/edit_suggestion.dart';
 import '../../domain/entities/invitee_candidate.dart';
 import '../../domain/entities/policy_capability.dart';
@@ -62,6 +63,17 @@ class CollaborationRemoteDataSource {
 
   Future<void> leave(String storyId) =>
       _api.postVoid(ApiPaths.storyLeave(storyId));
+
+  /// B6 — the story's collaborator seat allowance. Authorized as `story.invite`, so a
+  /// viewer who could not spend a seat gets a 403 rather than a number.
+  Future<CollaboratorLimit> collaboratorLimit(
+    String storyId, {
+    CancelToken? cancelToken,
+  }) => _api.get(
+    ApiPaths.storyCollaboratorLimit(storyId),
+    decode: CollaboratorLimit.fromJson,
+    cancelToken: cancelToken,
+  );
 
   Future<StoryCapabilities> capabilities(
     String storyId, {

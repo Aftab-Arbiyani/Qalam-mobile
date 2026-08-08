@@ -9,6 +9,7 @@ import '../../../../core/utils/typedefs.dart';
 import '../../../../shared/api/api_envelope.dart';
 import '../entities/collaboration_activity_entry.dart';
 import '../entities/collaboration_comment.dart';
+import '../entities/collaborator_limit.dart';
 import '../entities/edit_suggestion.dart';
 import '../entities/invitee_candidate.dart';
 import '../entities/policy_capability.dart';
@@ -38,6 +39,9 @@ abstract interface class CollaborationRepository {
 
   /// The server-authoritative capability map the client gates affordances on.
   Future<Result<StoryCapabilities>> capabilities(String storyId);
+
+  /// B6 — the story's collaborator seat allowance, by its OWNER's plan.
+  Future<Result<CollaboratorLimit>> collaboratorLimit(String storyId);
 
   // ── Invitations ──────────────────────────────────────────────────────────────
   /// Resolve a `@handle` to the invite target's id — the invite contract takes an id, and there is

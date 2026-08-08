@@ -104,6 +104,9 @@ abstract final class ApiPaths {
       '/stories/$id/members/$userId';
   static String storyLeave(String id) => '/stories/$id/leave';
   static String storyCapabilities(String id) => '/stories/$id/capabilities';
+  /// B6 — the story's collaborator seat allowance, charged to its owner's plan.
+  static String storyCollaboratorLimit(String id) =>
+      '/stories/$id/collaborators/limit';
   static String storyInvitations(String id) => '/stories/$id/invitations';
   static const String meInvitations = '/me/invitations';
   static String invitationAccept(String id) => '/invitations/$id/accept';
