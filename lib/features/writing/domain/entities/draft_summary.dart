@@ -29,6 +29,10 @@ abstract class DraftSummary with _$DraftSummary {
     @Default(PieceStatus.draft) PieceStatus status,
     @Default(Visibility.public) Visibility visibility,
     @Default(DraftSyncState.synced) DraftSyncState syncState,
+
+    /// The `ERROR_CODES` string from the last failed sync, so the row can say WHY it
+    /// failed instead of only that it did. Null for a server row or a clean draft.
+    String? lastError,
     @Default(TextDirectionKind.ltr) TextDirectionKind direction,
     String? coverImageKey,
     @Default(0) int wordCount,
@@ -48,6 +52,7 @@ abstract class DraftSummary with _$DraftSummary {
     status: draft.status,
     visibility: draft.visibility,
     syncState: draft.syncState,
+    lastError: draft.lastError,
     direction: draft.direction,
     coverImageKey: draft.coverImageKey,
     wordCount: draft.wordCount,

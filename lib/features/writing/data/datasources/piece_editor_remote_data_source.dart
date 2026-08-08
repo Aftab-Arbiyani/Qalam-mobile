@@ -13,6 +13,7 @@ import '../../../../core/network/api_paths.dart';
 import '../../../../core/utils/typedefs.dart';
 import '../../../../shared/api/api_envelope.dart';
 import '../../domain/entities/draft_summary.dart';
+import '../../domain/entities/piece_allowance.dart';
 import '../mappers/piece_write_mappers.dart';
 
 class PieceEditorRemoteDataSource {
@@ -55,6 +56,12 @@ class PieceEditorRemoteDataSource {
 
   Future<Json> fetch(String id) =>
       _api.get<Json>(ApiPaths.pieceById(id), decode: _identity);
+
+  /// The author's plan piece allowance (B4) — used / limit / remaining.
+  Future<PieceAllowance> pieceLimit() => _api.get<PieceAllowance>(
+    ApiPaths.mePiecesLimit,
+    decode: pieceAllowanceFromJson,
+  );
 
   Future<CursorPage<DraftSummary>> listDrafts({String? cursor}) =>
       _api.getPage<DraftSummary>(

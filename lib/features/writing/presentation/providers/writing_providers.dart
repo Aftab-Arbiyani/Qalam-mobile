@@ -6,10 +6,12 @@ library;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../../core/di/providers.dart';
+import '../../../../core/utils/result.dart';
 import '../../data/datasources/draft_local_data_source.dart';
 import '../../data/datasources/piece_editor_remote_data_source.dart';
 import '../../data/repositories/piece_editor_repository_impl.dart';
 import '../../data/sync/draft_sync_engine.dart';
+import '../../domain/entities/piece_allowance.dart';
 import '../../domain/repositories/piece_editor_repository.dart';
 
 part 'writing_providers.g.dart';
@@ -52,6 +54,22 @@ int draftsRevision(Ref ref) {
   engine.revision.addListener(listener);
   ref.onDispose(() => engine.revision.removeListener(listener));
   return engine.revision.value;
+}
+
+/// The author's plan piece allowance (B4, docs/45 §4.9).
+///
+/// Re-read whenever the sync engine mutates a draft, because that is when the number
+/// moves: a create that lands or a delete that drains frees or spends a slot. Failing to
+/// read it is not an error state here — the surfaces render nothing and stay usable,
+/// since the server checks the create regardless (`null` = "not known", never
+/// "blocked").
+@riverpod
+Future<PieceAllowance?> pieceAllowance(Ref ref) async {
+  ref.watch(draftsRevisionProvider);
+  final Result<PieceAllowance> result = await ref
+      .read(pieceEditorRepositoryProvider)
+      .pieceAllowance();
+  return result.valueOrNull;
 }
 
 /// Current cover-upload progress (0.0–1.0), or null when idle — for the editor's

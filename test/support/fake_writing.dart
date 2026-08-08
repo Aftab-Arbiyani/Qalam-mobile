@@ -10,6 +10,7 @@ import 'package:qalam_mobile/core/utils/typedefs.dart';
 import 'package:qalam_mobile/features/writing/domain/entities/draft.dart';
 import 'package:qalam_mobile/features/writing/domain/entities/draft_summary.dart';
 import 'package:qalam_mobile/features/writing/domain/entities/draft_sync.dart';
+import 'package:qalam_mobile/features/writing/domain/entities/piece_allowance.dart';
 import 'package:qalam_mobile/features/writing/domain/repositories/piece_editor_repository.dart';
 import 'package:qalam_mobile/shared/api/api_envelope.dart';
 import 'package:qalam_mobile/shared/domain/entities/taxonomy.dart';
@@ -35,7 +36,17 @@ class FakePieceEditorRepository implements PieceEditorRepository {
   int scheduleCalls = 0;
   int deleteCalls = 0;
   int coverCalls = 0;
+  int allowanceCalls = 0;
   int nextRemote = 1;
+
+  /// The plan piece allowance the server reports (B4). Unlimited by default so tests
+  /// that predate the cap are unaffected by it.
+  PieceAllowance allowance = const PieceAllowance(
+    used: 0,
+    limit: 0,
+    unlimited: true,
+    canCreate: true,
+  );
 
   List<DraftSummary> serverDrafts = <DraftSummary>[];
 
@@ -126,6 +137,13 @@ class FakePieceEditorRepository implements PieceEditorRepository {
     return Ok<CursorPage<DraftSummary>>(
       CursorPage<DraftSummary>(items: serverDrafts, meta: const CursorMeta()),
     );
+  }
+
+  @override
+  Future<Result<PieceAllowance>> pieceAllowance() async {
+    allowanceCalls++;
+    if (offline) return _offline<PieceAllowance>();
+    return Ok<PieceAllowance>(allowance);
   }
 
   @override

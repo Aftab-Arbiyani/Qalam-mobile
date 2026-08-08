@@ -75,7 +75,7 @@ final class RelatedSuggestionsProvider
 }
 
 String _$relatedSuggestionsHash() =>
-    r'34ac0e5ce35dee52ae39dcc7591d947992f499e9';
+    r'eaeceeda41600832985ce50a54e52e17cf12534c';
 
 final class RelatedSuggestionsFamily extends $Family
     with
@@ -100,19 +100,17 @@ final class RelatedSuggestionsFamily extends $Family
 }
 
 /// The tag search itself — a self-contained `Future` provider with exactly one
-/// upstream dependency ([readingRepositoryProvider]), and one that never rejects
-/// (a failed [Result] resolves to an empty list rather than throwing), so it
-/// carries none of the `.future`-across-autoDispose-providers risk documented on
-/// [relatedSuggestions].
+/// upstream dependency ([readingRepositoryProvider]). It never rejects (a failed
+/// [Result] resolves to an empty list rather than throwing), so it never enters
+/// the retrying-`AsyncLoading` state [_stillPending] has to account for.
 
 @ProviderFor(_tagSearch)
 final _tagSearchProvider = _TagSearchFamily._();
 
 /// The tag search itself — a self-contained `Future` provider with exactly one
-/// upstream dependency ([readingRepositoryProvider]), and one that never rejects
-/// (a failed [Result] resolves to an empty list rather than throwing), so it
-/// carries none of the `.future`-across-autoDispose-providers risk documented on
-/// [relatedSuggestions].
+/// upstream dependency ([readingRepositoryProvider]). It never rejects (a failed
+/// [Result] resolves to an empty list rather than throwing), so it never enters
+/// the retrying-`AsyncLoading` state [_stillPending] has to account for.
 
 final class _TagSearchProvider
     extends
@@ -125,10 +123,9 @@ final class _TagSearchProvider
         $FutureModifier<List<RelatedSuggestion>>,
         $FutureProvider<List<RelatedSuggestion>> {
   /// The tag search itself — a self-contained `Future` provider with exactly one
-  /// upstream dependency ([readingRepositoryProvider]), and one that never rejects
-  /// (a failed [Result] resolves to an empty list rather than throwing), so it
-  /// carries none of the `.future`-across-autoDispose-providers risk documented on
-  /// [relatedSuggestions].
+  /// upstream dependency ([readingRepositoryProvider]). It never rejects (a failed
+  /// [Result] resolves to an empty list rather than throwing), so it never enters
+  /// the retrying-`AsyncLoading` state [_stillPending] has to account for.
   _TagSearchProvider._({
     required _TagSearchFamily super.from,
     required _TagSearchArgs super.argument,
@@ -176,10 +173,9 @@ final class _TagSearchProvider
 String _$_tagSearchHash() => r'08f38f2454baaa24c234a203aaf788980797fdfd';
 
 /// The tag search itself — a self-contained `Future` provider with exactly one
-/// upstream dependency ([readingRepositoryProvider]), and one that never rejects
-/// (a failed [Result] resolves to an empty list rather than throwing), so it
-/// carries none of the `.future`-across-autoDispose-providers risk documented on
-/// [relatedSuggestions].
+/// upstream dependency ([readingRepositoryProvider]). It never rejects (a failed
+/// [Result] resolves to an empty list rather than throwing), so it never enters
+/// the retrying-`AsyncLoading` state [_stillPending] has to account for.
 
 final class _TagSearchFamily extends $Family
     with
@@ -197,10 +193,9 @@ final class _TagSearchFamily extends $Family
       );
 
   /// The tag search itself — a self-contained `Future` provider with exactly one
-  /// upstream dependency ([readingRepositoryProvider]), and one that never rejects
-  /// (a failed [Result] resolves to an empty list rather than throwing), so it
-  /// carries none of the `.future`-across-autoDispose-providers risk documented on
-  /// [relatedSuggestions].
+  /// upstream dependency ([readingRepositoryProvider]). It never rejects (a failed
+  /// [Result] resolves to an empty list rather than throwing), so it never enters
+  /// the retrying-`AsyncLoading` state [_stillPending] has to account for.
 
   _TagSearchProvider call(_TagSearchArgs args) =>
       _TagSearchProvider._(argument: args, from: this);

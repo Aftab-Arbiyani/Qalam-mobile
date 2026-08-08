@@ -13,6 +13,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../app/router/routes.dart';
 import '../../../../core/di/providers.dart';
 import '../../../../shared/domain/enums.dart';
+import '../../../../shared/domain/error_codes.dart';
 import '../../../../shared/theme/q_tokens.dart';
 import '../../../../shared/theme/tokens/radius_tokens.dart';
 import '../../../../shared/theme/tokens/spacing_tokens.dart';
@@ -22,7 +23,10 @@ import '../../../../shared/widgets/media/q_network_image.dart';
 import '../../../../shared/widgets/states/q_empty_state.dart';
 import '../../domain/entities/draft_summary.dart';
 import '../controllers/draft_list_controller.dart';
+import '../providers/writing_providers.dart';
+import '../support/piece_limit_copy.dart';
 import '../widgets/draft_status_chips.dart';
+import '../widgets/piece_limit_notice.dart';
 
 class DraftsScreen extends ConsumerWidget {
   const DraftsScreen({super.key});
@@ -32,6 +36,13 @@ class DraftsScreen extends ConsumerWidget {
     final QTokens tokens = QTokens.of(context);
     final AsyncValue<List<DraftSummary>> async = ref.watch(
       draftListControllerProvider,
+    );
+    // B4 (docs/45 §4.9). Until the allowance is known there is no count and nothing is
+    // blocked: the server checks every create anyway, so an unknown allowance costs at
+    // worst one refused sync, while holding the action back on every screen open costs
+    // every writer who is nowhere near their cap.
+    final PieceLimitCopy limit = PieceLimitCopy.of(
+      ref.watch(pieceAllowanceProvider).asData?.value,
     );
 
     return Scaffold(
@@ -45,14 +56,28 @@ class DraftsScreen extends ConsumerWidget {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => unawaited(_newDraft(context, ref)),
-        icon: const Icon(Icons.edit_outlined),
-        label: const Text('New piece'),
+      // Disabled rather than hidden when the plan is full: a null `onPressed` renders the
+      // FAB visibly inert, and the notice below says why. Minting a local draft that
+      // could never sync would be worse than refusing it here.
+      floatingActionButton: Semantics(
+        enabled: !limit.blocked,
+        button: true,
+        label: limit.blocked
+            ? 'New piece, unavailable — your plan’s piece limit is full'
+            : 'New piece',
+        child: FloatingActionButton.extended(
+          onPressed: limit.blocked
+              ? null
+              : () => unawaited(_newDraft(context, ref)),
+          icon: const Icon(Icons.edit_outlined),
+          label: const Text('New piece'),
+        ),
       ),
       body: Column(
         children: <Widget>[
           const ConnectivityBanner(),
+          PieceAllowanceCount(copy: limit),
+          PieceLimitNotice(copy: limit),
           Expanded(
             child: RefreshIndicator(
               onRefresh: () =>
@@ -182,6 +207,27 @@ class _DraftRow extends ConsumerWidget {
                           ),
                       ],
                     ),
+                    // The one sync failure that "Sync failed" alone would misrepresent:
+                    // it will not come good on its own, and the writer can fix it. The
+                    // race that reaches here is real — another device (or another tab)
+                    // took the last slot after this draft was minted (B4).
+                    if (summary.lastError ==
+                        ErrorCodes.pieceLimitReached) ...<Widget>[
+                      const SizedBox(height: QSpacing.s2),
+                      Text(
+                        'Not saved — your plan’s piece limit is full. Delete a piece '
+                        'to free a slot, or move to a larger plan.',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: tokens.colors.warningText,
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () =>
+                            unawaited(context.push(Routes.billingPlans)),
+                        child: const Text('See plans'),
+                      ),
+                    ],
                   ],
                 ),
               ),

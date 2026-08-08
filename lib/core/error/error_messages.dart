@@ -48,6 +48,12 @@ abstract final class ErrorMessages {
       title: 'Please verify your email first.',
       body: 'Check your inbox for the verification link.',
     ),
+    // B4 (docs/45 §4.9). Says nothing about waiting: unlike a spent AI allowance, a
+    // piece cap never resets, so the remedies are delete or upgrade (docs/48 §3.6).
+    ErrorCodes.pieceLimitReached: (
+      title: 'Your plan’s piece limit is full.',
+      body: 'Delete a piece to free a slot, or move to a larger plan.',
+    ),
   };
 
   /// Resolve copy for a [Failure]. Prefers a per-code override, then a per-kind

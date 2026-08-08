@@ -20,6 +20,7 @@ _DraftSummary _$DraftSummaryFromJson(Map<String, dynamic> json) =>
       syncState:
           $enumDecodeNullable(_$DraftSyncStateEnumMap, json['syncState']) ??
           DraftSyncState.synced,
+      lastError: json['lastError'] as String?,
       direction:
           $enumDecodeNullable(_$TextDirectionKindEnumMap, json['direction']) ??
           TextDirectionKind.ltr,
@@ -45,6 +46,7 @@ Map<String, dynamic> _$DraftSummaryToJson(_DraftSummary instance) =>
       'status': _$PieceStatusEnumMap[instance.status]!,
       'visibility': _$VisibilityEnumMap[instance.visibility]!,
       'syncState': _$DraftSyncStateEnumMap[instance.syncState]!,
+      'lastError': instance.lastError,
       'direction': _$TextDirectionKindEnumMap[instance.direction]!,
       'coverImageKey': instance.coverImageKey,
       'wordCount': instance.wordCount,

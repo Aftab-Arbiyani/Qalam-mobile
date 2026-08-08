@@ -261,6 +261,68 @@ final class DraftsRevisionProvider extends $FunctionalProvider<int, int, int>
 
 String _$draftsRevisionHash() => r'86e5d01d2740c90387dc6abee4a71a015e9ee295';
 
+/// The author's plan piece allowance (B4, docs/45 §4.9).
+///
+/// Re-read whenever the sync engine mutates a draft, because that is when the number
+/// moves: a create that lands or a delete that drains frees or spends a slot. Failing to
+/// read it is not an error state here — the surfaces render nothing and stay usable,
+/// since the server checks the create regardless (`null` = "not known", never
+/// "blocked").
+
+@ProviderFor(pieceAllowance)
+final pieceAllowanceProvider = PieceAllowanceProvider._();
+
+/// The author's plan piece allowance (B4, docs/45 §4.9).
+///
+/// Re-read whenever the sync engine mutates a draft, because that is when the number
+/// moves: a create that lands or a delete that drains frees or spends a slot. Failing to
+/// read it is not an error state here — the surfaces render nothing and stay usable,
+/// since the server checks the create regardless (`null` = "not known", never
+/// "blocked").
+
+final class PieceAllowanceProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<PieceAllowance?>,
+          PieceAllowance?,
+          FutureOr<PieceAllowance?>
+        >
+    with $FutureModifier<PieceAllowance?>, $FutureProvider<PieceAllowance?> {
+  /// The author's plan piece allowance (B4, docs/45 §4.9).
+  ///
+  /// Re-read whenever the sync engine mutates a draft, because that is when the number
+  /// moves: a create that lands or a delete that drains frees or spends a slot. Failing to
+  /// read it is not an error state here — the surfaces render nothing and stay usable,
+  /// since the server checks the create regardless (`null` = "not known", never
+  /// "blocked").
+  PieceAllowanceProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'pieceAllowanceProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$pieceAllowanceHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<PieceAllowance?> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<PieceAllowance?> create(Ref ref) {
+    return pieceAllowance(ref);
+  }
+}
+
+String _$pieceAllowanceHash() => r'01159ca0b7da7fdfe93d73444aee32306c8e4eb2';
+
 /// Current cover-upload progress (0.0–1.0), or null when idle — for the editor's
 /// cover field progress indicator.
 

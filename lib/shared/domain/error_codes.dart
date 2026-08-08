@@ -145,17 +145,27 @@ abstract final class ErrorCodes {
   static const String monetizationDisabled = 'MONETIZATION_DISABLED';
   static const String subscriptionNotFound = 'SUBSCRIPTION_NOT_FOUND';
   static const String subscriptionAlreadyActive = 'SUBSCRIPTION_ALREADY_ACTIVE';
-  static const String subscriptionInvalidTransition = 'SUBSCRIPTION_INVALID_TRANSITION';
+  static const String subscriptionInvalidTransition =
+      'SUBSCRIPTION_INVALID_TRANSITION';
   static const String planNotFound = 'PLAN_NOT_FOUND';
   static const String planChangeNoop = 'PLAN_CHANGE_NOOP';
   static const String trialNotEligible = 'TRIAL_NOT_ELIGIBLE';
   static const String entitlementDenied = 'ENTITLEMENT_DENIED';
   static const String quotaExceeded = 'QUOTA_EXCEEDED';
+
+  /// The author already holds as many pieces as their plan allows (B4, 402).
+  ///
+  /// Kept apart from [quotaExceeded] on purpose: that is a spent AI allowance that
+  /// comes back on its own, so waiting is a real remedy. This is a stock cap on live
+  /// pieces — nothing resets, and the only things that help are deleting a piece or
+  /// changing plan. Conflating the two remedies is the W4 defect (docs/48 §3.6).
+  static const String pieceLimitReached = 'PIECE_LIMIT_REACHED';
   static const String insufficientCredits = 'INSUFFICIENT_CREDITS';
   static const String paymentFailed = 'PAYMENT_FAILED';
   static const String paymentNotFound = 'PAYMENT_NOT_FOUND';
   static const String invoiceNotFound = 'INVOICE_NOT_FOUND';
-  static const String paymentProviderNotConfigured = 'PAYMENT_PROVIDER_NOT_CONFIGURED';
+  static const String paymentProviderNotConfigured =
+      'PAYMENT_PROVIDER_NOT_CONFIGURED';
   static const String paymentProviderError = 'PAYMENT_PROVIDER_ERROR';
   static const String receiptValidationFailed = 'RECEIPT_VALIDATION_FAILED';
   static const String couponNotFound = 'COUPON_NOT_FOUND';

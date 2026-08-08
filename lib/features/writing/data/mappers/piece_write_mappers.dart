@@ -14,6 +14,7 @@ import '../../../../shared/domain/enums.dart';
 import '../../domain/entities/draft.dart';
 import '../../domain/entities/draft_summary.dart';
 import '../../domain/entities/draft_sync.dart';
+import '../../domain/entities/piece_allowance.dart';
 
 /// Build the `CreatePieceDto`/`UpdatePieceDto` body from a [draft]. `languageCode`
 /// is always sent (required on create). Nullable optionals are OMITTED when unset
@@ -101,6 +102,25 @@ DraftSummary draftSummaryFromListItem(Json json) => DraftSummary(
   scheduledAt: asUtcDateOrNull(json['scheduledAt']),
   updatedAt: asUtcDateOrNull(json['updatedAt']),
 );
+
+/// Map `PieceLimitDto` to the [PieceAllowance] the writer's surfaces read (B4).
+///
+/// `canCreate` is taken from the server rather than derived here: the server owns the
+/// verdict, and a client that recomputes it is a second rule to keep in step. It defaults
+/// to permissive only when the field is missing entirely, which no current server sends —
+/// and the create is checked server-side regardless, so the cost of being wrong is a 402,
+/// not an escaped cap.
+PieceAllowance pieceAllowanceFromJson(Json json) {
+  final int limit = asInt(json['limit']);
+  final bool unlimited = asBool(json['unlimited'], limit <= 0);
+  return PieceAllowance(
+    used: asInt(json['used']),
+    limit: limit,
+    remaining: unlimited ? null : asInt(json['remaining']),
+    unlimited: unlimited,
+    canCreate: asBool(json['canCreate'], true),
+  );
+}
 
 List<String> _tagNames(Object? raw) => asMapList(raw)
     .map(tagFromWire)

@@ -14,6 +14,7 @@ import '../../../../shared/api/api_envelope.dart';
 import '../../../../shared/domain/error_codes.dart';
 import '../../domain/entities/draft.dart';
 import '../../domain/entities/draft_summary.dart';
+import '../../domain/entities/piece_allowance.dart';
 import '../../domain/repositories/piece_editor_repository.dart';
 import '../datasources/piece_editor_remote_data_source.dart';
 import '../mappers/piece_write_mappers.dart';
@@ -72,6 +73,10 @@ class PieceEditorRepositoryImpl implements PieceEditorRepository {
     final Json data = await _remote.fetch(remoteId);
     return draftFromServerPiece(data, localId: 'srv-$remoteId', now: _now());
   });
+
+  @override
+  Future<Result<PieceAllowance>> pieceAllowance() =>
+      _guard<PieceAllowance>(_remote.pieceLimit);
 
   @override
   Future<Result<CursorPage<DraftSummary>>> listDrafts({String? cursor}) =>

@@ -146,6 +146,9 @@ abstract final class ApiPaths {
   // action endpoints — `status`/`slug`/`scheduledAt` are never writable fields.
   static const String meDrafts = '/me/drafts';
   static const String mePieces = '/me/pieces';
+
+  /// The author's plan piece allowance — used / limit / remaining (B4).
+  static const String mePiecesLimit = '/me/pieces/limit';
   static String piecePublish(String id) => '/pieces/$id/publish';
   static String pieceSchedule(String id) => '/pieces/$id/schedule';
   static String pieceCover(String id) => '/pieces/$id/cover';

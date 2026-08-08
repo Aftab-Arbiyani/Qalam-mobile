@@ -15,6 +15,7 @@ import '../../../../core/utils/typedefs.dart';
 import '../../../../shared/api/api_envelope.dart';
 import '../entities/draft.dart';
 import '../entities/draft_summary.dart';
+import '../entities/piece_allowance.dart';
 
 /// Progress fraction 0.0–1.0 for a cover upload.
 typedef UploadProgress = void Function(double progress);
@@ -44,6 +45,10 @@ abstract interface class PieceEditorRepository {
 
   /// `GET /me/drafts` — one cursor page of the writer's drafts.
   Future<Result<CursorPage<DraftSummary>>> listDrafts({String? cursor});
+
+  /// `GET /me/pieces/limit` — the author's plan piece allowance (B4, docs/45 §4.9),
+  /// so the writer sees "24 of 25 pieces" before a create is refused rather than after.
+  Future<Result<PieceAllowance>> pieceAllowance();
 
   /// `POST /pieces/:id/cover` — multipart upload of the file at [filePath];
   /// returns the storage key. [onProgress] streams send progress; pass a stable
