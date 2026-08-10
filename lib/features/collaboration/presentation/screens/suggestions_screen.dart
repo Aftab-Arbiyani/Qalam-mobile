@@ -16,9 +16,9 @@ import '../../../../shared/widgets/app_bar/q_app_bar.dart';
 import '../../../../shared/widgets/cards/q_card.dart';
 import '../../../../shared/widgets/states/q_empty_state.dart';
 import '../../../../shared/widgets/states/q_error_view.dart';
+import '../../../profile/presentation/widgets/actor_identity.dart';
 import '../../domain/entities/collaboration_enums.dart';
 import '../../domain/entities/edit_suggestion.dart';
-import '../../domain/entities/story_invitation.dart' show shortActorId;
 import '../controllers/collaboration_controller.dart';
 import '../domain_labels.dart';
 import '../providers/collaboration_providers.dart';
@@ -107,10 +107,10 @@ class _SuggestionCard extends ConsumerWidget {
           Row(
             children: <Widget>[
               Expanded(
-                child: Text(
-                  // `SuggestionDto` carries `authorId` and no name (C-4), so show a
-                  // shortened id rather than an invented display name.
-                  shortActorId(suggestion.authorId),
+                // `SuggestionDto` carries `authorId` and no name (C-4); B3's
+                // by-id lookup turns it into the author's real name.
+                child: ActorName(
+                  userId: suggestion.authorId,
                   style: theme.textTheme.titleSmall,
                 ),
               ),

@@ -38,6 +38,10 @@ class ProfileRemoteDataSource {
     decode: profileFromJson,
   );
 
+  /// B3 — same view, same visibility rules, keyed by user id.
+  Future<Profile> getById(String userId) =>
+      _api.get<Profile>(ApiPaths.userById(userId), decode: profileFromJson);
+
   Future<Profile> updateMe(Json body) =>
       _api.patch<Profile>(ApiPaths.me, body: body, decode: profileFromJson);
 

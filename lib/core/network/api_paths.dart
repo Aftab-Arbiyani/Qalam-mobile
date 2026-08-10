@@ -26,6 +26,11 @@ abstract final class ApiPaths {
   static const String me = '/me';
   static String userByUsername(String username) => '/users/$username';
 
+  /// B3 — the same public profile keyed by user id, the key collaboration /
+  /// retrieval / publishing DTOs actually carry. Three segments, so it cannot
+  /// collide with the two-segment username route.
+  static String userById(String id) => '/users/by-id/$id';
+
   // Profile media uploads (M5, docs/40 §34.3). Dedicated multipart endpoints on
   // the profiles controller — distinct from the piece-cover upload; the server
   // re-encodes (avatar → 512² WebP, cover → 1500×500 WebP) and returns `{ key }`.

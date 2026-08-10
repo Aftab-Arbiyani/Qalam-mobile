@@ -12,8 +12,9 @@ import '../../../../core/utils/typedefs.dart';
 /// the **block row's own id**. Both are UUIDs, so `DELETE /users/{id}/block` reached
 /// the service and 404'd `BLOCK_NOT_FOUND` — unblocking could never work
 /// (defect **T-1**, `docs/56` §2.3). The `username`/`displayName`/`avatarKey` it also
-/// parsed are not in the DTO; the wire carries ids only, so a UI shows a shortened id
-/// (see `shortActorId`) rather than pretending to know a name.
+/// parsed are not in the DTO; the wire still carries ids only. Since B3 a UI resolves
+/// the person from `blockedId` (`ActorName`, `platfrom/docs/45` §4) instead of showing
+/// a shortened id — which is now only the fallback when that lookup cannot answer.
 class BlockEntry {
   const BlockEntry({
     required this.id,

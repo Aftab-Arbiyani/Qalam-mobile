@@ -27,8 +27,8 @@ import '../../../../shared/widgets/app_bar/q_app_bar.dart';
 import '../../../../shared/widgets/cards/q_card.dart';
 import '../../../../shared/widgets/feedback/q_dialog.dart';
 import '../../../../shared/widgets/states/q_empty_state.dart';
+import '../../../profile/presentation/widgets/actor_identity.dart';
 import '../../domain/entities/block_entry.dart';
-import '../../domain/entities/story_invitation.dart' show shortActorId;
 import '../../domain/entities/trust_summary.dart';
 import '../controllers/trust_controller.dart';
 import '../domain_labels.dart';
@@ -209,10 +209,10 @@ class _BlockRow extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                // The wire carries ids only — no username, no display name — so a row
-                // shows a shortened id rather than pretending to know a name.
-                Text(
-                  shortActorId(entry.blockedId),
+                // `BlockDto` carries ids only — no username, no display name — so
+                // the blocked person is resolved by id (B3).
+                ActorName(
+                  userId: entry.blockedId,
                   style: Theme.of(context).textTheme.titleSmall,
                 ),
                 Gap.v1,

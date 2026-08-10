@@ -15,6 +15,7 @@ import '../../../../shared/widgets/app_bar/q_app_bar.dart';
 import '../../../../shared/widgets/cards/q_card.dart';
 import '../../../../shared/widgets/states/q_empty_state.dart';
 import '../../../../shared/widgets/states/q_error_view.dart';
+import '../../../profile/presentation/widgets/actor_identity.dart';
 import '../../domain/entities/story_invitation.dart';
 import '../controllers/collaboration_controller.dart';
 import '../domain_labels.dart';
@@ -114,9 +115,10 @@ class _InvitationCardState extends ConsumerState<_InvitationCard> {
               if (invitation.inviterId != null) ...<Widget>[
                 Gap.h2,
                 Expanded(
-                  child: Text(
-                    // The wire identifies the inviter by id only.
-                    'from ${shortActorId(invitation.inviterId)}',
+                  // The wire identifies the inviter by id only; B3 resolves it.
+                  child: ActorName(
+                    userId: invitation.inviterId,
+                    format: (String name) => 'from $name',
                     style: theme.textTheme.bodySmall,
                   ),
                 ),
@@ -200,10 +202,7 @@ class _InvitationCardState extends ConsumerState<_InvitationCard> {
   /// Accept and decline answer with different entities — a `MemberDto` and an `InvitationDto`
   /// respectively — and this only needs to know whether the call succeeded, so it takes the
   /// loosest type that says that.
-  Future<void> _respond(
-    Future<Object?> Function() op,
-    String okMessage,
-  ) async {
+  Future<void> _respond(Future<Object?> Function() op, String okMessage) async {
     final Object? result = await op();
     if (!mounted) return;
     /*

@@ -6,7 +6,8 @@
 /// `inviteeUserId`, `invitedByName` and `storyTitle`, none of which the wire has ever sent — the
 /// same email-shaped assumption that made every invitation 400 (defect **M-1**,
 /// `platfrom/docs/48` §3.1). They parsed to null forever, so the screens that displayed them showed
-/// nothing. The wire gives **ids**, not names: `inviterId` and `inviteeId`.
+/// nothing. The wire gives **ids**, not names: `inviterId` and `inviteeId` — which B3's by-id
+/// profile lookup turns into a person at render time (`ActorName`, `platfrom/docs/45` §4).
 library;
 
 import '../../../../core/utils/typedefs.dart';
@@ -57,12 +58,3 @@ class StoryInvitation {
 
 DateTime? _date(Object? raw) =>
     raw is String && raw.isNotEmpty ? DateTime.tryParse(raw) : null;
-
-/// First and last four of an id — recognisable across a list, and obviously an id rather than a
-/// name, which is honest about what the wire provides.
-String shortActorId(String? id) {
-  if (id == null || id.isEmpty) return 'someone';
-  return id.length > 12
-      ? '${id.substring(0, 4)}…${id.substring(id.length - 4)}'
-      : id;
-}

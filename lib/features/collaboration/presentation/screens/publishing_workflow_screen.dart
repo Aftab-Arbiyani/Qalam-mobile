@@ -16,6 +16,7 @@ import '../../../../shared/widgets/app_bar/q_app_bar.dart';
 import '../../../../shared/widgets/cards/q_card.dart';
 import '../../../../shared/widgets/states/q_empty_state.dart';
 import '../../../../shared/widgets/states/q_error_view.dart';
+import '../../../profile/presentation/widgets/actor_identity.dart';
 import '../../domain/entities/collaboration_enums.dart';
 import '../../domain/entities/publication_event.dart';
 import '../../domain/entities/review_session.dart';
@@ -430,9 +431,13 @@ class _HistoryCard extends ConsumerWidget {
                       contentPadding: EdgeInsets.zero,
                       leading: const Icon(Icons.event_note_outlined),
                       title: Text(event.type),
-                      subtitle: Text(
-                        <String?>[
-                          event.actorName,
+                      // The actor is resolved from `actorId` (B3) — the entity used to
+                      // parse an `actorName` the wire never sends, so this row named
+                      // nobody at all.
+                      subtitle: ActorName(
+                        userId: event.actorId,
+                        format: (String name) => <String?>[
+                          if (event.actorId != null) name,
                           formatCollaborationDate(event.createdAt),
                           if (event.visibility != null)
                             visibilityLabel(event.visibility!),

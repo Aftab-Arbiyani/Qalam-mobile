@@ -13,7 +13,6 @@ class PublicationEvent {
     required this.type,
     required this.createdAt,
     this.actorId,
-    this.actorName,
     this.visibility,
     this.scheduledFor,
   });
@@ -25,8 +24,12 @@ class PublicationEvent {
   /// `visibility_changed`).
   final String type;
   final DateTime createdAt;
+
+  /// The actor's id. `PublicationEventDto` sends `actorId` and **no name** — the entity
+  /// used to parse an `actorName`/`actor` the wire has never carried, so every history
+  /// row silently rendered no actor at all. B3's by-id lookup is what names them
+  /// (`ActorName`, `platfrom/docs/45` §4).
   final String? actorId;
-  final String? actorName;
   final String? visibility;
   final DateTime? scheduledFor;
 
@@ -37,7 +40,6 @@ class PublicationEvent {
     createdAt:
         _date(json['createdAt']) ?? DateTime.fromMillisecondsSinceEpoch(0),
     actorId: json['actorId'] as String?,
-    actorName: json['actorName'] as String? ?? json['actor'] as String?,
     visibility: json['visibility'] as String?,
     scheduledFor: _date(json['scheduledFor']),
   );

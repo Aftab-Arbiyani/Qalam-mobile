@@ -16,9 +16,9 @@ import '../../../../shared/domain/error_codes.dart';
 import '../../../../shared/theme/tokens/spacing_tokens.dart';
 import '../../../../shared/widgets/app_bar/q_app_bar.dart';
 import '../../../../shared/widgets/cards/q_card.dart';
-import '../../../../shared/widgets/media/q_avatar.dart';
 import '../../../../shared/widgets/states/q_empty_state.dart';
 import '../../../../shared/widgets/states/q_error_view.dart';
+import '../../../profile/presentation/widgets/actor_identity.dart';
 import '../../domain/entities/collaboration_enums.dart';
 import '../../domain/entities/collaborator_limit.dart';
 import '../../domain/entities/invitee_candidate.dart';
@@ -44,10 +44,7 @@ class CollaboratorsScreen extends ConsumerWidget {
     // switch that still talks to the server is not a kill switch. The provider never
     // throws, so a 403 (this route is `story.invite`-authorized) cannot break the screen.
     final CollaboratorLimit allowance = enabled
-        ? ref
-              .watch(storyCollaboratorLimitProvider(storyId))
-              .asData
-              ?.value ??
+        ? ref.watch(storyCollaboratorLimitProvider(storyId)).asData?.value ??
               CollaboratorLimit.unknown
         : CollaboratorLimit.unknown;
     return Scaffold(
@@ -336,14 +333,14 @@ class _MemberTile extends ConsumerWidget {
       padding: QCardPadding.md,
       child: Row(
         children: <Widget>[
-          QAvatar(name: member.label, size: 40),
+          ActorAvatar(userId: member.userId, size: 40),
           Gap.h3,
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Text(
-                  member.label,
+                ActorName(
+                  userId: member.userId,
                   style: Theme.of(context).textTheme.titleSmall,
                 ),
                 Gap.v1,
@@ -383,6 +380,9 @@ class _MemberTile extends ConsumerWidget {
     final CollaborationController controller = ref.read(
       collaborationControllerProvider.notifier,
     );
+    // Resolved once, before the await: the row is on screen, so B3's lookup has
+    // already landed and both messages name a person rather than an id.
+    final String name = readActorDisplayName(ref, member.userId);
     if (action == 'remove') {
       final bool ok = await controller.removeMember(
         storyId: storyId,
@@ -390,9 +390,7 @@ class _MemberTile extends ConsumerWidget {
       );
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(ok ? '${member.label} removed.' : _errorMessage(ref)),
-        ),
+        SnackBar(content: Text(ok ? '$name removed.' : _errorMessage(ref))),
       );
     } else if (action == 'role') {
       final String? role = await _pickRole(context, member.role);
@@ -408,7 +406,7 @@ class _MemberTile extends ConsumerWidget {
           content: Text(
             updated == null
                 ? _errorMessage(ref)
-                : '${member.label} is now ${roleLabel(role)}.',
+                : '$name is now ${roleLabel(role)}.',
           ),
         ),
       );
@@ -466,10 +464,9 @@ class _PendingInvitations extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
-                          // Ids are all the wire gives for an invitee (no by-id profile
-                          // lookup exists), so show a recognisable fragment rather than a
-                          // fabricated name.
-                          Text(shortActorId(invite.inviteeId)),
+                          // Ids are all `InvitationDto` gives for an invitee;
+                          // B3's by-id lookup turns one into a real name.
+                          ActorName(userId: invite.inviteeId),
                           Gap.v1,
                           RoleBadge(role: invite.role),
                         ],

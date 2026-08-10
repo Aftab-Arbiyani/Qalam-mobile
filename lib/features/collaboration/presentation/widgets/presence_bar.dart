@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../shared/theme/tokens/spacing_tokens.dart';
-import '../../../../shared/widgets/media/q_avatar.dart';
+import '../../../profile/presentation/widgets/actor_identity.dart';
 import '../../domain/entities/presence_entry.dart';
 import '../providers/collaboration_providers.dart';
 
@@ -44,8 +44,12 @@ class PresenceBar extends ConsumerWidget {
                 Padding(
                   padding: const EdgeInsets.only(right: QSpacing.s1),
                   child: Semantics(
-                    label: '${entry.label} (${entry.state})',
-                    child: QAvatar(name: entry.label, size: 28),
+                    // Resolved by id (B3) — `PresenceDto` carries no name, so
+                    // `entry.label` fell through to the raw uuid.
+                    label:
+                        '${actorDisplayName(ref, entry.userId)} '
+                        '(${entry.state})',
+                    child: ActorAvatar(userId: entry.userId, size: 28),
                   ),
                 ),
               if (overflow > 0)
@@ -59,7 +63,7 @@ class PresenceBar extends ConsumerWidget {
               const Spacer(),
               if (typing.isNotEmpty)
                 Text(
-                  _typingLabel(typing.toList(growable: false)),
+                  _typingLabel(ref, typing.toList(growable: false)),
                   style: Theme.of(
                     context,
                   ).textTheme.bodySmall?.copyWith(fontStyle: FontStyle.italic),
@@ -71,8 +75,10 @@ class PresenceBar extends ConsumerWidget {
     );
   }
 
-  String _typingLabel(List<PresenceEntry> typing) {
-    if (typing.length == 1) return '${typing.first.label} is typing…';
+  String _typingLabel(WidgetRef ref, List<PresenceEntry> typing) {
+    if (typing.length == 1) {
+      return '${actorDisplayName(ref, typing.first.userId)} is typing…';
+    }
     return '${typing.length} people are typing…';
   }
 }

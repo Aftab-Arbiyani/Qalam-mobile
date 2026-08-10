@@ -44,6 +44,11 @@ class FakeProfileRepository implements ProfileRepository {
   BoundedCount bookmarkCount;
 
   int myProfileCalls = 0;
+
+  /// Every id passed to [publicProfileById] — the B3 lookup, in call order, so a
+  /// test can assert both THAT a surface resolves an id and how often it does.
+  final List<String> byIdCalls = <String>[];
+
   int updateCalls = 0;
   int avatarUploads = 0;
   int coverUploads = 0;
@@ -60,6 +65,13 @@ class FakeProfileRepository implements ProfileRepository {
 
   @override
   Future<Result<CachedProfile>> publicProfile(String username) async {
+    if (failure != null) return _fail<CachedProfile>();
+    return Ok<CachedProfile>((profile: profile, isStale: false));
+  }
+
+  @override
+  Future<Result<CachedProfile>> publicProfileById(String userId) async {
+    byIdCalls.add(userId);
     if (failure != null) return _fail<CachedProfile>();
     return Ok<CachedProfile>((profile: profile, isStale: false));
   }

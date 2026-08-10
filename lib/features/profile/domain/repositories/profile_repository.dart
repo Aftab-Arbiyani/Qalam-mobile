@@ -36,6 +36,13 @@ abstract interface class ProfileRepository {
   /// restricted teaser to strangers). Cache-then-network.
   Future<Result<CachedProfile>> publicProfile(String username);
 
+  /// `GET /users/by-id/:id` — the SAME public profile as [publicProfile], keyed
+  /// by user id (B3, `platfrom/docs/45` §4). Collaboration, retrieval and
+  /// publishing DTOs carry ids only, so this is the only lookup that can turn a
+  /// comment author / reviewer / blocked person into a name. Identical
+  /// visibility rules: a private account still returns a restricted teaser.
+  Future<Result<CachedProfile>> publicProfileById(String userId);
+
   /// `PATCH /me` — apply an edit and return the fresh profile. Connectivity
   /// required; refreshes the own-profile cache on success.
   Future<Result<Profile>> updateProfile(ProfileEdit edit);

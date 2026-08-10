@@ -14,12 +14,11 @@ import '../../../../shared/domain/error_codes.dart';
 import '../../../../shared/theme/tokens/spacing_tokens.dart';
 import '../../../../shared/widgets/app_bar/q_app_bar.dart';
 import '../../../../shared/widgets/cards/q_card.dart';
-import '../../../../shared/widgets/media/q_avatar.dart';
 import '../../../../shared/widgets/states/q_empty_state.dart';
 import '../../../../shared/widgets/states/q_error_view.dart';
+import '../../../profile/presentation/widgets/actor_identity.dart';
 import '../../domain/entities/collaboration_comment.dart';
 import '../../domain/entities/collaboration_enums.dart';
-import '../../domain/entities/story_invitation.dart' show shortActorId;
 import '../controllers/collaboration_controller.dart';
 import '../domain_labels.dart';
 import '../providers/collaboration_providers.dart';
@@ -287,13 +286,13 @@ class _CommentRow extends ConsumerWidget {
       children: <Widget>[
         Row(
           children: <Widget>[
-            // `CommentDto` carries `authorId` and no name; the entity used to
-            // parse an `authorName` the wire never sends (C-5 note).
-            QAvatar(name: shortActorId(comment.authorId), size: 28),
+            // `CommentDto` carries `authorId` and no name, so the author is
+            // resolved by id (B3) — the same lookup every other actor uses.
+            ActorAvatar(userId: comment.authorId, size: 28),
             Gap.h2,
             Expanded(
-              child: Text(
-                shortActorId(comment.authorId),
+              child: ActorName(
+                userId: comment.authorId,
                 style: theme.textTheme.titleSmall,
               ),
             ),

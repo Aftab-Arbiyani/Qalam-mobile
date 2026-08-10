@@ -4,8 +4,8 @@
 library;
 
 import '../../../../core/utils/typedefs.dart';
+import '../../../../shared/util/short_actor_id.dart';
 import 'collaboration_enums.dart';
-import 'story_invitation.dart' show shortActorId;
 
 /// Mirrors `MemberDto` — `{userId, role, invitedById, joinedAt}` and nothing else.
 ///
@@ -35,7 +35,10 @@ class StoryMember {
 
   bool get isOwner => role == StoryRole.owner;
 
-  /// A shortened id, clearly an id rather than a name — the wire gives no name.
+  /// The name-less FALLBACK label. `MemberDto` carries no name, so this is a shortened
+  /// id — clearly an id rather than a name. Since B3 the screens resolve the person by
+  /// id instead (`ActorName`, `platfrom/docs/45` §4); this remains for a caller that has
+  /// no `WidgetRef` and cannot look anything up.
   String get label => shortActorId(userId);
 
   factory StoryMember.fromJson(Json json) => StoryMember(

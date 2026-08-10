@@ -31,6 +31,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
   static const String _meKey = 'profile:me';
   static const String _mePiecesKey = 'profile:me:pieces';
   static String _userKey(String username) => 'profile:u:$username';
+  static String _userIdKey(String userId) => 'profile:id:$userId';
 
   @override
   Future<Result<CachedProfile>> myProfile() =>
@@ -39,6 +40,10 @@ class ProfileRepositoryImpl implements ProfileRepository {
   @override
   Future<Result<CachedProfile>> publicProfile(String username) =>
       _readProfile(_userKey(username), () => _remote.getByUsername(username));
+
+  @override
+  Future<Result<CachedProfile>> publicProfileById(String userId) =>
+      _readProfile(_userIdKey(userId), () => _remote.getById(userId));
 
   Future<Result<CachedProfile>> _readProfile(
     String key,

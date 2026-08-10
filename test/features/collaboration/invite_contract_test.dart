@@ -19,6 +19,7 @@ import 'package:qalam_mobile/features/collaboration/domain/entities/collaboratio
 import 'package:qalam_mobile/features/collaboration/domain/entities/invitee_candidate.dart';
 import 'package:qalam_mobile/features/collaboration/domain/entities/story_invitation.dart';
 import 'package:qalam_mobile/features/collaboration/domain/entities/story_member.dart';
+import 'package:qalam_mobile/shared/util/short_actor_id.dart';
 
 class _MockApiClient extends Mock implements ApiClient {}
 
@@ -128,7 +129,7 @@ void main() {
         remote,
       );
       const StoryMember member = StoryMember(
-                userId: 'u2',
+        userId: 'u2',
         role: StoryRole.editor,
       );
       when(
