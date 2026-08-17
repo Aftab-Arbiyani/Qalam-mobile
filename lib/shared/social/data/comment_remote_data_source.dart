@@ -52,6 +52,8 @@ class CommentRemoteDataSource {
   Future<void> delete(String commentId) =>
       _api.delete(ApiPaths.comment(commentId));
 
-  Json _page(String? cursor) =>
-      <String, dynamic>{'cursor': ?cursor, 'limit': _limit};
+  Json _page(String? cursor) => <String, dynamic>{
+    'cursor': ?cursor,
+    'limit': _limit,
+  };
 }

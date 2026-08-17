@@ -36,7 +36,11 @@ abstract interface class CollectionRepository {
 
   Future<Result<Unit>> delete(String id);
 
-  Future<Result<Unit>> addPiece(String collectionId, String pieceId, {String? note});
+  Future<Result<Unit>> addPiece(
+    String collectionId,
+    String pieceId, {
+    String? note,
+  });
 
   Future<Result<Unit>> removePiece(String collectionId, String pieceId);
 }

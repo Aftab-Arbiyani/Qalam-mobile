@@ -13,9 +13,25 @@ import '../../domain/enums.dart';
 /// The server's like result: new liked-state + total.
 typedef LikeOutcome = ({bool liked, int totalLikes});
 
+/// The server's clap result (`ClapResponseDto`) — the viewer's own count after
+/// the server clamped ours to `min(count, MAX - current)`, and the piece total,
+/// which concurrent readers may have moved. Both are adopted, never inferred.
+typedef ClapOutcome = ({int viewerClaps, int totalClaps});
+
 abstract interface class EngagementRepository {
   Future<Result<LikeOutcome>> like(String pieceId);
   Future<Result<Unit>> unlike(String pieceId);
+
+  /// Add [count] claps to a piece. A clap is a QUANTITY, not a toggle: the
+  /// caller accumulates a burst and sends the total once. The server clamps to
+  /// the remaining headroom, so the returned `viewerClaps` may be less than
+  /// `current + count`, and a request against a maxed-out piece is
+  /// [ErrorCodes.clapLimitReached].
+  Future<Result<ClapOutcome>> clap(String pieceId, int count);
+
+  /// Remove EVERY clap this viewer has on the piece. There is no decrement
+  /// endpoint — removal is all-or-nothing (204).
+  Future<Result<Unit>> unclap(String pieceId);
 
   /// Returns the new bookmarked state (`true`).
   Future<Result<bool>> bookmark(String pieceId);

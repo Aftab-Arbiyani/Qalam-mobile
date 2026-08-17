@@ -25,10 +25,8 @@ class CollectionRemoteDataSource {
         decodeItem: collectionFromJson,
       );
 
-  Future<Collection> getCollection(String id) => _api.get<Collection>(
-    ApiPaths.collection(id),
-    decode: collectionFromJson,
-  );
+  Future<Collection> getCollection(String id) =>
+      _api.get<Collection>(ApiPaths.collection(id), decode: collectionFromJson);
 
   Future<CursorPage<CollectionPieceItem>> collectionPieces(
     String id, {
@@ -83,6 +81,8 @@ class CollectionRemoteDataSource {
   Future<void> removePiece(String collectionId, String pieceId) =>
       _api.delete(ApiPaths.collectionPiece(collectionId, pieceId));
 
-  Json _page(String? cursor) =>
-      <String, dynamic>{'cursor': ?cursor, 'limit': _limit};
+  Json _page(String? cursor) => <String, dynamic>{
+    'cursor': ?cursor,
+    'limit': _limit,
+  };
 }

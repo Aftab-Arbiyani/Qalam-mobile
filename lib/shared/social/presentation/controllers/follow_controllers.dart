@@ -20,8 +20,9 @@ class FollowersController extends _$FollowersController {
   @override
   Future<PagedListState<FollowUser>> build(String username) {
     final paginator = CursorPaginator<FollowUser>(
-      (String? cursor) =>
-          ref.read(followRepositoryProvider).followers(username, cursor: cursor),
+      (String? cursor) => ref
+          .read(followRepositoryProvider)
+          .followers(username, cursor: cursor),
     );
     _paginator = paginator;
     return paginator.first();
@@ -41,8 +42,9 @@ class FollowingController extends _$FollowingController {
   @override
   Future<PagedListState<FollowUser>> build(String username) {
     final paginator = CursorPaginator<FollowUser>(
-      (String? cursor) =>
-          ref.read(followRepositoryProvider).following(username, cursor: cursor),
+      (String? cursor) => ref
+          .read(followRepositoryProvider)
+          .following(username, cursor: cursor),
     );
     _paginator = paginator;
     return paginator.first();
@@ -62,7 +64,8 @@ class FollowRequestsController extends _$FollowRequestsController {
   @override
   Future<PagedListState<FollowRequest>> build() {
     final paginator = CursorPaginator<FollowRequest>(
-      (String? cursor) => ref.read(followRepositoryProvider).requests(cursor: cursor),
+      (String? cursor) =>
+          ref.read(followRepositoryProvider).requests(cursor: cursor),
     );
     _paginator = paginator;
     return paginator.first();
@@ -75,12 +78,10 @@ class FollowRequestsController extends _$FollowRequestsController {
   }
 
   /// Accept a request; optimistically drop it from the list, restore on failure.
-  Future<void> accept(String followId) =>
-      _resolve(followId, accept: true);
+  Future<void> accept(String followId) => _resolve(followId, accept: true);
 
   /// Reject a request; optimistically drop it from the list, restore on failure.
-  Future<void> reject(String followId) =>
-      _resolve(followId, accept: false);
+  Future<void> reject(String followId) => _resolve(followId, accept: false);
 
   Future<void> _resolve(String followId, {required bool accept}) async {
     final PagedListState<FollowRequest>? current = state.asData?.value;

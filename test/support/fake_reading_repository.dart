@@ -11,6 +11,8 @@ import 'package:qalam_mobile/features/reading/domain/repositories/reading_reposi
 import 'package:qalam_mobile/shared/domain/entities/piece_summary.dart';
 import 'package:qalam_mobile/shared/domain/entities/taxonomy.dart';
 import 'package:qalam_mobile/shared/domain/enums.dart';
+import 'package:qalam_mobile/shared/domain/error_codes.dart';
+import 'package:qalam_mobile/shared/domain/limits.dart';
 import 'package:qalam_mobile/shared/social/domain/engagement_repository.dart';
 
 class FakeReadingRepository implements ReadingRepository {
@@ -99,6 +101,23 @@ class FakeEngagementRepository implements EngagementRepository {
   int likeTotal;
   int shareTotal;
 
+  // ── Claps ──────────────────────────────────────────────────────────────────
+  // Modelled on the real server rather than stubbed, because every property the
+  // controller has to get right is a property of the CLAMP: it accepts
+  // `min(count, MAX - current)` and refuses a request that is already maxed.
+
+  /// The viewer's clap count as this fake's "server" holds it.
+  int viewerClaps = 0;
+
+  /// The piece total as this fake's "server" holds it.
+  int clapTotal = 0;
+
+  /// Every `count` this fake was POSTed, in order — the batching assertion.
+  final List<int> clapCalls = <int>[];
+
+  /// How many times `unclap` was called.
+  int unclapCalls = 0;
+
   /// When true, the next mutation returns a failure (then resets).
   bool nextFails = false;
 
@@ -116,6 +135,38 @@ class FakeEngagementRepository implements EngagementRepository {
 
   @override
   Future<Result<Unit>> unlike(String pieceId) async => _result<Unit>(unit);
+
+  @override
+  Future<Result<ClapOutcome>> clap(String pieceId, int count) async {
+    clapCalls.add(count);
+    if (nextFails) {
+      nextFails = false;
+      return const Err<ClapOutcome>(NetworkFailure(code: 'API_NETWORK_ERROR'));
+    }
+    final int headroom = Limits.maxClapsPerUserPerPiece - viewerClaps;
+    if (headroom <= 0) {
+      return const Err<ClapOutcome>(
+        DomainRuleFailure(code: ErrorCodes.clapLimitReached),
+      );
+    }
+    final int accepted = count < headroom ? count : headroom;
+    viewerClaps += accepted;
+    clapTotal += accepted;
+    return Ok<ClapOutcome>((viewerClaps: viewerClaps, totalClaps: clapTotal));
+  }
+
+  @override
+  Future<Result<Unit>> unclap(String pieceId) async {
+    unclapCalls++;
+    if (nextFails) {
+      nextFails = false;
+      return const Err<Unit>(NetworkFailure(code: 'API_NETWORK_ERROR'));
+    }
+    clapTotal -= viewerClaps;
+    if (clapTotal < 0) clapTotal = 0;
+    viewerClaps = 0;
+    return const Ok<Unit>(unit);
+  }
 
   @override
   Future<Result<bool>> bookmark(String pieceId) async => _result<bool>(true);

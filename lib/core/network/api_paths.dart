@@ -166,6 +166,11 @@ abstract final class ApiPaths {
   // share, responses.
   static String pieceEngagement(String id) => '/pieces/$id/engagement';
   static String pieceLikes(String id) => '/pieces/$id/likes';
+
+  /// Claps — `POST` accumulates (`{count}`, server-clamped to
+  /// `MAX_CLAPS_PER_USER_PER_PIECE`), `DELETE` removes ALL of this viewer's
+  /// claps (204). Unlike likes, this is a quantity and not a toggle.
+  static String pieceClaps(String id) => '/pieces/$id/claps';
   static String pieceBookmarks(String id) => '/pieces/$id/bookmarks';
   static String pieceShares(String id) => '/pieces/$id/shares';
   static String pieceResponses(String id) => '/pieces/$id/responses';

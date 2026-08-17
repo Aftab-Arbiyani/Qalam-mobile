@@ -29,6 +29,14 @@ class EngagementRepositoryImpl implements EngagementRepository {
       _guardUnit(() => _remote.unlike(pieceId));
 
   @override
+  Future<Result<ClapOutcome>> clap(String pieceId, int count) =>
+      _guard(() => _remote.clap(pieceId, count));
+
+  @override
+  Future<Result<Unit>> unclap(String pieceId) =>
+      _guardUnit(() => _remote.unclap(pieceId));
+
+  @override
   Future<Result<bool>> bookmark(String pieceId) =>
       _guard(() => _remote.bookmark(pieceId));
 

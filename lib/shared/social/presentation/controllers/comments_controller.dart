@@ -29,15 +29,15 @@ class CommentsController extends _$CommentsController {
   @override
   Future<PagedListState<Comment>> build(String pieceId) {
     final paginator = CursorPaginator<Comment>(
-      (String? cursor) =>
-          ref.read(commentRepositoryProvider).listComments(pieceId, cursor: cursor),
+      (String? cursor) => ref
+          .read(commentRepositoryProvider)
+          .listComments(pieceId, cursor: cursor),
     );
     _paginator = paginator;
     return paginator.first();
   }
 
-  Future<void> loadMore() =>
-      loadMorePaged(_paginator, state, (s) => state = s);
+  Future<void> loadMore() => loadMorePaged(_paginator, state, (s) => state = s);
 
   Future<void> refresh() async {
     final p = _paginator;
@@ -68,7 +68,9 @@ class CommentsController extends _$CommentsController {
           );
       return;
     }
-    final result = await ref.read(commentRepositoryProvider).addComment(pieceId, body);
+    final result = await ref
+        .read(commentRepositoryProvider)
+        .addComment(pieceId, body);
     result.fold(
       (Comment saved) => _replace(provisional.id, saved),
       (Object _) => _remove(provisional.id),
@@ -85,7 +87,9 @@ class CommentsController extends _$CommentsController {
       commentId,
       original.copyWith(body: body, editedAt: DateTime.now()),
     );
-    final result = await ref.read(commentRepositoryProvider).edit(commentId, body);
+    final result = await ref
+        .read(commentRepositoryProvider)
+        .edit(commentId, body);
     result.fold(
       (Comment saved) => _replace(commentId, saved),
       (Object _) => _replace(commentId, original), // rollback
@@ -130,9 +134,7 @@ class CommentsController extends _$CommentsController {
     if (current == null) return;
     state = AsyncData<PagedListState<Comment>>(
       current.copyWith(
-        items: current.items
-            .map((Comment c) => c.id == id ? next : c)
-            .toList(),
+        items: current.items.map((Comment c) => c.id == id ? next : c).toList(),
       ),
     );
   }
@@ -155,15 +157,15 @@ class RepliesController extends _$RepliesController {
   @override
   Future<PagedListState<Comment>> build(String commentId) {
     final paginator = CursorPaginator<Comment>(
-      (String? cursor) =>
-          ref.read(commentRepositoryProvider).listReplies(commentId, cursor: cursor),
+      (String? cursor) => ref
+          .read(commentRepositoryProvider)
+          .listReplies(commentId, cursor: cursor),
     );
     _paginator = paginator;
     return paginator.first();
   }
 
-  Future<void> loadMore() =>
-      loadMorePaged(_paginator, state, (s) => state = s);
+  Future<void> loadMore() => loadMorePaged(_paginator, state, (s) => state = s);
 
   Future<void> refresh() async {
     final p = _paginator;
@@ -175,7 +177,9 @@ class RepliesController extends _$RepliesController {
     final Comment? original = _find(replyId);
     if (original == null) return;
     _replace(replyId, original.copyWith(body: body, editedAt: DateTime.now()));
-    final result = await ref.read(commentRepositoryProvider).edit(replyId, body);
+    final result = await ref
+        .read(commentRepositoryProvider)
+        .edit(replyId, body);
     result.fold(
       (Comment saved) => _replace(replyId, saved),
       (Object _) => _replace(replyId, original),
@@ -210,8 +214,7 @@ class RepliesController extends _$RepliesController {
     if (current == null) return;
     state = AsyncData<PagedListState<Comment>>(
       current.copyWith(
-        items:
-            current.items.map((Comment c) => c.id == id ? next : c).toList(),
+        items: current.items.map((Comment c) => c.id == id ? next : c).toList(),
       ),
     );
   }
@@ -246,7 +249,9 @@ class RepliesController extends _$RepliesController {
           );
       return;
     }
-    final result = await ref.read(commentRepositoryProvider).reply(commentId, body);
+    final result = await ref
+        .read(commentRepositoryProvider)
+        .reply(commentId, body);
     result.fold(
       (Comment saved) {
         final PagedListState<Comment>? now = state.asData?.value;
@@ -264,8 +269,9 @@ class RepliesController extends _$RepliesController {
         if (now == null) return;
         state = AsyncData<PagedListState<Comment>>(
           now.copyWith(
-            items:
-                now.items.where((Comment c) => c.id != provisional.id).toList(),
+            items: now.items
+                .where((Comment c) => c.id != provisional.id)
+                .toList(),
           ),
         );
       },
@@ -286,6 +292,8 @@ Future<void> loadMorePaged(
       current.isLoadingMore) {
     return;
   }
-  write(AsyncData<PagedListState<Comment>>(current.copyWith(isLoadingMore: true)));
+  write(
+    AsyncData<PagedListState<Comment>>(current.copyWith(isLoadingMore: true)),
+  );
   write(AsyncData<PagedListState<Comment>>(await paginator.next(current)));
 }

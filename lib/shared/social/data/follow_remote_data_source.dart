@@ -48,6 +48,8 @@ class FollowRemoteDataSource {
     decode: (Json _) {},
   );
 
-  Json _page(String? cursor) =>
-      <String, dynamic>{'cursor': ?cursor, 'limit': _limit};
+  Json _page(String? cursor) => <String, dynamic>{
+    'cursor': ?cursor,
+    'limit': _limit,
+  };
 }

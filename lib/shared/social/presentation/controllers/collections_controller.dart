@@ -42,7 +42,9 @@ class CollectionsController extends _$CollectionsController {
     state = AsyncData<PagedListState<Collection>>(
       current.copyWith(isLoadingMore: true),
     );
-    state = AsyncData<PagedListState<Collection>>(await paginator.next(current));
+    state = AsyncData<PagedListState<Collection>>(
+      await paginator.next(current),
+    );
   }
 
   Future<void> refresh() async {
@@ -71,20 +73,17 @@ class CollectionsController extends _$CollectionsController {
     final result = await ref
         .read(collectionRepositoryProvider)
         .update(id, title: title, description: description);
-    result.fold(
-      (Collection updated) {
-        if (current != null) {
-          state = AsyncData<PagedListState<Collection>>(
-            current.copyWith(
-              items: current.items
-                  .map((Collection c) => c.id == id ? updated : c)
-                  .toList(),
-            ),
-          );
-        }
-      },
-      (Object _) {},
-    );
+    result.fold((Collection updated) {
+      if (current != null) {
+        state = AsyncData<PagedListState<Collection>>(
+          current.copyWith(
+            items: current.items
+                .map((Collection c) => c.id == id ? updated : c)
+                .toList(),
+          ),
+        );
+      }
+    }, (Object _) {});
     return result;
   }
 
@@ -156,7 +155,9 @@ class CollectionPiecesController extends _$CollectionPiecesController {
         .read(collectionRepositoryProvider)
         .removePiece(collectionId, pieceId);
     if (result.isErr) {
-      state = AsyncData<PagedListState<CollectionPieceItem>>(current); // rollback
+      state = AsyncData<PagedListState<CollectionPieceItem>>(
+        current,
+      ); // rollback
     }
   }
 }

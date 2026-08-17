@@ -60,13 +60,17 @@ class SocialSyncHandler implements SyncHandler {
     final bool desired = (op.payload['desired'] as bool?) ?? true;
     final result = switch (category) {
       SocialCategory.pieceLike =>
-        desired ? await _engagement.like(targetId) : await _engagement.unlike(targetId),
+        desired
+            ? await _engagement.like(targetId)
+            : await _engagement.unlike(targetId),
       SocialCategory.pieceBookmark =>
         desired
             ? await _engagement.bookmark(targetId)
             : await _engagement.unbookmark(targetId),
       SocialCategory.userFollow =>
-        desired ? await _engagement.follow(targetId) : await _engagement.unfollow(targetId),
+        desired
+            ? await _engagement.follow(targetId)
+            : await _engagement.unfollow(targetId),
     };
     return syncOutcomeFromResult(result);
   }

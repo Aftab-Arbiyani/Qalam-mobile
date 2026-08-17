@@ -9,7 +9,7 @@ import '../../../core/network/api_paths.dart';
 import '../../../core/utils/json_read.dart';
 import '../../../core/utils/typedefs.dart';
 import '../../domain/enums.dart';
-import '../domain/engagement_repository.dart' show LikeOutcome;
+import '../domain/engagement_repository.dart' show ClapOutcome, LikeOutcome;
 
 class EngagementRemoteDataSource {
   EngagementRemoteDataSource(this._api);
@@ -24,6 +24,19 @@ class EngagementRemoteDataSource {
 
   Future<void> unlike(String pieceId) =>
       _api.delete(ApiPaths.pieceLikes(pieceId));
+
+  /// `POST /pieces/:id/claps { count }` → `ClapResponseDto`.
+  Future<ClapOutcome> clap(String pieceId, int count) => _api.post<ClapOutcome>(
+    ApiPaths.pieceClaps(pieceId),
+    body: <String, Object?>{'count': count},
+    decode: (Json j) => (
+      viewerClaps: asInt(j['viewerClaps']),
+      totalClaps: asInt(j['totalClaps']),
+    ),
+  );
+
+  Future<void> unclap(String pieceId) =>
+      _api.delete(ApiPaths.pieceClaps(pieceId));
 
   Future<bool> bookmark(String pieceId) => _api.post<bool>(
     ApiPaths.pieceBookmarks(pieceId),

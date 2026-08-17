@@ -19,8 +19,9 @@ class ResponsesController extends _$ResponsesController {
   @override
   Future<PagedListState<ResponseItem>> build(String pieceId) {
     final paginator = CursorPaginator<ResponseItem>(
-      (String? cursor) =>
-          ref.read(responseRepositoryProvider).listResponses(pieceId, cursor: cursor),
+      (String? cursor) => ref
+          .read(responseRepositoryProvider)
+          .listResponses(pieceId, cursor: cursor),
     );
     _paginator = paginator;
     return paginator.first();

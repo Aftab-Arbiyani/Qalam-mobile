@@ -12,10 +12,8 @@ part 'response_item.g.dart';
 abstract class ResponseAuthor with _$ResponseAuthor {
   const ResponseAuthor._();
 
-  const factory ResponseAuthor({
-    required String username,
-    String? penName,
-  }) = _ResponseAuthor;
+  const factory ResponseAuthor({required String username, String? penName}) =
+      _ResponseAuthor;
 
   factory ResponseAuthor.fromJson(Map<String, dynamic> json) =>
       _$ResponseAuthorFromJson(json);
