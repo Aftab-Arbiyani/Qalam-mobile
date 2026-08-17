@@ -17,6 +17,7 @@ import '../features/notifications/presentation/providers/notification_providers.
 import '../features/profile/data/sync/profile_sync_handler.dart';
 import '../features/profile/presentation/providers/profile_providers.dart';
 import '../features/writing/presentation/providers/writing_providers.dart';
+import '../shared/social/data/sync/clap_sync_handler.dart';
 import '../shared/social/data/sync/comment_sync_handler.dart';
 import '../shared/social/data/sync/social_sync_handler.dart';
 import '../shared/social/social_providers.dart';
@@ -36,6 +37,9 @@ SyncEngine appSync(Ref ref) {
     engine.registerHandler(handler);
   }
   engine
+    // A clap is a quantity, not a toggle, so it is NOT a `SocialCategory` — it
+    // needs a summing merge the desired-state handler cannot give it (M7-3).
+    ..registerHandler(ClapSyncHandler(ref.watch(engagementRepositoryProvider)))
     ..registerHandler(
       NotificationSyncHandler(ref.watch(notificationRepositoryProvider)),
     )
