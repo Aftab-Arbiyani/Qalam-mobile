@@ -37,6 +37,8 @@ import 'package:qalam_mobile/features/collaboration/domain/repositories/trust_re
 import 'package:qalam_mobile/features/collaboration/presentation/providers/collaboration_providers.dart';
 import 'package:qalam_mobile/features/feed/domain/repositories/feed_repository.dart';
 import 'package:qalam_mobile/features/feed/presentation/providers/feed_providers.dart';
+import 'package:qalam_mobile/features/monetization/domain/entities/entitlement.dart';
+import 'package:qalam_mobile/features/monetization/presentation/providers/monetization_providers.dart';
 import 'package:qalam_mobile/features/notifications/domain/repositories/notification_preferences_repository.dart';
 import 'package:qalam_mobile/features/notifications/domain/repositories/notification_repository.dart';
 import 'package:qalam_mobile/features/notifications/presentation/providers/notification_providers.dart';
@@ -333,6 +335,16 @@ Future<ProviderContainer> buildTestContainer({
   PublishingRepository? publishingRepository,
   TrustRepository? trustRepository,
   Dio? refreshClient,
+
+  /// The entitlement snapshot every `PremiumGate` in the tree resolves against.
+  ///
+  /// Added for **D3** (`platfrom/docs/45` §4 row D3): the two AF2 panels are now wrapped in a
+  /// gate on `ai_writing`, and `PremiumGate` FAILS CLOSED — so a test that opens one and says
+  /// nothing here gets the lock rather than the panel. That is the correct default (a test
+  /// should not accidentally assert a premium surface it never granted), and this is how a test
+  /// about the panel's own behaviour holds the gate open without reaching for a monetization
+  /// repository fake it does not otherwise care about.
+  EntitlementSnapshot? entitlementSnapshot,
 }) async {
   final Directory dir = await Directory.systemTemp.createTemp('qalam_test_c');
   Hive.init(dir.path);
@@ -422,6 +434,10 @@ Future<ProviderContainer> buildTestContainer({
             logger: ref.watch(appLoggerProvider),
             refreshClient: refreshClient,
           ),
+        ),
+      if (entitlementSnapshot != null)
+        entitlementSnapshotProvider.overrideWith(
+          (_) async => entitlementSnapshot,
         ),
     ],
   );

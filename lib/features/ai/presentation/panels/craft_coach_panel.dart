@@ -14,12 +14,16 @@ import '../../../../shared/theme/tokens/spacing_tokens.dart';
 import '../../../../shared/widgets/buttons/q_button.dart';
 import '../../../../shared/widgets/cards/q_chip.dart';
 import '../../../../shared/widgets/feedback/q_bottom_sheet.dart';
+import '../../../monetization/domain/entities/monetization_enums.dart';
+import '../../../monetization/presentation/widgets/premium_gate.dart';
+import '../../domain/value_objects/ai_feature_ids.dart';
 import '../../domain/value_objects/ai_writing_context.dart';
 import '../../domain/value_objects/coach_tool.dart';
 import '../controllers/craft_coach_controller.dart';
 import '../support/ai_error_copy.dart';
 import '../support/ai_plans_link.dart';
 import '../widgets/ai_markdown.dart';
+import '../widgets/ai_writing_lock_card.dart';
 import '../widgets/coach_report_view.dart';
 import '../widgets/token_usage_line.dart';
 
@@ -51,46 +55,53 @@ class CraftCoachPanel extends ConsumerWidget {
 
     return ConstrainedBox(
       constraints: BoxConstraints(maxHeight: screen.height * 0.85),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(
-          QSpacing.s4,
-          0,
-          QSpacing.s4,
-          QSpacing.s4,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Row(
-              children: <Widget>[
-                Icon(
-                  Icons.school_outlined,
-                  size: 20,
-                  color: tokens.colors.accent,
-                ),
-                const SizedBox(width: QSpacing.s2),
-                Text(
-                  'Craft coach',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-              ],
-            ),
-            Gap.v2,
-            QChip(
-              label: writingContext.hasSelection
-                  ? 'Scene selection · $words words'
-                  : 'Whole chapter · $words words',
-              tone: writingContext.hasSelection
-                  ? QChipTone.accent
-                  : QChipTone.neutral,
-              icon: writingContext.hasSelection
-                  ? Icons.text_fields
-                  : Icons.article_outlined,
-            ),
-            Gap.v3,
-            Flexible(child: _body(context, ref, state)),
-          ],
+      // D3: the coach is AF2's paid writing experience, sold under the same `ai_writing`
+      // code as the assistant (DECISION 1) — it generates model output and meters exactly
+      // like it. Its `analysis` prompt category is a template label, not a product tier.
+      child: PremiumGate(
+        feature: PremiumFeature.aiWriting,
+        locked: const AiWritingLockCard(),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(
+            QSpacing.s4,
+            0,
+            QSpacing.s4,
+            QSpacing.s4,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Row(
+                children: <Widget>[
+                  Icon(
+                    Icons.school_outlined,
+                    size: 20,
+                    color: tokens.colors.accent,
+                  ),
+                  const SizedBox(width: QSpacing.s2),
+                  Text(
+                    'Craft coach',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                ],
+              ),
+              Gap.v2,
+              QChip(
+                label: writingContext.hasSelection
+                    ? 'Scene selection · $words words'
+                    : 'Whole chapter · $words words',
+                tone: writingContext.hasSelection
+                    ? QChipTone.accent
+                    : QChipTone.neutral,
+                icon: writingContext.hasSelection
+                    ? Icons.text_fields
+                    : Icons.article_outlined,
+              ),
+              Gap.v3,
+              Flexible(child: _body(context, ref, state)),
+            ],
+          ),
         ),
       ),
     );
@@ -197,7 +208,12 @@ class CraftCoachPanel extends ConsumerWidget {
 
   Widget _error(BuildContext context, WidgetRef ref, CraftCoachState state) {
     final QTokens tokens = QTokens.of(context);
-    final AiErrorCopy copy = AiErrorCopy.forCode(state.errorCode);
+    // D3: the coach is sold under the same premium code as the assistant, so a mid-flight
+    // 402 gets the same AI-writing remedy rather than the allowance one.
+    final AiErrorCopy copy = AiErrorCopy.forCode(
+      state.errorCode,
+      feature: AiFeatureIds.craftCoach,
+    );
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,

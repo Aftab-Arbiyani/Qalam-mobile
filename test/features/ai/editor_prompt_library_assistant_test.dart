@@ -22,6 +22,8 @@ import 'package:qalam_mobile/features/ai/domain/entities/ai_feature_flag.dart';
 import 'package:qalam_mobile/features/ai/domain/value_objects/ai_feature_ids.dart';
 import 'package:qalam_mobile/features/ai/presentation/panels/writing_assistant_panel.dart';
 import 'package:qalam_mobile/features/ai/presentation/screens/prompt_library_screen.dart';
+import 'package:qalam_mobile/features/monetization/domain/entities/entitlement.dart';
+import 'package:qalam_mobile/features/monetization/domain/entities/monetization_enums.dart';
 import 'package:qalam_mobile/features/writing/domain/entities/draft.dart';
 import 'package:qalam_mobile/features/writing/presentation/controllers/current_draft_controller.dart';
 import 'package:qalam_mobile/features/writing/presentation/providers/writing_providers.dart';
@@ -91,6 +93,22 @@ Future<void> _pumpEditor(WidgetTester tester) async {
       pieceEditorRepository: FakePieceEditorRepository(),
       taxonomyRepository: FakeTaxonomyRepository(),
       aiRepository: FakeAiRepository(features: _features()),
+      // D3 (`platfrom/docs/45` §4 row D3): the assistant panel is wrapped in a `PremiumGate`
+      // on `ai_writing`, and the gate FAILS CLOSED — so this test has to say the writer is
+      // entitled or the panel it is about renders a lock instead. The gate itself is covered
+      // by `ai_writing_gate_test.dart`; here it is held open.
+      entitlementSnapshot: const EntitlementSnapshot(
+        tier: PlanTier.plus,
+        status: EntitlementStatus.allow,
+        features: <EntitlementDecision>[
+          EntitlementDecision(
+            feature: PremiumFeature.aiWriting,
+            status: EntitlementStatus.allow,
+            allowed: true,
+            reason: EntitlementReason.planIncludes,
+          ),
+        ],
+      ),
     );
     await container.read(preferencesStoreProvider).setEditorAutosave(false);
     await container.read(draftLocalDataSourceProvider).write(_draft());

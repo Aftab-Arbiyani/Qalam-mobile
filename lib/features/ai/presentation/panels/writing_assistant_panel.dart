@@ -22,6 +22,8 @@ import '../../../../shared/widgets/buttons/q_button.dart';
 import '../../../../shared/widgets/cards/q_chip.dart';
 import '../../../../shared/widgets/feedback/q_bottom_sheet.dart';
 import '../../../../shared/widgets/feedback/q_snackbar.dart';
+import '../../../monetization/domain/entities/monetization_enums.dart';
+import '../../../monetization/presentation/widgets/premium_gate.dart';
 import '../../domain/entities/ai_conversation.dart';
 import '../../domain/entities/ai_suggestion.dart';
 import '../../domain/value_objects/ai_feature_ids.dart';
@@ -36,6 +38,7 @@ import '../support/ai_error_copy.dart';
 import '../support/ai_plans_link.dart';
 import '../widgets/ai_markdown.dart';
 import '../widgets/ai_streaming_text.dart';
+import '../widgets/ai_writing_lock_card.dart';
 import '../widgets/suggestion_diff_view.dart';
 import '../widgets/token_usage_line.dart';
 
@@ -120,25 +123,33 @@ class _WritingAssistantPanelState extends ConsumerState<WritingAssistantPanel> {
 
     return ConstrainedBox(
       constraints: BoxConstraints(maxHeight: screen.height * 0.82),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(
-          QSpacing.s4,
-          0,
-          QSpacing.s4,
-          QSpacing.s4,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            _header(tokens),
-            Gap.v2,
-            _contextChip(tokens),
-            Gap.v2,
-            _keepHistoryRow(),
-            Gap.v3,
-            Flexible(child: _body(session)),
-          ],
+      // D3: AI writing is a paid capability, so the whole panel body is withheld from a
+      // writer whose plan excludes it rather than letting them compose an instruction and
+      // lose it to a 402. The gate fails closed (see `PremiumGate`), and the server
+      // re-checks regardless — this is UX, never the security boundary.
+      child: PremiumGate(
+        feature: PremiumFeature.aiWriting,
+        locked: const AiWritingLockCard(),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(
+            QSpacing.s4,
+            0,
+            QSpacing.s4,
+            QSpacing.s4,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              _header(tokens),
+              Gap.v2,
+              _contextChip(tokens),
+              Gap.v2,
+              _keepHistoryRow(),
+              Gap.v3,
+              Flexible(child: _body(session)),
+            ],
+          ),
         ),
       ),
     );
@@ -582,7 +593,12 @@ class _WritingAssistantPanelState extends ConsumerState<WritingAssistantPanel> {
 
   Widget _errorView(String? code) {
     final QTokens tokens = QTokens.of(context);
-    final AiErrorCopy copy = AiErrorCopy.forCode(code);
+    // D3: naming the feature is what selects the AI-writing remedy over the allowance one
+    // when a 402 arrives mid-STREAM — the gate cannot cover that window.
+    final AiErrorCopy copy = AiErrorCopy.forCode(
+      code,
+      feature: AiFeatureIds.writingAssistant,
+    );
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
