@@ -9,10 +9,19 @@ abstract final class Limits {
   /// Medium-style claps: up to 50 per user per piece.
   static const int maxClapsPerUserPerPiece = 50;
 
-  // Comments.
+  // Comments — the PUBLIC conversation on a piece (`limits.ts`, `modules/engagement`).
   static const int commentMinLength = 1;
   static const int commentMaxLength = 2000;
   static const int maxCommentDepth = 3;
+
+  /// A collaboration comment on a story — AF6's private review, a different
+  /// endpoint and a different (larger) cap: `MAX_COMMENT_BODY_LENGTH` in
+  /// `@qalam/shared` `collaboration.ts`, not the 2,000 above.
+  ///
+  /// Enforced by `@MaxLength` on the **raw** body, where an @mention is the
+  /// mentioned person's 36-character id rather than their handle — which is why the
+  /// composer counts against this through `rawCommentBodyLength` (P-2).
+  static const int storyCommentBodyMax = 5000;
 
   // Collections.
   static const int collectionNameMin = 1;

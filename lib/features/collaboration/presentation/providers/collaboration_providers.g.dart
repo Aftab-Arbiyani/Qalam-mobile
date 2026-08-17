@@ -705,6 +705,237 @@ final class StoryCommentsFamily extends $Family
   String toString() => r'storyCommentsProvider';
 }
 
+/// Who this story's comment composer may @mention (P-2, `platfrom/docs/48` §5.1).
+///
+/// **The set is the story's own roster, and that is a safety decision, not a convenience
+/// one.** `CommentService.notifyComment` notifies every id it is handed with **no access
+/// check of any kind** (`comment.service.ts:250-270` — verified; the policy assert above it
+/// authorizes the *commenter*, never the mentioned). So whatever a composer is willing to
+/// resolve is, in effect, who can be notified about a private story. Mentioning a stranger
+/// would tell them a story exists, who is discussing it, and hand them a notification
+/// linking to a comment they cannot open.
+///
+/// So candidates come from `GET /stories/:id/members`, which is exactly "people who can see
+/// this story": the endpoint synthesises the **owner** row from the piece author before
+/// appending the collaborators (`membership.service.ts:102`), so author + members needs no
+/// second request and no client-side union.
+///
+/// **Why NOT [InviteeCandidate]'s `GET /users/:username`.** The invite sheet resolves an
+/// arbitrary handle that way, and P-2's row proposed the same lookup here. It cannot be
+/// used: that route resolves *anybody on the platform*, which is precisely the id a mention
+/// must never be able to carry. What is reused is the *lesson* of M-1 — a mention is an id,
+/// and the writer confirms a person before one is sent — and B3's [actorProfileProvider],
+/// which turns each member id into the name the typeahead shows.
+///
+/// **Never throws.** A roster that cannot be read means no typeahead, not a broken screen:
+/// the composer still posts plain text. Profiles resolve through B3's keepAlive family, so
+/// a collaborator already named in the thread costs nothing, and a member whose profile
+/// will not resolve is simply not offered — inserting a handle the composer cannot show
+/// would put an unnamed person into the prose.
+///
+/// The viewer themselves is **not** filtered out: writing "as @me noted above" is legitimate
+/// prose, and the server drops self-notification anyway (`comment.service.ts:259`).
+
+@ProviderFor(mentionablePeople)
+final mentionablePeopleProvider = MentionablePeopleFamily._();
+
+/// Who this story's comment composer may @mention (P-2, `platfrom/docs/48` §5.1).
+///
+/// **The set is the story's own roster, and that is a safety decision, not a convenience
+/// one.** `CommentService.notifyComment` notifies every id it is handed with **no access
+/// check of any kind** (`comment.service.ts:250-270` — verified; the policy assert above it
+/// authorizes the *commenter*, never the mentioned). So whatever a composer is willing to
+/// resolve is, in effect, who can be notified about a private story. Mentioning a stranger
+/// would tell them a story exists, who is discussing it, and hand them a notification
+/// linking to a comment they cannot open.
+///
+/// So candidates come from `GET /stories/:id/members`, which is exactly "people who can see
+/// this story": the endpoint synthesises the **owner** row from the piece author before
+/// appending the collaborators (`membership.service.ts:102`), so author + members needs no
+/// second request and no client-side union.
+///
+/// **Why NOT [InviteeCandidate]'s `GET /users/:username`.** The invite sheet resolves an
+/// arbitrary handle that way, and P-2's row proposed the same lookup here. It cannot be
+/// used: that route resolves *anybody on the platform*, which is precisely the id a mention
+/// must never be able to carry. What is reused is the *lesson* of M-1 — a mention is an id,
+/// and the writer confirms a person before one is sent — and B3's [actorProfileProvider],
+/// which turns each member id into the name the typeahead shows.
+///
+/// **Never throws.** A roster that cannot be read means no typeahead, not a broken screen:
+/// the composer still posts plain text. Profiles resolve through B3's keepAlive family, so
+/// a collaborator already named in the thread costs nothing, and a member whose profile
+/// will not resolve is simply not offered — inserting a handle the composer cannot show
+/// would put an unnamed person into the prose.
+///
+/// The viewer themselves is **not** filtered out: writing "as @me noted above" is legitimate
+/// prose, and the server drops self-notification anyway (`comment.service.ts:259`).
+
+final class MentionablePeopleProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<MentionCandidate>>,
+          List<MentionCandidate>,
+          FutureOr<List<MentionCandidate>>
+        >
+    with
+        $FutureModifier<List<MentionCandidate>>,
+        $FutureProvider<List<MentionCandidate>> {
+  /// Who this story's comment composer may @mention (P-2, `platfrom/docs/48` §5.1).
+  ///
+  /// **The set is the story's own roster, and that is a safety decision, not a convenience
+  /// one.** `CommentService.notifyComment` notifies every id it is handed with **no access
+  /// check of any kind** (`comment.service.ts:250-270` — verified; the policy assert above it
+  /// authorizes the *commenter*, never the mentioned). So whatever a composer is willing to
+  /// resolve is, in effect, who can be notified about a private story. Mentioning a stranger
+  /// would tell them a story exists, who is discussing it, and hand them a notification
+  /// linking to a comment they cannot open.
+  ///
+  /// So candidates come from `GET /stories/:id/members`, which is exactly "people who can see
+  /// this story": the endpoint synthesises the **owner** row from the piece author before
+  /// appending the collaborators (`membership.service.ts:102`), so author + members needs no
+  /// second request and no client-side union.
+  ///
+  /// **Why NOT [InviteeCandidate]'s `GET /users/:username`.** The invite sheet resolves an
+  /// arbitrary handle that way, and P-2's row proposed the same lookup here. It cannot be
+  /// used: that route resolves *anybody on the platform*, which is precisely the id a mention
+  /// must never be able to carry. What is reused is the *lesson* of M-1 — a mention is an id,
+  /// and the writer confirms a person before one is sent — and B3's [actorProfileProvider],
+  /// which turns each member id into the name the typeahead shows.
+  ///
+  /// **Never throws.** A roster that cannot be read means no typeahead, not a broken screen:
+  /// the composer still posts plain text. Profiles resolve through B3's keepAlive family, so
+  /// a collaborator already named in the thread costs nothing, and a member whose profile
+  /// will not resolve is simply not offered — inserting a handle the composer cannot show
+  /// would put an unnamed person into the prose.
+  ///
+  /// The viewer themselves is **not** filtered out: writing "as @me noted above" is legitimate
+  /// prose, and the server drops self-notification anyway (`comment.service.ts:259`).
+  MentionablePeopleProvider._({
+    required MentionablePeopleFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'mentionablePeopleProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$mentionablePeopleHash();
+
+  @override
+  String toString() {
+    return r'mentionablePeopleProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<List<MentionCandidate>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<MentionCandidate>> create(Ref ref) {
+    final argument = this.argument as String;
+    return mentionablePeople(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is MentionablePeopleProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$mentionablePeopleHash() => r'cd9cd5ce320beb0fe4860d7ce08a1f07153cc78b';
+
+/// Who this story's comment composer may @mention (P-2, `platfrom/docs/48` §5.1).
+///
+/// **The set is the story's own roster, and that is a safety decision, not a convenience
+/// one.** `CommentService.notifyComment` notifies every id it is handed with **no access
+/// check of any kind** (`comment.service.ts:250-270` — verified; the policy assert above it
+/// authorizes the *commenter*, never the mentioned). So whatever a composer is willing to
+/// resolve is, in effect, who can be notified about a private story. Mentioning a stranger
+/// would tell them a story exists, who is discussing it, and hand them a notification
+/// linking to a comment they cannot open.
+///
+/// So candidates come from `GET /stories/:id/members`, which is exactly "people who can see
+/// this story": the endpoint synthesises the **owner** row from the piece author before
+/// appending the collaborators (`membership.service.ts:102`), so author + members needs no
+/// second request and no client-side union.
+///
+/// **Why NOT [InviteeCandidate]'s `GET /users/:username`.** The invite sheet resolves an
+/// arbitrary handle that way, and P-2's row proposed the same lookup here. It cannot be
+/// used: that route resolves *anybody on the platform*, which is precisely the id a mention
+/// must never be able to carry. What is reused is the *lesson* of M-1 — a mention is an id,
+/// and the writer confirms a person before one is sent — and B3's [actorProfileProvider],
+/// which turns each member id into the name the typeahead shows.
+///
+/// **Never throws.** A roster that cannot be read means no typeahead, not a broken screen:
+/// the composer still posts plain text. Profiles resolve through B3's keepAlive family, so
+/// a collaborator already named in the thread costs nothing, and a member whose profile
+/// will not resolve is simply not offered — inserting a handle the composer cannot show
+/// would put an unnamed person into the prose.
+///
+/// The viewer themselves is **not** filtered out: writing "as @me noted above" is legitimate
+/// prose, and the server drops self-notification anyway (`comment.service.ts:259`).
+
+final class MentionablePeopleFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<List<MentionCandidate>>, String> {
+  MentionablePeopleFamily._()
+    : super(
+        retry: null,
+        name: r'mentionablePeopleProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// Who this story's comment composer may @mention (P-2, `platfrom/docs/48` §5.1).
+  ///
+  /// **The set is the story's own roster, and that is a safety decision, not a convenience
+  /// one.** `CommentService.notifyComment` notifies every id it is handed with **no access
+  /// check of any kind** (`comment.service.ts:250-270` — verified; the policy assert above it
+  /// authorizes the *commenter*, never the mentioned). So whatever a composer is willing to
+  /// resolve is, in effect, who can be notified about a private story. Mentioning a stranger
+  /// would tell them a story exists, who is discussing it, and hand them a notification
+  /// linking to a comment they cannot open.
+  ///
+  /// So candidates come from `GET /stories/:id/members`, which is exactly "people who can see
+  /// this story": the endpoint synthesises the **owner** row from the piece author before
+  /// appending the collaborators (`membership.service.ts:102`), so author + members needs no
+  /// second request and no client-side union.
+  ///
+  /// **Why NOT [InviteeCandidate]'s `GET /users/:username`.** The invite sheet resolves an
+  /// arbitrary handle that way, and P-2's row proposed the same lookup here. It cannot be
+  /// used: that route resolves *anybody on the platform*, which is precisely the id a mention
+  /// must never be able to carry. What is reused is the *lesson* of M-1 — a mention is an id,
+  /// and the writer confirms a person before one is sent — and B3's [actorProfileProvider],
+  /// which turns each member id into the name the typeahead shows.
+  ///
+  /// **Never throws.** A roster that cannot be read means no typeahead, not a broken screen:
+  /// the composer still posts plain text. Profiles resolve through B3's keepAlive family, so
+  /// a collaborator already named in the thread costs nothing, and a member whose profile
+  /// will not resolve is simply not offered — inserting a handle the composer cannot show
+  /// would put an unnamed person into the prose.
+  ///
+  /// The viewer themselves is **not** filtered out: writing "as @me noted above" is legitimate
+  /// prose, and the server drops self-notification anyway (`comment.service.ts:259`).
+
+  MentionablePeopleProvider call(String storyId) =>
+      MentionablePeopleProvider._(argument: storyId, from: this);
+
+  @override
+  String toString() => r'mentionablePeopleProvider';
+}
+
 /// A comment's replies (`GET /comments/:id/thread`). `CommentDto` carries no
 /// `replies`, so a thread is a separate read.
 

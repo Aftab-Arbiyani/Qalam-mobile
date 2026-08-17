@@ -11,6 +11,7 @@ import '../../../../core/di/providers.dart';
 import '../../../../core/error/failure.dart';
 import '../../../../shared/api/api_envelope.dart';
 import '../../../../shared/domain/error_codes.dart';
+import '../../../../shared/domain/limits.dart';
 import '../../../../shared/theme/tokens/spacing_tokens.dart';
 import '../../../../shared/widgets/app_bar/q_app_bar.dart';
 import '../../../../shared/widgets/cards/q_card.dart';
@@ -21,8 +22,11 @@ import '../../domain/entities/collaboration_comment.dart';
 import '../../domain/entities/collaboration_enums.dart';
 import '../controllers/collaboration_controller.dart';
 import '../domain_labels.dart';
+import '../mention_text.dart';
 import '../providers/collaboration_providers.dart';
 import '../widgets/capability_gate.dart';
+import '../widgets/mention_body.dart';
+import '../widgets/mention_field.dart';
 
 class CollaborationCommentsScreen extends ConsumerWidget {
   const CollaborationCommentsScreen({required this.storyId, super.key});
@@ -192,7 +196,7 @@ class _Replies extends ConsumerWidget {
           CapabilityGate(
             storyId: storyId,
             action: PolicyAction.storyComment,
-            child: _ReplyComposer(rootId: rootId),
+            child: _ReplyComposer(storyId: storyId, rootId: rootId),
           ),
         ],
       ),
@@ -203,9 +207,14 @@ class _Replies extends ConsumerWidget {
 /// Posts to `POST /comments/:id/replies` — `{body, mentions?}`. This is the only
 /// way to create a reply; `parentId` on the create-comment body is not accepted
 /// (C-7).
+///
+/// Mentions ride the reply endpoint exactly as they do the root one (P-2) — the
+/// contract carries `mentions` on both DTOs, so a row that only did root comments
+/// would leave half the surface silently unable to notify anyone.
 class _ReplyComposer extends ConsumerStatefulWidget {
-  const _ReplyComposer({required this.rootId});
+  const _ReplyComposer({required this.storyId, required this.rootId});
 
+  final String storyId;
   final String rootId;
 
   @override
@@ -214,22 +223,49 @@ class _ReplyComposer extends ConsumerStatefulWidget {
 
 class _ReplyComposerState extends ConsumerState<_ReplyComposer> {
   final TextEditingController _controller = TextEditingController();
+  List<MentionCandidate> _mentions = const <MentionCandidate>[];
+
+  @override
+  void initState() {
+    super.initState();
+    // Deleting or editing a mention un-mentions the person, so the ids sent stay
+    // true to the text as it now reads.
+    _controller.addListener(_prune);
+  }
 
   @override
   void dispose() {
+    _controller.removeListener(_prune);
     _controller.dispose();
     super.dispose();
   }
 
+  void _prune() {
+    final List<MentionCandidate> next = pruneMentions(
+      _controller.text,
+      _mentions,
+    );
+    if (next.length != _mentions.length) setState(() => _mentions = next);
+  }
+
   Future<void> _submit() async {
-    final String body = _controller.text.trim();
-    if (body.isEmpty) return;
+    final RawCommentBody raw = toRawCommentBody(
+      _controller.text.trim(),
+      _mentions,
+    );
+    if (raw.body.isEmpty) return;
+    if (raw.body.length > Limits.storyCommentBodyMax) return;
     final CollaborationComment? added = await ref
         .read(collaborationControllerProvider.notifier)
-        .replyToComment(commentId: widget.rootId, body: body);
+        .replyToComment(
+          commentId: widget.rootId,
+          body: raw.body,
+          mentions: raw.mentions,
+        );
     if (!mounted) return;
     if (added != null) {
       _controller.clear();
+      setState(() => _mentions = const <MentionCandidate>[]);
       ref.invalidate(storyCommentThreadProvider(widget.rootId));
     } else {
       ScaffoldMessenger.of(
@@ -242,27 +278,81 @@ class _ReplyComposerState extends ConsumerState<_ReplyComposer> {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(left: QSpacing.s5),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          Expanded(
-            child: TextField(
-              controller: _controller,
-              minLines: 1,
-              maxLines: 3,
-              decoration: const InputDecoration(
-                hintText: 'Reply…',
-                isDense: true,
-                border: OutlineInputBorder(),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: <Widget>[
+              Expanded(
+                child: MentionField(
+                  storyId: widget.storyId,
+                  controller: _controller,
+                  semanticLabel: 'Reply',
+                  hintText: 'Reply…',
+                  maxLines: 3,
+                  isDense: true,
+                  onMention: (MentionCandidate candidate) => setState(() {
+                    if (!_mentions.contains(candidate)) {
+                      _mentions = <MentionCandidate>[..._mentions, candidate];
+                    }
+                  }),
+                ),
               ),
-            ),
+              Gap.h2,
+              IconButton(
+                icon: const Icon(Icons.send, size: 18),
+                onPressed: _submit,
+              ),
+            ],
           ),
-          Gap.h2,
-          IconButton(
-            icon: const Icon(Icons.send, size: 18),
-            onPressed: _submit,
-          ),
+          _RawBodyCounter(controller: _controller, mentions: _mentions),
         ],
       ),
+    );
+  }
+}
+
+/// The character count, measured on the RAW body.
+///
+/// `@MaxLength(MAX_COMMENT_BODY_LENGTH)` is applied server-side to the string that
+/// contains the **ids**, where each mention is 37 characters rather than the handful
+/// the writer can see. A counter over the visible text would let someone past a limit
+/// the server then rejects, with nothing on screen to explain the gap — so this reads
+/// [rawCommentBodyLength], and says out loud why the number is larger than the text
+/// once a mention is in play.
+class _RawBodyCounter extends StatelessWidget {
+  const _RawBodyCounter({required this.controller, required this.mentions});
+
+  final TextEditingController controller;
+  final List<MentionCandidate> mentions;
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    return ValueListenableBuilder<TextEditingValue>(
+      valueListenable: controller,
+      builder: (BuildContext context, TextEditingValue value, Widget? _) {
+        final int length = rawCommentBodyLength(value.text.trim(), mentions);
+        final bool over = length > Limits.storyCommentBodyMax;
+        // Silent until it can matter: with no mention and plenty of room there is
+        // nothing surprising to explain.
+        if (mentions.isEmpty && length < Limits.storyCommentBodyMax - 200) {
+          return const SizedBox.shrink();
+        }
+        return Padding(
+          padding: const EdgeInsets.only(top: QSpacing.s1),
+          child: Text(
+            mentions.isEmpty
+                ? '$length / ${Limits.storyCommentBodyMax}'
+                : '$length / ${Limits.storyCommentBodyMax} — each mention counts as '
+                      'the person’s id, not their name.',
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: over ? theme.colorScheme.error : null,
+            ),
+          ),
+        );
+      },
     );
   }
 }
@@ -329,7 +419,10 @@ class _CommentRow extends ConsumerWidget {
           ),
         ],
         Gap.v1,
-        Text(comment.body),
+        // A stored `@<uuid>` resolves to a name here — the render half of P-2, without
+        // which the composer would be writing ids into prose nobody turns back into
+        // people.
+        MentionBody(body: comment.body, style: theme.textTheme.bodyMedium),
         if (isRoot) ...<Widget>[
           Gap.v2,
           Row(
@@ -383,22 +476,50 @@ class _Composer extends ConsumerStatefulWidget {
 
 class _ComposerState extends ConsumerState<_Composer> {
   final TextEditingController _controller = TextEditingController();
+  List<MentionCandidate> _mentions = const <MentionCandidate>[];
+
+  @override
+  void initState() {
+    super.initState();
+    _controller.addListener(_prune);
+  }
 
   @override
   void dispose() {
+    _controller.removeListener(_prune);
     _controller.dispose();
     super.dispose();
   }
 
+  void _prune() {
+    final List<MentionCandidate> next = pruneMentions(
+      _controller.text,
+      _mentions,
+    );
+    if (next.length != _mentions.length) setState(() => _mentions = next);
+  }
+
   Future<void> _submit() async {
-    final String body = _controller.text.trim();
-    if (body.isEmpty) return;
+    // The handles the writer sees become the `@<uuid>` the wire stores, here and
+    // nowhere else (P-2). `mentions` is belt-and-braces: the server re-derives the
+    // same ids from the same body and unions the two.
+    final RawCommentBody raw = toRawCommentBody(
+      _controller.text.trim(),
+      _mentions,
+    );
+    if (raw.body.isEmpty) return;
+    if (raw.body.length > Limits.storyCommentBodyMax) return;
     final CollaborationComment? added = await ref
         .read(collaborationControllerProvider.notifier)
-        .addComment(storyId: widget.storyId, body: body);
+        .addComment(
+          storyId: widget.storyId,
+          body: raw.body,
+          mentions: raw.mentions,
+        );
     if (!mounted) return;
     if (added != null) {
       _controller.clear();
+      setState(() => _mentions = const <MentionCandidate>[]);
     } else {
       ScaffoldMessenger.of(
         context,
@@ -413,25 +534,34 @@ class _ComposerState extends ConsumerState<_Composer> {
       top: false,
       child: Padding(
         padding: const EdgeInsets.all(QSpacing.s3),
-        child: Row(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            Expanded(
-              child: TextField(
-                controller: _controller,
-                minLines: 1,
-                maxLines: 4,
-                textInputAction: TextInputAction.newline,
-                decoration: const InputDecoration(
-                  hintText: 'Add a comment…',
-                  border: OutlineInputBorder(),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: <Widget>[
+                Expanded(
+                  child: MentionField(
+                    storyId: widget.storyId,
+                    controller: _controller,
+                    semanticLabel: 'Comment',
+                    hintText: 'Add a comment…',
+                    onMention: (MentionCandidate candidate) => setState(() {
+                      if (!_mentions.contains(candidate)) {
+                        _mentions = <MentionCandidate>[..._mentions, candidate];
+                      }
+                    }),
+                  ),
                 ),
-              ),
+                Gap.h2,
+                IconButton.filled(
+                  icon: const Icon(Icons.send),
+                  onPressed: busy ? null : _submit,
+                ),
+              ],
             ),
-            Gap.h2,
-            IconButton.filled(
-              icon: const Icon(Icons.send),
-              onPressed: busy ? null : _submit,
-            ),
+            _RawBodyCounter(controller: _controller, mentions: _mentions),
           ],
         ),
       ),

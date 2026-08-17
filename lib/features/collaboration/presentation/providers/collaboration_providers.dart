@@ -14,6 +14,8 @@ import '../../../../core/di/providers.dart';
 import '../../../../core/error/failure.dart';
 import '../../../../core/utils/result.dart';
 import '../../../../shared/api/api_envelope.dart';
+import '../../../profile/domain/entities/profile.dart';
+import '../../../profile/presentation/controllers/actor_profile_controller.dart';
 import '../../data/datasources/collaboration_remote_data_source.dart';
 import '../../data/datasources/publishing_remote_data_source.dart';
 import '../../data/datasources/trust_remote_data_source.dart';
@@ -37,6 +39,7 @@ import '../../domain/entities/trust_summary.dart';
 import '../../domain/repositories/collaboration_repository.dart';
 import '../../domain/repositories/publishing_repository.dart';
 import '../../domain/repositories/trust_repository.dart';
+import '../mention_text.dart';
 
 part 'collaboration_providers.g.dart';
 
@@ -105,7 +108,10 @@ Future<StoryCapabilities> storyCapabilities(Ref ref, String storyId) async {
 /// server actually said there is no seat. Losing an upsell is a missed sale; hiding the
 /// only management action on the screen is a broken app.
 @riverpod
-Future<CollaboratorLimit> storyCollaboratorLimit(Ref ref, String storyId) async {
+Future<CollaboratorLimit> storyCollaboratorLimit(
+  Ref ref,
+  String storyId,
+) async {
   final Result<CollaboratorLimit> result = await ref
       .watch(collaborationRepositoryProvider)
       .collaboratorLimit(storyId);
@@ -127,6 +133,71 @@ Future<CursorPage<CollaborationComment>> storyComments(
       .watch(collaborationRepositoryProvider)
       .comments(storyId);
   return _unwrap(result);
+}
+
+/// Who this story's comment composer may @mention (P-2, `platfrom/docs/48` §5.1).
+///
+/// **The set is the story's own roster, and that is a safety decision, not a convenience
+/// one.** `CommentService.notifyComment` notifies every id it is handed with **no access
+/// check of any kind** (`comment.service.ts:250-270` — verified; the policy assert above it
+/// authorizes the *commenter*, never the mentioned). So whatever a composer is willing to
+/// resolve is, in effect, who can be notified about a private story. Mentioning a stranger
+/// would tell them a story exists, who is discussing it, and hand them a notification
+/// linking to a comment they cannot open.
+///
+/// So candidates come from `GET /stories/:id/members`, which is exactly "people who can see
+/// this story": the endpoint synthesises the **owner** row from the piece author before
+/// appending the collaborators (`membership.service.ts:102`), so author + members needs no
+/// second request and no client-side union.
+///
+/// **Why NOT [InviteeCandidate]'s `GET /users/:username`.** The invite sheet resolves an
+/// arbitrary handle that way, and P-2's row proposed the same lookup here. It cannot be
+/// used: that route resolves *anybody on the platform*, which is precisely the id a mention
+/// must never be able to carry. What is reused is the *lesson* of M-1 — a mention is an id,
+/// and the writer confirms a person before one is sent — and B3's [actorProfileProvider],
+/// which turns each member id into the name the typeahead shows.
+///
+/// **Never throws.** A roster that cannot be read means no typeahead, not a broken screen:
+/// the composer still posts plain text. Profiles resolve through B3's keepAlive family, so
+/// a collaborator already named in the thread costs nothing, and a member whose profile
+/// will not resolve is simply not offered — inserting a handle the composer cannot show
+/// would put an unnamed person into the prose.
+///
+/// The viewer themselves is **not** filtered out: writing "as @me noted above" is legitimate
+/// prose, and the server drops self-notification anyway (`comment.service.ts:259`).
+@riverpod
+Future<List<MentionCandidate>> mentionablePeople(
+  Ref ref,
+  String storyId,
+) async {
+  final Result<List<StoryMember>> result = await ref
+      .watch(collaborationRepositoryProvider)
+      .members(storyId);
+  final List<StoryMember> members = switch (result) {
+    Ok<List<StoryMember>>(:final List<StoryMember> value) => value,
+    Err<List<StoryMember>>() => const <StoryMember>[],
+  };
+
+  // Every `watch` is registered before the first await, so the lookups run concurrently
+  // rather than one member at a time.
+  final List<Future<Profile?>> lookups = members
+      .map(
+        (StoryMember member) =>
+            ref.watch(actorProfileProvider(member.userId).future),
+      )
+      .toList(growable: false);
+
+  final List<Profile?> profiles = await Future.wait(lookups);
+  return <MentionCandidate>[
+    for (final Profile? profile in profiles)
+      if (profile != null && profile.username.isNotEmpty)
+        MentionCandidate(
+          id: profile.id,
+          username: profile.username,
+          penName: profile.penName,
+          avatarKey: profile.avatarKey,
+        ),
+  ];
 }
 
 /// A comment's replies (`GET /comments/:id/thread`). `CommentDto` carries no
