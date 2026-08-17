@@ -58,7 +58,8 @@ class ReadingScreen extends ConsumerStatefulWidget {
   ConsumerState<ReadingScreen> createState() => _ReadingScreenState();
 }
 
-class _ReadingScreenState extends ConsumerState<ReadingScreen> {
+class _ReadingScreenState extends ConsumerState<ReadingScreen>
+    with WidgetsBindingObserver {
   final ScrollController _scroll = ScrollController();
   final ValueNotifier<double> _progress = ValueNotifier<double>(0);
   final ValueNotifier<bool> _chromeVisible = ValueNotifier<bool>(true);
@@ -71,18 +72,42 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen> {
   // after unmount, Riverpod contract).
   ReadingHistoryController? _history;
   ReadingRepository? _repo;
+
+  /// Captured for the same reason: a clap burst is debounced, so there is always
+  /// a window where the reader's claps exist only in the controller. Losing one
+  /// is the failure they actually notice — the number they watched climb simply
+  /// is not there next visit — so it is flushed on background AND on unmount.
+  EngagementController? _engagement;
   bool _sessionStarted = false;
   bool _resumed = false;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _scroll.addListener(_onScroll);
+  }
+
+  /// The mobile equivalent of web's `pagehide` / `visibilitychange`: flush a
+  /// pending clap burst before the app goes away, so it is not lost to a kill.
+  /// Offline the flush enqueues onto the Hive-backed outbox, so a backgrounded
+  /// burst survives even a force-stop — but a force-stop that never delivers
+  /// `paused` still loses whatever is inside the debounce window.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.inactive) {
+      unawaited(_engagement?.flushClaps() ?? Future<void>.value());
+    }
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _saveDebounce?.cancel();
+    // Unmount is the common case — a reader who claps and taps straight through
+    // to another piece. Uses the captured notifier, never `ref` (unsafe here).
+    unawaited(_engagement?.flushClaps() ?? Future<void>.value());
     _finishSession();
     _scroll
       ..removeListener(_onScroll)
@@ -125,6 +150,7 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen> {
     final ReadingRepository repo = ref.read(readingRepositoryProvider);
     _history = history;
     _repo = repo;
+    _engagement = ref.read(engagementControllerProvider(piece.id).notifier);
     _dwell.start();
     unawaited(repo.recordView(piece.id));
 
