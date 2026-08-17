@@ -2,10 +2,17 @@
 /// button, gated on a non-empty trimmed body. Owns its own controller; clears on
 /// a successful submit. Used by the comment thread (top-level) and inline reply
 /// boxes. Sign-in gating is the caller's concern (it hides the composer).
+///
+/// **This is the PUBLIC piece comment — [Limits.commentMaxLength] (2,000), the
+/// `modules/engagement` cap.** AF6's private story review is a different endpoint
+/// with a different (5,000) cap and composes through `MentionField`, not this
+/// widget; the two were conflated once already (P-2's sweep, `platfrom/docs/48`
+/// §6.11), which is why the constant is named here rather than inlined.
 library;
 
 import 'package:flutter/material.dart';
 
+import '../../domain/limits.dart';
 import '../../theme/tokens/spacing_tokens.dart';
 import '../buttons/q_button.dart';
 import '../haptics/q_haptics.dart';
@@ -74,7 +81,7 @@ class _CommentComposerState extends State<CommentComposer> {
               autofocus: widget.autofocus,
               minLines: 1,
               maxLines: 5,
-              maxLength: 2000,
+              maxLength: Limits.commentMaxLength,
               textInputAction: TextInputAction.newline,
               contentDirectionAuto: true,
               onChanged: (String v) {

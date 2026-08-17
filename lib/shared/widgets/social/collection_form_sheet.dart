@@ -10,6 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../l10n/generated/app_localizations.dart';
 import '../../domain/enums.dart';
+import '../../domain/limits.dart';
 import '../../social/domain/entities/collection.dart';
 import '../../social/presentation/controllers/collections_controller.dart';
 import '../../theme/tokens/spacing_tokens.dart';
@@ -89,7 +90,7 @@ class _CollectionFormSheetState extends ConsumerState<_CollectionFormSheet> {
               label: l10n.collectionNameLabel,
               controller: _name,
               hint: l10n.collectionNameHint,
-              maxLength: 150,
+              maxLength: Limits.collectionNameMax,
               contentDirectionAuto: true,
               onChanged: (String v) {
                 final bool can = v.trim().isNotEmpty;
@@ -100,7 +101,7 @@ class _CollectionFormSheetState extends ConsumerState<_CollectionFormSheet> {
             QTextField(
               label: l10n.collectionDescriptionLabel,
               controller: _description,
-              maxLength: 500,
+              maxLength: Limits.collectionDescriptionMax,
               maxLines: 3,
               minLines: 2,
               contentDirectionAuto: true,
