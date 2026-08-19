@@ -43,8 +43,13 @@ class AiRepositoryImpl implements AiRepository {
   Future<Result<CursorPage<AiConversationSummary>>> listConversations({
     String? cursor,
     int? limit,
+    AiConversationStatus? status,
   }) => guardResult(
-    () => _remote.listConversations(cursor: cursor, limit: limit),
+    () => _remote.listConversations(
+      cursor: cursor,
+      limit: limit,
+      status: status,
+    ),
   );
 
   @override

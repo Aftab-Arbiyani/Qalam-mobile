@@ -118,6 +118,39 @@ class _AiConversationsScreenState extends ConsumerState<AiConversationsScreen> {
 
     return Column(
       children: <Widget>[
+        // Two views of one collection, so a SegmentedButton rather than two buttons — it announces
+        // the selection to TalkBack/VoiceOver, which a pair of plain buttons does not. Switching
+        // clears the search: it filters only the rows paged in, so a needle carried across a shelf
+        // change would hide most of the shelf just arrived at.
+        Padding(
+          padding: QSpacing.pagePadding,
+          child: SizedBox(
+            width: double.infinity,
+            child: SegmentedButton<AiConversationStatus>(
+              segments: const <ButtonSegment<AiConversationStatus>>[
+                ButtonSegment<AiConversationStatus>(
+                  value: AiConversationStatus.active,
+                  label: Text('Active'),
+                ),
+                ButtonSegment<AiConversationStatus>(
+                  value: AiConversationStatus.archived,
+                  label: Text('Archived'),
+                ),
+              ],
+              selected: <AiConversationStatus>{state.shelf},
+              showSelectedIcon: false,
+              onSelectionChanged: (Set<AiConversationStatus> next) {
+                _search.clear();
+                setState(() => _query = '');
+                unawaited(
+                  ref
+                      .read(conversationsControllerProvider.notifier)
+                      .setShelf(next.first),
+                );
+              },
+            ),
+          ),
+        ),
         Padding(
           padding: QSpacing.pagePadding,
           child: TextField(
@@ -133,10 +166,18 @@ class _AiConversationsScreenState extends ConsumerState<AiConversationsScreen> {
         ),
         Expanded(
           child: rows.isEmpty
-              ? const QEmptyState(
-                  icon: Icons.forum_outlined,
-                  title: 'No conversations yet',
-                  message: 'Your AI conversations will appear here.',
+              ? QEmptyState(
+                  icon: state.isArchivedShelf
+                      ? Icons.archive_outlined
+                      : Icons.forum_outlined,
+                  // "No conversations yet" would be false on an empty archive whenever the active
+                  // shelf has rows, which is the common case.
+                  title: state.isArchivedShelf
+                      ? 'Nothing archived'
+                      : 'No conversations yet',
+                  message: state.isArchivedShelf
+                      ? 'Archived conversations are kept here, out of the active list, until you restore or delete them.'
+                      : 'Your AI conversations will appear here.',
                 )
               : RefreshIndicator(
                   onRefresh: () => ref
@@ -145,8 +186,11 @@ class _AiConversationsScreenState extends ConsumerState<AiConversationsScreen> {
                   child: ListView.builder(
                     controller: _scroll,
                     itemCount: rows.length,
-                    itemBuilder: (BuildContext context, int i) =>
-                        _row(rows[i], state.isPinned(rows[i].id)),
+                    itemBuilder: (BuildContext context, int i) => _row(
+                      rows[i],
+                      state.isPinned(rows[i].id),
+                      state.isArchivedShelf,
+                    ),
                   ),
                 ),
         ),
@@ -154,7 +198,7 @@ class _AiConversationsScreenState extends ConsumerState<AiConversationsScreen> {
     );
   }
 
-  Widget _row(AiConversationSummary c, bool pinned) {
+  Widget _row(AiConversationSummary c, bool pinned, bool archivedShelf) {
     final QTokens tokens = QTokens.of(context);
     return ListTile(
       leading: Icon(
@@ -171,7 +215,12 @@ class _AiConversationsScreenState extends ConsumerState<AiConversationsScreen> {
             child: Text(pinned ? 'Unpin' : 'Pin'),
           ),
           const PopupMenuItem<String>(value: 'rename', child: Text('Rename')),
-          const PopupMenuItem<String>(value: 'archive', child: Text('Archive')),
+          // Archive on the active shelf, Restore on the archived one — the same row cannot offer
+          // both, and offering only Archive is what made it a one-way trip.
+          PopupMenuItem<String>(
+            value: archivedShelf ? 'restore' : 'archive',
+            child: Text(archivedShelf ? 'Restore' : 'Archive'),
+          ),
           const PopupMenuItem<String>(value: 'delete', child: Text('Delete')),
         ],
       ),
@@ -199,7 +248,27 @@ class _AiConversationsScreenState extends ConsumerState<AiConversationsScreen> {
           }
         }
       case 'archive':
-        await notifier.archive(c.id);
+        final bool archived = await notifier.archive(c.id);
+        if (mounted) {
+          QSnackbar.show(
+            context,
+            message: archived ? 'Archived.' : 'Couldn’t archive.',
+            variant: archived
+                ? QSnackbarVariant.neutral
+                : QSnackbarVariant.danger,
+          );
+        }
+      case 'restore':
+        final bool restored = await notifier.restore(c.id);
+        if (mounted) {
+          QSnackbar.show(
+            context,
+            message: restored ? 'Restored.' : 'Couldn’t restore.',
+            variant: restored
+                ? QSnackbarVariant.neutral
+                : QSnackbarVariant.danger,
+          );
+        }
       case 'delete':
         final bool ok = await notifier.delete(c.id);
         if (mounted) {

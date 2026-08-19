@@ -18,6 +18,7 @@ class FakeAiRepository implements AiRepository {
     List<AiConversationSummary>? conversations,
     AiConversationDetail? detail,
     this.failure,
+    this.statusChangeFailure,
     // AF4 canned responses.
     SemanticSearchResponse? search,
     List<String>? suggestions,
@@ -63,6 +64,11 @@ class FakeAiRepository implements AiRepository {
   /// (falls back to [failure] when unset, so every existing caller is
   /// unaffected).
   final Failure? recommendationsFailure;
+
+  /// When set, ONLY [setConversationStatus] fails — so a test can load a shelf successfully and
+  /// then fail the archive, which is the case that decides whether the row is put back. Same
+  /// narrowly-scoped shape as [recommendationsFailure].
+  final Failure? statusChangeFailure;
 
   // Recorded inputs for assertions.
   AiCompletionRequest? lastCompletionRequest;
@@ -121,18 +127,36 @@ class FakeAiRepository implements AiRepository {
               ),
         );
 
+  /// The last `status` the list was asked for, and `null` when it was asked for none. Recorded so a
+  /// test can prove the shelf is a REQUEST parameter rather than a filter applied after the fact.
+  AiConversationStatus? lastListedStatus;
+  bool listedWithoutStatus = false;
+
   @override
   Future<Result<CursorPage<AiConversationSummary>>> listConversations({
     String? cursor,
     int? limit,
-  }) async => failure != null
-      ? Err<CursorPage<AiConversationSummary>>(failure!)
-      : Ok<CursorPage<AiConversationSummary>>(
-          CursorPage<AiConversationSummary>(
-            items: _conversations,
-            meta: const CursorMeta(),
-          ),
-        );
+    AiConversationStatus? status,
+  }) async {
+    lastListedStatus = status;
+    listedWithoutStatus = status == null;
+    if (failure != null) {
+      return Err<CursorPage<AiConversationSummary>>(failure!);
+    }
+    // Filtered here the way the route filters it: omitting the status means the route's own
+    // default, which is `active`. A fake that returned everything would let a client pass a test
+    // it fails in production — the shape of defect W8-2 in the first place.
+    final AiConversationStatus effective =
+        status ?? AiConversationStatus.active;
+    return Ok<CursorPage<AiConversationSummary>>(
+      CursorPage<AiConversationSummary>(
+        items: _conversations
+            .where((AiConversationSummary c) => c.status == effective)
+            .toList(growable: false),
+        meta: const CursorMeta(),
+      ),
+    );
+  }
 
   @override
   Future<Result<AiConversationSummary>> createConversation({
@@ -178,8 +202,8 @@ class FakeAiRepository implements AiRepository {
   Future<Result<AiConversationSummary>> setConversationStatus(
     String id,
     AiConversationStatus status,
-  ) async => failure != null
-      ? Err<AiConversationSummary>(failure!)
+  ) async => (statusChangeFailure ?? failure) != null
+      ? Err<AiConversationSummary>(statusChangeFailure ?? failure!)
       : Ok<AiConversationSummary>(
           _conversations
               .firstWhere((AiConversationSummary c) => c.id == id)

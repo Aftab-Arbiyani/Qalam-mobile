@@ -78,13 +78,20 @@ class AiRemoteDataSource {
 
   // ── Conversations ────────────────────────────────────────────────────────────
 
+  /// [status] selects the shelf. The route filters server-side and defaults to `active`, so
+  /// archived conversations are reachable only by asking for them (`platfrom/docs/48` §3.21).
   Future<CursorPage<AiConversationSummary>> listConversations({
     String? cursor,
     int? limit,
+    AiConversationStatus? status,
     CancelToken? cancelToken,
   }) => _api.getPage(
     ApiPaths.aiConversations,
-    query: <String, dynamic>{'cursor': cursor, 'limit': limit},
+    query: <String, dynamic>{
+      'cursor': cursor,
+      'limit': limit,
+      'status': status?.wire,
+    },
     decodeItem: AiConversationSummary.fromJson,
     cancelToken: cancelToken,
   );

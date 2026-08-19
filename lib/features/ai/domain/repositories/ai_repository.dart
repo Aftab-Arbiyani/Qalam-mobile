@@ -34,10 +34,12 @@ abstract interface class AiRepository {
   Future<Result<AiUsageSummary>> usage();
 
   // ── Conversations ──────────────────────────────────────────────────────────
-  /// The caller's conversations, newest first (cursor-paginated).
+  /// The caller's conversations on one shelf, newest first (cursor-paginated).
+  /// Omitting [status] takes the route's default, which is `active`.
   Future<Result<CursorPage<AiConversationSummary>>> listConversations({
     String? cursor,
     int? limit,
+    AiConversationStatus? status,
   });
 
   /// Start a new conversation for [feature].

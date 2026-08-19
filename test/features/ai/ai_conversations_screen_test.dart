@@ -1,4 +1,4 @@
-/// Regression guard for defect **W8-1** (`platfrom/docs/48` §3.12).
+/// Regression guards for the conversations screen's two entry points.
 ///
 /// `createConversation` existed in every mobile AI layer — remote data source,
 /// repository interface, repository impl — with **zero UI callers**, so
@@ -6,6 +6,11 @@
 /// behind it (detail, rename, archive, delete, export) was dead code. This
 /// asserts the entry point that was missing: a user action that creates a
 /// conversation and lands on it, not just that the method exists.
+///
+/// The second test covers the archive shelf (`platfrom/docs/48` §3.21). Archiving worked before it
+/// and there was no way back: the row left the only list that could show it, so Archive was a delete
+/// with a gentler label. Asserted through the UI because the defect was a MISSING CONTROL — a
+/// controller test cannot fail on an action nobody can reach, which is the whole shape of W8-1 too.
 library;
 
 import 'package:flutter/material.dart';
@@ -89,5 +94,66 @@ void main() {
       find.byType(AiConversationScreen),
     );
     expect(screen.conversationId, 'c-new');
+  });
+  testWidgets('the archived shelf lists archived rows and offers Restore', (
+    WidgetTester tester,
+  ) async {
+    AiConversationSummary row(String id, AiConversationStatus status) =>
+        AiConversationSummary(
+          id: id,
+          title: 'Chat $id',
+          feature: 'writing_assistant',
+          status: status,
+          messageCount: 2,
+          createdAt: DateTime.utc(2026),
+          updatedAt: DateTime.utc(2026),
+        );
+
+    final FakeAiRepository fake = FakeAiRepository(
+      conversations: <AiConversationSummary>[
+        row('c-active', AiConversationStatus.active),
+        row('c-archived', AiConversationStatus.archived),
+      ],
+    );
+    late final ProviderContainer container;
+    await tester.runAsync(() async {
+      container = await buildTestContainer(aiRepository: fake);
+    });
+    addTearDown(container.dispose);
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp(
+          theme: buildQalamTheme(brightness: Brightness.light),
+          home: const AiConversationsScreen(),
+        ),
+      ),
+    );
+    await settleFrames(tester);
+
+    // The active shelf shows only the active row — the archived one is not in the page at all,
+    // because the status is a request parameter and the fake filters the way the route does.
+    expect(find.text('Chat c-active'), findsOneWidget);
+    expect(find.text('Chat c-archived'), findsNothing);
+
+    await tester.tap(find.text('Archived'));
+    await settleFrames(tester);
+
+    expect(fake.lastListedStatus, AiConversationStatus.archived);
+    expect(find.text('Chat c-archived'), findsOneWidget);
+    expect(find.text('Chat c-active'), findsNothing);
+
+    // And the row's action is the way BACK, which is what the shelf exists for.
+    await tester.tap(find.byType(PopupMenuButton<String>));
+    await settleFrames(tester);
+    expect(find.text('Restore'), findsOneWidget);
+    expect(find.text('Archive'), findsNothing);
+
+    await tester.tap(find.text('Restore'));
+    await settleFrames(tester);
+
+    // Restored, so it leaves the archived shelf.
+    expect(find.text('Chat c-archived'), findsNothing);
   });
 }
