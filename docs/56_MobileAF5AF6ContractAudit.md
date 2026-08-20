@@ -21,6 +21,20 @@ appended to each entry.
 or memory. Every finding carries a backend quote and a mobile quote. Where the code alone cannot
 settle the behaviour, the finding is marked **NEEDS-LIVE-CONFIRMATION** rather than guessed.
 
+> **Status re-verified 2026-08-20 — and this document is NOT the status source of truth.**
+> Every entry still carrying an open marker was re-read against the code that owns it. **Five had
+> already been fixed** and said otherwise: **C-14** (2026-07-29), **T-3** (2026-08-03), **M5-1**
+> (2026-08-03), **M5-4** (2026-07-29), and the §9 summary's "all 5 AF5 findings remain open by design",
+> which was true of one pass's scope and false as a count for three weeks. Each is struck in place with
+> the anchor that disproves it.
+>
+> **Two entries are genuinely open: C-15 and M5-2.** Both are carried as schedulable lines in
+> [`platfrom/docs/48` §3.22, the open ledger](../../platfrom/docs/48_PlatformParityRegister.md) — the
+> single place where "what is open" is answered across both repos. **This document owns the
+> *diagnosis*; the ledger owns the *status*.** Do not schedule, size, or report a finding from a heading
+> in here; re-verify its anchor first, and when it closes, strike it here **and** delete its ledger line
+> in the same commit as the fix.
+
 ---
 
 ## 0. Repair status (updated 2026-07-28, same day)
@@ -870,7 +884,13 @@ that `TrustSummary.activeRestrictions` filters on the derived flag.
 
 ---
 
-#### T-3 · **medium** · ⚠️ **PARTIAL** · block / mute management is fully wired and completely unreachable
+#### T-3 · ~~**medium**~~ · ✅ **CLOSED 2026-08-03 (`48` M-4); verified in code 2026-08-20** · block / mute management is fully wired and completely unreachable
+
+> **Verified 2026-08-20.** `BlocksScreen` is routed — `app/router/routes.dart:120`,
+> `settingsBlocks = '/settings/blocks'` — and reached from the settings hub, whose own comment names
+> itself as "the only entry point to `/settings/blocks`" (`settings_hub_screen.dart:110`). The wiring
+> this entry said had no way in now has exactly one, deliberately. Closed as the entry-point half of
+> `platfrom/docs/48` **M-4** ("ported, with the entry point treated as part of the port").
 
 `trust.controller.ts:50-102` exposes `GET /me/blocks` and block/unblock/mute/unmute. Mobile has the
 datasource (`trust_remote_data_source.dart:25-39`), the repository
@@ -955,7 +975,15 @@ reads correctly use `getPage` and read `meta.pagination` (`monetization.controll
 
 ---
 
-#### M5-1 · **medium** · `PremiumGate` is used zero times; no premium surface gates on entitlements
+#### M5-1 · ~~**medium**~~ · ✅ **CLOSED 2026-08-03 (+ D3, 2026-08-17); verified in code 2026-08-20** · `PremiumGate` is used zero times; no premium surface gates on entitlements
+
+> **Verified 2026-08-20.** `PremiumGate` now has real call sites outside its own feature — the two AF2
+> writing surfaces (`features/ai/presentation/panels/writing_assistant_panel.dart`,
+> `craft_coach_panel.dart`, gated by **D3**) and three collaboration notices
+> (`capability_gate.dart`, `collaborator_seat_notice.dart`, `snapshot_history_notice.dart`), beside
+> `subscription_screen.dart` and `credit_dashboard_screen.dart`. `premiumFeatureAllowedProvider` — the
+> exported-and-unused provider this entry named — **no longer exists anywhere in `lib/`** (deleted as
+> `48` **M5-5**). Tracked in `platfrom/docs/48` as **M5-1** and closed there on 2026-08-03.
 
 `presentation/widgets/premium_gate.dart:21` declares the gate and its own doc comment says "Every
 premium affordance elsewhere wraps its content in `PremiumGate`"; it is exported at
@@ -971,7 +999,13 @@ card was designed. Fix: wrap the affordances (small per site, ~8 sites).
 
 ---
 
-#### M5-2 · **medium** · `clientSecret` is dropped from the checkout result
+#### M5-2 · **medium** · ⛔ **STILL OPEN — re-verified in code 2026-08-20** · `clientSecret` is dropped from the checkout result
+
+> **Re-verified 2026-08-20, both ends.** `CheckoutDto` still carries all three fields
+> (`dto/monetization-response.dto.ts:24-28`, `clientSecret!: string | null`), and `CheckoutResult` still
+> reads two (`domain/entities/billing.dart:115` constructor, `:126` `fromJson`). **The only genuinely
+> open AF5 finding in this document.** Carried in `platfrom/docs/48` §3.22a as **AF5-cs**; the ledger
+> line is the schedulable record, this entry is the diagnosis.
 
 `CheckoutDto` (`dto/monetization-response.dto.ts:24-28`) is `{ subscription, checkoutUrl,
 clientSecret }`, populated at `monetization.controller.ts:184-188`. Mobile's `CheckoutResult`
@@ -985,7 +1019,7 @@ no URL, the mobile flow has nothing to open and stalls with a "success" result. 
 
 ---
 
-#### M5-3 · **medium** · credit purchase and restore cannot complete on any current build
+#### M5-3 · **medium** · ✅ **NOT A DEFECT — the seam is the design; re-verified 2026-08-20** · credit purchase and restore cannot complete on any current build
 
 `NoopStoreBillingGateway` (`lib/core/billing/store_billing_gateway.dart:93-110`) reports
 `isAvailable => false` and throws `StoreBillingUnavailable` from `purchase`/`restorePurchases`, and
@@ -999,7 +1033,15 @@ credit-pack and restore flows are exercised code. Everything up to the store SDK
 
 ---
 
-#### M5-4 · **low** · the declared response class for `purchases/restore` is not what the route returns
+#### M5-4 · ~~**low**~~ · ✅ **CLOSED 2026-07-29 (`48` W4-2); verified in code 2026-08-20** · the declared response class for `purchases/restore` is not what the route returns
+
+> **Verified 2026-08-20.** The route now declares the class that matches reality:
+> `@ApiOkResponse({ type: RestoreResultDto })` (`monetization.controller.ts:359`), and
+> `RestoreResultDto` is exactly `{ restored, providerRef, expiresAt }`
+> (`dto/monetization-response.dto.ts:167-171`) — the shape the handler returns and the shape mobile's
+> `RestoreResult` reads. The wrong response class is gone; `RestorePurchasesDto` survives only as the
+> **request** body (`:362`). Swagger and `@qalam/api-types` therefore emit the true shape, which was
+> this entry's whole concern. Closed on the backend as `48` **W4-2**.
 
 `monetization.controller.ts:358-369` returns an inline `{ restored, providerRef, expiresAt }`, while
 `RestorePurchasesDto` (`dto/monetization-response.dto.ts:155-159`) declares `{ restored,
@@ -1074,7 +1116,14 @@ requirement; the server arm landed without it.
 
 ---
 
-#### C-14 · **medium** · ⛔ **OPEN** · the web suggestion UI tells the writer the opposite of what the server now does
+#### C-14 · ~~**medium**~~ · ✅ **CLOSED 2026-07-29 (W3c-4), heading corrected 2026-08-20** · the web suggestion UI tells the writer the opposite of what the server now does
+
+> **Verified in code 2026-08-20.** The interim copy is gone from
+> `frontend/src/features/collaboration/components/suggestion-card.tsx`, and its own spec now asserts
+> the **absence** of the sentence (`suggestion-card.spec.tsx:89`,
+> `queryByText(/apply the replacement in the editor/i)).not.toBeInTheDocument()`). Closed with the copy
+> and its three assertions on 2026-07-29 as `platfrom/docs/48` **W3c-4**; this heading stood open for
+> 22 days afterwards, which is the drift `48 §3.22` now guards against.
 
 `frontend/src/features/collaboration/components/suggestion-card.tsx:75` renders, to the user:
 
@@ -1499,6 +1548,35 @@ card still carries the interim claim — **C-14**.
 
 ## 9. Summary
 
+**Re-counted 2026-08-20 against the code, not against these headings.** The table below is the current
+count; the original is kept underneath it because the delta is the finding — **five entries this
+document called open had already been fixed**, four of them for over three weeks.
+
+Every row reconciles as **fixed + open + not-a-defect = total**; the two not-a-defect entries are
+**M5-3** (the store seam, working as designed) and **M5-5** (recorded "correct as-is" in its own entry).
+They are neither work nor debt, and counting them as either is what inflated the AF5 figure.
+
+| Severity  | AF6    | AF5   | Total  | Fixed  | Open                                      | Not a defect |
+| --------- | ------ | ----- | ------ | ------ | ----------------------------------------- | ------------ |
+| critical  | 1      | 0     | **1**  | 1      | 0                                         | —            |
+| high      | 11     | 0     | **11** | 11     | 0                                         | —            |
+| medium    | 10     | 3     | **13** | 10     | **2** — C-15 (web), M5-2 (`clientSecret`) | 1 (M5-3)     |
+| low       | 2      | 2     | **4**  | 3      | 0                                         | 1 (M5-5)     |
+| **Total** | **24** | **5** | **29** | **25** | **2**                                     | **2**        |
+
+Closed since the last count, each verified in code on 2026-08-20 with the anchor recorded on the entry
+itself: **C-14** (copy gone, its spec asserts the absence), **T-3** (block/mute entry point shipped),
+**M5-1** (`PremiumGate` has seven call sites; `premiumFeatureAllowedProvider` deleted), **M5-4**
+(`RestoreResultDto` now declared and correct). **M5-2 is the only open AF5 item** — not "3 AF5", and
+not "5 AF5 by design".
+
+Both remaining entries are carried as schedulable lines in
+[`platfrom/docs/48` §3.22](../../platfrom/docs/48_PlatformParityRegister.md) — **C-15** in §3.22a and
+**M5-2** as **AF5-cs**. That register is the source of truth for *status*; this document is the source
+of truth for *diagnosis*, and when the two disagree the code decides.
+
+<details><summary>The original count, for the record (2026-07-29)</summary>
+
 | Severity | AF6 | AF5 | Total | Fixed | Open |
 | --- | --- | --- | --- | --- | --- |
 | critical | 1 | 0 | **1** | 1 | 0 |
@@ -1507,19 +1585,29 @@ card still carries the interim claim — **C-14**.
 | low | 2 | 2 | **4** | 2 | 2 (AF5, out of scope) |
 | **Total** | **24** | **5** | **29** | **22 of 24 AF6** | **2 AF6 + 5 AF5** |
 
+</details>
+
 The register grew by three after the original 26: **C-13, C-14, C-15** were found while landing C-2 and
 D1 (§2.6). C-2 — the one finding the mobile-only repair pass could not close — is fixed (§0b), and so
-is C-13 (§0c/§2.7). The two still open are **web-only**: the suggestion card's now-false text (C-14)
-and the composer's hand-typed anchor (C-15).
+is C-13 (§0c/§2.7). ~~The two still open are **web-only**: the suggestion card's now-false text (C-14)
+and the composer's hand-typed anchor (C-15).~~ **CORRECTED 2026-08-20:** C-14 shipped on 2026-07-29 with
+W3c-4, so the only web-only item left is **C-15**.
 
-All 5 AF5 findings remain open by design: this repair pass was scoped to AF6, and none of the AF5
+~~All 5 AF5 findings remain open by design: this repair pass was scoped to AF6, and none of the AF5
 items is a wire defect (they are two integration gaps, one seam-by-design note, and two low-severity
-notes — one of which is a backend DTO-class inconsistency).
+notes — one of which is a backend DTO-class inconsistency).~~ **CORRECTED 2026-08-20 — this sentence
+was the most misleading line in the document, and it was quoted forward twice.** Of the five: **M5-1
+closed** 2026-08-03 (+ D3), **M5-4 closed** 2026-07-29, **M5-3** is a documented seam and never was a
+defect, **M5-5** was recorded "correct as-is" in its own entry. **One is open: M5-2.** "Scoped to AF6"
+explained why they were not fixed *in that pass*; it did not make them permanently open, and reading it
+as a standing count is how AF5 kept being sized as four-items-of-work it did not have.
 
-Of the 21 AF6 findings, **9 are unreachable today** (C-3, C-6, C-7, C-8, P-2, P-5, P-8 partially,
-T-1, T-3) purely because R-1 means nothing calls them — which is the audit's real finding about
-process, not code: a screen list, a green widget-test suite and a readiness report all passed over a
-feature whose primary gating mechanism decodes to an empty map.
+Of the 21 AF6 findings, **9 were unreachable when this was written** (C-3, C-6, C-7, C-8, P-2, P-5,
+P-8 partially, T-1, T-3) purely because R-1 meant nothing called them — which is the audit's real
+finding about process, not code: a screen list, a green widget-test suite and a readiness report all
+passed over a feature whose primary gating mechanism decoded to an empty map. **R-1 and T-3 are both
+closed now** (verified 2026-08-20: `app/router/routes.dart:120` routes `/settings/blocks`, reached from
+the one entry point at `settings_hub_screen.dart:110`), so that paragraph is history rather than status.
 
 AF5, built to the same design and reviewed by the same process, is clean on all 19 endpoints. The
 difference is not care; it is that AF5's shapes are flat DTOs the entities mirror one-to-one, while
