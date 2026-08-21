@@ -240,6 +240,13 @@ void main() {
       isTrue,
     );
 
+    // `submit` fires an unawaited history write (`record`, a real Hive box put).
+    // Left dangling, it can still be in flight when this test returns and
+    // `addTearDown` disposes the container — a fire-and-forget Future racing
+    // disposal, with nothing here to flush it. Hardening for the failure class
+    // M-5 (docs/48 §3.22c) describes; not a confirmed fix — see the ledger note.
+    await pumpEventQueue();
+
     final bool tooShort = container
         .read(retrievalSessionControllerProvider.notifier)
         .submit('a');
