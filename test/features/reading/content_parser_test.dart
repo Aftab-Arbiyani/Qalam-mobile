@@ -184,4 +184,202 @@ void main() {
       expect((para.spans.first as TextRun).text, 'kept');
     });
   });
+
+  // ── parseContentWithAnchors (docs/48 §3.22a) ─────────────────────────────────
+  //
+  // Pins the server's `anchorText` coordinate space directly against the backend's
+  // own worked example (`content-text.util.ts`'s file header, mirrored by
+  // `content-text.divergence.spec.ts`): every `type: 'text'` leaf, concatenated
+  // verbatim, with NO separator anywhere — not between text runs, not between
+  // blocks.
+  group('parseContentWithAnchors', () {
+    test('two paragraphs concatenate with zero separator, not a space', () {
+      final (
+        PieceContent content,
+        Map<BlockNode, BlockAnchor> anchors,
+      ) = parseContentWithAnchors(<String, dynamic>{
+        'type': 'doc',
+        'content': <dynamic>[
+          <String, dynamic>{
+            'type': 'paragraph',
+            'content': <dynamic>[
+              <String, dynamic>{'type': 'text', 'text': 'first'},
+            ],
+          },
+          <String, dynamic>{
+            'type': 'paragraph',
+            'content': <dynamic>[
+              <String, dynamic>{'type': 'text', 'text': 'second'},
+            ],
+          },
+        ],
+      });
+
+      final BlockAnchor first = anchors[content.blocks[0]]!;
+      final BlockAnchor second = anchors[content.blocks[1]]!;
+      expect((first.from, first.to, first.text), (0, 5, 'first'));
+      // 5, not 6 — "firstsecond" (11 chars), not "first second" (12).
+      expect((second.from, second.to, second.text), (5, 11, 'second'));
+    });
+
+    test('whitespace is preserved verbatim, never trimmed or collapsed', () {
+      final (
+        PieceContent content,
+        Map<BlockNode, BlockAnchor> anchors,
+      ) = parseContentWithAnchors(<String, dynamic>{
+        'type': 'doc',
+        'content': <dynamic>[
+          <String, dynamic>{
+            'type': 'paragraph',
+            'content': <dynamic>[
+              <String, dynamic>{'type': 'text', 'text': '  spaced  '},
+            ],
+          },
+        ],
+      });
+      final BlockAnchor anchor = anchors[content.blocks.single]!;
+      expect(anchor.text, '  spaced  ');
+      expect(anchor.to - anchor.from, 10);
+    });
+
+    test('a non-text-typed node carrying a stray text key contributes zero', () {
+      final (
+        PieceContent content,
+        Map<BlockNode, BlockAnchor> anchors,
+      ) = parseContentWithAnchors(<String, dynamic>{
+        'type': 'doc',
+        'content': <dynamic>[
+          <String, dynamic>{
+            'type': 'image',
+            'text': 'alt text nobody should count',
+          },
+          <String, dynamic>{
+            'type': 'paragraph',
+            'content': <dynamic>[
+              <String, dynamic>{'type': 'text', 'text': 'real'},
+            ],
+          },
+        ],
+      });
+      // The image contributes nothing, so the paragraph starts at 0, not past it.
+      final BlockAnchor anchor = anchors[content.blocks[1]]!;
+      expect(anchor.from, 0);
+      expect(anchor.text, 'real');
+    });
+
+    test('an unknown block type with NESTED text still advances the offset '
+        '(the bug an earlier draft of this had: skipping it undercounts every '
+        'later block)', () {
+      final (
+        PieceContent content,
+        Map<BlockNode, BlockAnchor> anchors,
+      ) = parseContentWithAnchors(<String, dynamic>{
+        'type': 'doc',
+        'content': <dynamic>[
+          <String, dynamic>{
+            'type': 'callout',
+            'content': <dynamic>[
+              <String, dynamic>{
+                'type': 'paragraph',
+                'content': <dynamic>[
+                  <String, dynamic>{'type': 'text', 'text': 'hidden'},
+                ],
+              },
+            ],
+          },
+          <String, dynamic>{
+            'type': 'paragraph',
+            'content': <dynamic>[
+              <String, dynamic>{'type': 'text', 'text': 'visible'},
+            ],
+          },
+        ],
+      });
+
+      expect(content.blocks[0], isA<UnknownBlock>());
+      // "hidden" (6 chars) counted even though mobile cannot render what was
+      // inside the unknown node — matching the backend's type-agnostic walk.
+      final BlockAnchor visible = anchors[content.blocks[1]]!;
+      expect((visible.from, visible.to, visible.text), (6, 13, 'visible'));
+    });
+
+    test('an empty paragraph gets no anchor entry and consumes no offset', () {
+      final (
+        PieceContent content,
+        Map<BlockNode, BlockAnchor> anchors,
+      ) = parseContentWithAnchors(<String, dynamic>{
+        'type': 'doc',
+        'content': <dynamic>[
+          <String, dynamic>{'type': 'paragraph', 'content': <dynamic>[]},
+          <String, dynamic>{
+            'type': 'paragraph',
+            'content': <dynamic>[
+              <String, dynamic>{'type': 'text', 'text': 'next'},
+            ],
+          },
+        ],
+      });
+      expect(anchors.containsKey(content.blocks[0]), isFalse);
+      final BlockAnchor next = anchors[content.blocks[1]]!;
+      expect(next.from, 0);
+    });
+
+    test('mentions, hashtags, footnotes and hard breaks contribute zero', () {
+      final (
+        PieceContent content,
+        Map<BlockNode, BlockAnchor> anchors,
+      ) = parseContentWithAnchors(<String, dynamic>{
+        'type': 'doc',
+        'content': <dynamic>[
+          <String, dynamic>{
+            'type': 'paragraph',
+            'content': <dynamic>[
+              <String, dynamic>{'type': 'text', 'text': 'a'},
+              <String, dynamic>{'type': 'hardBreak'},
+              <String, dynamic>{
+                'type': 'footnote',
+                'attrs': <String, dynamic>{'id': 'f1'},
+              },
+              <String, dynamic>{
+                'type': 'mention',
+                'attrs': <String, dynamic>{'userId': 'u1', 'label': 'farheen'},
+              },
+              <String, dynamic>{
+                'type': 'hashtag',
+                'attrs': <String, dynamic>{'tag': 'ghazal'},
+              },
+              <String, dynamic>{'type': 'text', 'text': 'b'},
+            ],
+          },
+        ],
+      });
+      final BlockAnchor anchor = anchors[content.blocks.single]!;
+      // Only the two literal text leaves count — "ab", not "a\n *@farheen#ghazalb".
+      expect(anchor.text, 'ab');
+      expect(anchor.to - anchor.from, 2);
+    });
+
+    test('produces the same tree shape as parsePieceContent', () {
+      final Map<String, dynamic> doc = <String, dynamic>{
+        'type': 'doc',
+        'content': <dynamic>[
+          <String, dynamic>{
+            'type': 'heading',
+            'attrs': <String, dynamic>{'level': 2},
+            'content': <dynamic>[
+              <String, dynamic>{'type': 'text', 'text': 'Title'},
+            ],
+          },
+        ],
+      };
+      final PieceContent plain = parsePieceContent(doc);
+      final (PieceContent anchored, _) = parseContentWithAnchors(doc);
+      expect(anchored.blocks, hasLength(plain.blocks.length));
+      expect(anchored.blocks.single, isA<Heading>());
+      expect(
+        (anchored.blocks.single as Heading).level,
+        (plain.blocks.single as Heading).level,
+      );
+    });
+  });
 }

@@ -26,14 +26,25 @@ import '../../../../shared/widgets/feedback/q_snackbar.dart';
 import '../../../../shared/widgets/haptics/q_haptics.dart';
 import '../../../../shared/widgets/social/report_sheet.dart';
 import '../../../../shared/widgets/social/save_to_collection_sheet.dart';
+import '../../../collaboration/domain/entities/collaboration_enums.dart';
+import '../../../collaboration/presentation/widgets/capability_gate.dart';
 import '../../domain/entities/piece_engagement.dart';
 import '../controllers/engagement_controller.dart';
 
 class ReaderActionBar extends ConsumerWidget {
-  const ReaderActionBar({required this.pieceId, required this.slug, super.key});
+  const ReaderActionBar({
+    required this.pieceId,
+    required this.slug,
+    this.onSuggestEdit,
+    super.key,
+  });
 
   final String pieceId;
   final String? slug;
+
+  /// Enters the "propose an edit" flow (docs/48 §3.22a) — null when collaboration
+  /// is off or the caller has no piece body ready to select from yet.
+  final VoidCallback? onSuggestEdit;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -217,6 +228,20 @@ class ReaderActionBar extends ConsumerWidget {
                 );
               },
             ),
+            if (onSuggestEdit != null &&
+                ref.watch(appConfigProvider).enableCollaboration)
+              CapabilityGate(
+                storyId: pieceId,
+                action: PolicyAction.storySuggest,
+                child: ListTile(
+                  leading: const Icon(Icons.edit_note_outlined),
+                  title: const Text('Suggest an edit'),
+                  onTap: () {
+                    Navigator.of(sheetContext).pop();
+                    _guarded(context, ref, onSuggestEdit!);
+                  },
+                ),
+              ),
           ],
         ),
       ),

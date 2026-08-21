@@ -30,6 +30,8 @@ import '../../../../shared/widgets/loading/q_skeleton.dart';
 import '../../../../shared/widgets/media/q_network_image.dart';
 import '../../../../shared/widgets/states/q_empty_state.dart';
 import '../../../../shared/widgets/states/q_error_view.dart';
+import '../../../collaboration/domain/entities/text_anchor.dart';
+import '../../../collaboration/presentation/widgets/suggestion_composer_sheet.dart';
 import '../../domain/content_parser.dart';
 import '../../domain/entities/content_node.dart';
 import '../../domain/entities/piece_detail.dart';
@@ -67,6 +69,8 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
 
   Timer? _saveDebounce;
   PieceContent? _parsed;
+  Map<BlockNode, BlockAnchor>? _anchors;
+  bool _suggestMode = false;
   PieceDetail? _piece;
   // Captured while mounted so [dispose] can flush without touching `ref` (unsafe
   // after unmount, Riverpod contract).
@@ -247,13 +251,22 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
       ),
       bottomNavigationBar: piece == null
           ? null
-          : ReaderActionBar(pieceId: piece.id, slug: piece.slug),
+          : ReaderActionBar(
+              pieceId: piece.id,
+              slug: piece.slug,
+              onSuggestEdit: () => setState(() => _suggestMode = true),
+            ),
     );
   }
 
   Widget _reader(CachedDetail cached, QTokens tokens) {
     final PieceDetail piece = cached.piece;
-    _parsed ??= parsePieceContent(piece.content);
+    if (_parsed == null) {
+      final (PieceContent parsed, Map<BlockNode, BlockAnchor> anchors) =
+          parseContentWithAnchors(piece.content);
+      _parsed = parsed;
+      _anchors = anchors;
+    }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) _startSession(piece);
     });
@@ -288,6 +301,11 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
                       parsed: _parsed!,
                       prefs: prefs,
                       isStale: cached.isStale,
+                      blockAnchors: _suggestMode ? _anchors : null,
+                      onBlockTap: _suggestMode
+                          ? (BlockNode block, BlockAnchor anchor) =>
+                                _submitSuggestion(piece, anchor)
+                          : null,
                     ),
                   ),
                 ),
@@ -324,8 +342,31 @@ class _ReadingScreenState extends ConsumerState<ReadingScreen>
             child: _TopBar(onSettings: _openSettings),
           ),
         ),
+        if (_suggestMode)
+          Positioned(
+            top: topInset + 52,
+            left: 0,
+            right: 0,
+            child: _SuggestModeBanner(
+              onCancel: () => setState(() => _suggestMode = false),
+            ),
+          ),
       ],
     );
+  }
+
+  /// Opens the composer for a tapped block (docs/48 §3.22a). Exits suggest mode
+  /// on a successful submit; a dismissed/failed attempt leaves it on, so the
+  /// reader can tap the same or a different paragraph again without re-entering
+  /// the mode.
+  Future<void> _submitSuggestion(PieceDetail piece, BlockAnchor anchor) async {
+    final bool? sent = await SuggestionComposerSheet.show(
+      context,
+      storyId: piece.id,
+      anchor: TextAnchor(from: anchor.from, to: anchor.to),
+      originalText: anchor.text,
+    );
+    if (sent == true && mounted) setState(() => _suggestMode = false);
   }
 
   Widget _error(Object error) {
@@ -419,18 +460,64 @@ class _ReaderScaffold extends StatelessWidget {
   }
 }
 
+/// The dismissible hint shown while suggest mode is active (docs/48 §3.22a).
+class _SuggestModeBanner extends StatelessWidget {
+  const _SuggestModeBanner({required this.onCancel});
+
+  final VoidCallback onCancel;
+
+  @override
+  Widget build(BuildContext context) {
+    final QTokens tokens = QTokens.of(context);
+    return Material(
+      color: tokens.colors.bgSurface,
+      child: SafeArea(
+        top: false,
+        bottom: false,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: QSpacing.s4,
+            vertical: QSpacing.s2,
+          ),
+          child: Row(
+            children: <Widget>[
+              Icon(
+                Icons.edit_note_outlined,
+                size: 18,
+                color: tokens.colors.textSecondary,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Tap a paragraph to suggest an edit',
+                  style: TextStyle(color: tokens.colors.textSecondary),
+                ),
+              ),
+              TextButton(onPressed: onCancel, child: const Text('Cancel')),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _ReaderBody extends ConsumerWidget {
   const _ReaderBody({
     required this.piece,
     required this.parsed,
     required this.prefs,
     required this.isStale,
+    this.blockAnchors,
+    this.onBlockTap,
   });
 
   final PieceDetail piece;
   final PieceContent parsed;
   final ReaderPreferences prefs;
   final bool isStale;
+  final Map<BlockNode, BlockAnchor>? blockAnchors;
+  final void Function(BlockNode block, BlockAnchor anchor)? onBlockTap;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -504,6 +591,8 @@ class _ReaderBody extends ConsumerWidget {
           baseFontSize: prefs.bodyPx(piece.direction),
           lineHeight: prefs.lineHeightFor(piece.direction),
           direction: piece.direction,
+          blockAnchors: blockAnchors,
+          onBlockTap: onBlockTap,
         ),
         if (piece.tags.isNotEmpty) ...<Widget>[
           Gap.v4,

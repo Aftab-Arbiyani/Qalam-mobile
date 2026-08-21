@@ -1140,20 +1140,33 @@ the web ones were out of scope. Web-only, text + doc-comment change.
 
 ---
 
-#### C-15 · **medium** · ⛔ **OPEN** · the web composer's hand-typed offset cannot produce a reliable anchor
+#### C-15 · **medium** · **mobile half CLOSED 2026-08-21; web half still OPEN** · the web composer's hand-typed offset cannot produce a reliable anchor, and (until now) mobile had no composer at all
 
 `suggestion-composer.tsx:68-77` asks the writer to type "Starts at character" and derives `to` from the
 replaced text's length; its own header explains why (a standalone route with no editor selection to
 read). Under the old server behaviour a wrong offset was harmless — the conflict check was
 `text.includes(originalText)`, which ignored the anchor entirely. The D1 fix makes the check
 **offset-exact** (`text.slice(from, to) === originalText`; see §3b), so a hand-typed offset that is off
-by one now returns 409 instead of succeeding.
+by one now returns 409 instead of succeeding. This half is unchanged and still open — re-scoped
+2026-08-21 to ≈3–4 d once the actual accept-time coordinate space was traced through.
 
-This is the intended trade (never rewrite text at a position the reviewer did not point at), so the
-defect is the composer, not the check: it needs the editor-integrated selection seam already noted in
-`platfrom/docs/49` §4. Until then, proposing an edit on web is guesswork. Web-only. Mobile is
-unaffected in practice — its composer has the same limitation but AF6 has no entry point (R-1), so no
-anchor has ever been produced by a user there.
+~~Web-only. Mobile is unaffected in practice...~~ **This was wrong, corrected 2026-08-20 in
+`platfrom/docs/48` §3.22a before mobile's half was built**: the "mobile is unaffected" premise rested on
+R-1 (no AF6 entry point at all), and R-1 closed 2026-08-03. The real reason mobile never produced an
+anchor was that it had no composer, not that reaching one was blocked.
+
+**Mobile's half closed 2026-08-21.** Rather than build the same free-range, editor-integrated selection
+web still needs, mobile ships whole-paragraph granularity: a reader taps a whole block to propose an
+edit to it, sidestepping character-level selection UI entirely (this app had zero precedent for it
+anywhere — comments have the identical anchor-less gap, §2.1). `parseContentWithAnchors`
+(`lib/features/reading/domain/content_parser.dart`) computes the block's offset directly in the
+backend's `anchorText` coordinate space — same-object-identity-keyed against the render tree so the tap
+target and the offset can never desync — and correctly walks a forward-compatible unknown block type's
+nested text rather than skipping it, which a design-validation pass caught before it shipped
+(`content_parser_test.dart` pins it as a regression case). `SuggestionComposerSheet`
+(`features/collaboration/presentation/widgets/`) is the compose UI; `ReaderActionBar`'s new "Suggest an
+edit" entry (gated on `story.suggest`) is the entry point. Tested (`flutter test`, `flutter analyze`
+clean) but **not live-verified against a running backend** — do that before trusting it fully.
 
 ---
 
@@ -1573,8 +1586,8 @@ Closed since the last count, each verified in code with the anchor recorded on t
 **C-14** (copy gone, its spec asserts the absence), **T-3** (block/mute entry point shipped), **M5-1**
 (`PremiumGate` has seven call sites; `premiumFeatureAllowedProvider` deleted), **M5-4**
 (`RestoreResultDto` now declared and correct), all 2026-08-20; **M5-2** (`CheckoutResult` now reads
-`clientSecret` and refuses honestly instead of claiming success), 2026-08-21. **C-15 is the only open
-item left, on either platform.**
+`clientSecret` and refuses honestly instead of claiming success), 2026-08-21. **C-15's mobile half also
+closed 2026-08-21** (§2.6) — the only piece still open is web's offset-mapping fix.
 
 The remaining entry is carried as a schedulable line in
 [`platfrom/docs/48` §3.22a](../../platfrom/docs/48_PlatformParityRegister.md) — **C-15**. That register
@@ -1597,7 +1610,9 @@ The register grew by three after the original 26: **C-13, C-14, C-15** were foun
 D1 (§2.6). C-2 — the one finding the mobile-only repair pass could not close — is fixed (§0b), and so
 is C-13 (§0c/§2.7). ~~The two still open are **web-only**: the suggestion card's now-false text (C-14)
 and the composer's hand-typed anchor (C-15).~~ **CORRECTED 2026-08-20:** C-14 shipped on 2026-07-29 with
-W3c-4, so the only web-only item left is **C-15**.
+W3c-4. **C-15 was then found not to be web-only either** (`platfrom/docs/48` §3.22a, same date) — mobile
+had no composer at all, which is a worse gap than web's unreliable one. **CORRECTED AGAIN 2026-08-21:**
+mobile's half is now built (§2.6); web's offset-mapping fix is the only piece of C-15 still open.
 
 ~~All 5 AF5 findings remain open by design: this repair pass was scoped to AF6, and none of the AF5
 items is a wire defect (they are two integration gaps, one seam-by-design note, and two low-severity

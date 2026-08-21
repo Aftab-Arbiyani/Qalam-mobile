@@ -23,6 +23,10 @@ abstract final class Limits {
   /// composer counts against this through `rawCommentBodyLength` (P-2).
   static const int storyCommentBodyMax = 5000;
 
+  /// A proposed edit's original/suggested text — `MAX_SUGGESTION_LENGTH` in
+  /// `@qalam/shared` `collaboration.ts`, enforced via `@MaxLength` on both fields.
+  static const int storySuggestionMax = 10000;
+
   // Collections.
   static const int collectionNameMin = 1;
   static const int collectionNameMax = 150;

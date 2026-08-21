@@ -15,6 +15,7 @@ import 'package:qalam_mobile/features/collaboration/presentation/providers/colla
 import 'package:qalam_mobile/features/reading/domain/entities/piece_detail.dart';
 import 'package:qalam_mobile/features/reading/domain/repositories/reading_repository.dart';
 import 'package:qalam_mobile/features/reading/presentation/controllers/piece_detail_controller.dart';
+import 'package:qalam_mobile/shared/api/api_envelope.dart';
 import 'package:qalam_mobile/shared/domain/entities/author.dart';
 import 'package:qalam_mobile/shared/domain/error_codes.dart';
 
@@ -28,10 +29,7 @@ class _MockReadingRepository extends Mock implements ReadingRepository {}
 void main() {
   late _MockCollaborationRepository repo;
 
-  const StoryMember member = StoryMember(
-        userId: 'u1',
-    role: StoryRole.editor,
-  );
+  const StoryMember member = StoryMember(userId: 'u1', role: StoryRole.editor);
 
   setUp(() {
     repo = _MockCollaborationRepository();
@@ -67,6 +65,97 @@ void main() {
     // The invalidation from removeMember forced exactly one more fetch.
     verify(() => repo.members('s1')).called(1);
   });
+
+  // ── addSuggestion — the "propose an edit" write, still uncovered until now
+  // (docs/48 §3.22a) — the composer that finally calls it lives in the reading
+  // feature; this pins the controller's own contract independent of any UI.
+
+  const TextAnchor suggestAnchor = TextAnchor(from: 0, to: 5);
+  const EditSuggestion addedSuggestion = EditSuggestion(
+    id: 'sg2',
+    storyId: 's1',
+    authorId: 'u1',
+    anchor: suggestAnchor,
+    originalText: 'first',
+    suggestedText: 'FIRST',
+    status: SuggestionStatus.pending,
+  );
+
+  test('addSuggestion() invalidates the suggestions read on success', () async {
+    final ProviderContainer c = await container();
+    addTearDown(c.dispose);
+
+    when(() => repo.suggestions('s1')).thenAnswer(
+      (_) async => const Ok<CursorPage<EditSuggestion>>(
+        CursorPage<EditSuggestion>(
+          items: <EditSuggestion>[],
+          meta: CursorMeta(),
+        ),
+      ),
+    );
+    when(
+      () => repo.addSuggestion(
+        storyId: 's1',
+        anchor: suggestAnchor,
+        originalText: 'first',
+        suggestedText: 'FIRST',
+      ),
+    ).thenAnswer((_) async => const Ok<EditSuggestion>(addedSuggestion));
+
+    // Keep the family instance alive so an invalidation triggers a real re-fetch.
+    final sub = c.listen(storySuggestionsProvider('s1'), (_, _) {});
+    addTearDown(sub.close);
+
+    await c.read(storySuggestionsProvider('s1').future);
+    verify(() => repo.suggestions('s1')).called(1);
+
+    final EditSuggestion? result = await c
+        .read(collaborationControllerProvider.notifier)
+        .addSuggestion(
+          storyId: 's1',
+          anchor: suggestAnchor,
+          originalText: 'first',
+          suggestedText: 'FIRST',
+        );
+    expect(result, addedSuggestion);
+
+    await c.read(storySuggestionsProvider('s1').future);
+    // The invalidation from addSuggestion forced exactly one more fetch.
+    verify(() => repo.suggestions('s1')).called(1);
+  });
+
+  test(
+    'addSuggestion() surfaces a failure into the controller state',
+    () async {
+      final ProviderContainer c = await container();
+      addTearDown(c.dispose);
+
+      when(
+        () => repo.addSuggestion(
+          storyId: 's1',
+          anchor: suggestAnchor,
+          originalText: 'first',
+          suggestedText: 'FIRST',
+        ),
+      ).thenAnswer(
+        (_) async => const Err<EditSuggestion>(
+          Failure.network(code: ErrorCodes.apiOffline, isOffline: true),
+        ),
+      );
+
+      final EditSuggestion? result = await c
+          .read(collaborationControllerProvider.notifier)
+          .addSuggestion(
+            storyId: 's1',
+            anchor: suggestAnchor,
+            originalText: 'first',
+            suggestedText: 'FIRST',
+          );
+
+      expect(result, isNull);
+      expect(c.read(collaborationControllerProvider).hasError, isTrue);
+    },
+  );
 
   test('addComment() surfaces a failure into the controller state', () async {
     final ProviderContainer c = await container();

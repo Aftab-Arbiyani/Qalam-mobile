@@ -11,8 +11,10 @@
 /// (defects **C-3** and **C-6**); on the way in, `from`/`to` were never read, so an
 /// accepted suggestion's position was thrown away (**C-4**). See `docs/56` §2.1.
 ///
-/// There is no block id in the contract: the server anchors into the plain-text
-/// projection of the piece (`extractPlainText`), so offsets are document-wide.
+/// There is no block id in the contract: the server anchors into a plain-text
+/// projection of the piece (`anchorText`, NOT `extractPlainText` — a deliberately
+/// different, narrower projection used only for search/word-count), so offsets
+/// are document-wide.
 library;
 
 import '../../../../core/utils/typedefs.dart';

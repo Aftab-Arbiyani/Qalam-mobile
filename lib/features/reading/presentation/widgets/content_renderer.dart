@@ -12,6 +12,7 @@ import '../../../../shared/domain/enums.dart';
 import '../../../../shared/theme/q_tokens.dart';
 import '../../../../shared/theme/tokens/radius_tokens.dart';
 import '../../../../shared/theme/tokens/spacing_tokens.dart';
+import '../../domain/content_parser.dart';
 import '../../domain/entities/content_node.dart';
 
 class ContentRenderer extends StatelessWidget {
@@ -20,6 +21,8 @@ class ContentRenderer extends StatelessWidget {
     required this.baseFontSize,
     required this.lineHeight,
     required this.direction,
+    this.blockAnchors,
+    this.onBlockTap,
     super.key,
   });
 
@@ -27,6 +30,13 @@ class ContentRenderer extends StatelessWidget {
   final double baseFontSize;
   final double lineHeight;
   final TextDirectionKind direction;
+
+  /// When set (alongside [onBlockTap]), every block with an entry becomes
+  /// tappable — the "propose an edit" flow (docs/48 §3.22a). Both null by
+  /// default, which renders exactly as before: no behavior change for any
+  /// existing call site.
+  final Map<BlockNode, BlockAnchor>? blockAnchors;
+  final void Function(BlockNode block, BlockAnchor anchor)? onBlockTap;
 
   bool get _isRtl => direction == TextDirectionKind.rtl;
 
@@ -52,6 +62,50 @@ class ContentRenderer extends StatelessWidget {
   }
 
   Widget _block(
+    BuildContext context,
+    BlockNode node,
+    TextStyle bodyStyle,
+    QTokens tokens,
+  ) {
+    final Widget built = _builtBlock(context, node, bodyStyle, tokens);
+    final BlockAnchor? anchor = blockAnchors?[node];
+    if (anchor == null) return built;
+    return _tappableBlock(
+      node: node,
+      anchor: anchor,
+      child: built,
+      tokens: tokens,
+    );
+  }
+
+  Widget _tappableBlock({
+    required BlockNode node,
+    required BlockAnchor anchor,
+    required Widget child,
+    required QTokens tokens,
+  }) {
+    return Material(
+      type: MaterialType.transparency,
+      child: InkWell(
+        borderRadius: QRadii.cardRadius,
+        onTap: () => onBlockTap?.call(node, anchor),
+        child: Container(
+          decoration: BoxDecoration(
+            color: tokens.colors.bgRaised,
+            borderRadius: QRadii.cardRadius,
+          ),
+          padding: const EdgeInsets.symmetric(
+            horizontal: QSpacing.s2,
+            vertical: QSpacing.s1,
+          ),
+          margin: const EdgeInsets.only(bottom: QSpacing.s2),
+          child: child,
+        ),
+      ),
+    );
+  }
+
+  Widget _builtBlock(
     BuildContext context,
     BlockNode node,
     TextStyle bodyStyle,
