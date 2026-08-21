@@ -39,7 +39,8 @@ class Invoice {
     subtotal: (json['subtotal'] as num?)?.toInt() ?? 0,
     tax: (json['tax'] as num?)?.toInt() ?? 0,
     total: (json['total'] as num?)?.toInt() ?? 0,
-    createdAt: _date(json['createdAt']) ?? DateTime.fromMillisecondsSinceEpoch(0),
+    createdAt:
+        _date(json['createdAt']) ?? DateTime.fromMillisecondsSinceEpoch(0),
     paidAt: _date(json['paidAt']),
     hostedUrl: json['hostedUrl'] as String?,
     pdfUrl: json['pdfUrl'] as String?,
@@ -71,7 +72,8 @@ class Payment {
     status: json['status'] as String? ?? '',
     amount: (json['amount'] as num?)?.toInt() ?? 0,
     currency: json['currency'] as String? ?? 'usd',
-    createdAt: _date(json['createdAt']) ?? DateTime.fromMillisecondsSinceEpoch(0),
+    createdAt:
+        _date(json['createdAt']) ?? DateTime.fromMillisecondsSinceEpoch(0),
     description: json['description'] as String?,
   );
 }
@@ -105,25 +107,38 @@ class Purchase {
     amount: (json['amount'] as num?)?.toInt() ?? 0,
     currency: json['currency'] as String? ?? 'usd',
     creditsGranted: (json['creditsGranted'] as num?)?.toInt() ?? 0,
-    createdAt: _date(json['createdAt']) ?? DateTime.fromMillisecondsSinceEpoch(0),
+    createdAt:
+        _date(json['createdAt']) ?? DateTime.fromMillisecondsSinceEpoch(0),
   );
 }
 
-/// The result of starting a checkout — a Stripe URL to open, or an activated
-/// (store) subscription.
+/// The result of starting a checkout — a Stripe URL to open, a client secret for an
+/// on-device confirmation step, or an activated (store) subscription.
 class CheckoutResult {
-  const CheckoutResult({required this.subscription, this.checkoutUrl});
+  const CheckoutResult({
+    required this.subscription,
+    this.checkoutUrl,
+    this.clientSecret,
+  });
 
   final Subscription subscription;
   final String? checkoutUrl;
+  final String? clientSecret;
 
   bool get needsRedirect => checkoutUrl != null && checkoutUrl!.isNotEmpty;
+
+  /// A provider path that needs an on-device confirmation step mobile does not
+  /// implement (docs/48 §3.22a, AF5-cs). Neither `checkoutUrl` nor `clientSecret`
+  /// set means the subscription is already active — see [needsRedirect].
+  bool get needsClientConfirmation =>
+      clientSecret != null && clientSecret!.isNotEmpty;
 
   factory CheckoutResult.fromJson(Json json) => CheckoutResult(
     subscription: Subscription.fromJson(
       json['subscription'] as Json? ?? const <String, Object?>{},
     ),
     checkoutUrl: json['checkoutUrl'] as String?,
+    clientSecret: json['clientSecret'] as String?,
   );
 }
 

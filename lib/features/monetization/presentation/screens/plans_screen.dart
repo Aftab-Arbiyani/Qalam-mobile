@@ -163,6 +163,13 @@ class _PlansScreenState extends ConsumerState<PlansScreen> {
           _showError();
         } else if (result.needsRedirect) {
           _showCheckoutSheet(result.checkoutUrl!);
+        } else if (result.needsClientConfirmation) {
+          // No on-device confirmation step is implemented for this provider path
+          // (docs/48 §3.22a, AF5-cs) — say so rather than claim a subscription that
+          // is not actually active yet.
+          _snack(
+            'This payment method is not supported yet. Please try another.',
+          );
         } else {
           _snack('You are now on ${planLabel(plan.tier)}.');
         }

@@ -28,7 +28,8 @@ settle the behaviour, the finding is marked **NEEDS-LIVE-CONFIRMATION** rather t
 > which was true of one pass's scope and false as a count for three weeks. Each is struck in place with
 > the anchor that disproves it.
 >
-> **Two entries are genuinely open: C-15 and M5-2.** Both are carried as schedulable lines in
+> **One entry is genuinely open: C-15.** (M5-2 / AF5-cs closed 2026-08-21 — struck below.) It is carried
+> as a schedulable line in
 > [`platfrom/docs/48` §3.22, the open ledger](../../platfrom/docs/48_PlatformParityRegister.md) — the
 > single place where "what is open" is answered across both repos. **This document owns the
 > *diagnosis*; the ledger owns the *status*.** Do not schedule, size, or report a finding from a heading
@@ -999,13 +1000,16 @@ card was designed. Fix: wrap the affordances (small per site, ~8 sites).
 
 ---
 
-#### M5-2 · **medium** · ⛔ **STILL OPEN — re-verified in code 2026-08-20** · `clientSecret` is dropped from the checkout result
+#### M5-2 · **medium** · ✅ **CLOSED 2026-08-21 (AF5-cs)** · `clientSecret` is dropped from the checkout result
 
-> **Re-verified 2026-08-20, both ends.** `CheckoutDto` still carries all three fields
-> (`dto/monetization-response.dto.ts:24-28`, `clientSecret!: string | null`), and `CheckoutResult` still
-> reads two (`domain/entities/billing.dart:115` constructor, `:126` `fromJson`). **The only genuinely
-> open AF5 finding in this document.** Carried in `platfrom/docs/48` §3.22a as **AF5-cs**; the ledger
-> line is the schedulable record, this entry is the diagnosis.
+> **Fixed 2026-08-21.** `CheckoutResult` now reads all three fields
+> (`domain/entities/billing.dart:126` constructor, `:141` `fromJson`) and exposes
+> `needsClientConfirmation` (`:133-134`). `plans_screen.dart`'s `_select` no longer falls through to the
+> success snackbar when a checkout returns a secret and no URL — it shows an honest refusal instead.
+> This is the "read + honest refusal" fix the ledger sized, not the on-device confirmation UI: a
+> provider that actually needs the secret still cannot complete a purchase on mobile, it just no longer
+> claims it did. Regression guard: `test/features/monetization/checkout_client_secret_test.dart`. Ledger
+> line deleted from `platfrom/docs/48` §3.22a in the same commit.
 
 `CheckoutDto` (`dto/monetization-response.dto.ts:24-28`) is `{ subscription, checkoutUrl,
 clientSecret }`, populated at `monetization.controller.ts:184-188`. Mobile's `CheckoutResult`
@@ -1516,7 +1520,7 @@ Batch these against a live backend later; each is a shape the code alone cannot 
 | # | Question | Why source is not enough |
 | --- | --- | --- |
 | 1 | Does a restricted user's `GET /me/trust` return a non-`normal` `status` with populated `restrictions`? | Depends on strike seeding and `TrustStatusService` runtime state, not on a DTO (docs/50 claim 6). **Half-confirmed:** the *unrestricted* case is verified live (`{"score":50,"level":"member","status":"normal","activeStrikeWeight":0,"restrictions":[]}`) and the banner correctly stays hidden. The restricted case still needs a seeded restriction. |
-| 2 | Does `POST /monetization/subscription` ever return `clientSecret` with a null `checkoutUrl`? | `StripeAdapter` behaviour is key-gated and provider-dependent (M5-2). |
+| 2 | Does `POST /monetization/subscription` ever return `clientSecret` with a null `checkoutUrl`? | `StripeAdapter` behaviour is key-gated and provider-dependent. Mobile now refuses honestly either way (M5-2, closed 2026-08-21) — this question is only about whether the path is ever live, not about client behaviour. |
 | 3 | Exact `VALIDATION_FAILED` `details[]` payload for the C-3 / C-6 / P-2 / P-3 bodies. | `validationExceptionFactory` shapes `{field, rule, message}`; the field names are worth pinning in the regression tests that accompany the fixes. |
 | 4 | ~~Confirm `GET /stories/:id/review` emits `{"success":true,"data":null}`~~ | ✅ **CONFIRMED 2026-07-28.** Returns exactly `{"success":true,"data":null}`. P-4 fixed client-side with `getOrNull`; pinned by a live test. |
 | 5 | Whether `ParseUUIDPipe` on `/users/:id/block` accepts a block-row UUID and the service then 404s, versus some earlier rejection. | Both ids are UUIDs; T-1's exact status code depends on service lookup order. The defect stands either way. |
@@ -1548,32 +1552,34 @@ card still carries the interim claim — **C-14**.
 
 ## 9. Summary
 
-**Re-counted 2026-08-20 against the code, not against these headings.** The table below is the current
-count; the original is kept underneath it because the delta is the finding — **five entries this
-document called open had already been fixed**, four of them for over three weeks.
+**Re-counted 2026-08-20 against the code, not against these headings; M5-2 closed 2026-08-21.** The
+table below is the current count; the original is kept underneath it because the delta is the finding —
+**five entries this document called open had already been fixed**, four of them for over three weeks,
+and a sixth (M5-2) closed the day after this count was taken.
 
 Every row reconciles as **fixed + open + not-a-defect = total**; the two not-a-defect entries are
 **M5-3** (the store seam, working as designed) and **M5-5** (recorded "correct as-is" in its own entry).
 They are neither work nor debt, and counting them as either is what inflated the AF5 figure.
 
-| Severity  | AF6    | AF5   | Total  | Fixed  | Open                                      | Not a defect |
-| --------- | ------ | ----- | ------ | ------ | ----------------------------------------- | ------------ |
-| critical  | 1      | 0     | **1**  | 1      | 0                                         | —            |
-| high      | 11     | 0     | **11** | 11     | 0                                         | —            |
-| medium    | 10     | 3     | **13** | 10     | **2** — C-15 (web), M5-2 (`clientSecret`) | 1 (M5-3)     |
-| low       | 2      | 2     | **4**  | 3      | 0                                         | 1 (M5-5)     |
-| **Total** | **24** | **5** | **29** | **25** | **2**                                     | **2**        |
+| Severity  | AF6    | AF5   | Total  | Fixed  | Open           | Not a defect |
+| --------- | ------ | ----- | ------ | ------ | -------------- | ------------ |
+| critical  | 1      | 0     | **1**  | 1      | 0              | —            |
+| high      | 11     | 0     | **11** | 11     | 0              | —            |
+| medium    | 10     | 3     | **13** | 11     | **1** — C-15 (web) | 1 (M5-3) |
+| low       | 2      | 2     | **4**  | 3      | 0              | 1 (M5-5)     |
+| **Total** | **24** | **5** | **29** | **26** | **1**          | **2**        |
 
-Closed since the last count, each verified in code on 2026-08-20 with the anchor recorded on the entry
-itself: **C-14** (copy gone, its spec asserts the absence), **T-3** (block/mute entry point shipped),
-**M5-1** (`PremiumGate` has seven call sites; `premiumFeatureAllowedProvider` deleted), **M5-4**
-(`RestoreResultDto` now declared and correct). **M5-2 is the only open AF5 item** — not "3 AF5", and
-not "5 AF5 by design".
+Closed since the last count, each verified in code with the anchor recorded on the entry itself:
+**C-14** (copy gone, its spec asserts the absence), **T-3** (block/mute entry point shipped), **M5-1**
+(`PremiumGate` has seven call sites; `premiumFeatureAllowedProvider` deleted), **M5-4**
+(`RestoreResultDto` now declared and correct), all 2026-08-20; **M5-2** (`CheckoutResult` now reads
+`clientSecret` and refuses honestly instead of claiming success), 2026-08-21. **C-15 is the only open
+item left, on either platform.**
 
-Both remaining entries are carried as schedulable lines in
-[`platfrom/docs/48` §3.22](../../platfrom/docs/48_PlatformParityRegister.md) — **C-15** in §3.22a and
-**M5-2** as **AF5-cs**. That register is the source of truth for *status*; this document is the source
-of truth for *diagnosis*, and when the two disagree the code decides.
+The remaining entry is carried as a schedulable line in
+[`platfrom/docs/48` §3.22a](../../platfrom/docs/48_PlatformParityRegister.md) — **C-15**. That register
+is the source of truth for *status*; this document is the source of truth for *diagnosis*, and when the
+two disagree the code decides.
 
 <details><summary>The original count, for the record (2026-07-29)</summary>
 
@@ -1598,9 +1604,10 @@ items is a wire defect (they are two integration gaps, one seam-by-design note, 
 notes — one of which is a backend DTO-class inconsistency).~~ **CORRECTED 2026-08-20 — this sentence
 was the most misleading line in the document, and it was quoted forward twice.** Of the five: **M5-1
 closed** 2026-08-03 (+ D3), **M5-4 closed** 2026-07-29, **M5-3** is a documented seam and never was a
-defect, **M5-5** was recorded "correct as-is" in its own entry. **One is open: M5-2.** "Scoped to AF6"
-explained why they were not fixed *in that pass*; it did not make them permanently open, and reading it
-as a standing count is how AF5 kept being sized as four-items-of-work it did not have.
+defect, **M5-5** was recorded "correct as-is" in its own entry, and **M5-2 closed 2026-08-21**. **AF5
+has zero open findings.** "Scoped to AF6" explained why they were not fixed *in that pass*; it did not
+make them permanently open, and reading it as a standing count is how AF5 kept being sized as
+four-items-of-work it did not have.
 
 Of the 21 AF6 findings, **9 were unreachable when this was written** (C-3, C-6, C-7, C-8, P-2, P-5,
 P-8 partially, T-1, T-3) purely because R-1 meant nothing called them — which is the audit's real
