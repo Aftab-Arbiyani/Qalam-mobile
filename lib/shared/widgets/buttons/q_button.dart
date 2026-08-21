@@ -1,6 +1,7 @@
 /// Button primitive (docs/41 §11.1). Variants primary/secondary/ghost/danger,
 /// sizes sm/md/lg, loading + disabled states, one accent per screen. Guarantees a
-/// ≥44px tap target even for the 32px `sm` control.
+/// ≥48px tap target even for the 32px `sm` control — Android's Material tap-target
+/// guideline, which is stricter than Apple's 44px (docs/48 §3.22a, T-10).
 library;
 
 import 'dart:math' as math;
@@ -55,7 +56,7 @@ class QButton extends StatelessWidget {
     final QTokens tokens = QTokens.of(context);
     final ThemeData theme = Theme.of(context);
     final _Palette p = _palette(tokens);
-    final double tapHeight = math.max(_visualHeight, 44);
+    final double tapHeight = math.max(_visualHeight, 48);
 
     final TextStyle textStyle =
         (size == QButtonSize.lg
