@@ -10,6 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../app/router/routes.dart';
+import '../../../../core/di/providers.dart';
 import '../../../../core/error/failure.dart';
 import '../../../../shared/domain/error_codes.dart';
 import '../../../../shared/theme/q_tokens.dart';
@@ -22,6 +23,8 @@ import '../../../../shared/widgets/layout/q_scaffold.dart';
 import '../../../../shared/widgets/loading/feed_skeleton_list.dart';
 import '../../../../shared/widgets/states/q_empty_state.dart';
 import '../../../../shared/widgets/states/q_error_view.dart';
+import '../../../monetization/domain/entities/monetization_enums.dart';
+import '../../../monetization/presentation/widgets/premium_gate.dart';
 import '../../domain/entities/ai_feature_flag.dart';
 import '../../domain/entities/story_graph.dart';
 import '../../domain/value_objects/ai_feature_ids.dart';
@@ -83,6 +86,17 @@ class _StoryExplorerScreenState extends ConsumerState<StoryExplorerScreen> {
       );
     }
 
+    // D4 (docs/48 \u00A75.2, decided 2026-08-21): `story_intelligence` is now entitlement-
+    // gated. With payments dark the entitlement snapshot degrades to deny-everything
+    // (no subscription can exist), so an unguarded `PremiumGate` below would read as
+    // "needs a paid plan" on a feature that has not shipped yet \u2014 the same trap
+    // `credit_dashboard_screen.dart` already guards against for `ai_budget`. Swapping
+    // only the BODY (not the whole screen, unlike that screen's own pattern) matters
+    // here specifically: the "Ask about this story" action below navigates to Ask My
+    // Book, a separately-confirmed-free AF4 surface that must stay reachable even
+    // while the graph itself is dark or locked.
+    final bool monetizationOn = ref.watch(appConfigProvider).enableMonetization;
+
     return QScaffold(
       appBar: QAppBar(
         title: 'Story Explorer',
@@ -95,33 +109,45 @@ class _StoryExplorerScreenState extends ConsumerState<StoryExplorerScreen> {
             ),
         ],
       ),
-      body: Column(
-        children: <Widget>[
-          _ViewSelector(
-            selected: _view,
-            onSelect: (ExplorerView v) => setState(() => _view = v),
-          ),
-          Expanded(
-            child: async.when(
-              skipLoadingOnRefresh: true,
-              loading: () => const FeedSkeletonList(),
-              error: (Object e, _) => QErrorView(
-                failure: e is Failure
-                    ? e
-                    : Failure.unexpected(
-                        code: ErrorCodes.apiUnexpected,
-                        message: '$e',
+      body: !monetizationOn
+          ? const QEmptyState(
+              icon: Icons.auto_awesome_outlined,
+              title: 'Story Explorer isn\u2019t available yet',
+              message: 'The story knowledge graph arrives with subscriptions.',
+            )
+          : PremiumGate(
+              feature: PremiumFeature.storyIntelligence,
+              child: Column(
+                children: <Widget>[
+                  _ViewSelector(
+                    selected: _view,
+                    onSelect: (ExplorerView v) => setState(() => _view = v),
+                  ),
+                  Expanded(
+                    child: async.when(
+                      skipLoadingOnRefresh: true,
+                      loading: () => const FeedSkeletonList(),
+                      error: (Object e, _) => QErrorView(
+                        failure: e is Failure
+                            ? e
+                            : Failure.unexpected(
+                                code: ErrorCodes.apiUnexpected,
+                                message: '$e',
+                              ),
+                        onRetry: () => ref.invalidate(
+                          explorerViewProvider((
+                            storyId: widget.storyId,
+                            view: _view,
+                          )),
+                        ),
                       ),
-                onRetry: () => ref.invalidate(
-                  explorerViewProvider((storyId: widget.storyId, view: _view)),
-                ),
+                      data: (ExplorerViewResult result) =>
+                          _ExplorerBody(view: _view, result: result),
+                    ),
+                  ),
+                ],
               ),
-              data: (ExplorerViewResult result) =>
-                  _ExplorerBody(view: _view, result: result),
             ),
-          ),
-        ],
-      ),
     );
   }
 }

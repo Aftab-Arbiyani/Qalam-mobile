@@ -131,6 +131,7 @@ Future<Widget> buildTestApp({
   bool online = true,
   Map<String, String>? tokens,
   Widget? child,
+  AppConfig config = testConfig,
   bool onboardingComplete = true,
   bool rememberMe = false,
   AuthRepository? authRepository,
@@ -155,6 +156,12 @@ Future<Widget> buildTestApp({
   CollaborationRepository? collaborationRepository,
   PublishingRepository? publishingRepository,
   TrustRepository? trustRepository,
+
+  /// The entitlement snapshot every `PremiumGate` in the tree resolves against — see
+  /// the identical param on `buildTestContainer` (added for D3). Needed by any widget
+  /// test that mounts a `PremiumGate`-gated screen (e.g. Story Explorer, D4) without
+  /// going through the full monetization-repository plumbing.
+  EntitlementSnapshot? entitlementSnapshot,
 }) async {
   final Directory dir = await Directory.systemTemp.createTemp('qalam_test');
   Hive.init(dir.path);
@@ -175,7 +182,7 @@ Future<Widget> buildTestApp({
     // The list is intentionally untyped so the element types (Override) are
     // inferred — the concrete Override type is not exported for direct annotation.
     overrides: [
-      appConfigProvider.overrideWithValue(testConfig),
+      appConfigProvider.overrideWithValue(config),
       appLoggerProvider.overrideWithValue(
         AppLogger(flavor: AppFlavor.development),
       ),
@@ -240,6 +247,10 @@ Future<Widget> buildTestApp({
         publishingRepositoryProvider.overrideWithValue(publishingRepository),
       if (trustRepository != null)
         trustRepositoryProvider.overrideWithValue(trustRepository),
+      if (entitlementSnapshot != null)
+        entitlementSnapshotProvider.overrideWith(
+          (_) async => entitlementSnapshot,
+        ),
     ],
     child: child ?? const QalamApp(),
   );

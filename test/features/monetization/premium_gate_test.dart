@@ -2,10 +2,12 @@
 /// it is placed at all, which is defect M5-1 — is pinned by
 /// `premium_gate_placement_test.dart`.
 ///
-/// The feature under test is `ai_budget` throughout, because that is the only one the
-/// app may gate: every other catalogued feature is computed by the Entitlement Service
-/// and asserted by no route, so gating one would withhold UI the server serves freely
-/// (docs/48 §5.2).
+/// The feature under test is `ai_budget` throughout — `PremiumGate` itself doesn't
+/// care which feature it's given, so one is enough to pin the widget's own behaviour.
+/// `ai_budget`, `ai_writing` (D3), and `story_intelligence` (D4) are the three the app
+/// actually gates; every other catalogued feature is computed by the Entitlement
+/// Service and asserted by no route, so gating one would withhold UI the server serves
+/// freely (docs/48 §5.2).
 library;
 
 import 'package:flutter/material.dart';
