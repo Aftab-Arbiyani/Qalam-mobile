@@ -48,12 +48,20 @@ abstract final class AiFeatureIds {
 /// asserted by the server's usage meter) still apply to every feature regardless.
 ///
 /// **Where it stops, and why.** Only the two AF2 surfaces are sold behind `ai_writing`. The
-/// AF4 ids map to `null` **deliberately** — `semantic_search`, `recommendations` and
-/// `ask_book` belong to **D4**, whose scope the owner has DEFERRED, and `docs/48` §5.2
-/// consequence 1 ("a client must not gate on the seven") still binds for every code but
-/// `ai_writing`. Gating them here would put a client-only wall in front of a route the
-/// server serves, and would silently pre-empt a decision nobody has taken. `playground` is
-/// infrastructure, not a sold capability.
+/// AF4 ids map to `null` **deliberately** — and since **D4 was answered** (owner,
+/// 2026-08-21; `docs/48` §5.2) that `null` rests on a decision rather than on a deferral:
+/// `semantic_search`, `recommendations` and `ask_book` are **included in every tier,
+/// permanently**, because all three were already live and in real use for free users when
+/// D4 was taken. Gating one here is no longer jumping ahead of a pending call — it now
+/// CONTRADICTS a settled one, and would put a client-only wall in front of a route the
+/// server serves to everybody. `playground` is infrastructure, not a sold capability.
+///
+/// **`story_intelligence` is D4's one exception and it is NOT in this map**, because it
+/// gates a screen rather than an AI request: the five AF3 analysis kinds it covers have no
+/// id here (this client never triggers an analysis), and the Story Explorer's own gate is a
+/// `PremiumGate` in `story_explorer_screen.dart` over the server's
+/// `assertGraphReadEntitled`. Give this client an analysis id and it needs a row below
+/// mapping to `PremiumFeature.storyIntelligence` — the server maps those five already.
 ///
 /// The server's map is the wider one: it also covers the vestigial `grammar`/`rewrite`/
 /// `summarization` ids and the five AF3 analyses, none of which this client has an id for.
@@ -63,7 +71,7 @@ const Map<String, String?> aiFeaturePremiumCode = <String, String?>{
   // ── Paid: AI writing (D3) ──────────────────────────────────────────────────
   AiFeatureIds.writingAssistant: PremiumFeature.aiWriting,
   AiFeatureIds.craftCoach: PremiumFeature.aiWriting,
-  // ── D4's codes — NOT gated (scope deferred by the owner) ───────────────────
+  // ── Free in every tier, by D4's decision (2026-08-21) — not "not yet gated" ─
   AiFeatureIds.semanticSearch: null,
   AiFeatureIds.recommendations: null,
   AiFeatureIds.askBook: null,
