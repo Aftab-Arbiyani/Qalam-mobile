@@ -1,4 +1,16 @@
-# 48 — Mobile AF4 Readiness Report (AI Discovery / Search / Ask / Recommendation)
+# 48 — Mobile AF4 Readiness Report (Discovery / Search / Recommendation)
+
+> ⚠️ **AMENDED BY D5, 2026-09-03** ([platfrom docs/48 §5.2](../../platfrom/docs/48_PlatformParityRegister.md#d5--the-ai-surface-is-removed-the-tools-stay-owner-2026-09-02)). **Ask My Book is deleted** — its backend routes already
+> 404 (`7f3b459`), so `ask_book_screen.dart` and everything reaching it are broken on `develop`
+> until mobile's M1 phase removes them (tracked as **D5-clients** in the register's §3.22a). The
+> "Discover with AI" hub and the standalone AI Search screen go too: retrieval-backed search becomes
+> the ordinary `/search` tab, **public** — the server no longer requires an account, a flag or
+> `ai.use`, and there is no "AI answer". Story Explorer survives as **Story Map**, and it gains a
+> "Map this story" action, which is the first way any client could ever build the graph it renders.
+>
+> ⚠️ One trap for whoever does M1: mobile's `AiFeatures.isEnabled` treats an **absent** flag as OFF,
+> where web treats it as available. The server still seeds `feature.ai.semanticSearch.enabled` and
+> `feature.ai.recommendations.enabled` purely so this screen does not go dark before M2 lands.
 
 > **Status:** Flutter client **implemented + verified**. Consumes the completed AF4 backend
 > (Retrieval Platform — `platfrom/docs/36`) with **no duplicated backend logic**: intent

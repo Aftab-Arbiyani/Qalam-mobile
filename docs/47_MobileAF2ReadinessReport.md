@@ -1,5 +1,13 @@
 # 47 — Mobile AF2 Readiness Report (AI Writing Assistant + Craft Coach)
 
+> ⛔ **SUPERSEDED BY D5, 2026-09-03** ([platfrom docs/48 §5.2](../../platfrom/docs/48_PlatformParityRegister.md#d5--the-ai-surface-is-removed-the-tools-stay-owner-2026-09-02)). The backend half has already landed; mobile has not
+> moved yet. When it does: `continueWriting`, `rewrite`, `expand`, `tone` and `freeform` go — they
+> generate prose, which this audience rejects — and `improve`, `simplify`, `condense` ship as
+> **Polish** (a `PolishSheet` replacing `writing_assistant_panel.dart`, with no free-form field, no
+> history row and no conversation binding). Craft Coach becomes **Manuscript feedback**. The
+> editor-integration reasoning here — `AiEditorTarget`, placement, undo — is kept wholesale; the
+> action shelf, the panel's structure and every string are not current.
+
 > **Status:** Mobile + additive backend enablers **implemented + verified**. React
 > frontend + admin are documented as seams for a follow-up (scope decision for this
 > session). AF2 reuses the **entire** AF1 AI platform (docs/34) — no architectural

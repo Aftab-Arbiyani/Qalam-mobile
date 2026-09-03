@@ -1,5 +1,11 @@
 # 55 — Mobile "More like this" (parity port W-1)
 
+> ⚠️ **AMENDED BY D5, 2026-09-03** ([platfrom docs/48 §5.2](../../platfrom/docs/48_PlatformParityRegister.md#d5--the-ai-surface-is-removed-the-tools-stay-owner-2026-09-02)). The recommender and its tag-search fallback are both
+> unchanged and still correct. One hop goes: `related_pieces_controller.dart` no longer needs to
+> check `aiFeatures.isEnabled(recommendations)`, because the server stopped consulting that flag —
+> recommendations are an ordinary authenticated surface now, not an AI feature. The fallback stays
+> exactly as described here.
+
 **Status:** ✅ Complete · **Scope:** port the web reader's related-pieces section to the mobile reader. **A port, not a redesign. No backend change. No new product surface beyond the section itself.**
 
 Parity authority: **[platfrom/docs/48 §3.1](../../platfrom/docs/48_PlatformParityRegister.md)** — this was the single item where mobile was behind web, created by W1 building past its reference. Decided 2026-07-27, delivered 2026-07-28, ahead of W3 and every other W-track row.
