@@ -1,32 +1,12 @@
-/// AF4 retrieval vocabulary (mirrors the backend `@qalam/shared` retrieval enums —
+/// Retrieval vocabulary (mirrors the backend `@qalam/shared` retrieval enums —
 /// docs 36). Plain Dart enums with a `wire` value + `fromWire` (forward-compatible:
 /// an unknown wire string maps to a safe default). These are IDENTIFIERS the client
 /// sends/receives; no business logic lives here — the backend Retrieval Platform owns
 /// intent detection, planning, ranking, and retrieval.
+///
+/// **D5** deleted `AskScope` with Ask My Book, and de-branded the recommendation
+/// labels — the wire values are untouched (decision 10), only what a reader sees.
 library;
-
-/// The slice of a story an "Ask My Book" question is grounded against.
-enum AskScope {
-  book('book', 'Whole book'),
-  chapter('chapter', 'This chapter'),
-  scene('scene', 'This scene'),
-  character('character', 'A character'),
-  timeline('timeline', 'Timeline'),
-  relationship('relationship', 'A relationship'),
-  world('world', 'The world'),
-  theme('theme', 'Themes'),
-  lore('lore', 'Lore');
-
-  const AskScope(this.wire, this.label);
-
-  final String wire;
-  final String label;
-
-  static AskScope fromWire(String? wire) => AskScope.values.firstWhere(
-    (AskScope s) => s.wire == wire,
-    orElse: () => AskScope.book,
-  );
-}
 
 /// A structured view over the story knowledge graph (the Story Map tabs).
 ///
@@ -55,16 +35,20 @@ enum ExplorerView {
 }
 
 /// A recommendation surface.
+/// A recommendation surface. The labels are what a reader sees, so **D5** renamed the
+/// two shelf kinds that used to read as machine output: `feed` was "For you" and
+/// `continueReading` was "Continue reading" — a phrase the feed already uses for the
+/// reader's own unfinished pieces, which is a different thing entirely.
 enum RecommendationKind {
   relatedStories('related_stories', 'Related stories'),
   relatedChapters('related_chapters', 'Related chapters'),
   relatedCharacters('related_characters', 'Related characters'),
   relatedTopics('related_topics', 'Related topics'),
-  continueReading('continue_reading', 'Continue reading'),
+  continueReading('continue_reading', 'Pick up next'),
   authors('authors', 'Authors to follow'),
   genres('genres', 'Genres for you'),
   collections('collections', 'Collections'),
-  feed('feed', 'For you'),
+  feed('feed', 'Recommended for you'),
   trending('trending', 'Trending');
 
   const RecommendationKind(this.wire, this.label);

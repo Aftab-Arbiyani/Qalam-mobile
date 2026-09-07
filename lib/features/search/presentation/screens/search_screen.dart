@@ -6,6 +6,8 @@
 /// update the field. No I/O or business logic here — it composes providers.
 library;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -14,6 +16,7 @@ import '../../../../shared/domain/limits.dart';
 import '../../../../shared/widgets/feedback/q_snackbar.dart';
 import '../../../../shared/widgets/layout/q_scaffold.dart';
 import '../controllers/recent_searches_controller.dart';
+import '../controllers/saved_searches_controller.dart';
 import '../controllers/search_controller.dart';
 import '../widgets/search_app_bar.dart';
 import '../widgets/search_discovery_view.dart';
@@ -35,10 +38,14 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   @override
   void initState() {
     super.initState();
-    // Best-effort: pull the signed-in user's server-recorded recents.
+    // Best-effort: pull the signed-in user's server-recorded recents and saved
+    // searches. Both no-op without a session — see `SavedSearchesController`.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       ref.read(recentSearchesControllerProvider.notifier).syncFromServer();
+      unawaited(
+        ref.read(savedSearchesControllerProvider.notifier).syncFromServer(),
+      );
     });
   }
 

@@ -1,13 +1,22 @@
-/// The search screen's app bar (docs/41 §16) — an animated search field plus a
-/// filter affordance. The field grows a soft accent focus-ring when focused
-/// (static under reduced motion), and the filter button (results phase only)
+/// The search screen's app bar (docs/41 §16) — an animated search field, a filter
+/// affordance, and (since **D5**) a "Save this search" action. The field grows a soft
+/// accent focus-ring when focused (static under reduced motion), and the filter button
 /// carries a count badge of active filters. Query state is owned by the screen /
 /// [SearchQueryController]; this widget is presentation-only.
+///
+/// **The save action appears only for a signed-in reader, and that is a request gate
+/// rather than a decoration.** Saving needs a session; offering the control to an
+/// anonymous reader would end in a 401, which `ApiClient` treats as terminal outside
+/// `/auth/*` — it would drop the session of someone browsing a public search page
+/// (`platfrom/docs/48` §3.25).
 library;
+
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/session/session_controller.dart';
 import '../../../../l10n/generated/app_localizations.dart';
 import '../../../../shared/motion/motion.dart';
 import '../../../../shared/theme/q_tokens.dart';
@@ -18,6 +27,7 @@ import '../../../../shared/widgets/cards/q_badge.dart';
 import '../../../../shared/widgets/inputs/q_search_field.dart';
 import '../controllers/search_controller.dart';
 import '../controllers/search_filters_controller.dart';
+import 'save_search_sheet.dart';
 
 class SearchAppBar extends ConsumerWidget implements PreferredSizeWidget {
   const SearchAppBar({
@@ -51,6 +61,13 @@ class SearchAppBar extends ConsumerWidget implements PreferredSizeWidget {
       searchFiltersControllerProvider.select((s) => s.activeCount),
     );
     final bool showFilters = phase == SearchPhase.results;
+    final String submitted = ref.watch(
+      searchQueryControllerProvider.select((SearchState s) => s.submittedQuery),
+    );
+    final bool authed =
+        ref.watch(sessionControllerProvider).asData?.value.isAuthenticated ??
+        false;
+    final bool showSave = showFilters && authed && submitted.trim().isNotEmpty;
 
     return Material(
       color: tokens.colors.bgCanvas,
@@ -96,6 +113,15 @@ class SearchAppBar extends ConsumerWidget implements PreferredSizeWidget {
                   ),
                 ),
               ),
+              if (showSave) ...<Widget>[
+                Gap.h1,
+                IconButton(
+                  onPressed: () =>
+                      unawaited(showSaveSearchSheet(context, submitted)),
+                  tooltip: l10n.searchSaveAction,
+                  icon: const Icon(Icons.bookmark_add_outlined),
+                ),
+              ],
               if (showFilters) ...<Widget>[
                 Gap.h2,
                 _FilterButton(

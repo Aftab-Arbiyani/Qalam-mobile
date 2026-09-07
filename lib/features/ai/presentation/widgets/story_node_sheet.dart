@@ -11,8 +11,8 @@ import '../../../../shared/theme/tokens/color_tokens.dart';
 import '../../../../shared/theme/tokens/spacing_tokens.dart';
 import '../../../../shared/widgets/cards/q_chip.dart';
 import '../../../../shared/widgets/feedback/q_bottom_sheet.dart';
+import '../../../../shared/widgets/retrieval/retrieval_cards.dart';
 import '../../domain/entities/story_graph.dart';
-import 'retrieval_cards.dart';
 
 /// Open the detail sheet for [node]. Tapping a neighbour re-opens the sheet for it.
 Future<void> showStoryNodeSheet(

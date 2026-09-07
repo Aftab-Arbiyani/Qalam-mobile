@@ -206,6 +206,17 @@
   "searchSuggestTags": "Tags",
   "searchSuggestGenres": "Genres",
   "searchSuggestPieces": "Pieces",
+  "searchSuggestIdeas": "Try instead",
+
+  "searchSavedTitle": "Saved searches",
+  "searchSavedRemove": "Remove",
+  "searchSaveAction": "Save this search",
+  "searchSaveTitle": "Save this search",
+  "searchSaveNameLabel": "Name it",
+  "searchSaveSubmit": "Save",
+  "searchSaveDone": "Search saved.",
+  "searchSaveFailed": "Couldn't save that search.",
+  "searchSavedRemoved": "Removed.",
 
   "searchFiltersTitle": "Filters",
   "searchFiltersButton": "Filters",

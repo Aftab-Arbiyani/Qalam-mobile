@@ -1,61 +1,14 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:qalam_mobile/features/search/data/mappers/search_mappers.dart';
 import 'package:qalam_mobile/features/search/domain/entities/autocomplete_result.dart';
-import 'package:qalam_mobile/features/search/domain/entities/global_search_result.dart';
 import 'package:qalam_mobile/features/search/domain/entities/recent_search.dart';
 import 'package:qalam_mobile/features/search/domain/entities/trending_searches.dart';
 import 'package:qalam_mobile/shared/domain/enums.dart';
 
 void main() {
-  group('globalSearchFromJson', () {
-    test('maps every group and tolerates a private-writer teaser', () {
-      final GlobalSearchResult r = globalSearchFromJson(<String, dynamic>{
-        'writers': <dynamic>[
-          <String, dynamic>{
-            'username': 'meera_k',
-            'penName': 'Meera',
-            'isPrivate': true,
-            'followersCount': 12,
-            'rank': 0.9,
-          },
-        ],
-        'pieces': <dynamic>[
-          <String, dynamic>{
-            'id': 'p1',
-            'title': 'Barish',
-            'author': <String, dynamic>{'username': 'meera_k'},
-            'language': <String, dynamic>{'code': 'ur', 'direction': 'rtl'},
-            'rank': 0.8,
-          },
-        ],
-        'tags': <dynamic>[
-          <String, dynamic>{'slug': 'barish', 'name': 'بارش', 'pieceCount': 5},
-        ],
-        'genres': <dynamic>[
-          <String, dynamic>{'slug': 'ghazal', 'name': 'Ghazal', 'pieceCount': 9},
-        ],
-        'languages': <dynamic>[
-          <String, dynamic>{
-            'code': 'ur',
-            'nativeName': 'اردو',
-            'direction': 'rtl',
-            'pieceCount': 30,
-          },
-        ],
-      });
-      expect(r.isEmpty, isFalse);
-      expect(r.writers.single.isPrivate, isTrue);
-      expect(r.pieces.single.language.direction, TextDirectionKind.rtl);
-      expect(r.tags.single.pieceCount, 5);
-      expect(r.genres.single.name, 'Ghazal');
-      expect(r.languages.single.nativeName, 'اردو');
-    });
-
-    test('missing groups coerce to empty (never throws)', () {
-      final GlobalSearchResult r = globalSearchFromJson(<String, dynamic>{});
-      expect(r.isEmpty, isTrue);
-    });
-  });
+  // `globalSearchFromJson` was pinned here. **D5** removed the grouped `GET /search`
+  // preview it decoded — the "All" tab runs the ranked retrieval engine now — so the
+  // wire shape it mapped has no caller on this client.
 
   group('autocompleteFromJson', () {
     test('maps suggestions per group', () {

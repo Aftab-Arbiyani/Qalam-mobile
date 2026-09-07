@@ -45,9 +45,9 @@ import '../../../../shared/domain/entities/author.dart';
 import '../../../../shared/domain/entities/piece_summary.dart';
 import '../../../../shared/domain/entities/taxonomy.dart';
 import '../../../../shared/domain/enums.dart';
-import '../../../ai/domain/entities/retrieval.dart';
-import '../../../ai/domain/value_objects/retrieval_vocab.dart';
-import '../../../ai/presentation/controllers/recommendations_controller.dart';
+import '../../../../shared/retrieval/domain/retrieval.dart';
+import '../../../../shared/retrieval/domain/retrieval_vocab.dart';
+import '../../../../shared/retrieval/retrieval_providers.dart';
 import '../providers/reading_providers.dart';
 
 part 'related_pieces_controller.g.dart';

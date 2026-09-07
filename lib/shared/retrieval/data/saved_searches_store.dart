@@ -1,4 +1,4 @@
-/// Device-local mirror of the caller's saved AI searches (docs 36 / docs 40 §23) —
+/// Device-local mirror of the caller's saved searches (docs 36 / docs 40 §23) —
 /// the offline-first copy, newest first, deduped by name, capped. The server
 /// (`/ai/search/saved`) is authoritative for signed-in users and merged in by the
 /// controller. Same shape as the search recents store (new key). Parse failures skip
@@ -9,7 +9,7 @@ import 'dart:convert';
 
 import 'package:hive_ce/hive.dart';
 
-import '../../domain/entities/saved_search.dart';
+import '../domain/saved_search.dart';
 
 class SavedSearchesStore {
   SavedSearchesStore(this._box);

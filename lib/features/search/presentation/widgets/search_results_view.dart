@@ -1,10 +1,23 @@
 /// The tabbed search results (docs/40 §13.7, §44). A scrollable scope strip
 /// (All · Pieces · Writers · Tags · Genres · Languages) over a body that reuses
 /// the shared infinite-scroll `PagedFeedView` for each per-type search and the
-/// shared `PieceCard` / result tiles for rows. The "All" tab renders the grouped
-/// preview with per-group "See all" jumps. Tapping a tag/genre/language result
+/// shared `PieceCard` / result tiles for rows. Tapping a tag/genre/language result
 /// pivots to filtered piece results. Pull-to-refresh + load-more come for free.
+///
+/// **D5 replaced what the "All" tab runs.** There used to be two engines behind
+/// search: this screen's E8 grouped preview, and a separate "Semantic search" screen
+/// on the `/ai` prefix. Offering both asked the reader to pick an implementation,
+/// which is a question they have no way to answer. So "All" is the ranked retrieval
+/// engine now — public, grounded, and explaining each result — and the narrower tabs
+/// stay exactly as they were, because a *scope* refines the reader's own intent
+/// rather than asking them to choose a mechanism.
+///
+/// Nothing here reads `GET /ai/features`. That is deliberate and load-bearing:
+/// search is public, the flag read is not, and a 401 on a public page is terminal to
+/// the api client (`platfrom/docs/48` §3.25).
 library;
+
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -16,15 +29,18 @@ import '../../../../shared/domain/entities/trend_item.dart';
 import '../../../../shared/domain/entities/writer_summary.dart';
 import '../../../../shared/domain/enums.dart';
 import '../../../../shared/domain/error_codes.dart';
-import '../../../../shared/theme/q_tokens.dart';
+import '../../../../shared/retrieval/domain/retrieval.dart';
+import '../../../../shared/retrieval/retrieval_providers.dart';
 import '../../../../shared/theme/tokens/spacing_tokens.dart';
 import '../../../../shared/widgets/cards/q_chip.dart';
 import '../../../../shared/widgets/content/piece_card.dart';
 import '../../../../shared/widgets/list/paged_feed_view.dart';
 import '../../../../shared/widgets/loading/feed_skeleton_list.dart';
+import '../../../../shared/widgets/retrieval/retrieval_cards.dart';
+import '../../../../shared/widgets/retrieval/retrieval_navigation.dart';
+import '../../../../shared/widgets/retrieval/search_result_sheet.dart';
 import '../../../../shared/widgets/states/q_empty_state.dart';
 import '../../../../shared/widgets/states/q_error_view.dart';
-import '../../domain/entities/global_search_result.dart';
 import '../../domain/value_objects/search_filters.dart';
 import '../../domain/value_objects/search_request.dart';
 import '../controllers/search_controller.dart';
@@ -188,8 +204,12 @@ void _pivotToLanguage(WidgetRef ref, String code) {
       .setActiveType(SearchType.pieces);
 }
 
-/// The "All" tab — the grouped preview, each non-empty group a short section with
-/// a "See all" jump to that scope's tab.
+/// The "All" tab — ranked, grounded results from the retrieval engine.
+///
+/// Every card carries the ranker's own reason for surfacing it, so the reader can see
+/// *why* rather than being asked to trust an ordering. A result with a route opens it;
+/// one without (a graph node, say) opens the detail sheet in place, so nothing is a
+/// dead end.
 class _AllResults extends ConsumerWidget {
   const _AllResults();
 
@@ -199,8 +219,8 @@ class _AllResults extends ConsumerWidget {
     final String query = ref.watch(
       searchQueryControllerProvider.select((SearchState s) => s.submittedQuery),
     );
-    final AsyncValue<GlobalSearchResult> async = ref.watch(
-      globalSearchProvider(query),
+    final AsyncValue<SemanticSearchResponse> async = ref.watch(
+      retrievalResultsProvider((query: query, storyId: null)),
     );
 
     return async.when(
@@ -213,118 +233,46 @@ class _AllResults extends ConsumerWidget {
                 code: ErrorCodes.apiUnexpected,
                 message: '$error',
               ),
-        onRetry: () => ref.invalidate(globalSearchProvider(query)),
+        onRetry: () => ref.invalidate(
+          retrievalResultsProvider((query: query, storyId: null)),
+        ),
       ),
-      data: (GlobalSearchResult result) {
-        if (result.isEmpty) {
+      data: (SemanticSearchResponse result) {
+        if (result.results.isEmpty) {
           return QEmptyState(
             icon: Icons.search_off,
             title: l10n.searchEmptyTitle,
             message: l10n.searchEmptyBody,
           );
         }
-        return ListView(
-          padding: const EdgeInsets.only(bottom: QSpacing.s6),
-          children: <Widget>[
-            if (result.writers.isNotEmpty)
-              _Group(
-                title: l10n.searchTabWriters,
-                onSeeAll: () => _see(ref, SearchType.writers),
-                children: <Widget>[
-                  for (final WriterSummary w in result.writers)
-                    WriterResultTile(writer: w),
-                ],
-              ),
-            if (result.pieces.isNotEmpty)
-              _Group(
-                title: l10n.searchTabPieces,
-                onSeeAll: () => _see(ref, SearchType.pieces),
-                children: <Widget>[
-                  for (final PieceSummary p in result.pieces)
-                    PieceCard(piece: p),
-                ],
-              ),
-            if (result.tags.isNotEmpty)
-              _Group(
-                title: l10n.searchTabTags,
-                onSeeAll: () => _see(ref, SearchType.tags),
-                children: <Widget>[
-                  for (final TrendingTag t in result.tags)
-                    tagResultTile(t, () => _pivotToTag(ref, t.slug)),
-                ],
-              ),
-            if (result.genres.isNotEmpty)
-              _Group(
-                title: l10n.searchTabGenres,
-                onSeeAll: () => _see(ref, SearchType.genres),
-                children: <Widget>[
-                  for (final TrendingGenre g in result.genres)
-                    genreResultTile(g, () => _pivotToGenre(ref, g.slug)),
-                ],
-              ),
-            if (result.languages.isNotEmpty)
-              _Group(
-                title: l10n.searchTabLanguages,
-                onSeeAll: () => _see(ref, SearchType.languages),
-                children: <Widget>[
-                  for (final TrendingLanguage lang in result.languages)
-                    languageResultTile(
-                      lang,
-                      () => _pivotToLanguage(ref, lang.code),
-                    ),
-                ],
-              ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _see(WidgetRef ref, SearchType type) =>
-      ref.read(searchQueryControllerProvider.notifier).setActiveType(type);
-}
-
-class _Group extends StatelessWidget {
-  const _Group({
-    required this.title,
-    required this.onSeeAll,
-    required this.children,
-  });
-
-  final String title;
-  final VoidCallback onSeeAll;
-  final List<Widget> children;
-
-  @override
-  Widget build(BuildContext context) {
-    final AppLocalizations l10n = AppLocalizations.of(context);
-    final QTokens tokens = QTokens.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Padding(
+        return ListView.separated(
           padding: const EdgeInsets.fromLTRB(
             QSpacing.s4,
+            QSpacing.s3,
             QSpacing.s4,
-            QSpacing.s2,
-            QSpacing.s1,
+            QSpacing.s6,
           ),
-          child: Row(
-            children: <Widget>[
-              Text(title, style: Theme.of(context).textTheme.titleMedium),
-              const Spacer(),
-              TextButton(
-                onPressed: onSeeAll,
-                child: Text(
-                  l10n.searchSeeAll,
-                  style: TextStyle(color: tokens.colors.accent),
-                ),
-              ),
-            ],
-          ),
-        ),
-        ...children,
-      ],
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+          itemCount: result.results.length,
+          separatorBuilder: (_, _) => Gap.v3,
+          itemBuilder: (BuildContext context, int i) {
+            final SearchResultItem item = result.results[i];
+            return SearchResultCard(
+              item: item,
+              onOpen: () {
+                if (!navigateToTarget(context, item.navigation)) {
+                  unawaited(showSearchResultSheet(context, item));
+                }
+              },
+              // A related entity has no navigation target of its own — it names a
+              // neighbour in the graph. Opening the parent result's sheet, which lists
+              // those neighbours, is the only honest destination.
+              onRelatedTap: (RelatedEntity _) =>
+                  unawaited(showSearchResultSheet(context, item)),
+            );
+          },
+        );
+      },
     );
   }
 }

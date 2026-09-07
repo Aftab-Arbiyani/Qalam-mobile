@@ -8,8 +8,8 @@ library;
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../app/router/routes.dart';
-import '../../domain/entities/retrieval.dart';
+import '../../../app/router/routes.dart';
+import '../../retrieval/domain/retrieval.dart';
 
 /// Navigate to [target]. Returns true if a route was pushed; false when the caller
 /// should handle it locally (e.g. open a graph-node detail sheet).

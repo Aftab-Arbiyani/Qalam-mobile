@@ -1,7 +1,19 @@
 /// The Discovery screen (docs/40 §10.2, §6). A calm, vertically-scrolling set of
-/// shelves: local Continue Reading, Featured & Recommended pieces, Trending &
-/// Featured writers, Trending tags, and Recently Read — each best-effort and
-/// cache-then-network. Pull-to-refresh reloads the remote shelves.
+/// shelves: local Continue Reading, the reader's own recommendations, Featured &
+/// Recommended pieces, Trending & Featured writers, Trending tags, and Recently Read —
+/// each best-effort and cache-then-network. Pull-to-refresh reloads the remote shelves.
+///
+/// **D5 moved the recommendation shelves here** from the "Discover with AI" hub it
+/// deleted. The hub was the mistake, not the shelves: it put personalised
+/// recommendations behind a door named after the technology, so a reader had to already
+/// want "AI" to find writing chosen for them. They now sit where a reader is already
+/// browsing, immediately below what they were reading.
+///
+/// They are signed-in only, and they hide themselves when empty or failing. Mounting
+/// them for an anonymous reader would fire an authenticated read on a public page —
+/// a 401, which `ApiClient` treats as terminal outside `/auth/*`
+/// (`platfrom/docs/48` §3.25). `RecommendationShelf` guards this too, but the caller
+/// stating it is what makes the rule visible at the surface that has to obey it.
 library;
 
 import 'package:flutter/material.dart';
@@ -9,11 +21,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/reading_history/reading_history_controller.dart';
 import '../../../../core/reading_history/reading_history_entry.dart';
+import '../../../../core/session/session_controller.dart';
 import '../../../../shared/discovery/discovery_providers.dart';
 import '../../../../shared/domain/entities/piece_summary.dart';
 import '../../../../shared/domain/entities/trend_item.dart';
 import '../../../../shared/domain/entities/writer_summary.dart';
 import '../../../../shared/domain/enums.dart';
+import '../../../../shared/retrieval/domain/retrieval_vocab.dart';
 import '../../../../shared/theme/tokens/spacing_tokens.dart';
 import '../../../../shared/widgets/app_bar/q_app_bar.dart';
 import '../../../../shared/widgets/cards/q_chip.dart';
@@ -21,6 +35,7 @@ import '../../../../shared/widgets/content/history_card.dart';
 import '../../../../shared/widgets/discovery/discovery_widgets.dart';
 import '../../../../shared/widgets/layout/q_scaffold.dart';
 import '../../../../shared/widgets/list/q_refresh.dart';
+import '../../../../shared/widgets/retrieval/recommendation_shelf.dart';
 import '../../../../shared/widgets/states/q_empty_state.dart';
 
 class DiscoverScreen extends ConsumerWidget {
@@ -37,6 +52,9 @@ class DiscoverScreen extends ConsumerWidget {
     final AsyncValue<List<TrendingTag>> tags = ref.watch(
       trendingTagsShelfProvider,
     );
+    final bool authed =
+        ref.watch(sessionControllerProvider).asData?.value.isAuthenticated ??
+        false;
 
     return QScaffold(
       appBar: const QAppBar(title: 'Discover'),
@@ -58,6 +76,12 @@ class DiscoverScreen extends ConsumerWidget {
                 title: 'Continue reading',
                 entries: continueList.take(3).toList(),
               ),
+            if (authed) ...<Widget>[
+              const RecommendationShelf(kind: RecommendationKind.feed),
+              const RecommendationShelf(
+                kind: RecommendationKind.continueReading,
+              ),
+            ],
             DiscoveryShelf<PieceSummary>(
               title: 'Featured',
               state: ref.watch(

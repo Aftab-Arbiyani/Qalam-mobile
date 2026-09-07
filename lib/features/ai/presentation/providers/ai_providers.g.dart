@@ -152,3 +152,56 @@ final class AiFeaturesProvider
 }
 
 String _$aiFeaturesHash() => r'4856f1cb3e19e9fae3b09097b122f4fa40fc2464';
+
+/// Disposable last-viewed Story Map cache (instant / offline render).
+
+@ProviderFor(explorerCacheStore)
+final explorerCacheStoreProvider = ExplorerCacheStoreProvider._();
+
+/// Disposable last-viewed Story Map cache (instant / offline render).
+
+final class ExplorerCacheStoreProvider
+    extends
+        $FunctionalProvider<
+          ExplorerCacheStore,
+          ExplorerCacheStore,
+          ExplorerCacheStore
+        >
+    with $Provider<ExplorerCacheStore> {
+  /// Disposable last-viewed Story Map cache (instant / offline render).
+  ExplorerCacheStoreProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'explorerCacheStoreProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$explorerCacheStoreHash();
+
+  @$internal
+  @override
+  $ProviderElement<ExplorerCacheStore> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  ExplorerCacheStore create(Ref ref) {
+    return explorerCacheStore(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(ExplorerCacheStore value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<ExplorerCacheStore>(value),
+    );
+  }
+}
+
+String _$explorerCacheStoreHash() =>
+    r'611e0c64141ad09b1e2bd803a7300cfb199dd7d9';

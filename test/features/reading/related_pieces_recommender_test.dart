@@ -17,7 +17,6 @@ import 'package:qalam_mobile/core/di/providers.dart';
 import 'package:qalam_mobile/core/error/failure.dart';
 import 'package:qalam_mobile/core/session/session_controller.dart';
 import 'package:qalam_mobile/core/session/session_state.dart';
-import 'package:qalam_mobile/features/ai/ai.dart';
 import 'package:qalam_mobile/features/reading/domain/entities/piece_detail.dart';
 import 'package:qalam_mobile/features/reading/presentation/providers/reading_providers.dart';
 import 'package:qalam_mobile/features/reading/presentation/widgets/related_pieces.dart';
@@ -25,10 +24,12 @@ import 'package:qalam_mobile/shared/domain/entities/author.dart';
 import 'package:qalam_mobile/shared/domain/entities/piece_summary.dart';
 import 'package:qalam_mobile/shared/domain/entities/taxonomy.dart';
 import 'package:qalam_mobile/shared/domain/enums.dart';
+import 'package:qalam_mobile/shared/retrieval/domain/retrieval.dart';
+import 'package:qalam_mobile/shared/retrieval/retrieval_providers.dart';
 import 'package:qalam_mobile/shared/theme/app_theme.dart';
 
-import '../../support/fake_ai_repository.dart';
 import '../../support/fake_reading_repository.dart';
+import '../../support/fake_retrieval_repository.dart';
 
 const AppConfig _aiOn = AppConfig(
   flavor: AppFlavor.development,
@@ -65,15 +66,11 @@ class _AnonSession extends SessionController {
   Future<SessionState> build() async => const SessionState.anonymous();
 }
 
-/// **D5** removed `feature.ai.recommendations` from this chain, and with it the
-/// `recommendationsOn: false` scenario that used to be arranged here. The surface is
-/// de-branded and no longer flag-gated — being signed in is the whole condition — so a
-/// flags fixture is only still supplied because `aiFeaturesProvider` is reachable
-/// elsewhere in the tree, never because this controller reads it.
-const AiFeatures _features = AiFeatures(
-  aiEnabled: true,
-  features: <AiFeatureFlag>[],
-);
+// **D5** removed `feature.ai.recommendations` from this chain, and with it the
+// `recommendationsOn: false` scenario that used to be arranged here. The surface is
+// de-branded and no longer flag-gated — being signed in is the whole condition — so
+// there is no flags fixture left to arrange, and **M2** moved the recommender onto
+// its own `RetrievalRepository` where `GET /ai/features` is not even reachable.
 
 RecommendationItem _pieceRecommendation({
   String id = 'p2',
@@ -130,7 +127,7 @@ PieceSummary _summary(String id, String title) => PieceSummary(
 ProviderContainer _container({
   required AppConfig config,
   required bool authed,
-  FakeAiRepository? aiRepository,
+  FakeRetrievalRepository? retrievalRepository,
   FakeReadingRepository? readingRepository,
 }) => ProviderContainer(
   // Riverpod's default retry policy re-attempts a thrown `Failure` (it isn't a
@@ -145,7 +142,9 @@ ProviderContainer _container({
     sessionControllerProvider.overrideWith(
       authed ? _AuthedSession.new : _AnonSession.new,
     ),
-    aiRepositoryProvider.overrideWithValue(aiRepository ?? FakeAiRepository()),
+    retrievalRepositoryProvider.overrideWithValue(
+      retrievalRepository ?? FakeRetrievalRepository(),
+    ),
     readingRepositoryProvider.overrideWithValue(
       readingRepository ?? FakeReadingRepository(),
     ),
@@ -182,8 +181,7 @@ void main() {
       final ProviderContainer c = _container(
         config: _aiOn,
         authed: true,
-        aiRepository: FakeAiRepository(
-          features: _features,
+        retrievalRepository: FakeRetrievalRepository(
           recommendations: RecommendationResponse(
             kind: 'related_stories',
             items: <RecommendationItem>[_pieceRecommendation()],
@@ -228,8 +226,7 @@ void main() {
       final ProviderContainer c = _container(
         config: _aiOn,
         authed: true,
-        aiRepository: FakeAiRepository(
-          features: _features,
+        retrievalRepository: FakeRetrievalRepository(
           recommendations: const RecommendationResponse(
             kind: 'related_stories',
             items: <RecommendationItem>[],
@@ -273,8 +270,7 @@ void main() {
         authed: true,
         // `features()` succeeds — only the recommendation fetch itself fails,
         // isolating this from the feature-flag check.
-        aiRepository: FakeAiRepository(
-          features: _features,
+        retrievalRepository: FakeRetrievalRepository(
           recommendationsFailure: const NetworkFailure(
             code: 'API_NETWORK_ERROR',
           ),
@@ -324,11 +320,11 @@ void main() {
       final FakeReadingRepository reading = FakeReadingRepository(
         related: <PieceSummary>[_summary('p2', 'Second Evening')],
       );
-      final FakeAiRepository ai = FakeAiRepository(features: _features);
+      final FakeRetrievalRepository ai = FakeRetrievalRepository();
       final ProviderContainer c = _container(
         config: _aiOn,
         authed: false,
-        aiRepository: ai,
+        retrievalRepository: ai,
         readingRepository: reading,
       );
       addTearDown(c.dispose);

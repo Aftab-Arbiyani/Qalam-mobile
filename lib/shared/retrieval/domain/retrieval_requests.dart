@@ -1,9 +1,15 @@
-/// AF4 request value objects — what the client sends to the Retrieval Platform
-/// endpoints (docs 36). `toJson`/`toQuery` omit nulls (the backend rejects unknown/
-/// null params). No prompt text or business logic lives here.
+/// Retrieval request value objects — what the client sends to the Retrieval Platform
+/// endpoints (docs 36). `toJson`/`toQuery` omit nulls, which is not merely tidy:
+/// `forbidNonWhitelisted` is live server-side, so a property the DTO has stopped
+/// accepting is a 400, never a no-op.
+///
+/// **D5** removed `AskBookRequest` with Ask My Book (B2 deleted the route) and
+/// `synthesize` with the "AI answer" (B1 removed the synthesis step). The field is
+/// accepted-and-ignored until Phase V, but sending it would ask for something the
+/// server no longer does.
 library;
 
-import '../../../../core/utils/typedefs.dart';
+import '../../../core/utils/typedefs.dart';
 import 'retrieval_vocab.dart';
 
 /// `POST /ai/search`.
@@ -13,7 +19,6 @@ class SemanticSearchRequest {
     this.storyId,
     this.queryType,
     this.limit,
-    this.synthesize,
     this.language,
     this.genre,
     this.tags,
@@ -23,7 +28,6 @@ class SemanticSearchRequest {
   final String? storyId;
   final String? queryType;
   final int? limit;
-  final bool? synthesize;
   final String? language;
   final String? genre;
   final List<String>? tags;
@@ -33,35 +37,9 @@ class SemanticSearchRequest {
     if (storyId != null) 'storyId': storyId,
     if (queryType != null) 'queryType': queryType,
     if (limit != null) 'limit': limit,
-    if (synthesize != null) 'synthesize': synthesize,
     if (language != null) 'language': language,
     if (genre != null) 'genre': genre,
     if (tags != null && tags!.isNotEmpty) 'tags': tags!.join(','),
-  };
-}
-
-/// `POST /ai/ask` and `POST /ai/ask/stream`.
-class AskBookRequest {
-  const AskBookRequest({
-    required this.storyId,
-    required this.question,
-    this.scope = AskScope.book,
-    this.subject,
-    this.conversationId,
-  });
-
-  final String storyId;
-  final String question;
-  final AskScope scope;
-  final String? subject;
-  final String? conversationId;
-
-  Json toJson() => <String, dynamic>{
-    'storyId': storyId,
-    'question': question,
-    'scope': scope.wire,
-    if (subject != null && subject!.isNotEmpty) 'subject': subject,
-    if (conversationId != null) 'conversationId': conversationId,
   };
 }
 

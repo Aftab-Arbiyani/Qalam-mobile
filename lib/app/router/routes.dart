@@ -29,18 +29,18 @@ abstract final class Routes {
   static String writeDraftPath(String id) => '/write/$id';
   static String piecePreviewPath(String id) => '/write/$id/preview';
 
-  // The `/ai` prefix. Session-gated, and much smaller since **D5**: the writing tools
-  // are bottom sheets over the editor, not routes, and the management surfaces they
+  // The `/ai` prefix. Session-gated, and down to ONE route since **D5**: the writing
+  // tools are bottom sheets over the editor, not routes; the management surfaces they
   // used to need — AI conversations, Prompt library, AI usage, Ask my book — are gone
-  // with the features themselves. What is left is Story Map.
+  // with the features themselves; and the semantic-search screen and "Discover with AI"
+  // hub are gone because their content moved to where readers already are, `/search`
+  // and `/discover`. What is left is Story Map.
   //
   // The paths keep the `/ai` prefix deliberately (D5 decision 10, copy only). Every
   // deleted route now falls through to the unknown-route screen; none is redirected,
   // because a bookmark to a feature that no longer exists should say so rather than
   // land somewhere that looks like it worked.
   static const String ai = '/ai';
-  static const String aiDiscovery = '/ai/discovery';
-  static const String aiSearch = '/ai/search';
   static const String aiExplorer = '/ai/explorer';
   static String aiExplorerPath(String storyId) => '/ai/explorer/$storyId';
 

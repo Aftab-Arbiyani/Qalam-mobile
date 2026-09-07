@@ -27,7 +27,6 @@ import '../../../../shared/domain/entities/writer_summary.dart';
 import '../../../../shared/domain/enums.dart';
 import '../../../../shared/pagination/cached_page.dart';
 import '../../domain/entities/autocomplete_result.dart';
-import '../../domain/entities/global_search_result.dart';
 import '../../domain/entities/recent_search.dart';
 import '../../domain/entities/trending_searches.dart';
 import '../../domain/repositories/search_repository.dart';
@@ -43,25 +42,6 @@ class SearchRepositoryImpl implements SearchRepository {
 
   /// The in-flight autocomplete request; cancelled when a newer one starts.
   CancelToken? _autocompleteToken;
-
-  @override
-  Future<Result<GlobalSearchResult>> globalSearch(
-    String query, {
-    int limit = 5,
-  }) async {
-    final String cacheKey = 'search:all:${_norm(query)}';
-    final Result<GlobalSearchResult> result =
-        await loadCachedObject<GlobalSearchResult>(
-          cache: _objectCache,
-          cacheKey: cacheKey,
-          fetch: () => _remote.globalSearch(query, limit: limit),
-          toJson: (GlobalSearchResult r) => r.toJson(),
-          fromJson: GlobalSearchResult.fromJson,
-          tier: CacheTier.live,
-        );
-    if (result.isOk) await _retirePrevious('all', cacheKey);
-    return result;
-  }
 
   @override
   Future<Result<CachedPage<PieceSummary>>> searchPieces(

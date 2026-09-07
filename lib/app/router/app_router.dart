@@ -19,8 +19,6 @@ import '../../core/error/failure.dart';
 import '../../core/session/onboarding_controller.dart';
 import '../../core/session/session_controller.dart';
 import '../../features/ai/domain/value_objects/story_map_seed.dart';
-import '../../features/ai/presentation/screens/ai_discovery_screen.dart';
-import '../../features/ai/presentation/screens/semantic_search_screen.dart';
 import '../../features/ai/presentation/screens/story_explorer_screen.dart';
 import '../../features/analytics/presentation/screens/creator_analytics_screen.dart';
 import '../../features/analytics/presentation/screens/piece_analytics_screen.dart';
@@ -434,26 +432,13 @@ GoRouter goRouter(Ref ref) {
         ],
       ),
 
-      // Retrieval + Story Map (AF3/AF4) — full-screen, session-gated.
+      // Story Map (AF3) — full-screen, session-gated. The last `/ai` route.
       //
-      // **D5** deleted five routes from this block and the one above it: AI
-      // conversations, one conversation, the Prompt Library, AI usage, and Ask my book.
-      // Nothing redirects — a bookmark to a removed feature reaches the unknown-route
-      // screen, which is the honest answer.
-      GoRoute(
-        path: Routes.aiDiscovery,
-        name: 'aiDiscovery',
-        parentNavigatorKey: _rootKey,
-        pageBuilder: (BuildContext context, GoRouterState state) =>
-            _fade(state, const AiDiscoveryScreen()),
-      ),
-      GoRoute(
-        path: Routes.aiSearch,
-        name: 'aiSearch',
-        parentNavigatorKey: _rootKey,
-        pageBuilder: (BuildContext context, GoRouterState state) =>
-            _fade(state, const SemanticSearchScreen()),
-      ),
+      // **D5** deleted seven routes from this block and the one above it: AI
+      // conversations, one conversation, the Prompt Library, AI usage, Ask my book, the
+      // semantic-search screen and the "Discover with AI" hub. Nothing redirects — a
+      // bookmark to a removed feature reaches the unknown-route screen, which is the
+      // honest answer.
       GoRoute(
         path: '${Routes.aiExplorer}/:storyId',
         name: 'aiExplorer',

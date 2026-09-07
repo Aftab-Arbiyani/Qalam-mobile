@@ -1,6 +1,7 @@
 /// Wire → entity mappers for the search feature (docs/40 §18). The only code that
-/// knows the `GlobalSearchResultDto` / `AutocompleteResultDto` /
-/// `TrendingSearchesDto` / `RecentSearchDto` wire shapes. Reuses the shared
+/// knows the `AutocompleteResultDto` / `TrendingSearchesDto` / `RecentSearchDto`
+/// wire shapes. **D5** removed `globalSearchFromJson` with the grouped `GET /search`
+/// preview the "All" tab used to run. Reuses the shared
 /// read-model mappers (piece / writer / trend) so a result maps identically to a
 /// feed card. Pure, total, tolerant — a missing/typed-wrong field coerces to a
 /// default, never a throw (docs/40 §18.2).
@@ -11,19 +12,8 @@ import '../../../../core/utils/typedefs.dart';
 import '../../../../shared/data/entity_mappers.dart';
 import '../../../../shared/domain/enums.dart';
 import '../../domain/entities/autocomplete_result.dart';
-import '../../domain/entities/global_search_result.dart';
 import '../../domain/entities/recent_search.dart';
 import '../../domain/entities/trending_searches.dart';
-
-GlobalSearchResult globalSearchFromJson(Json json) => GlobalSearchResult(
-  writers: asMapList(json['writers']).map(writerSummaryFromJson).toList(),
-  pieces: asMapList(json['pieces']).map(pieceSummaryFromJson).toList(),
-  tags: asMapList(json['tags']).map(trendingTagFromJson).toList(),
-  genres: asMapList(json['genres']).map(trendingGenreFromJson).toList(),
-  languages: asMapList(
-    json['languages'],
-  ).map(trendingLanguageFromJson).toList(),
-);
 
 AutocompleteResult autocompleteFromJson(Json json) => AutocompleteResult(
   writers: asMapList(json['writers'])

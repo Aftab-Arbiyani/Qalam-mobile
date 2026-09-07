@@ -1,8 +1,8 @@
-/// Tiny defensive JSON readers shared by the AF4 retrieval entities. Pure helpers,
+/// Tiny defensive JSON readers shared by the retrieval entities. Pure helpers,
 /// no logic — keep parsing tolerant so a shape drift never crashes a screen.
 library;
 
-import '../../../../core/utils/typedefs.dart';
+import '../../../core/utils/typedefs.dart';
 
 List<T> rjList<T>(Object? raw, T Function(Json) fromJson) {
   if (raw is! List) return const <Never>[];

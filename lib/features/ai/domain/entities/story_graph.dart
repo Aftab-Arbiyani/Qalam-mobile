@@ -5,7 +5,7 @@
 library;
 
 import '../../../../core/utils/typedefs.dart';
-import 'retrieval_json.dart';
+import '../../../../shared/retrieval/domain/retrieval_json.dart';
 
 /// A node in the story knowledge graph (character/location/event/…).
 class StoryGraphNode {

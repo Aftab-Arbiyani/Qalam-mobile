@@ -1,17 +1,22 @@
-/// AF4 result + recommendation cards (docs 36 / docs 41). Each renders a structured
-/// domain object with its grounding — summary, why-surfaced reason, ranking, evidence,
-/// related entities — using Qalam tokens/components. Tapping opens the result; related
-/// chips navigate to linked entities. The client only renders; the backend ranks.
+/// Result + recommendation cards (docs 36 / docs 41). Each renders a structured domain
+/// object with its grounding — summary, why-surfaced reason, ranking, evidence, related
+/// entities — using Qalam tokens/components. Tapping opens the result; related chips
+/// navigate to linked entities. The client only renders; the backend ranks.
+///
+/// **D5** swapped the sparkle beside a recommendation's reason for a lightbulb. The
+/// sparkle is the universal "a machine made this" mark, and the reason it labels is the
+/// opposite of that claim: it is the ranker saying, in plain words, which of the
+/// reader's own signals put this here.
 library;
 
 import 'package:flutter/material.dart';
 
-import '../../../../shared/theme/q_tokens.dart';
-import '../../../../shared/theme/tokens/color_tokens.dart';
-import '../../../../shared/theme/tokens/spacing_tokens.dart';
-import '../../../../shared/widgets/cards/q_card.dart';
-import '../../../../shared/widgets/cards/q_chip.dart';
-import '../../domain/entities/retrieval.dart';
+import '../../retrieval/domain/retrieval.dart';
+import '../../theme/q_tokens.dart';
+import '../../theme/tokens/color_tokens.dart';
+import '../../theme/tokens/spacing_tokens.dart';
+import '../cards/q_card.dart';
+import '../cards/q_chip.dart';
 import 'retrieval_widgets.dart';
 
 /// Friendly label for an entity/facet type wire value.
@@ -156,7 +161,7 @@ class RecommendationCard extends StatelessWidget {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Icon(Icons.auto_awesome, size: 14, color: colors.accent),
+                  Icon(Icons.lightbulb_outline, size: 14, color: colors.accent),
                   Gap.h1,
                   Expanded(
                     child: Text(

@@ -940,6 +940,66 @@ abstract class AppLocalizations {
   /// **'Pieces'**
   String get searchSuggestPieces;
 
+  /// No description provided for @searchSuggestIdeas.
+  ///
+  /// In en, this message translates to:
+  /// **'Try instead'**
+  String get searchSuggestIdeas;
+
+  /// No description provided for @searchSavedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved searches'**
+  String get searchSavedTitle;
+
+  /// No description provided for @searchSavedRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get searchSavedRemove;
+
+  /// No description provided for @searchSaveAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Save this search'**
+  String get searchSaveAction;
+
+  /// No description provided for @searchSaveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Save this search'**
+  String get searchSaveTitle;
+
+  /// No description provided for @searchSaveNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Name it'**
+  String get searchSaveNameLabel;
+
+  /// No description provided for @searchSaveSubmit.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get searchSaveSubmit;
+
+  /// No description provided for @searchSaveDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Search saved.'**
+  String get searchSaveDone;
+
+  /// No description provided for @searchSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t save that search.'**
+  String get searchSaveFailed;
+
+  /// No description provided for @searchSavedRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Removed.'**
+  String get searchSavedRemoved;
+
   /// No description provided for @searchFiltersTitle.
   ///
   /// In en, this message translates to:

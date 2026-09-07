@@ -5,7 +5,8 @@
 ///
 /// **D5** removed the conversation and usage endpoints (deleted by B2) and Ask My Book,
 /// and added the Story Map batch trigger — the first client call that can actually
-/// spend an analysis.
+/// spend an analysis. **M2** moved the retrieval endpoints out to
+/// `lib/shared/retrieval/`, leaving this file with only what the AI feature itself owns.
 library;
 
 import 'dart:async';
@@ -14,15 +15,11 @@ import 'package:dio/dio.dart';
 
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/api_paths.dart';
-import '../../../../core/utils/typedefs.dart';
 import '../../domain/entities/ai_completion.dart';
 import '../../domain/entities/ai_feature_flag.dart';
 import '../../domain/entities/ai_stream_event.dart';
-import '../../domain/entities/retrieval.dart';
-import '../../domain/entities/saved_search.dart';
 import '../../domain/entities/story_graph.dart';
 import '../../domain/entities/story_map_event.dart';
-import '../../domain/value_objects/retrieval_requests.dart';
 
 class AiRemoteDataSource {
   const AiRemoteDataSource(this._api);
@@ -70,52 +67,6 @@ class AiRemoteDataSource {
     return controller.stream;
   }
 
-  // ── AF4 — search + saved searches ─────────────────────────
-
-  Future<SemanticSearchResponse> searchSemantic(
-    SemanticSearchRequest request, {
-    CancelToken? cancelToken,
-  }) => _api.post(
-    ApiPaths.aiSearch,
-    body: request.toJson(),
-    decode: SemanticSearchResponse.fromJson,
-    cancelToken: cancelToken,
-  );
-
-  Future<List<String>> searchSuggestions(
-    String query, {
-    String? storyId,
-    CancelToken? cancelToken,
-  }) async {
-    final Json result = await _api.get(
-      ApiPaths.aiSearchSuggestions,
-      query: <String, dynamic>{'q': query, 'storyId': storyId},
-      decode: (Json json) => json,
-      cancelToken: cancelToken,
-      deduplicate: false,
-    );
-    return (result['suggestions'] as List?)?.whereType<String>().toList() ??
-        const <String>[];
-  }
-
-  Future<List<SavedSearch>> listSavedSearches({CancelToken? cancelToken}) =>
-      _api.getList(
-        ApiPaths.aiSearchSaved,
-        decodeItem: SavedSearch.fromJson,
-        cancelToken: cancelToken,
-      );
-
-  Future<SavedSearch> saveSearch(Json body, {CancelToken? cancelToken}) =>
-      _api.post(
-        ApiPaths.aiSearchSaved,
-        body: body,
-        decode: SavedSearch.fromJson,
-        cancelToken: cancelToken,
-      );
-
-  Future<void> deleteSavedSearch(String id) =>
-      _api.delete(ApiPaths.aiSearchSavedById(id));
-
   // ── AF3 — Story Map ─────────────────────────────────────────────────────────
 
   Future<ExplorerViewResult> explorer(
@@ -161,16 +112,4 @@ class AiRemoteDataSource {
     };
     return controller.stream;
   }
-
-  // ── AF4 — recommendations ─────────────────────────
-
-  Future<RecommendationResponse> recommendations(
-    RecommendationQuery query, {
-    CancelToken? cancelToken,
-  }) => _api.get(
-    ApiPaths.aiRecommendations,
-    query: query.toQuery(),
-    decode: RecommendationResponse.fromJson,
-    cancelToken: cancelToken,
-  );
 }

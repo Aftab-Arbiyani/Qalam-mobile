@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/features/search/domain/entities/global_search_result.dart';
 import 'package:qalam_mobile/features/search/domain/value_objects/search_request.dart';
 import 'package:qalam_mobile/features/search/presentation/controllers/recent_searches_controller.dart';
 import 'package:qalam_mobile/features/search/presentation/controllers/search_controller.dart';
@@ -23,26 +22,28 @@ PieceSummary _piece(String id) => PieceSummary(
 
 void main() {
   group('SearchQueryController', () {
-    test('submit sets the submitted query, results phase, and records a recent',
-        () async {
-      final ProviderContainer c = await buildTestContainer(
-        searchRepository: FakeSearchRepository(),
-      );
-      addTearDown(c.dispose);
-      c.listen(searchQueryControllerProvider, (_, _) {});
-      c.listen(recentSearchesControllerProvider, (_, _) {});
+    test(
+      'submit sets the submitted query, results phase, and records a recent',
+      () async {
+        final ProviderContainer c = await buildTestContainer(
+          searchRepository: FakeSearchRepository(),
+        );
+        addTearDown(c.dispose);
+        c.listen(searchQueryControllerProvider, (_, _) {});
+        c.listen(recentSearchesControllerProvider, (_, _) {});
 
-      c.read(searchQueryControllerProvider.notifier).submit('barish');
-      final SearchState state = c.read(searchQueryControllerProvider);
-      expect(state.submittedQuery, 'barish');
-      expect(state.phase, SearchPhase.results);
+        c.read(searchQueryControllerProvider.notifier).submit('barish');
+        final SearchState state = c.read(searchQueryControllerProvider);
+        expect(state.submittedQuery, 'barish');
+        expect(state.phase, SearchPhase.results);
 
-      await Future<void>.delayed(const Duration(milliseconds: 50));
-      expect(
-        c.read(recentSearchesControllerProvider).map((r) => r.query),
-        contains('barish'),
-      );
-    });
+        await Future<void>.delayed(const Duration(milliseconds: 50));
+        expect(
+          c.read(recentSearchesControllerProvider).map((r) => r.query),
+          contains('barish'),
+        );
+      },
+    );
 
     test('submit is rejected below the minimum query length', () async {
       final ProviderContainer c = await buildTestContainer(
@@ -75,7 +76,10 @@ void main() {
       c.listen(recentSearchesControllerProvider, (_, _) {});
       c.read(searchQueryControllerProvider.notifier).submit('barish');
       c.read(searchQueryControllerProvider.notifier).clear();
-      expect(c.read(searchQueryControllerProvider).phase, SearchPhase.discovery);
+      expect(
+        c.read(searchQueryControllerProvider).phase,
+        SearchPhase.discovery,
+      );
       // Let the fire-and-forget recents write settle before teardown.
       await Future<void>.delayed(const Duration(milliseconds: 50));
     });
@@ -115,30 +119,17 @@ void main() {
         query: 'meera',
         type: SearchType.writers,
       );
-      final first = await c.read(searchResultsControllerProvider(request).future);
+      final first = await c.read(
+        searchResultsControllerProvider(request).future,
+      );
       expect(first.items.single, isA<WriterSummary>());
     });
   });
 
-  group('globalSearch provider', () {
-    test('returns the seeded grouped preview', () async {
-      final ProviderContainer c = await buildTestContainer(
-        searchRepository: FakeSearchRepository(
-          global: GlobalSearchResult(pieces: <PieceSummary>[_piece('g')]),
-        ),
-      );
-      addTearDown(c.dispose);
-      final result = await c.read(globalSearchProvider('barish').future);
-      expect(result.pieces.single.id, 'g');
-    });
-
-    test('an empty query short-circuits to an empty preview', () async {
-      final ProviderContainer c = await buildTestContainer(
-        searchRepository: FakeSearchRepository(),
-      );
-      addTearDown(c.dispose);
-      final result = await c.read(globalSearchProvider('').future);
-      expect(result.isEmpty, isTrue);
-    });
-  });
+  /// **D5 replaced the "All" tab's engine.** The two tests that drove
+  /// `globalSearchProvider` are gone with it: that provider ran the grouped
+  /// `GET /search` preview, and nothing on this client calls it any more. Its
+  /// replacement lives in `test/shared/retrieval/retrieval_providers_test.dart`,
+  /// where the contract now is — including the assertion that it works with no
+  /// session, which the E8 preview never had to make.
 }

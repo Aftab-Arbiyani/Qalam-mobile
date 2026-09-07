@@ -1,10 +1,18 @@
-/// AF4 retrieval domain entities — the grounded, explainable shapes the backend
-/// Retrieval Platform returns (docs 36). Plain immutable value types with `fromJson`
-/// (matching the AI feature's style). The client RENDERS these; it never re-derives
-/// ranking, retrieval, or recommendation logic (the backend is the source of truth).
+/// Retrieval domain entities — the grounded, explainable shapes the backend Retrieval
+/// Platform returns (docs 36). Plain immutable value types with `fromJson`. The client
+/// RENDERS these; it never re-derives ranking, retrieval, or recommendation logic (the
+/// backend is the source of truth).
+///
+/// **These live in `lib/shared/` since D5, not in `features/ai/`.** Search and
+/// recommendations are consumed by `features/search`, `features/feed` and
+/// `features/reading`, and features never import features
+/// (`docs/folder-structure.md`). They sat inside the AI feature only because AF4
+/// arrived as part of the AI platform — and the pipeline behind them reaches no model
+/// at all: graph, keyword and metadata retrievers feeding a ranker. Synthesis was the
+/// one part that called one, and B1 removed it.
 library;
 
-import '../../../../core/utils/typedefs.dart';
+import '../../../core/utils/typedefs.dart';
 
 List<T> _list<T>(Object? raw, T Function(Json) fromJson) {
   if (raw is! List) return const <Never>[];
@@ -212,13 +220,17 @@ class SearchResultItem {
   );
 }
 
-/// The full semantic-search response (grounded results + optional synthesised answer).
+/// The full search response: ranked, grounded results.
+///
+/// **D5 dropped `answer`.** It carried the synthesised "AI answer" that B1 removed
+/// server-side; the field is still on the wire (always null) until Phase V contracts
+/// the DTO, and an unknown response key is ignored here anyway, so parsing it would
+/// only preserve a value nothing can render.
 class SemanticSearchResponse {
   const SemanticSearchResponse({
     required this.query,
     required this.intent,
     required this.queryType,
-    required this.answer,
     required this.results,
     required this.evidence,
     required this.meta,
@@ -227,7 +239,6 @@ class SemanticSearchResponse {
   final String query;
   final String intent;
   final String queryType;
-  final String? answer;
   final List<SearchResultItem> results;
   final List<RetrievalEvidence> evidence;
   final RetrievalResponseMeta meta;
@@ -236,7 +247,6 @@ class SemanticSearchResponse {
     query: _string(json['query']),
     intent: _string(json['intent']),
     queryType: _string(json['queryType']),
-    answer: json['answer'] as String?,
     results: _list(json['results'], SearchResultItem.fromJson),
     evidence: _list(json['evidence'], RetrievalEvidence.fromJson),
     meta: json['meta'] is Map

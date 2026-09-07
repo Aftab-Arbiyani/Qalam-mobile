@@ -1,4 +1,4 @@
-/// Story Explorer (AF4) — server state for one explorer view over the knowledge graph.
+/// Story Map (AF3/AF4) — server state for one view over the knowledge graph.
 /// Writes the last-viewed page to a disposable cache on success and falls back to it on
 /// failure/offline (graceful degradation of cached reads, docs 40 §23). The client only
 /// projects/renders graph objects; the backend owns graph structure.
@@ -10,10 +10,9 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../../core/error/failure.dart';
 import '../../../../core/utils/result.dart';
+import '../../../../shared/retrieval/domain/retrieval_vocab.dart';
 import '../../domain/entities/story_graph.dart';
-import '../../domain/value_objects/retrieval_vocab.dart';
 import '../providers/ai_providers.dart';
-import '../providers/retrieval_providers.dart';
 
 part 'story_explorer_controller.g.dart';
 

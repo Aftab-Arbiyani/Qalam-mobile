@@ -6,11 +6,11 @@ library;
 
 import 'package:flutter/material.dart';
 
-import '../../../../shared/theme/q_tokens.dart';
-import '../../../../shared/theme/tokens/color_tokens.dart';
-import '../../../../shared/theme/tokens/spacing_tokens.dart';
-import '../../../../shared/widgets/cards/q_chip.dart';
-import '../../domain/entities/retrieval.dart';
+import '../../retrieval/domain/retrieval.dart';
+import '../../theme/q_tokens.dart';
+import '../../theme/tokens/color_tokens.dart';
+import '../../theme/tokens/spacing_tokens.dart';
+import '../cards/q_chip.dart';
 
 /// Expandable "Sources" list showing the evidence a result/answer is grounded in.
 class EvidenceList extends StatelessWidget {

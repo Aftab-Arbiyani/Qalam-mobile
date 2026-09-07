@@ -6,7 +6,6 @@ import 'package:qalam_mobile/core/storage/cache_store.dart';
 import 'package:qalam_mobile/core/utils/typedefs.dart';
 import 'package:qalam_mobile/features/search/data/datasources/search_remote_data_source.dart';
 import 'package:qalam_mobile/features/search/data/repositories/search_repository_impl.dart';
-import 'package:qalam_mobile/features/search/domain/entities/global_search_result.dart';
 import 'package:qalam_mobile/features/search/domain/value_objects/search_filters.dart';
 import 'package:qalam_mobile/shared/api/api_envelope.dart';
 import 'package:qalam_mobile/shared/data/cache_list_data_source.dart';
@@ -22,7 +21,11 @@ class _MemCache implements CacheStore {
 
   @override
   Future<void> write(String key, Json value, {required CacheTier tier}) async {
-    _m[key] = CacheEntry(value: value, writtenAt: DateTime.now().toUtc(), tier: tier);
+    _m[key] = CacheEntry(
+      value: value,
+      writtenAt: DateTime.now().toUtc(),
+      tier: tier,
+    );
   }
 
   @override
@@ -35,10 +38,9 @@ class _MemCache implements CacheStore {
 /// A [SearchRemoteDataSource] whose piece + grouped responses are driven by
 /// responders; everything else throws via [noSuchMethod] (unused in these tests).
 class _StubRemote implements SearchRemoteDataSource {
-  _StubRemote({required this.pieceResponder, required this.globalResponder});
+  _StubRemote({required this.pieceResponder});
 
   Future<CursorPage<PieceSummary>> Function(String? cursor) pieceResponder;
-  Future<GlobalSearchResult> Function() globalResponder;
 
   @override
   Future<CursorPage<PieceSummary>> searchPieces(
@@ -46,10 +48,6 @@ class _StubRemote implements SearchRemoteDataSource {
     Json filterParams, {
     String? cursor,
   }) => pieceResponder(cursor);
-
-  @override
-  Future<GlobalSearchResult> globalSearch(String query, {int limit = 5}) =>
-      globalResponder();
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
@@ -82,7 +80,6 @@ void main() {
             items: <PieceSummary>[_piece('a')],
             meta: const CursorMeta(),
           ),
-          globalResponder: () async => const GlobalSearchResult(),
         ),
       );
       final r = await repo.searchPieces('barish', SearchFilters.none);
@@ -98,7 +95,6 @@ void main() {
           items: <PieceSummary>[_piece('a')],
           meta: const CursorMeta(),
         ),
-        globalResponder: () async => const GlobalSearchResult(),
       );
       final repo = _repo(cache, remote);
       await repo.searchPieces('barish', SearchFilters.none); // warm
@@ -113,10 +109,7 @@ void main() {
     test('offline with no cache surfaces a NetworkFailure', () async {
       final repo = _repo(
         _MemCache(),
-        _StubRemote(
-          pieceResponder: (_) async => throw _offline,
-          globalResponder: () async => const GlobalSearchResult(),
-        ),
+        _StubRemote(pieceResponder: (_) async => throw _offline),
       );
       final r = await repo.searchPieces('x', SearchFilters.none);
       expect(r.failureOrNull, isA<NetworkFailure>());
@@ -125,32 +118,19 @@ void main() {
     test('a later-page failure does not fall back to cache', () async {
       final repo = _repo(
         _MemCache(),
-        _StubRemote(
-          pieceResponder: (_) async => throw _offline,
-          globalResponder: () async => const GlobalSearchResult(),
-        ),
+        _StubRemote(pieceResponder: (_) async => throw _offline),
       );
       final r = await repo.searchPieces('x', SearchFilters.none, cursor: 'c2');
       expect(r.isErr, isTrue);
     });
   });
 
-  group('globalSearch object cache', () {
-    test('offline after a warm cache replays the last grouped preview', () async {
-      final _MemCache cache = _MemCache();
-      final remote = _StubRemote(
-        pieceResponder: (_) async =>
-            const CursorPage<PieceSummary>(items: <PieceSummary>[], meta: CursorMeta()),
-        globalResponder: () async =>
-            GlobalSearchResult(pieces: <PieceSummary>[_piece('g')]),
-      );
-      final repo = _repo(cache, remote);
-      await repo.globalSearch('barish'); // warm
-      remote.globalResponder = () async => throw _offline;
-
-      final r = await repo.globalSearch('barish');
-      expect(r.isOk, isTrue);
-      expect(r.valueOrNull!.pieces.single.id, 'g');
-    });
-  });
+  // The grouped-preview object cache was pinned here — an offline replay of the last
+  // `GET /search` response. **D5** removed that call from this client (the "All" tab
+  // runs the ranked retrieval engine now), so there is no preview left to cache.
+  //
+  // Worth naming what went with it: the retrieval engine has **no offline replay**.
+  // The per-type tabs below still do, so a reader offline on "Pieces" sees their last
+  // results while "All" shows an error. That is a real gap, not an oversight of this
+  // deletion — recorded rather than papered over.
 }

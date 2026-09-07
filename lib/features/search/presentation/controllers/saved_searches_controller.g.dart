@@ -42,7 +42,7 @@ final class SavedSearchesControllerProvider
 }
 
 String _$savedSearchesControllerHash() =>
-    r'80e9443fb7024dbdd40924bbca4741859f403383';
+    r'102f91eab8f03ee8bd3b6087ef661d2805a4e6df';
 
 abstract class _$SavedSearchesController extends $Notifier<List<SavedSearch>> {
   List<SavedSearch> build();

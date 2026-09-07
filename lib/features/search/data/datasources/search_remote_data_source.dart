@@ -18,7 +18,6 @@ import '../../../../shared/domain/entities/trend_item.dart';
 import '../../../../shared/domain/entities/writer_summary.dart';
 import '../../../../shared/domain/enums.dart';
 import '../../domain/entities/autocomplete_result.dart';
-import '../../domain/entities/global_search_result.dart';
 import '../../domain/entities/recent_search.dart';
 import '../../domain/entities/trending_searches.dart';
 import '../mappers/search_mappers.dart';
@@ -29,13 +28,6 @@ class SearchRemoteDataSource {
   final ApiClient _api;
 
   static const int _limit = 20;
-
-  Future<GlobalSearchResult> globalSearch(String query, {int limit = 5}) =>
-      _api.get<GlobalSearchResult>(
-        ApiPaths.search,
-        query: <String, dynamic>{'q': query, 'limit': limit},
-        decode: globalSearchFromJson,
-      );
 
   Future<CursorPage<PieceSummary>> searchPieces(
     String query,

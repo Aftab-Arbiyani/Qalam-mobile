@@ -1,10 +1,17 @@
 /// The search discovery landing (docs/40 §6, E8) — the empty-query state. Reuses
 /// the shared discovery shelves (`DiscoveryShelf`, `PieceShelfCard`,
 /// `WriterShelfCard`), the shared reading-history cards, and the search trending
-/// snapshot, composed for a search-first entry point: recent searches, trending
-/// searches, featured & recently-published shelves, popular writers, popular
-/// genres/languages, and "continue discovering". Pull-to-refresh reloads the
-/// remote shelves; everything is best-effort and cached for offline.
+/// snapshot, composed for a search-first entry point: recent searches, **saved
+/// searches**, trending searches, featured & recently-published shelves, popular
+/// writers, popular genres/languages, and "continue discovering". Pull-to-refresh
+/// reloads the remote shelves; everything is best-effort and cached for offline.
+///
+/// **D5 brought saved searches here.** They were reachable only from the
+/// semantic-search screen behind the `/ai` prefix, which D5 deleted — so without a
+/// home on this landing they would have become data a reader owns and cannot see.
+/// The section is signed-in only and hides itself when empty, so a signed-out reader
+/// never triggers the authenticated read that would 401 their session
+/// (`platfrom/docs/48` §3.25).
 library;
 
 import 'package:flutter/material.dart';
@@ -19,16 +26,19 @@ import '../../../../shared/domain/entities/piece_summary.dart';
 import '../../../../shared/domain/entities/trend_item.dart';
 import '../../../../shared/domain/entities/writer_summary.dart';
 import '../../../../shared/domain/enums.dart';
+import '../../../../shared/retrieval/domain/saved_search.dart';
 import '../../../../shared/theme/tokens/spacing_tokens.dart';
 import '../../../../shared/widgets/cards/q_chip.dart';
 import '../../../../shared/widgets/content/history_card.dart';
 import '../../../../shared/widgets/discovery/discovery_widgets.dart';
 import '../../../../shared/widgets/feedback/q_dialog.dart';
+import '../../../../shared/widgets/feedback/q_snackbar.dart';
 import '../../../../shared/widgets/list/q_refresh.dart';
 import '../../../../shared/widgets/states/q_empty_state.dart';
 import '../../domain/entities/recent_search.dart';
 import '../../domain/entities/trending_searches.dart';
 import '../controllers/recent_searches_controller.dart';
+import '../controllers/saved_searches_controller.dart';
 import '../controllers/search_controller.dart';
 import '../controllers/search_suggestions_controller.dart';
 
@@ -54,8 +64,15 @@ class SearchDiscoveryView extends ConsumerWidget {
     final TrendingSearches trend =
         trending.asData?.value ?? const TrendingSearches();
 
+    // Empty for a signed-out reader without reaching the network — the controller's
+    // own auth gate, not a render check here.
+    final List<SavedSearch> saved = ref.watch(savedSearchesControllerProvider);
+
     final bool everythingEmpty =
-        recents.isEmpty && trend.isEmpty && continueList.isEmpty;
+        recents.isEmpty &&
+        saved.isEmpty &&
+        trend.isEmpty &&
+        continueList.isEmpty;
 
     return QRefresh(
       onRefresh: () async {
@@ -72,6 +89,7 @@ class SearchDiscoveryView extends ConsumerWidget {
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         children: <Widget>[
           if (recents.isNotEmpty) _RecentSearches(recents: recents),
+          if (saved.isNotEmpty) _SavedSearches(saved: saved),
           if (trend.keywords.isNotEmpty)
             _ChipShelf(
               title: l10n.searchTrendingTitle,
@@ -165,6 +183,46 @@ class SearchDiscoveryView extends ConsumerWidget {
 
   void _submit(WidgetRef ref, String query, SearchType type) =>
       ref.read(searchQueryControllerProvider.notifier).submit(query, type);
+}
+
+/// The reader's saved searches. Tapping one re-runs it; the trailing action removes
+/// it locally first and on the server best-effort, matching the recents shelf above.
+class _SavedSearches extends ConsumerWidget {
+  const _SavedSearches({required this.saved});
+
+  final List<SavedSearch> saved;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    return ShelfSection(
+      title: l10n.searchSavedTitle,
+      child: Column(
+        children: <Widget>[
+          for (final SavedSearch entry in saved)
+            ListTile(
+              leading: const Icon(Icons.bookmark_outline),
+              title: Text(entry.name),
+              subtitle: entry.query == entry.name ? null : Text(entry.query),
+              trailing: IconButton(
+                icon: const Icon(Icons.close),
+                tooltip: l10n.searchSavedRemove,
+                onPressed: () async {
+                  await ref
+                      .read(savedSearchesControllerProvider.notifier)
+                      .remove(entry);
+                  if (!context.mounted) return;
+                  QSnackbar.show(context, message: l10n.searchSavedRemoved);
+                },
+              ),
+              onTap: () => ref
+                  .read(searchQueryControllerProvider.notifier)
+                  .submit(entry.query, SearchType.all),
+            ),
+        ],
+      ),
+    );
+  }
 }
 
 class _RecentSearches extends ConsumerWidget {

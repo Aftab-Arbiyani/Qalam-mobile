@@ -25,6 +25,7 @@ import 'package:qalam_mobile/core/di/providers.dart';
 import 'package:qalam_mobile/core/logging/app_logger.dart';
 import 'package:qalam_mobile/core/media/cover_image_picker.dart';
 import 'package:qalam_mobile/core/network/auth_gateway.dart';
+import 'package:qalam_mobile/core/session/session_controller.dart';
 import 'package:qalam_mobile/core/storage/secure_storage.dart';
 import 'package:qalam_mobile/features/ai/domain/repositories/ai_repository.dart';
 import 'package:qalam_mobile/features/ai/presentation/providers/ai_providers.dart';
@@ -52,6 +53,8 @@ import 'package:qalam_mobile/features/writing/domain/repositories/piece_editor_r
 import 'package:qalam_mobile/features/writing/presentation/providers/writing_providers.dart';
 import 'package:qalam_mobile/shared/discovery/discovery_providers.dart';
 import 'package:qalam_mobile/shared/discovery/domain/discovery_repository.dart';
+import 'package:qalam_mobile/shared/retrieval/domain/retrieval_repository.dart';
+import 'package:qalam_mobile/shared/retrieval/retrieval_providers.dart';
 import 'package:qalam_mobile/shared/social/domain/collection_repository.dart';
 import 'package:qalam_mobile/shared/social/domain/comment_repository.dart';
 import 'package:qalam_mobile/shared/social/domain/engagement_repository.dart';
@@ -129,6 +132,15 @@ Future<Widget> buildTestApp({
   bool online = true,
   Map<String, String>? tokens,
   Widget? child,
+
+  /// Appended after every harness override, so a test can pin a provider the harness
+  /// knows nothing about — including with one that THROWS, which is how a test proves
+  /// a surface never reads something it must not.
+  ///
+  /// Untyped for the same reason the list below is: riverpod does not export the
+  /// concrete `Override` type, so it cannot be named here. The elements are downcast
+  /// where they are spread.
+  List<dynamic> extraOverrides = const <dynamic>[],
   AppConfig config = testConfig,
   bool onboardingComplete = true,
   bool rememberMe = false,
@@ -150,6 +162,16 @@ Future<Widget> buildTestApp({
   NotificationRepository? notificationRepository,
   NotificationPreferencesRepository? notificationPreferencesRepository,
   AiRepository? aiRepository,
+  RetrievalRepository? retrievalRepository,
+
+  /// Replaces the session controller outright.
+  ///
+  /// Added at **M2**: D5 made search public while leaving saved searches and
+  /// recommendations authenticated, so a growing number of tests turn on whether a
+  /// session exists — and the difference is invisible unless a test can arrange both
+  /// sides. `tokens:` establishes a real session through the auth machinery; this is
+  /// the blunt instrument for tests that only care which side of the line they are on.
+  SessionController Function()? sessionOverride,
   CollaborationRepository? collaborationRepository,
   PublishingRepository? publishingRepository,
   TrustRepository? trustRepository,
@@ -176,9 +198,10 @@ Future<Widget> buildTestApp({
   );
 
   return ProviderScope(
-    // The list is intentionally untyped so the element types (Override) are
-    // inferred — the concrete Override type is not exported for direct annotation.
-    overrides: [
+    // Declared `dynamic` and cast at the end: riverpod does not export the concrete
+    // `Override` type, so neither this list nor [extraOverrides] can name it, and a
+    // list literal will not implicitly downcast its elements.
+    overrides: <dynamic>[
       appConfigProvider.overrideWithValue(config),
       appLoggerProvider.overrideWithValue(
         AppLogger(flavor: AppFlavor.development),
@@ -231,6 +254,12 @@ Future<Widget> buildTestApp({
         ),
       if (aiRepository != null)
         aiRepositoryProvider.overrideWithValue(aiRepository),
+      // Retrieval is its own contract since D5 (M2) — search, saved searches and
+      // recommendations no longer ride on `AiRepository`.
+      if (retrievalRepository != null)
+        retrievalRepositoryProvider.overrideWithValue(retrievalRepository),
+      if (sessionOverride != null)
+        sessionControllerProvider.overrideWith(sessionOverride),
       if (collaborationRepository != null)
         collaborationRepositoryProvider.overrideWithValue(
           collaborationRepository,
@@ -243,7 +272,8 @@ Future<Widget> buildTestApp({
         entitlementSnapshotProvider.overrideWith(
           (_) async => entitlementSnapshot,
         ),
-    ],
+      ...extraOverrides,
+    ].cast(),
     child: child ?? const QalamApp(),
   );
 }
@@ -264,10 +294,16 @@ Future<void> pumpTestApp(
   FeedRepository? feedRepository,
   DiscoveryRepository? discoveryRepository,
   SearchRepository? searchRepository,
+  RetrievalRepository? retrievalRepository,
+  SessionController Function()? sessionOverride,
+
+  /// See [buildTestApp].
+  List<dynamic> extraOverrides = const <dynamic>[],
 }) async {
   late final Widget app;
   await tester.runAsync(() async {
     app = await buildTestApp(
+      extraOverrides: extraOverrides,
       online: online,
       tokens: tokens,
       onboardingComplete: onboardingComplete,
@@ -277,6 +313,8 @@ Future<void> pumpTestApp(
       feedRepository: feedRepository,
       discoveryRepository: discoveryRepository,
       searchRepository: searchRepository,
+      retrievalRepository: retrievalRepository,
+      sessionOverride: sessionOverride,
     );
   });
   await tester.pumpWidget(app);
@@ -333,6 +371,16 @@ Future<ProviderContainer> buildTestContainer({
   NotificationRepository? notificationRepository,
   NotificationPreferencesRepository? notificationPreferencesRepository,
   AiRepository? aiRepository,
+  RetrievalRepository? retrievalRepository,
+
+  /// Replaces the session controller outright.
+  ///
+  /// Added at **M2**: D5 made search public while leaving saved searches and
+  /// recommendations authenticated, so a growing number of tests turn on whether a
+  /// session exists — and the difference is invisible unless a test can arrange both
+  /// sides. `tokens:` establishes a real session through the auth machinery; this is
+  /// the blunt instrument for tests that only care which side of the line they are on.
+  SessionController Function()? sessionOverride,
   CollaborationRepository? collaborationRepository,
   PublishingRepository? publishingRepository,
   TrustRepository? trustRepository,
@@ -413,6 +461,12 @@ Future<ProviderContainer> buildTestContainer({
         ),
       if (aiRepository != null)
         aiRepositoryProvider.overrideWithValue(aiRepository),
+      // Retrieval is its own contract since D5 (M2) — search, saved searches and
+      // recommendations no longer ride on `AiRepository`.
+      if (retrievalRepository != null)
+        retrievalRepositoryProvider.overrideWithValue(retrievalRepository),
+      if (sessionOverride != null)
+        sessionControllerProvider.overrideWith(sessionOverride),
       if (collaborationRepository != null)
         collaborationRepositoryProvider.overrideWithValue(
           collaborationRepository,

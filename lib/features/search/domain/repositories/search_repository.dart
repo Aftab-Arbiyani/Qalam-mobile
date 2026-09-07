@@ -1,8 +1,9 @@
 /// The search feature boundary (docs/40 §16, E8). One repository over the frozen
-/// `/search/*` endpoints: the grouped preview, the five paginated per-type
-/// searches, autocomplete, trending, and recent-search management. Per-type
-/// results are cache-then-network (offline replay of the last query); the grouped
-/// preview and trending are cached too; autocomplete never is (ephemeral). Returns
+/// `/search/*` endpoints: the five paginated per-type searches, autocomplete,
+/// trending, and recent-search management. Per-type results are cache-then-network
+/// (offline replay of the last query); trending is cached too; autocomplete never is
+/// (ephemeral). **D5** removed the grouped `GET /search` preview — the "All" tab runs
+/// the ranked retrieval engine now, so nothing on this client calls it. Returns
 /// domain [Result]s — never a DTO, `DioException`, or HTTP status. Reuses the
 /// shared read models (`PieceSummary`, `WriterSummary`, trend items) so results
 /// render identically to the feed and discovery surfaces (docs/40 §7.3).
@@ -16,15 +17,11 @@ import '../../../../shared/domain/entities/writer_summary.dart';
 import '../../../../shared/domain/enums.dart';
 import '../../../../shared/pagination/cached_page.dart';
 import '../entities/autocomplete_result.dart';
-import '../entities/global_search_result.dart';
 import '../entities/recent_search.dart';
 import '../entities/trending_searches.dart';
 import '../value_objects/search_filters.dart';
 
 abstract interface class SearchRepository {
-  /// The grouped global preview across all five groups (`GET /search`).
-  Future<Result<GlobalSearchResult>> globalSearch(String query, {int limit});
-
   /// Full-text piece search with filters (`GET /search/pieces`), cursor-paginated.
   Future<Result<CachedPage<PieceSummary>>> searchPieces(
     String query,

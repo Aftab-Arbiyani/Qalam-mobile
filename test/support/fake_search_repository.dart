@@ -5,7 +5,6 @@ library;
 import 'package:qalam_mobile/core/utils/result.dart';
 import 'package:qalam_mobile/core/utils/typedefs.dart';
 import 'package:qalam_mobile/features/search/domain/entities/autocomplete_result.dart';
-import 'package:qalam_mobile/features/search/domain/entities/global_search_result.dart';
 import 'package:qalam_mobile/features/search/domain/entities/recent_search.dart';
 import 'package:qalam_mobile/features/search/domain/entities/trending_searches.dart';
 import 'package:qalam_mobile/features/search/domain/repositories/search_repository.dart';
@@ -19,7 +18,6 @@ import 'package:qalam_mobile/shared/pagination/cached_page.dart';
 
 class FakeSearchRepository implements SearchRepository {
   FakeSearchRepository({
-    this.global = const GlobalSearchResult(),
     this.pieces = const <PieceSummary>[],
     this.writers = const <WriterSummary>[],
     this.tags = const <TrendingTag>[],
@@ -32,7 +30,6 @@ class FakeSearchRepository implements SearchRepository {
     this.nextCursor,
   });
 
-  final GlobalSearchResult global;
   final List<PieceSummary> pieces;
   final List<WriterSummary> writers;
   final List<TrendingTag> tags;
@@ -55,9 +52,6 @@ class FakeSearchRepository implements SearchRepository {
     ),
   );
 
-  @override
-  Future<Result<GlobalSearchResult>> globalSearch(String query, {int limit = 5}) async =>
-      Ok<GlobalSearchResult>(global);
 
   @override
   Future<Result<CachedPage<PieceSummary>>> searchPieces(

@@ -44,7 +44,7 @@ final class AssistantSessionControllerProvider
 }
 
 String _$assistantSessionControllerHash() =>
-    r'a14f515d8e3a617a05cccf99e28fccd3130c7cdf';
+    r'bcbe6ec23cb9a51253bae965f8e8acdfada82558';
 
 abstract class _$AssistantSessionController
     extends $Notifier<AssistantSessionState> {

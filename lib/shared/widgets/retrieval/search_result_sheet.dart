@@ -5,12 +5,12 @@ library;
 
 import 'package:flutter/material.dart';
 
-import '../../../../shared/theme/q_tokens.dart';
-import '../../../../shared/theme/tokens/color_tokens.dart';
-import '../../../../shared/theme/tokens/spacing_tokens.dart';
-import '../../../../shared/widgets/cards/q_chip.dart';
-import '../../../../shared/widgets/feedback/q_bottom_sheet.dart';
-import '../../domain/entities/retrieval.dart';
+import '../../retrieval/domain/retrieval.dart';
+import '../../theme/q_tokens.dart';
+import '../../theme/tokens/color_tokens.dart';
+import '../../theme/tokens/spacing_tokens.dart';
+import '../cards/q_chip.dart';
+import '../feedback/q_bottom_sheet.dart';
 import 'retrieval_cards.dart';
 import 'retrieval_widgets.dart';
 

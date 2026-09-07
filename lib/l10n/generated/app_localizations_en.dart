@@ -462,6 +462,36 @@ class AppLocalizationsEn extends AppLocalizations {
   String get searchSuggestPieces => 'Pieces';
 
   @override
+  String get searchSuggestIdeas => 'Try instead';
+
+  @override
+  String get searchSavedTitle => 'Saved searches';
+
+  @override
+  String get searchSavedRemove => 'Remove';
+
+  @override
+  String get searchSaveAction => 'Save this search';
+
+  @override
+  String get searchSaveTitle => 'Save this search';
+
+  @override
+  String get searchSaveNameLabel => 'Name it';
+
+  @override
+  String get searchSaveSubmit => 'Save';
+
+  @override
+  String get searchSaveDone => 'Search saved.';
+
+  @override
+  String get searchSaveFailed => 'Couldn\'t save that search.';
+
+  @override
+  String get searchSavedRemoved => 'Removed.';
+
+  @override
   String get searchFiltersTitle => 'Filters';
 
   @override

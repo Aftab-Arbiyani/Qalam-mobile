@@ -3,6 +3,14 @@
 /// query substring. A writer opens their profile; a tag/genre/piece commits a
 /// search of that scope. Best-effort: an empty result (short query, error, or
 /// cancelled request) renders nothing so the field stays uncluttered.
+///
+/// **D5 added the "Try instead" section at the top.** These are the retrieval
+/// engine's own query suggestions — whole alternative *queries*, not entities — and
+/// they are what the deleted semantic-search screen offered before submitting. They
+/// sit above the E8 groups because they answer a different question: those say "here
+/// is a thing that matches", this says "you might have meant something else".
+///
+/// Both reads are public, so this whole view works signed out.
 library;
 
 import 'package:flutter/material.dart';
@@ -12,6 +20,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../app/router/routes.dart';
 import '../../../../l10n/generated/app_localizations.dart';
 import '../../../../shared/domain/enums.dart';
+import '../../../../shared/retrieval/retrieval_providers.dart';
 import '../../../../shared/theme/q_tokens.dart';
 import '../../../../shared/theme/tokens/spacing_tokens.dart';
 import '../../domain/entities/autocomplete_result.dart';
@@ -32,12 +41,32 @@ class SearchSuggestionsView extends ConsumerWidget {
     );
     final AutocompleteResult result =
         async.asData?.value ?? const AutocompleteResult();
-    if (result.isEmpty) return const SizedBox.shrink();
+    // Never throws and never errors — see `retrievalSuggestionsProvider`.
+    final List<String> ideas =
+        ref
+            .watch(
+              retrievalSuggestionsProvider((prefix: query, storyId: null)),
+            )
+            .asData
+            ?.value ??
+        const <String>[];
+
+    if (result.isEmpty && ideas.isEmpty) return const SizedBox.shrink();
 
     return ListView(
       padding: const EdgeInsets.symmetric(vertical: QSpacing.s2),
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       children: <Widget>[
+        if (ideas.isNotEmpty) ...<Widget>[
+          _GroupHeader(label: l10n.searchSuggestIdeas),
+          for (final String idea in ideas)
+            _SuggestionRow(
+              icon: Icons.search,
+              text: idea,
+              query: query,
+              onTap: () => _submit(ref, idea, SearchType.all),
+            ),
+        ],
         if (result.writers.isNotEmpty) ...<Widget>[
           _GroupHeader(label: l10n.searchSuggestWriters),
           for (final WriterSuggestion w in result.writers)

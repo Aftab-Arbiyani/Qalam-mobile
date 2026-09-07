@@ -1,9 +1,9 @@
-/// A saved AI search (docs 36). Owner-scoped on the server; also mirrored on-device
+/// A saved search (docs 36). Owner-scoped on the server; also mirrored on-device
 /// so the list is available offline (same pattern as recent searches). `toJson`
 /// round-trips for the local mirror. Dedup key = name.
 library;
 
-import '../../../../core/utils/typedefs.dart';
+import '../../../core/utils/typedefs.dart';
 import 'retrieval_json.dart';
 
 class SavedSearch {
