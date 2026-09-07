@@ -4,9 +4,9 @@
 /// accepting is a 400, never a no-op.
 ///
 /// **D5** removed `AskBookRequest` with Ask My Book (B2 deleted the route) and
-/// `synthesize` with the "AI answer" (B1 removed the synthesis step). The field is
-/// accepted-and-ignored until Phase V, but sending it would ask for something the
-/// server no longer does.
+/// `synthesize` with the "AI answer" (B1 removed the synthesis step). Both are off the
+/// wire entirely now — the vocabulary contract deleted them from the DTOs once every
+/// client had stopped sending them, which is the only safe order given the note above.
 library;
 
 import '../../../core/utils/typedefs.dart';

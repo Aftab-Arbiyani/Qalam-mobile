@@ -25,7 +25,6 @@ class AiStreamState {
     this.text = '',
     this.model,
     this.provider,
-    this.conversationId,
     this.errorCode,
     this.usage,
   });
@@ -34,10 +33,6 @@ class AiStreamState {
   final String text;
   final String? model;
   final String? provider;
-
-  /// The conversation this stream belongs to (from the `start` event) — lets the
-  /// caller continue the same conversation on the next turn (docs/34 §6).
-  final String? conversationId;
   final String? errorCode;
   final AiTokenUsage? usage;
 
@@ -52,7 +47,6 @@ class AiStreamState {
     String? text,
     String? model,
     String? provider,
-    String? conversationId,
     String? errorCode,
     AiTokenUsage? usage,
   }) => AiStreamState(
@@ -60,7 +54,6 @@ class AiStreamState {
     text: text ?? this.text,
     model: model ?? this.model,
     provider: provider ?? this.provider,
-    conversationId: conversationId ?? this.conversationId,
     errorCode: errorCode ?? this.errorCode,
     usage: usage ?? this.usage,
   );
@@ -81,23 +74,28 @@ class AiStreamController extends _$AiStreamController {
     _subscription?.cancel();
     state = const AiStreamState(status: AiStreamStatus.streaming);
     final Completer<void> completer = Completer<void>();
-    _subscription = ref.read(aiRepositoryProvider).streamCompletion(request).listen(
-      _onEvent,
-      onError: (Object error) {
-        state = state.copyWith(
-          status: AiStreamStatus.error,
-          errorCode: error is ApiException ? error.code : ErrorCodes.aiStreamError,
+    _subscription = ref
+        .read(aiRepositoryProvider)
+        .streamCompletion(request)
+        .listen(
+          _onEvent,
+          onError: (Object error) {
+            state = state.copyWith(
+              status: AiStreamStatus.error,
+              errorCode: error is ApiException
+                  ? error.code
+                  : ErrorCodes.aiStreamError,
+            );
+            if (!completer.isCompleted) completer.complete();
+          },
+          onDone: () {
+            if (state.status == AiStreamStatus.streaming) {
+              state = state.copyWith(status: AiStreamStatus.done);
+            }
+            if (!completer.isCompleted) completer.complete();
+          },
+          cancelOnError: true,
         );
-        if (!completer.isCompleted) completer.complete();
-      },
-      onDone: () {
-        if (state.status == AiStreamStatus.streaming) {
-          state = state.copyWith(status: AiStreamStatus.done);
-        }
-        if (!completer.isCompleted) completer.complete();
-      },
-      cancelOnError: true,
-    );
     return completer.future;
   }
 
@@ -113,11 +111,7 @@ class AiStreamController extends _$AiStreamController {
   void _onEvent(AiStreamEvent event) {
     switch (event.type) {
       case AiStreamEventType.start:
-        state = state.copyWith(
-          model: event.model,
-          provider: event.provider,
-          conversationId: event.conversationId,
-        );
+        state = state.copyWith(model: event.model, provider: event.provider);
       case AiStreamEventType.delta:
         state = state.copyWith(text: state.text + (event.text ?? ''));
       case AiStreamEventType.done:

@@ -11,12 +11,20 @@ void main() {
         aiRepositoryProvider.overrideWithValue(
           FakeAiRepository(
             streamEvents: const <AiStreamEvent>[
-              AiStreamEvent(type: AiStreamEventType.start, provider: 'openai', model: 'gpt-4o'),
+              AiStreamEvent(
+                type: AiStreamEventType.start,
+                provider: 'openai',
+                model: 'gpt-4o',
+              ),
               AiStreamEvent(type: AiStreamEventType.delta, text: 'Hel'),
               AiStreamEvent(type: AiStreamEventType.delta, text: 'lo'),
               AiStreamEvent(
                 type: AiStreamEventType.done,
-                usage: AiTokenUsage(inputTokens: 1, outputTokens: 2, totalTokens: 3),
+                usage: AiTokenUsage(
+                  inputTokens: 1,
+                  outputTokens: 2,
+                  totalTokens: 3,
+                ),
               ),
             ],
           ),
@@ -25,7 +33,9 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    await container.read(aiStreamControllerProvider.notifier).start(
+    await container
+        .read(aiStreamControllerProvider.notifier)
+        .start(
           const AiCompletionRequest(
             feature: 'playground',
             messages: <AiMessage>[AiMessage(role: 'user', content: 'hi')],
@@ -40,26 +50,9 @@ void main() {
     expect(state.usage?.totalTokens, 3);
   });
 
-  test('start carries the conversation id from the start event', () async {
-    final ProviderContainer container = ProviderContainer(
-      overrides: [
-        aiRepositoryProvider.overrideWithValue(
-          FakeAiRepository(
-            streamEvents: const <AiStreamEvent>[
-              AiStreamEvent(type: AiStreamEventType.start, conversationId: 'conv-9'),
-              AiStreamEvent(type: AiStreamEventType.delta, text: 'x'),
-              AiStreamEvent(type: AiStreamEventType.done),
-            ],
-          ),
-        ),
-      ],
-    );
-    addTearDown(container.dispose);
-
-    await container
-        .read(aiStreamControllerProvider.notifier)
-        .start(const AiCompletionRequest(feature: 'writing_assistant'));
-
-    expect(container.read(aiStreamControllerProvider).conversationId, 'conv-9');
-  });
+  // A test named 'start carries the conversation id from the start event' stood here.
+  // The vocabulary contract removed `conversationId` from the SSE protocol along with the
+  // conversation layer it belonged to, so there is nothing left for it to assert — the
+  // `start` frame now carries only the model and provider, which the test above already
+  // covers. Deleted rather than weakened into a duplicate.
 }

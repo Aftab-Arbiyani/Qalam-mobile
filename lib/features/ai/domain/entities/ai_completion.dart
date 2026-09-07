@@ -34,11 +34,12 @@ class AiContextRequest {
 /// the server assembles context + prompt. `params` are per-call overrides.
 ///
 /// **D5** removed `conversationId`: B2 deleted the server's conversation layer, so
-/// completions are stateless. The field is still *accepted* on the wire (ignored)
-/// until Phase V contracts the DTO — but this client no longer sends it, and the
-/// response's own `conversationId` is now always null. Note the direction: it is the
-/// REQUEST half that goes first, because `forbidNonWhitelisted` is live and a field
-/// the server has stopped accepting is a 400, not a no-op.
+/// completions are stateless. It went in two steps, and the order was forced. This
+/// client stopped SENDING it first, while the server still accepted-and-ignored it;
+/// only once every client had stopped could the vocabulary contract drop it from the
+/// DTO. Reversing that order would have been a 400 for every shipped client, because
+/// `forbidNonWhitelisted` is live — a field the server has stopped accepting is an
+/// error, not a no-op.
 class AiCompletionRequest {
   const AiCompletionRequest({
     required this.feature,
@@ -85,7 +86,6 @@ class AiCompletionResult {
     required this.model,
     required this.finishReason,
     required this.estimatedCostUsd,
-    this.conversationId,
     this.usage,
   });
 
@@ -94,7 +94,6 @@ class AiCompletionResult {
   final String model;
   final String finishReason;
   final double estimatedCostUsd;
-  final String? conversationId;
   final AiTokenUsage? usage;
 
   factory AiCompletionResult.fromJson(Json json) {
@@ -106,7 +105,6 @@ class AiCompletionResult {
       model: json['model'] as String? ?? '',
       finishReason: json['finishReason'] as String? ?? 'stop',
       estimatedCostUsd: (json['estimatedCostUsd'] as num?)?.toDouble() ?? 0,
-      conversationId: json['conversationId'] as String?,
       usage: usage is Map ? AiTokenUsage.fromJson(Json.from(usage)) : null,
     );
   }

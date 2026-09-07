@@ -34,7 +34,6 @@ class AiStreamEvent {
     this.text,
     this.model,
     this.provider,
-    this.conversationId,
     this.finishReason,
     this.usage,
     this.code,
@@ -45,7 +44,6 @@ class AiStreamEvent {
   final String? text;
   final String? model;
   final String? provider;
-  final String? conversationId;
   final String? finishReason;
   final AiTokenUsage? usage;
   final String? code;
@@ -58,7 +56,6 @@ class AiStreamEvent {
       text: json['text'] as String?,
       model: json['model'] as String?,
       provider: json['provider'] as String?,
-      conversationId: json['conversationId'] as String?,
       finishReason: json['finishReason'] as String?,
       usage: usage is Map ? AiTokenUsage.fromJson(Json.from(usage)) : null,
       code: json['code'] as String?,
