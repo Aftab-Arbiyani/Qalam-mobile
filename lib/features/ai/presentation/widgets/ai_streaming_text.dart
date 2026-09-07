@@ -54,7 +54,7 @@ class _AiStreamingTextState extends State<AiStreamingText>
 
     return Semantics(
       liveRegion: true,
-      label: widget.semanticsLabel ?? 'AI is writing',
+      label: widget.semanticsLabel ?? 'Writing…',
       child: Text.rich(
         TextSpan(
           children: <InlineSpan>[

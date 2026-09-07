@@ -1,10 +1,15 @@
 # 55 — Mobile "More like this" (parity port W-1)
 
-> ⚠️ **AMENDED BY D5, 2026-09-03** ([platfrom docs/48 §5.2](../../platfrom/docs/48_PlatformParityRegister.md#d5--the-ai-surface-is-removed-the-tools-stay-owner-2026-09-02)). The recommender and its tag-search fallback are both
-> unchanged and still correct. One hop goes: `related_pieces_controller.dart` no longer needs to
-> check `aiFeatures.isEnabled(recommendations)`, because the server stopped consulting that flag —
-> recommendations are an ordinary authenticated surface now, not an AI feature. The fallback stays
-> exactly as described here.
+> ⚠️ **AMENDED BY D5 — DONE, 2026-09-07** ([platfrom docs/48 §5.2](../../platfrom/docs/48_PlatformParityRegister.md#d5--the-ai-surface-is-removed-the-tools-stay-owner-2026-09-02)). The recommender and its tag-search fallback are
+> both unchanged and still correct. One hop went: `related_pieces_controller.dart` no longer checks
+> `aiFeatures.isEnabled(recommendations)` (`8e6e302`) — the server stopped consulting that flag, so
+> recommendations are an ordinary authenticated surface, not an AI feature. The chain is
+> config → session → recommender → tag fallback, and **the session check is the one carrying the
+> weight**: it is a request gate, not a render one, because a recommendation read fired for a
+> signed-out reader 401s and a 401 outside `/auth` ends their session.
+>
+> The provider also moved to `lib/shared/retrieval/` (`5f410c7`) and now refuses to reach the network
+> without a session at all — defence in depth beneath this controller's own check.
 
 **Status:** ✅ Complete · **Scope:** port the web reader's related-pieces section to the mobile reader. **A port, not a redesign. No backend change. No new product surface beyond the section itself.**
 

@@ -1,15 +1,21 @@
 # 48 — Mobile AF4 Readiness Report (Discovery / Search / Recommendation)
 
-> ⚠️ **AMENDED BY D5, 2026-09-03** ([platfrom docs/48 §5.2](../../platfrom/docs/48_PlatformParityRegister.md#d5--the-ai-surface-is-removed-the-tools-stay-owner-2026-09-02)). **Ask My Book is deleted** — its backend routes already
-> 404 (`7f3b459`), so `ask_book_screen.dart` and everything reaching it are broken on `develop`
-> until mobile's M1 phase removes them (tracked as **D5-clients** in the register's §3.22a). The
-> "Discover with AI" hub and the standalone AI Search screen go too: retrieval-backed search becomes
-> the ordinary `/search` tab, **public** — the server no longer requires an account, a flag or
-> `ai.use`, and there is no "AI answer". Story Explorer survives as **Story Map**, and it gains a
-> "Map this story" action, which is the first way any client could ever build the graph it renders.
+> ⚠️ **AMENDED BY D5 — mobile half DONE, 2026-09-07** ([platfrom docs/48 §5.2](../../platfrom/docs/48_PlatformParityRegister.md#d5--the-ai-surface-is-removed-the-tools-stay-owner-2026-09-02)). **Ask My Book is deleted**
+> (`8e6e302`), along with the "Discover with AI" hub and the standalone AI Search screen
+> (`5f410c7`). Retrieval-backed search is the ordinary `/search` tab now, **public** — no account,
+> no flag, no `ai.use`, and no "AI answer". Story Explorer is **Story Map** and gained a **"Map this
+> story"** action, the first way any client could ever build the graph it renders.
 >
-> ⚠️ One trap for whoever does M1: mobile's `AiFeatures.isEnabled` treats an **absent** flag as OFF,
-> where web treats it as available. The server still seeds `feature.ai.semanticSearch.enabled` and
+> **The layering in this document is out of date in one structural way**: everything retrieval now
+> lives in `lib/shared/retrieval/`, not `features/ai`. Three features consume it (`search`, `feed`,
+> `reading`) and features never import features, so the AF4 code was on the wrong side of a boundary
+> the whole time — AF4 simply arrived as part of the AI platform. `AiRepository` is five methods.
+>
+> ⚠️ The trap this warned M1 about was real and is now defused: mobile's `AiFeatures.isEnabled`
+> treats an **absent** flag as OFF, where web treats it as available. No search or recommendation
+> surface reads a flag any more — `AiFeatureIds` does not even carry the ids — so Phase V can delete
+> those rows freely. `search_anonymous_test.dart` pins it by making `aiFeaturesProvider` **throw**.
+> The original note follows. The server still seeds `feature.ai.semanticSearch.enabled` and
 > `feature.ai.recommendations.enabled` purely so this screen does not go dark before M2 lands.
 
 > **Status:** Flutter client **implemented + verified**. Consumes the completed AF4 backend

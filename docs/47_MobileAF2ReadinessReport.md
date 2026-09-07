@@ -1,12 +1,18 @@
 # 47 — Mobile AF2 Readiness Report (AI Writing Assistant + Craft Coach)
 
-> ⛔ **SUPERSEDED BY D5, 2026-09-03** ([platfrom docs/48 §5.2](../../platfrom/docs/48_PlatformParityRegister.md#d5--the-ai-surface-is-removed-the-tools-stay-owner-2026-09-02)). The backend half has already landed; mobile has not
-> moved yet. When it does: `continueWriting`, `rewrite`, `expand`, `tone` and `freeform` go — they
-> generate prose, which this audience rejects — and `improve`, `simplify`, `condense` ship as
-> **Polish** (a `PolishSheet` replacing `writing_assistant_panel.dart`, with no free-form field, no
-> history row and no conversation binding). Craft Coach becomes **Manuscript feedback**. The
-> editor-integration reasoning here — `AiEditorTarget`, placement, undo — is kept wholesale; the
-> action shelf, the panel's structure and every string are not current.
+> ⛔ **SUPERSEDED BY D5 — mobile half DONE, 2026-09-07** ([platfrom docs/48 §5.2](../../platfrom/docs/48_PlatformParityRegister.md#d5--the-ai-surface-is-removed-the-tools-stay-owner-2026-09-02)). `continueWriting`, `rewrite`,
+> `expand`, `tone` and `freeform` are gone — they generate prose, which this audience rejects — and
+> `improve`, `simplify`, `condense` shipped as **Polish** (`polish_sheet.dart`, replacing
+> `writing_assistant_panel.dart`; no free-form field, no history row, no conversation binding).
+> Craft Coach is **Manuscript feedback**, unchanged but for its name and a disclosure line
+> (`8e6e302`). The editor-integration reasoning here — `AiEditorTarget`, placement, undo — is kept
+> wholesale and is still exactly how applying works; the action shelf, the panel's structure and
+> every string in this document are not current.
+>
+> One thing this report could not have known, found while building it: the session controller only
+> `read` the autoDispose stream provider, so a run could be swept mid-stream and hang forever in
+> `streaming` with a second instance serving the view. Invisible against a real network. See the
+> register's D5 notes.
 
 > **Status:** Mobile + additive backend enablers **implemented + verified**. React
 > frontend + admin are documented as seams for a follow-up (scope decision for this
