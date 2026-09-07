@@ -22,6 +22,7 @@ import '../../domain/entities/entitlement.dart';
 import '../../domain/entities/monetization_enums.dart';
 import '../../domain/entities/plan.dart';
 import '../../domain/entities/subscription.dart';
+import '../allowance_labels.dart';
 import '../controllers/subscription_controller.dart';
 import '../monetization_format.dart';
 import '../providers/monetization_providers.dart';
@@ -52,7 +53,7 @@ class _PlansScreenState extends ConsumerState<PlansScreen> {
         appBarTitle: 'Plans',
         icon: Icons.credit_card_outlined,
         title: 'Plans aren’t available yet',
-        message: 'Subscriptions and AI credits arrive with the next release.',
+        message: 'Subscriptions arrive with the next release.',
       );
     }
 
@@ -310,13 +311,23 @@ class _PlanCard extends ConsumerWidget {
                 ],
               ),
             ),
-          if (plan.monthlyCredits > 0) ...<Widget>[
-            Gap.v1,
-            Text(
-              '${formatCount(plan.monthlyCredits)} AI credits / month',
-              style: Theme.of(context).textTheme.bodySmall,
+          // **D5** replaced "N AI credits / month" with what those credits actually
+          // bought. A credit balance is a currency a writer has to learn before it means
+          // anything; "100 polish actions a day" is the thing they were buying all along.
+          //
+          // Rendered through `planLimitLines`, an ALLOWLIST — a plan's limits map is open,
+          // and printing every key is how a token budget reappears on a plan card.
+          for (final String line in planLimitLines(plan.limits))
+            Padding(
+              padding: const EdgeInsets.only(bottom: 4),
+              child: Row(
+                children: <Widget>[
+                  const Icon(Icons.check, size: 16),
+                  const SizedBox(width: 8),
+                  Expanded(child: Text(line)),
+                ],
+              ),
             ),
-          ],
           if (!plan.isFree && !isCurrent) ...<Widget>[
             Gap.v3,
             QButton(

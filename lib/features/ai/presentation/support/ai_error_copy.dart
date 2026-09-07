@@ -35,23 +35,56 @@ class AiErrorCopy {
   /// never set together with [canRetry].
   final bool canUpgrade;
 
-  /// The copy for a failed AI request, optionally narrowed by WHICH AI feature failed.
+  /// The copy for a failed request, optionally narrowed by WHICH tool failed.
   ///
-  /// **D3 (`platfrom/docs/45` §4 row D3, `docs/48` §6.13).** `ENTITLEMENT_DENIED` now has two
+  /// **D3 (`platfrom/docs/45` §4 row D3, `docs/48` §6.13).** `ENTITLEMENT_DENIED` has two
   /// readings and they lead to different places, so the feature decides which: a denial on a
-  /// surface sold behind `ai_writing` is about writing, while a denial anywhere else is about
-  /// the AI allowance. It reads [premiumCodeFor] — the same map the server gated on — rather
-  /// than the 402's `details`, so the copy cannot drift from the decision.
+  /// surface sold behind `ai_writing` is about the writing tools, while a denial anywhere else
+  /// is generic. It reads [premiumCodeFor] — the same map the server gated on — rather than
+  /// the 402's `details`, so the copy cannot drift from the decision.
   ///
-  /// [feature] is optional and defaults to the pre-D3 behaviour, which is what the AF4
-  /// surfaces want: their denial IS an allowance denial.
+  /// **D5 (M3) does the same for a spent allowance**, and for a sharper reason. Limits are
+  /// per-feature counts now, in *different windows*: Polish and feedback reset daily, story
+  /// analyses monthly. "You've used your allowance" leaves a writer guessing which tool
+  /// stopped and when it returns — and a wrong guess means waiting a month for something
+  /// that comes back tomorrow.
   static AiErrorCopy forCode(String? code, {String? feature}) {
     if (code == ErrorCodes.entitlementDenied &&
         premiumCodeFor(feature) == PremiumFeature.aiWriting) {
       return aiWritingLocked;
     }
+    if (code == ErrorCodes.quotaExceeded ||
+        code == ErrorCodes.aiUsageLimitExceeded) {
+      final _Allowance? allowance = _allowanceFor(feature);
+      if (allowance != null) {
+        return AiErrorCopy(
+          title: 'You’ve used ${allowance.when}’s ${allowance.noun}',
+          message:
+              'Your allowance resets ${allowance.resets}. Your writing is unaffected.',
+          canRetry: false,
+        );
+      }
+    }
     return _forCode(code);
   }
+
+  /// Which allowance a feature spends, in words. Mirrors the server's `AI_QUOTA_RULES`
+  /// — the ONE place that decides which counter a feature draws on — so a feature with
+  /// no rule (the playground) correctly falls through to the generic copy rather than
+  /// inventing a window.
+  static _Allowance? _allowanceFor(String? feature) => switch (feature) {
+    AiFeatureIds.writingAssistant => const _Allowance(
+      when: 'today',
+      noun: 'Polish actions',
+      resets: 'tomorrow',
+    ),
+    AiFeatureIds.craftCoach => const _Allowance(
+      when: 'today',
+      noun: 'feedback reports',
+      resets: 'tomorrow',
+    ),
+    _ => null,
+  };
 
   /// D3's remedy. There are THREE distinct ways the writing tools can be unavailable and
   /// each has a different fix: they are switched off (nothing the writer can do), the
@@ -94,12 +127,11 @@ class AiErrorCopy {
       message: 'This tool isn’t enabled for you yet.',
       canRetry: false,
     ),
-    // The AI module's own token cap and the monetization plan's cap are
-    // indistinguishable to a writer, who only needs to know they are out of allowance
-    // and that it comes back.
+    // The fallback, for a caller that names no feature — a surface whose allowance
+    // this file cannot identify says less rather than guessing the wrong window.
     ErrorCodes.aiUsageLimitExceeded ||
     ErrorCodes.quotaExceeded => const AiErrorCopy(
-      title: 'You’ve used your AI allowance',
+      title: 'You’ve used your allowance',
       message:
           'Your allowance resets at the start of the next period. Your writing is unaffected.',
       canRetry: false,
@@ -202,4 +234,17 @@ class AiErrorCopy {
       canRetry: true,
     ),
   };
+}
+
+/// One allowance's words. Private: the mapping above is the only sanctioned reader.
+class _Allowance {
+  const _Allowance({
+    required this.when,
+    required this.noun,
+    required this.resets,
+  });
+
+  final String when;
+  final String noun;
+  final String resets;
 }

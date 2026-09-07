@@ -86,28 +86,6 @@ class SubscriptionController extends _$SubscriptionController {
     });
   }
 
-  /// Buy a credit pack via a store receipt.
-  Future<Purchase?> purchaseCredits({
-    required int credits,
-    required String provider,
-    required String productId,
-  }) async {
-    return _run(() async {
-      final StoreBillingGateway gateway = ref.read(storeBillingGatewayProvider);
-      if (!gateway.isAvailable) {
-        throw const StoreBillingUnavailable();
-      }
-      final StorePurchaseResult purchase = await gateway.purchase(productId);
-      return _unwrap(
-        await _repo.purchaseCredits(
-          credits: credits,
-          provider: provider,
-          receipt: purchase.receipt,
-        ),
-      );
-    });
-  }
-
   // ── Internals ────────────────────────────────────────────────────────────────
 
   /// Run an action that returns a value, tracking busy/error state + refreshing reads.
@@ -147,7 +125,6 @@ class SubscriptionController extends _$SubscriptionController {
   void _refreshReads() {
     ref.invalidate(entitlementSnapshotProvider);
     ref.invalidate(currentSubscriptionProvider);
-    ref.invalidate(creditBalanceProvider);
     ref.invalidate(monetizationUsageProvider);
   }
 

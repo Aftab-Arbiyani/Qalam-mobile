@@ -7,7 +7,6 @@ import '../../../../core/utils/result.dart';
 import '../../../../shared/api/api_envelope.dart';
 import '../entities/billing.dart';
 import '../entities/coupon_validation.dart';
-import '../entities/credit.dart';
 import '../entities/entitlement.dart';
 import '../entities/plan.dart';
 import '../entities/subscription.dart';
@@ -46,13 +45,6 @@ abstract interface class MonetizationRepository {
   Future<Result<CursorPage<SubscriptionEvent>>> history({String? cursor, int? limit});
 
   Future<Result<MonetizationUsageSummary>> usage();
-  Future<Result<CreditBalance>> credits();
-  Future<Result<CursorPage<CreditTransaction>>> creditTransactions({String? cursor, int? limit});
-  Future<Result<Purchase>> purchaseCredits({
-    required int credits,
-    required String provider,
-    String? receipt,
-  });
 
   Future<Result<CursorPage<Invoice>>> invoices({String? cursor, int? limit});
   Future<Result<CursorPage<Payment>>> payments({String? cursor, int? limit});

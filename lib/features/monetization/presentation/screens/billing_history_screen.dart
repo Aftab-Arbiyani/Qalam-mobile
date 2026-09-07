@@ -186,10 +186,12 @@ class _PurchasesTab extends ConsumerWidget {
     onRetry: () => ref.invalidate(purchaseHistoryProvider),
     row: (BuildContext context, Purchase p) => _LedgerCard(
       title: purchaseKindLabel(p.kind),
+      // **D5** dropped the "· 5,000 credits" suffix. The purchase stays — it is a real
+      // row on a real ledger — but the count named a currency the app no longer has,
+      // and a number nobody can spend explains nothing.
       detail:
           '${purchaseStatusLabel(p.status)} · ${providerLabel(p.provider)} · '
-          '${formatDate(p.createdAt)}'
-          '${p.creditsGranted > 0 ? ' · ${formatCount(p.creditsGranted)} credits' : ''}',
+          '${formatDate(p.createdAt)}',
       trailing: formatMoney(p.amount, p.currency),
     ),
   );

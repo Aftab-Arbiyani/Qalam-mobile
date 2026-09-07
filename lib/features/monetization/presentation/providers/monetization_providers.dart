@@ -1,7 +1,7 @@
 /// The Monetization feature's composition root (AF5, docs/40 §9). Binds the repository
 /// to its data + local-cache implementation, exposes the server-authoritative
 /// entitlement snapshot (the premium-gating source of truth), and the read models for
-/// subscription/usage/credits/plans. Repo + gateway are kept alive (cross-cutting);
+/// subscription/usage/plans. Repo + gateway are kept alive (cross-cutting);
 /// screen reads are autoDispose.
 library;
 
@@ -17,7 +17,6 @@ import '../../data/datasources/monetization_remote_data_source.dart';
 import '../../data/local/entitlement_cache_store.dart';
 import '../../data/repositories/monetization_repository_impl.dart';
 import '../../domain/entities/billing.dart';
-import '../../domain/entities/credit.dart';
 import '../../domain/entities/entitlement.dart';
 import '../../domain/entities/plan.dart';
 import '../../domain/entities/subscription.dart';
@@ -115,32 +114,6 @@ Future<MonetizationUsageSummary> monetizationUsage(Ref ref) async {
   };
 }
 
-@riverpod
-Future<CreditBalance> creditBalance(Ref ref) async {
-  final Result<CreditBalance> result = await ref
-      .watch(monetizationRepositoryProvider)
-      .credits();
-  return switch (result) {
-    Ok<CreditBalance>(:final CreditBalance value) => value,
-    Err<CreditBalance>(:final Failure failure) => throw failure,
-  };
-}
-
-/// The recent credit ledger (first page) for the credit dashboard.
-@riverpod
-Future<List<CreditTransaction>> creditLedger(Ref ref) async {
-  final Result<CursorPage<CreditTransaction>> result = await ref
-      .watch(monetizationRepositoryProvider)
-      .creditTransactions();
-  return switch (result) {
-    Ok<CursorPage<CreditTransaction>>(
-      :final CursorPage<CreditTransaction> value,
-    ) =>
-      value.items,
-    Err<CursorPage<CreditTransaction>>(:final Failure failure) => throw failure,
-  };
-}
-
 /// Recent invoices (first page) for billing history.
 @riverpod
 Future<List<Invoice>> invoiceHistory(Ref ref) async {
@@ -165,7 +138,7 @@ Future<List<Payment>> paymentHistory(Ref ref) async {
   };
 }
 
-/// Recent purchases (first page) — credit packs and one-off buys, which are neither
+/// Recent purchases (first page) — one-off buys, which are neither
 /// invoices nor payments and had no surface until the fourth billing tab existed.
 @riverpod
 Future<List<Purchase>> purchaseHistory(Ref ref) async {

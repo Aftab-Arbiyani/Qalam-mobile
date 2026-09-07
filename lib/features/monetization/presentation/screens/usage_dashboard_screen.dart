@@ -1,6 +1,13 @@
-/// AI usage dashboard (AF5) — daily/monthly/lifetime token+credit usage, estimated
-/// cost, remaining quota, a monthly forecast, and a per-feature breakdown, from the
-/// monetization Usage service (`GET /monetization/usage`). Read-only; server counts.
+/// **Usage** — one card per writing tool, showing what is left in the window.
+///
+/// This was the "AI usage" dashboard: token counts, an estimated dollar cost, and a
+/// projected monthly spend. **D5 removed all three, and the removal is the feature.**
+/// None of it was a fact about writing — a poet cannot decide anything from "42,150
+/// tokens", and showing them the provider's cost of serving them makes an editing tool
+/// feel like a taxi meter running over their draft. What a writer can act on is how
+/// many Polish actions they have left today.
+///
+/// Read-only; the server owns the counts (`GET /monetization/usage`).
 library;
 
 import 'package:flutter/material.dart';
@@ -9,12 +16,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/di/providers.dart';
 import '../../../../core/error/failure.dart';
 import '../../../../shared/domain/error_codes.dart';
+import '../../../../shared/theme/q_tokens.dart';
 import '../../../../shared/theme/tokens/spacing_tokens.dart';
 import '../../../../shared/widgets/app_bar/q_app_bar.dart';
 import '../../../../shared/widgets/cards/q_card.dart';
+import '../../../../shared/widgets/states/q_empty_state.dart';
 import '../../../../shared/widgets/states/q_error_view.dart';
 import '../../domain/entities/usage_summary.dart';
-import '../monetization_format.dart';
+import '../allowance_labels.dart';
 import '../providers/monetization_providers.dart';
 import '../widgets/monetization_off_screen.dart';
 
@@ -25,17 +34,19 @@ class UsageDashboardScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     if (!ref.watch(appConfigProvider).enableMonetization) {
       return const MonetizationOffScreen(
-        appBarTitle: 'AI usage',
+        appBarTitle: 'Usage',
         icon: Icons.insights_outlined,
         title: 'Usage isn’t available yet',
-        message: 'AI allowances arrive with subscriptions.',
+        message: 'Tool allowances arrive with subscriptions.',
       );
     }
 
-    final AsyncValue<MonetizationUsageSummary> async = ref.watch(monetizationUsageProvider);
+    final AsyncValue<MonetizationUsageSummary> async = ref.watch(
+      monetizationUsageProvider,
+    );
     return Scaffold(
       appBar: QAppBar(
-        title: 'AI usage',
+        title: 'Usage',
         actions: <Widget>[
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -49,113 +60,87 @@ class UsageDashboardScreen extends ConsumerWidget {
         error: (Object error, StackTrace _) => QErrorView(
           failure: error is Failure
               ? error
-              : Failure.unexpected(code: ErrorCodes.apiUnexpected, message: '$error'),
+              : Failure.unexpected(
+                  code: ErrorCodes.apiUnexpected,
+                  message: '$error',
+                ),
           onRetry: () => ref.invalidate(monetizationUsageProvider),
         ),
-        data: (MonetizationUsageSummary usage) => ListView(
-          padding: QSpacing.pagePadding,
-          children: <Widget>[
-            _WindowCard(label: 'Today', window: usage.daily),
-            Gap.v3,
-            _WindowCard(label: 'This month', window: usage.monthly),
-            Gap.v3,
-            _WindowCard(label: 'Lifetime', window: usage.total),
-            Gap.v3,
-            QCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text('Forecast', style: Theme.of(context).textTheme.titleMedium),
-                  Gap.v1,
-                  Text('~${formatCount(usage.forecastMonthlyTokens)} tokens this month'),
-                  Text('~\$${usage.forecastMonthlyCostUsd.toStringAsFixed(2)} projected cost'),
-                ],
+        data: (MonetizationUsageSummary usage) => usage.isEmpty
+            // Not an error, and not "you have used nothing": the server sends no
+            // allowance rows when limits are not being enforced for this account.
+            ? const QEmptyState(
+                icon: Icons.insights_outlined,
+                title: 'Nothing to report yet',
+                message: 'Your writing tools aren’t limited right now.',
+              )
+            : Semantics(
+                container: true,
+                label: 'Tool allowances',
+                child: ListView.separated(
+                  padding: QSpacing.pagePadding,
+                  itemCount: usage.features.length,
+                  separatorBuilder: (_, _) => Gap.v3,
+                  itemBuilder: (_, int i) =>
+                      _AllowanceCard(allowance: usage.features[i]),
+                ),
               ),
-            ),
-            if (usage.byFeature.isNotEmpty) ...<Widget>[
-              Gap.v5,
-              Text('By feature', style: Theme.of(context).textTheme.titleMedium),
-              Gap.v2,
-              for (final MonetizationFeatureUsage f in usage.byFeature)
-                _FeatureRow(usage: f),
-            ],
-          ],
-        ),
       ),
     );
   }
 }
 
-class _WindowCard extends StatelessWidget {
-  const _WindowCard({required this.label, required this.window});
-  final String label;
-  final MonetizationUsageWindow window;
+class _AllowanceCard extends StatelessWidget {
+  const _AllowanceCard({required this.allowance});
+
+  final FeatureAllowance allowance;
 
   @override
   Widget build(BuildContext context) {
+    final QTokens tokens = QTokens.of(context);
+    final TextTheme text = Theme.of(context).textTheme;
+    final String noun = allowanceNoun(allowance);
+    final String line = allowanceLine(allowance);
+
     return QCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text(label, style: Theme.of(context).textTheme.titleMedium),
-          Gap.v2,
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              _Stat(value: formatCount(window.tokens), label: 'tokens'),
-              _Stat(value: '${window.requests}', label: 'requests'),
-              _Stat(value: '\$${window.costUsd.toStringAsFixed(2)}', label: 'cost'),
+              Icon(
+                allowanceIcon(allowance.key),
+                size: 18,
+                color: tokens.colors.accent,
+              ),
+              const SizedBox(width: QSpacing.s2),
+              Expanded(child: Text(noun, style: text.titleMedium)),
             ],
           ),
-          if (!window.isUnlimited && window.usedFraction != null) ...<Widget>[
-            Gap.v2,
-            LinearProgressIndicator(value: window.usedFraction!.clamp(0, 1)),
-            Gap.v1,
-            Text(
-              window.remaining != null
-                  ? '${formatCount(window.remaining!)} of ${formatCount(window.tokenLimit!)} remaining'
-                  : '',
-              style: Theme.of(context).textTheme.bodySmall,
+          Gap.v2,
+          // One line, read as a sentence by a screen reader. The bar below is decorative
+          // — announcing a percentage as well would say the same thing twice.
+          Text(
+            line,
+            style: text.bodyMedium?.copyWith(
+              color: tokens.colors.textSecondary,
             ),
-          ] else ...<Widget>[
-            Gap.v1,
-            Text('Unlimited', style: Theme.of(context).textTheme.bodySmall),
+          ),
+          if (!allowance.isUnlimited) ...<Widget>[
+            Gap.v2,
+            ExcludeSemantics(
+              child: LinearProgressIndicator(value: allowance.fraction),
+            ),
+            if (allowance.isExhausted) ...<Widget>[
+              Gap.v1,
+              Text(
+                allowanceExhaustedLine(allowance),
+                style: text.bodySmall?.copyWith(
+                  color: tokens.colors.warningText,
+                ),
+              ),
+            ],
           ],
-        ],
-      ),
-    );
-  }
-}
-
-class _Stat extends StatelessWidget {
-  const _Stat({required this.value, required this.label});
-  final String value;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: <Widget>[
-        Text(value, style: Theme.of(context).textTheme.titleLarge),
-        Text(label, style: Theme.of(context).textTheme.bodySmall),
-      ],
-    );
-  }
-}
-
-class _FeatureRow extends StatelessWidget {
-  const _FeatureRow({required this.usage});
-  final MonetizationFeatureUsage usage;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
-        children: <Widget>[
-          Expanded(child: Text(featureLabel(usage.feature))),
-          Text('${formatCount(usage.tokens)} tok · ${usage.requests} req',
-              style: Theme.of(context).textTheme.bodySmall),
         ],
       ),
     );

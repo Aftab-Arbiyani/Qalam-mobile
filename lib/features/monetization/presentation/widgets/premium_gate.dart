@@ -3,27 +3,29 @@
 ///
 /// **Where these belong, narrowly.** [PremiumGate] withholds content; [PremiumBadge]
 /// only annotates it. The division is not stylistic — it follows what the backend
-/// asserts. Three premium features are actually checked by a server route:
-/// `ai_budget` (`AiUsageMeterService.checkQuota`, only while `feature.payments.enabled`
-/// is up), `ai_writing` (D3, the same meter), and `story_intelligence` (D4, decided
-/// 2026-08-21 — `StoryIntelligenceService.assertGraphReadEntitled` plus the analyze
-/// trigger reusing the same meter). The other five catalogued features —
+/// asserts. **Two** premium features are actually checked by a server route:
+/// `ai_writing` (D3, the usage meter) and `story_intelligence` (D4, decided 2026-08-21
+/// — `StoryIntelligenceService.assertGraphReadEntitled`, plus the "Map this story"
+/// trigger reusing the same meter).
+///
+/// It was three until **D5**. `ai_budget` was the credit economy's gate, and B4 deleted
+/// the assertion behind it: nothing checks that code any longer, so gating on it would
+/// be a client-only wall — the very mistake the paragraph below warns about. The other
+/// five catalogued features —
 /// `ai_discovery`, `premium_search`, `premium_recommendations`, `advanced_analytics`,
 /// `publishing_pro` — were confirmed by that same D4 decision to be already live and
 /// free on both clients; they are computed by the Entitlement Service and asserted by
 /// nothing, on purpose (docs/48 §5.2). Gating one of those would put a client-only wall
 /// in front of a route the server serves to anyone: dead UI, the W3c-1 defect class with
-/// the sign flipped. So **gate `ai_budget`, `ai_writing`, and `story_intelligence`;
-/// badge everything else and keep it working.**
+/// the sign flipped. So **gate `ai_writing` and `story_intelligence`; badge everything
+/// else and keep it working.**
 ///
 /// This file used to claim that "every premium affordance elsewhere wraps its content in
 /// PremiumGate". It had zero call sites when it said that (docs/48 §3.7, M5-1). The
 /// call sites are now real and are listed here so the claim stays checkable:
 ///
-/// - `credit_dashboard_screen` — the balance, gated on `ai_budget`. Credits are only
-///   spendable through an AI request, so an account denied that budget cannot spend one.
-/// - `craft_coach_panel` / `writing_assistant_panel` — gated on `ai_writing` (D3).
-/// - `story_explorer_screen` — gated on `story_intelligence` (D4).
+/// - `polish_sheet` / `craft_coach_panel` — gated on `ai_writing` (D3).
+/// - `story_explorer_screen` — Story Map, gated on `story_intelligence` (D4).
 /// - `subscription_screen` — [PremiumBadge] beside the viewer's tier. A marker, no gate.
 ///
 /// Gating is a UX HINT — the server re-checks and is authoritative (a denied action
@@ -110,8 +112,12 @@ class FeatureLockCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final bool quota = decision.isQuotaDenial;
     final String name = featureLabel(decision.feature);
+    // The quota title NAMES the tool. "You've used your allowance" leaves a writer
+    // guessing which of three tools stopped, and the three have different windows —
+    // Polish and feedback reset daily, story analyses monthly — so the wrong guess
+    // means waiting a month for something that comes back tomorrow.
     final String title = quota
-        ? 'You’ve used your ${name.toLowerCase()}'
+        ? 'You’ve used your $name allowance'
         : '$name needs a paid plan';
     final String message = quota
         ? decision.expiresAt == null

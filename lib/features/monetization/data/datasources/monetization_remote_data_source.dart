@@ -11,7 +11,6 @@ import '../../../../core/network/api_paths.dart';
 import '../../../../shared/api/api_envelope.dart';
 import '../../domain/entities/billing.dart';
 import '../../domain/entities/coupon_validation.dart';
-import '../../domain/entities/credit.dart';
 import '../../domain/entities/entitlement.dart';
 import '../../domain/entities/plan.dart';
 import '../../domain/entities/subscription.dart';
@@ -105,36 +104,6 @@ class MonetizationRemoteDataSource {
     ApiPaths.monetizationUsage,
     decode: MonetizationUsageSummary.fromJson,
     cancelToken: cancelToken,
-  );
-
-  Future<CreditBalance> credits({CancelToken? cancelToken}) => _api.get(
-    ApiPaths.monetizationCredits,
-    decode: CreditBalance.fromJson,
-    cancelToken: cancelToken,
-  );
-
-  Future<CursorPage<CreditTransaction>> creditTransactions({String? cursor, int? limit}) =>
-      _api.getPage(
-        ApiPaths.monetizationCreditTransactions,
-        query: <String, Object?>{
-          'cursor': ?cursor,
-          'limit': ?limit,
-        },
-        decodeItem: CreditTransaction.fromJson,
-      );
-
-  Future<Purchase> purchaseCredits({
-    required int credits,
-    required String provider,
-    String? receipt,
-  }) => _api.post(
-    ApiPaths.monetizationCreditPurchase,
-    body: <String, Object?>{
-      'credits': credits,
-      'provider': provider,
-      'receipt': ?receipt,
-    },
-    decode: Purchase.fromJson,
   );
 
   Future<CursorPage<Invoice>> invoices({String? cursor, int? limit}) => _api.getPage(

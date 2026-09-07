@@ -12,7 +12,6 @@ class Plan {
     required this.description,
     required this.features,
     required this.limits,
-    required this.monthlyCredits,
     required this.prices,
     required this.trialDays,
   });
@@ -22,7 +21,6 @@ class Plan {
   final String description;
   final List<String> features;
   final Map<String, int> limits;
-  final int monthlyCredits;
 
   /// interval → currency → minor units.
   final Map<String, Map<String, int>> prices;
@@ -42,7 +40,6 @@ class Plan {
         .map((dynamic e) => e as String)
         .toList(growable: false),
     limits: _intMap(json['limits']),
-    monthlyCredits: (json['monthlyCredits'] as num?)?.toInt() ?? 0,
     prices: _priceMap(json['prices']),
     trialDays: (json['trialDays'] as num?)?.toInt() ?? 0,
   );

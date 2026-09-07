@@ -90,7 +90,7 @@ String paymentStatusLabel(String status) => switch (status) {
 
 String purchaseKindLabel(String kind) => switch (kind) {
   PurchaseKind.subscription => 'Subscription',
-  PurchaseKind.credits => 'AI credits',
+  PurchaseKind.credits => 'Credit pack',
   PurchaseKind.oneTime => 'One-off purchase',
   _ => kind,
 };
@@ -107,21 +107,6 @@ String purchaseStatusLabel(String status) => switch (status) {
   _ => status,
 };
 
-/// Why a credit ledger row exists. The dashboard used to strip the underscores, which
-/// turned `subscription_grant` into "subscription grant" — readable, but not written.
-String creditReasonLabel(String reason) => switch (reason) {
-  CreditReason.purchase => 'Purchased',
-  CreditReason.subscriptionGrant => 'Included with your plan',
-  CreditReason.trialGrant => 'Trial credits',
-  CreditReason.promotional => 'Promotional credits',
-  CreditReason.referral => 'Referral bonus',
-  CreditReason.aiUsage => 'AI usage',
-  CreditReason.refund => 'Refunded',
-  CreditReason.expiration => 'Expired',
-  CreditReason.adminAdjustment => 'Adjustment',
-  _ => reason,
-};
-
 /// A subscription event's `type`.
 ///
 /// The wire types this as a plain `string`, not one of the labelled enumerations —
@@ -130,14 +115,22 @@ String creditReasonLabel(String reason) => switch (reason) {
 /// server actually emits is not something the contract pins down.
 String subscriptionEventLabel(String type) => type.replaceAll('_', ' ');
 
+/// A premium code in a writer's words. **D5 renamed every AI-branded one** — these
+/// strings appear on plan cards and lock cards, which is exactly where the audience
+/// objects to being sold a technology instead of a capability.
+///
+/// `ai_budget` has no case any more: the code is gone from this client, and the server
+/// keeps listing it in `features` only until Phase V. It therefore falls through to the
+/// `_` arm and renders as `ai_budget` — a raw wire string on a plan card, which is ugly
+/// but honest and temporary. Naming it would put a credit balance back on the card D5
+/// took it off.
 String featureLabel(String feature) => switch (feature) {
-  PremiumFeature.aiWriting => 'AI Writing Assistant',
-  PremiumFeature.aiDiscovery => 'AI Discovery',
-  PremiumFeature.storyIntelligence => 'Story Intelligence',
-  PremiumFeature.premiumSearch => 'Premium Search',
-  PremiumFeature.premiumRecommendations => 'Premium Recommendations',
-  PremiumFeature.advancedAnalytics => 'Advanced Analytics',
-  PremiumFeature.publishingPro => 'Pro Publishing',
-  PremiumFeature.aiBudget => 'AI Usage',
+  PremiumFeature.aiWriting => 'Polish & feedback',
+  PremiumFeature.storyIntelligence => 'Story Map',
+  PremiumFeature.aiDiscovery => 'Discovery',
+  PremiumFeature.premiumSearch => 'Search',
+  PremiumFeature.premiumRecommendations => 'Recommendations',
+  PremiumFeature.advancedAnalytics => 'Advanced analytics',
+  PremiumFeature.publishingPro => 'Pro publishing',
   _ => feature,
 };

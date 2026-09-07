@@ -415,91 +415,6 @@ final class MonetizationUsageProvider
 
 String _$monetizationUsageHash() => r'356ac6cbc05934664a9cb0f1337fdf65d8a5e112';
 
-@ProviderFor(creditBalance)
-final creditBalanceProvider = CreditBalanceProvider._();
-
-final class CreditBalanceProvider
-    extends
-        $FunctionalProvider<
-          AsyncValue<CreditBalance>,
-          CreditBalance,
-          FutureOr<CreditBalance>
-        >
-    with $FutureModifier<CreditBalance>, $FutureProvider<CreditBalance> {
-  CreditBalanceProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'creditBalanceProvider',
-        isAutoDispose: true,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$creditBalanceHash();
-
-  @$internal
-  @override
-  $FutureProviderElement<CreditBalance> $createElement(
-    $ProviderPointer pointer,
-  ) => $FutureProviderElement(pointer);
-
-  @override
-  FutureOr<CreditBalance> create(Ref ref) {
-    return creditBalance(ref);
-  }
-}
-
-String _$creditBalanceHash() => r'ef9e9e098c702fac35dabdbe65acf3aa0085ed40';
-
-/// The recent credit ledger (first page) for the credit dashboard.
-
-@ProviderFor(creditLedger)
-final creditLedgerProvider = CreditLedgerProvider._();
-
-/// The recent credit ledger (first page) for the credit dashboard.
-
-final class CreditLedgerProvider
-    extends
-        $FunctionalProvider<
-          AsyncValue<List<CreditTransaction>>,
-          List<CreditTransaction>,
-          FutureOr<List<CreditTransaction>>
-        >
-    with
-        $FutureModifier<List<CreditTransaction>>,
-        $FutureProvider<List<CreditTransaction>> {
-  /// The recent credit ledger (first page) for the credit dashboard.
-  CreditLedgerProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'creditLedgerProvider',
-        isAutoDispose: true,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$creditLedgerHash();
-
-  @$internal
-  @override
-  $FutureProviderElement<List<CreditTransaction>> $createElement(
-    $ProviderPointer pointer,
-  ) => $FutureProviderElement(pointer);
-
-  @override
-  FutureOr<List<CreditTransaction>> create(Ref ref) {
-    return creditLedger(ref);
-  }
-}
-
-String _$creditLedgerHash() => r'75bcfb17024b3b557f37b7f1ab20267ecbd723bc';
-
 /// Recent invoices (first page) for billing history.
 
 @ProviderFor(invoiceHistory)
@@ -588,13 +503,13 @@ final class PaymentHistoryProvider
 
 String _$paymentHistoryHash() => r'93107d2c086eb5c57847771d267ef0e3eedbcdb6';
 
-/// Recent purchases (first page) — credit packs and one-off buys, which are neither
+/// Recent purchases (first page) — one-off buys, which are neither
 /// invoices nor payments and had no surface until the fourth billing tab existed.
 
 @ProviderFor(purchaseHistory)
 final purchaseHistoryProvider = PurchaseHistoryProvider._();
 
-/// Recent purchases (first page) — credit packs and one-off buys, which are neither
+/// Recent purchases (first page) — one-off buys, which are neither
 /// invoices nor payments and had no surface until the fourth billing tab existed.
 
 final class PurchaseHistoryProvider
@@ -605,7 +520,7 @@ final class PurchaseHistoryProvider
           FutureOr<List<Purchase>>
         >
     with $FutureModifier<List<Purchase>>, $FutureProvider<List<Purchase>> {
-  /// Recent purchases (first page) — credit packs and one-off buys, which are neither
+  /// Recent purchases (first page) — one-off buys, which are neither
   /// invoices nor payments and had no surface until the fourth billing tab existed.
   PurchaseHistoryProvider._()
     : super(

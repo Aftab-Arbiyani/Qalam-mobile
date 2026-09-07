@@ -34,7 +34,7 @@ final class SubscriptionControllerProvider
 }
 
 String _$subscriptionControllerHash() =>
-    r'f76c48fdf450bee3c66f2bb2520743f35de44ef4';
+    r'f5b7361b1da67f9ff9bae765c06e937f949f20c7';
 
 abstract class _$SubscriptionController extends $AsyncNotifier<void> {
   FutureOr<void> build();

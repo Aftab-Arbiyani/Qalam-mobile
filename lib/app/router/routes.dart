@@ -46,10 +46,13 @@ abstract final class Routes {
 
   // Monetization (AF5). Full-screen, session-gated (the `/billing` prefix is
   // protected). Entered from Settings; deep-linkable for paywall/upsell.
+  //
+  // **D5** deleted `/billing/credits` with the credit economy. Nothing redirects: a
+  // bookmark to it reaches the unknown-route screen, which is truer than landing on
+  // Usage as though the two were the same thing.
   static const String billing = '/billing';
   static const String billingPlans = '/billing/plans';
   static const String billingUsage = '/billing/usage';
-  static const String billingCredits = '/billing/credits';
   static const String billingHistory = '/billing/history';
 
   // Collaboration / Publishing / Trust (AF6). Story-scoped, full-screen, session-gated

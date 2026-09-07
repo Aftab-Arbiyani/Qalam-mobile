@@ -61,19 +61,19 @@ EntitlementDecision _decision(String feature, {required bool allowed}) =>
           : EntitlementReason.planExcludes,
     );
 
-/// A snapshot where `ai_writing` is decided and `ai_budget` is ALWAYS granted.
+/// A snapshot where `ai_writing` is decided.
 ///
-/// That combination is DECISION 2a and it is the shape a real free account has: 48 §5.2 asked
-/// for free's allowance to be removed as "unspendable", but `ask_book` and semantic-search
-/// synthesis both meter against `ai_budget` and are live on both clients, so it is spendable.
-/// Removing it would have denied free users every metered AI feature — far wider than D3.
+/// It used to carry an `ai_budget` decision too — DECISION 2a's shape, where free kept a
+/// spendable AI allowance. **D5 (M3) deleted that code from this client** along with the
+/// credit economy B4 removed server-side, so there is nothing left to grant. What limits a
+/// free writer now is a per-feature COUNT, which is not an entitlement at all: it arrives as
+/// `QUOTA_EXCEEDED` on the request, not as a denial in this snapshot.
 EntitlementSnapshot _snapshot({required bool writingAllowed}) =>
     EntitlementSnapshot(
       tier: writingAllowed ? PlanTier.plus : PlanTier.free,
       status: EntitlementStatus.allow,
       features: <EntitlementDecision>[
         _decision(PremiumFeature.aiWriting, allowed: writingAllowed),
-        _decision(PremiumFeature.aiBudget, allowed: true),
       ],
     );
 

@@ -1,6 +1,6 @@
 /// Subscription management (AF5) — the monetization home. Shows the current plan +
 /// status (with dedicated trial / grace-period / expired experiences), and drives
-/// cancel / reactivate / pause / resume and navigation to plans, usage, credits, and
+/// cancel / reactivate / pause / resume and navigation to plans, usage, and
 /// billing history. Free users see an upsell into the plan comparison.
 library;
 
@@ -35,7 +35,7 @@ class SubscriptionScreen extends ConsumerWidget {
         appBarTitle: 'Subscription',
         icon: Icons.credit_card_outlined,
         title: 'Plans aren’t available yet',
-        message: 'Subscriptions and AI credits arrive with the next release.',
+        message: 'Subscriptions arrive with the next release.',
       );
     }
 
@@ -78,7 +78,7 @@ class SubscriptionScreen extends ConsumerWidget {
             style: Theme.of(context).textTheme.titleLarge,
           ),
           Gap.v1,
-          const Text('Upgrade to unlock AI writing, discovery, and more.'),
+          const Text('Upgrade to unlock Polish, manuscript feedback and Story Map.'),
           Gap.v3,
           QButton(
             label: 'See plans',
@@ -157,13 +157,8 @@ class SubscriptionScreen extends ConsumerWidget {
   List<Widget> _navTiles(BuildContext context) => <Widget>[
     _NavTile(
       icon: Icons.insights_outlined,
-      label: 'AI usage',
+      label: 'Usage',
       onTap: () => context.push(Routes.billingUsage),
-    ),
-    _NavTile(
-      icon: Icons.toll_outlined,
-      label: 'Credits',
-      onTap: () => context.push(Routes.billingCredits),
     ),
     _NavTile(
       icon: Icons.receipt_long_outlined,

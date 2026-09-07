@@ -78,6 +78,13 @@ class Payment {
   );
 }
 
+/// A purchase on the ledger.
+///
+/// **D5** dropped `creditsGranted`. It counted a currency that no longer exists, and
+/// nothing rendered it — but `kind` keeps its `credits` value, because a credit pack
+/// bought before D5 is still a real row someone can scroll to. Removing the economy
+/// does not entitle the app to misdescribe its own history. The field stays on the
+/// wire (always 0) until Phase V contracts the DTO.
 class Purchase {
   const Purchase({
     required this.id,
@@ -86,7 +93,6 @@ class Purchase {
     required this.provider,
     required this.amount,
     required this.currency,
-    required this.creditsGranted,
     required this.createdAt,
   });
 
@@ -96,7 +102,6 @@ class Purchase {
   final String provider;
   final int amount;
   final String currency;
-  final int creditsGranted;
   final DateTime createdAt;
 
   factory Purchase.fromJson(Json json) => Purchase(
@@ -106,7 +111,6 @@ class Purchase {
     provider: json['provider'] as String? ?? '',
     amount: (json['amount'] as num?)?.toInt() ?? 0,
     currency: json['currency'] as String? ?? 'usd',
-    creditsGranted: (json['creditsGranted'] as num?)?.toInt() ?? 0,
     createdAt:
         _date(json['createdAt']) ?? DateTime.fromMillisecondsSinceEpoch(0),
   );

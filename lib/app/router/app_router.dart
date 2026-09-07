@@ -36,7 +36,6 @@ import '../../features/feed/presentation/screens/discover_screen.dart';
 import '../../features/feed/presentation/screens/feed_screen.dart';
 import '../../features/gallery/presentation/pages/gallery_page.dart';
 import '../../features/monetization/presentation/screens/billing_history_screen.dart';
-import '../../features/monetization/presentation/screens/credit_dashboard_screen.dart';
 import '../../features/monetization/presentation/screens/plans_screen.dart';
 import '../../features/monetization/presentation/screens/subscription_screen.dart';
 import '../../features/monetization/presentation/screens/usage_dashboard_screen.dart';
@@ -481,13 +480,6 @@ GoRouter goRouter(Ref ref) {
         parentNavigatorKey: _rootKey,
         pageBuilder: (BuildContext context, GoRouterState state) =>
             _fade(state, const UsageDashboardScreen()),
-      ),
-      GoRoute(
-        path: Routes.billingCredits,
-        name: 'billingCredits',
-        parentNavigatorKey: _rootKey,
-        pageBuilder: (BuildContext context, GoRouterState state) =>
-            _fade(state, const CreditDashboardScreen()),
       ),
       GoRoute(
         path: Routes.billingHistory,

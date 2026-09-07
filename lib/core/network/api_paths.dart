@@ -68,7 +68,8 @@ abstract final class ApiPaths {
 
   // Monetization (AF5, Phase 2). Additive `/monetization/*` surface: entitlements
   // (the server-authoritative premium-access source of truth the client gates on),
-  // subscription lifecycle, usage/credits, billing history, purchases, coupons.
+  // subscription lifecycle, per-feature usage, billing history, purchases, coupons.
+  // **D5** removed `/monetization/credits*` — B4 deleted those routes server-side.
   static const String monetizationPlans = '/monetization/plans';
   static const String monetizationEntitlements = '/monetization/entitlements';
   static String monetizationEntitlement(String feature) =>
@@ -87,11 +88,6 @@ abstract final class ApiPaths {
   static const String monetizationSubscriptionHistory =
       '/monetization/subscription/history';
   static const String monetizationUsage = '/monetization/usage';
-  static const String monetizationCredits = '/monetization/credits';
-  static const String monetizationCreditTransactions =
-      '/monetization/credits/transactions';
-  static const String monetizationCreditPurchase =
-      '/monetization/credits/purchase';
   static const String monetizationInvoices = '/monetization/invoices';
   static const String monetizationPayments = '/monetization/payments';
   static const String monetizationPurchases = '/monetization/purchases';

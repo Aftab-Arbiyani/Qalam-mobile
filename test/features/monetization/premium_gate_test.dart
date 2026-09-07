@@ -25,7 +25,7 @@ EntitlementSnapshot _snapshot({required bool allowBudget}) =>
       status: EntitlementStatus.allow,
       features: <EntitlementDecision>[
         EntitlementDecision(
-          feature: PremiumFeature.aiBudget,
+          feature: PremiumFeature.storyIntelligence,
           status: allowBudget
               ? EntitlementStatus.allow
               : EntitlementStatus.deny,
@@ -49,7 +49,7 @@ Future<void> _pump(WidgetTester tester, {required bool allow}) async {
         theme: buildQalamTheme(brightness: Brightness.light),
         home: const Scaffold(
           body: PremiumGate(
-            feature: PremiumFeature.aiBudget,
+            feature: PremiumFeature.storyIntelligence,
             child: Text('unlocked-content'),
           ),
         ),
@@ -94,7 +94,7 @@ void main() {
           theme: buildQalamTheme(brightness: Brightness.light),
           home: const Scaffold(
             body: PremiumGate(
-              feature: PremiumFeature.aiBudget,
+              feature: PremiumFeature.storyIntelligence,
               child: Text('unlocked-content'),
             ),
           ),
@@ -123,7 +123,7 @@ void main() {
           theme: buildQalamTheme(brightness: Brightness.light),
           home: const Scaffold(
             body: PremiumGate(
-              feature: PremiumFeature.aiBudget,
+              feature: PremiumFeature.storyIntelligence,
               optimistic: true,
               child: Text('unlocked-content'),
             ),

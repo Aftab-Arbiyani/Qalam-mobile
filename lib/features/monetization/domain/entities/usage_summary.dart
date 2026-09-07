@@ -1,111 +1,99 @@
-/// Monetization AI-usage entities (AF5) — `GET /monetization/usage`: daily/monthly/
-/// lifetime rollups + per-feature breakdown + a monthly forecast. Read-only display;
-/// the server is authoritative on the counts.
+/// The writer-facing usage read — `GET /monetization/usage`.
+///
+/// **D5 changed what a writer is shown here, not just how it is worded.** The meter was
+/// a token budget: daily/monthly/lifetime rollups, an estimated dollar cost, and a
+/// projected monthly spend. None of that is a fact about writing. A poet cannot decide
+/// anything from "42,150 tokens", and being shown the provider's cost of serving them
+/// makes the tool feel like a taxi meter running over their draft.
+///
+/// The limits are per-feature **counts** now (B3), so the client reads `quotas` and
+/// nothing else. The token rollups are still on the wire and are deliberately NOT
+/// parsed: keeping a field the UI cannot show is how it creeps back.
+///
+/// `limit == null` (or `unlimited`) means no ceiling. `resetsAt` is when the window
+/// rolls over.
 library;
 
 import '../../../../core/utils/typedefs.dart';
 
-class MonetizationUsageWindow {
-  const MonetizationUsageWindow({
+/// One tool's allowance in its window.
+class FeatureAllowance {
+  const FeatureAllowance({
+    required this.key,
+    required this.label,
     required this.window,
-    required this.tokens,
-    required this.credits,
-    required this.requests,
-    required this.costUsd,
-    this.tokenLimit,
-    this.creditLimit,
-    this.usedFraction,
+    required this.used,
+    required this.limit,
     this.resetsAt,
   });
 
+  /// The `PlanLimits` key this came from (e.g. `polishActionsPerDay`).
+  final String key;
+
+  /// The server's own label for the tool. Preferred over a client-side mapping so the
+  /// two halves cannot drift; [allowanceNoun] covers a server that sends none.
+  final String label;
+
+  /// `daily` or `monthly` on the wire.
   final String window;
-  final int tokens;
-  final int credits;
-  final int requests;
-  final double costUsd;
-  final int? tokenLimit;
-  final int? creditLimit;
-  final double? usedFraction;
+  final int used;
+
+  /// `null` = no ceiling.
+  final int? limit;
   final DateTime? resetsAt;
 
-  bool get isUnlimited => tokenLimit == null;
-  int? get remaining =>
-      tokenLimit == null ? null : (tokenLimit! - tokens).clamp(0, tokenLimit!);
+  bool get isUnlimited => limit == null;
 
-  factory MonetizationUsageWindow.fromJson(Json json) => MonetizationUsageWindow(
-    window: json['window'] as String? ?? '',
-    tokens: (json['tokens'] as num?)?.toInt() ?? 0,
-    credits: (json['credits'] as num?)?.toInt() ?? 0,
-    requests: (json['requests'] as num?)?.toInt() ?? 0,
-    costUsd: (json['costUsd'] as num?)?.toDouble() ?? 0,
-    tokenLimit: (json['tokenLimit'] as num?)?.toInt(),
-    creditLimit: (json['creditLimit'] as num?)?.toInt(),
-    usedFraction: (json['usedFraction'] as num?)?.toDouble(),
-    resetsAt: _date(json['resetsAt']),
-  );
+  int? get remaining => limit == null ? null : (limit! - used).clamp(0, limit!);
 
-  static const MonetizationUsageWindow zero = MonetizationUsageWindow(
-    window: '',
-    tokens: 0,
-    credits: 0,
-    requests: 0,
-    costUsd: 0,
-  );
+  /// 0–1 for the progress bar; 0 when unlimited (nothing to fill toward).
+  double get fraction =>
+      limit == null || limit! <= 0 ? 0 : (used / limit!).clamp(0, 1).toDouble();
+
+  bool get isExhausted => limit != null && used >= limit!;
+
+  /// Tolerant by design: this list grows whenever a new `PlanLimits` key is metered,
+  /// and a client that throws on an unfamiliar row would break on a server deploy.
+  ///
+  /// **`limit` is normalised to `null` for every non-positive value**, not only for a
+  /// literal null. `0` is the sentinel for unlimited in `PlanLimits`, and a `<= 0`
+  /// ceiling cannot mean anything else here — treating it as a real limit would render
+  /// "3 of 0 today" and read as a permanent lock on an unlimited plan.
+  factory FeatureAllowance.fromJson(Json json) {
+    final int? rawLimit = (json['limit'] as num?)?.toInt();
+    final bool unlimited = json['unlimited'] as bool? ?? false;
+    return FeatureAllowance(
+      key: json['limitKey'] as String? ?? '',
+      label: json['label'] as String? ?? '',
+      window: json['window'] as String? ?? '',
+      used: ((json['used'] as num?)?.toInt() ?? 0).clamp(0, 1 << 31),
+      limit: unlimited || rawLimit == null || rawLimit <= 0 ? null : rawLimit,
+      resetsAt: _date(json['resetsAt']),
+    );
+  }
 }
 
-class MonetizationFeatureUsage {
-  const MonetizationFeatureUsage({
-    required this.feature,
-    required this.tokens,
-    required this.credits,
-    required this.requests,
-  });
-
-  final String feature;
-  final int tokens;
-  final int credits;
-  final int requests;
-
-  factory MonetizationFeatureUsage.fromJson(Json json) => MonetizationFeatureUsage(
-    feature: json['feature'] as String? ?? '',
-    tokens: (json['tokens'] as num?)?.toInt() ?? 0,
-    credits: (json['credits'] as num?)?.toInt() ?? 0,
-    requests: (json['requests'] as num?)?.toInt() ?? 0,
-  );
-}
-
+/// The whole usage read: one allowance per metered tool.
 class MonetizationUsageSummary {
-  const MonetizationUsageSummary({
-    required this.daily,
-    required this.monthly,
-    required this.total,
-    required this.byFeature,
-    required this.forecastMonthlyTokens,
-    required this.forecastMonthlyCostUsd,
-  });
+  const MonetizationUsageSummary({required this.features});
 
-  final MonetizationUsageWindow daily;
-  final MonetizationUsageWindow monthly;
-  final MonetizationUsageWindow total;
-  final List<MonetizationFeatureUsage> byFeature;
-  final int forecastMonthlyTokens;
-  final double forecastMonthlyCostUsd;
+  final List<FeatureAllowance> features;
 
-  factory MonetizationUsageSummary.fromJson(Json json) => MonetizationUsageSummary(
-    daily: MonetizationUsageWindow.fromJson(
-      json['daily'] as Json? ?? const <String, Object?>{},
-    ),
-    monthly: MonetizationUsageWindow.fromJson(
-      json['monthly'] as Json? ?? const <String, Object?>{},
-    ),
-    total: MonetizationUsageWindow.fromJson(
-      json['total'] as Json? ?? const <String, Object?>{},
-    ),
-    byFeature: (json['byFeature'] as List<dynamic>? ?? <dynamic>[])
-        .map((dynamic e) => MonetizationFeatureUsage.fromJson(e as Json))
-        .toList(growable: false),
-    forecastMonthlyTokens: (json['forecastMonthlyTokens'] as num?)?.toInt() ?? 0,
-    forecastMonthlyCostUsd: (json['forecastMonthlyCostUsd'] as num?)?.toDouble() ?? 0,
+  bool get isEmpty => features.isEmpty;
+
+  factory MonetizationUsageSummary.fromJson(Json json) =>
+      MonetizationUsageSummary(
+        features: (json['quotas'] as List<dynamic>? ?? <dynamic>[])
+            .whereType<Map<dynamic, dynamic>>()
+            .map(
+              (Map<dynamic, dynamic> e) =>
+                  FeatureAllowance.fromJson(Json.from(e)),
+            )
+            .toList(growable: false),
+      );
+
+  static const MonetizationUsageSummary empty = MonetizationUsageSummary(
+    features: <FeatureAllowance>[],
   );
 }
 

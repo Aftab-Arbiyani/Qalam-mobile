@@ -24,7 +24,6 @@ import 'package:qalam_mobile/features/monetization/domain/entities/subscription.
 import 'package:qalam_mobile/features/monetization/presentation/domain_labels.dart';
 import 'package:qalam_mobile/features/monetization/presentation/providers/monetization_providers.dart';
 import 'package:qalam_mobile/features/monetization/presentation/screens/billing_history_screen.dart';
-import 'package:qalam_mobile/features/monetization/presentation/screens/credit_dashboard_screen.dart';
 import 'package:qalam_mobile/features/monetization/presentation/screens/plans_screen.dart';
 import 'package:qalam_mobile/features/monetization/presentation/screens/subscription_screen.dart';
 import 'package:qalam_mobile/features/monetization/presentation/screens/usage_dashboard_screen.dart';
@@ -62,7 +61,6 @@ final Purchase _purchase = Purchase(
   provider: PaymentProvider.appleAppStore,
   amount: 499,
   currency: 'usd',
-  creditsGranted: 5000,
   createdAt: DateTime.utc(2026, 7, 20),
 );
 
@@ -143,11 +141,9 @@ void main() {
         'Plans aren’t available yet',
       ),
       ('usage', const UsageDashboardScreen(), 'Usage isn’t available yet'),
-      (
-        'credits',
-        const CreditDashboardScreen(),
-        'Credits aren’t available yet',
-      ),
+      // The credits screen was here. **D5** deleted it with the credit economy — four
+      // screens honour the flag now, and the row's point stands: it was one, and it
+      // needed to be all of them.
       (
         'billing history',
         const BillingHistoryScreen(),
@@ -191,7 +187,10 @@ void main() {
       await tester.tap(find.text('Purchases'));
       await tester.pumpAndSettle();
 
-      expect(find.text('AI credits'), findsOneWidget);
+      // The purchase itself is history and still renders: a credit pack bought before
+      // D5 is a real row on a real ledger, and an app that cannot name its own past is
+      // worse, not cleaner. The LABEL is de-branded — "Credit pack", not "AI credits".
+      expect(find.text('Credit pack'), findsOneWidget);
       // `restored` is not a synonym for `completed`: it means the entitlement was
       // re-granted from a store receipt rather than bought again.
       expect(find.textContaining('Restored'), findsOneWidget);
@@ -217,15 +216,11 @@ void main() {
 
   group('no surface prints a raw wire string (M5-6)', () {
     // Mobile labelled five of the thirteen monetization enumerations and let the rest
-    // fall through to the wire value — which is why billing history read "succeeded"
-    // and the credit ledger read "subscription grant".
+    // fall through to the wire value — which is why billing history read "succeeded".
+    // (`creditReasonLabel` was pinned here too; D5 deleted the ledger it described.)
     test('the statuses that were rendering raw now have labels', () {
       expect(paymentStatusLabel(PaymentStatus.succeeded), 'Paid');
       expect(invoiceStatusLabel(InvoiceStatus.open), 'Unpaid');
-      expect(
-        creditReasonLabel(CreditReason.subscriptionGrant),
-        'Included with your plan',
-      );
       expect(purchaseKindLabel(PurchaseKind.oneTime), 'One-off purchase');
       expect(providerLabel(PaymentProvider.googlePlay), 'Google Play');
     });

@@ -90,7 +90,10 @@ abstract final class PremiumFeature {
   static const String premiumRecommendations = 'premium_recommendations';
   static const String advancedAnalytics = 'advanced_analytics';
   static const String publishingPro = 'publishing_pro';
-  static const String aiBudget = 'ai_budget';
+  // `ai_budget` was here. **D5** removed the credit economy (B4), so nothing on this
+  // client gates on it any more. The server still LISTS it in each plan's `features`
+  // until Phase V contracts the catalogue — an unknown code in that array is ignored,
+  // which is why the client half can go first.
 }
 
 /// Payment providers.
@@ -122,6 +125,11 @@ abstract final class PaymentStatus {
 }
 
 /// What was bought (`PurchaseKind`).
+///
+/// `credits` stays. **D5** removed the credit economy, but billing history is a
+/// RECORD: purchases made before it went are still on the ledger, and a row that
+/// cannot be named renders as its raw wire string. Removing this constant would make
+/// the app worse at describing its own past.
 abstract final class PurchaseKind {
   static const String subscription = 'subscription';
   static const String credits = 'credits';
@@ -136,19 +144,6 @@ abstract final class PurchaseStatus {
   static const String failed = 'failed';
   static const String refunded = 'refunded';
   static const String restored = 'restored';
-}
-
-/// Why a credit ledger row exists (`CreditReason`).
-abstract final class CreditReason {
-  static const String purchase = 'purchase';
-  static const String subscriptionGrant = 'subscription_grant';
-  static const String trialGrant = 'trial_grant';
-  static const String promotional = 'promotional';
-  static const String referral = 'referral';
-  static const String aiUsage = 'ai_usage';
-  static const String refund = 'refund';
-  static const String expiration = 'expiration';
-  static const String adminAdjustment = 'admin_adjustment';
 }
 
 /// What a coupon grants.

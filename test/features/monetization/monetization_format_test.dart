@@ -51,7 +51,23 @@ void main() {
       expect(planLabel(PlanTier.pro), 'Pro');
       expect(intervalLabel(BillingInterval.yearly), 'Yearly');
       expect(subscriptionStatusLabel(SubscriptionStatus.gracePeriod), 'Grace period');
-      expect(featureLabel(PremiumFeature.aiWriting), 'AI Writing Assistant');
+      // **D5** de-branded every premium code a writer can see: these strings land on
+      // plan cards and lock cards, which is exactly where this audience objects to
+      // being sold a technology rather than a capability.
+      expect(featureLabel(PremiumFeature.aiWriting), 'Polish & feedback');
+      expect(featureLabel(PremiumFeature.storyIntelligence), 'Story Map');
+      // And no surviving label says "AI".
+      for (final String code in <String>[
+        PremiumFeature.aiWriting,
+        PremiumFeature.aiDiscovery,
+        PremiumFeature.storyIntelligence,
+        PremiumFeature.premiumSearch,
+        PremiumFeature.premiumRecommendations,
+        PremiumFeature.advancedAnalytics,
+        PremiumFeature.publishingPro,
+      ]) {
+        expect(featureLabel(code), isNot(contains('AI')), reason: code);
+      }
     });
   });
 }

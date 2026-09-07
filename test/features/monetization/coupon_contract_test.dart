@@ -64,7 +64,6 @@ const PlanCatalogue _catalogue = PlanCatalogue(
       description: '',
       features: <String>[],
       limits: <String, int>{},
-      monthlyCredits: 0,
       prices: <String, Map<String, int>>{},
       trialDays: 0,
     ),
@@ -72,9 +71,8 @@ const PlanCatalogue _catalogue = PlanCatalogue(
       tier: PlanTier.plus,
       name: 'Plus',
       description: '',
-      features: <String>[PremiumFeature.aiBudget],
+      features: <String>[PremiumFeature.aiWriting],
       limits: <String, int>{},
-      monthlyCredits: 5000,
       prices: <String, Map<String, int>>{
         BillingInterval.monthly: <String, int>{'usd': 999},
       },
