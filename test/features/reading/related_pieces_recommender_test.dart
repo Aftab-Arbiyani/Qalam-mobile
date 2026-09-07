@@ -65,15 +65,14 @@ class _AnonSession extends SessionController {
   Future<SessionState> build() async => const SessionState.anonymous();
 }
 
-AiFeatures _features({bool recommendationsOn = true}) => AiFeatures(
+/// **D5** removed `feature.ai.recommendations` from this chain, and with it the
+/// `recommendationsOn: false` scenario that used to be arranged here. The surface is
+/// de-branded and no longer flag-gated — being signed in is the whole condition — so a
+/// flags fixture is only still supplied because `aiFeaturesProvider` is reachable
+/// elsewhere in the tree, never because this controller reads it.
+const AiFeatures _features = AiFeatures(
   aiEnabled: true,
-  features: <AiFeatureFlag>[
-    AiFeatureFlag(
-      feature: AiFeatureIds.recommendations,
-      flagKey: 'feature.ai.recommendations.enabled',
-      enabled: recommendationsOn,
-    ),
-  ],
+  features: <AiFeatureFlag>[],
 );
 
 RecommendationItem _pieceRecommendation({
@@ -184,7 +183,7 @@ void main() {
         config: _aiOn,
         authed: true,
         aiRepository: FakeAiRepository(
-          features: _features(),
+          features: _features,
           recommendations: RecommendationResponse(
             kind: 'related_stories',
             items: <RecommendationItem>[_pieceRecommendation()],
@@ -230,7 +229,7 @@ void main() {
         config: _aiOn,
         authed: true,
         aiRepository: FakeAiRepository(
-          features: _features(),
+          features: _features,
           recommendations: const RecommendationResponse(
             kind: 'related_stories',
             items: <RecommendationItem>[],
@@ -275,7 +274,7 @@ void main() {
         // `features()` succeeds — only the recommendation fetch itself fails,
         // isolating this from the feature-flag check.
         aiRepository: FakeAiRepository(
-          features: _features(),
+          features: _features,
           recommendationsFailure: const NetworkFailure(
             code: 'API_NETWORK_ERROR',
           ),
@@ -325,7 +324,7 @@ void main() {
       final FakeReadingRepository reading = FakeReadingRepository(
         related: <PieceSummary>[_summary('p2', 'Second Evening')],
       );
-      final FakeAiRepository ai = FakeAiRepository(features: _features());
+      final FakeAiRepository ai = FakeAiRepository(features: _features);
       final ProviderContainer c = _container(
         config: _aiOn,
         authed: false,

@@ -17,7 +17,7 @@ import '../../../../shared/theme/q_tokens.dart';
 import '../../../../shared/theme/tokens/radius_tokens.dart';
 import '../../../../shared/widgets/haptics/q_haptics.dart';
 import '../../../ai/domain/value_objects/ai_feature_ids.dart';
-import '../../../ai/presentation/panels/writing_assistant_panel.dart';
+import '../../../ai/presentation/panels/polish_sheet.dart';
 import '../../../ai/presentation/providers/ai_providers.dart';
 import '../../domain/editor/editor_block.dart';
 import '../../domain/editor/marked_text.dart';
@@ -55,8 +55,9 @@ class FormattingToolbar extends ConsumerWidget {
       currentDraftControllerProvider(routeId).notifier,
     );
 
-    // AI assistant entry — gated by the compile-time kill switch AND the server
-    // `writing_assistant` flag (docs/34 §9). Hidden entirely when off.
+    // The **Polish** entry — gated by the compile-time kill switch AND the server
+    // `writing_assistant` flag (docs/34 §9). Hidden entirely when off. The wire id keeps
+    // its old name on purpose (D5 decision 10): the rename is copy, never contract.
     final bool aiEnabled =
         ref.watch(appConfigProvider).enableAi &&
         (ref
@@ -66,13 +67,12 @@ class FormattingToolbar extends ConsumerWidget {
                 .isEnabled(AiFeatureIds.writingAssistant) ??
             false);
 
-    void openAssistant() {
+    void openPolish() {
       QHaptics.selection();
       unawaited(
-        WritingAssistantPanel.show(
+        PolishSheet.show(
           context,
           target: DraftAiEditorTarget.build(ref, routeId),
-          routeId: routeId,
         ),
       );
     }
@@ -106,11 +106,11 @@ class FormattingToolbar extends ConsumerWidget {
                 children: <Widget>[
                   if (aiEnabled) ...<Widget>[
                     _ToolButton(
-                      icon: Icons.auto_awesome,
-                      tooltip: 'AI assistant',
+                      icon: Icons.brush_outlined,
+                      tooltip: 'Polish',
                       active: false,
                       enabled: true,
-                      onTap: openAssistant,
+                      onTap: openPolish,
                       tokens: tokens,
                     ),
                     _Divider(tokens: tokens),

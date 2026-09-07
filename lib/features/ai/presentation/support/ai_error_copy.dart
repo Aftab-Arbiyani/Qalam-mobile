@@ -53,43 +53,45 @@ class AiErrorCopy {
     return _forCode(code);
   }
 
-  /// D3's remedy, and the FOURTH distinct one. There are now four ways AI can be off and each
-  /// has a different fix: an admin turned it off (wait), the writer turned it off (turn it back
-  /// on), the allowance is spent (wait or top up), and this one — writing is a paid capability
-  /// (change plan). Conflating any two is the W4 defect recorded in `docs/48` §3.6.
+  /// D3's remedy. There are THREE distinct ways the writing tools can be unavailable and
+  /// each has a different fix: they are switched off (nothing the writer can do), the
+  /// allowance is spent (wait), and this one — the tools are a paid capability (change
+  /// plan). Conflating any two is the W4 defect recorded in `docs/48` §3.6.
   ///
-  /// Deliberately says AI WRITING and names the tier, and deliberately does NOT mention the
-  /// allowance: the free tier KEEPS `ai_budget`, so a free writer can still use AI search and
-  /// Ask My Book. Telling them their plan has no AI allowance would be false as well as the
-  /// wrong remedy.
+  /// **D5 took the count from four to three**, by merging the two "off" states below.
+  ///
+  /// Deliberately names the tier, and deliberately does NOT mention the allowance: a free
+  /// writer keeps search, recommendations and their drafts. Telling them their plan has no
+  /// allowance would be false as well as the wrong remedy.
   static const AiErrorCopy aiWritingLocked = AiErrorCopy(
-    title: 'AI writing is on Plus and above',
+    title: 'Polish & feedback is on Plus and above',
     message:
-        'Your plan doesn’t include AI writing. Your drafts are unaffected — the editor, search and Ask my book all work as usual.',
+        'Your plan doesn’t include Polish or manuscript feedback. Your drafts are unaffected — the editor and search work as usual.',
     canRetry: false,
     canUpgrade: true,
   );
 
   static AiErrorCopy _forCode(String? code) => switch (code) {
-    ErrorCodes.aiDisabled => const AiErrorCopy(
-      title: 'AI is turned off',
-      message: 'AI features aren’t available on your account right now.',
+    // **D5 merged these two**, and the merge is a correction rather than a
+    // simplification. They used to be kept apart on the W4 principle (docs/48 §3.6):
+    // `AI_DISABLED` is an administrator's switch that the writer can only wait out, while
+    // `AI_DISABLED_BY_USER` was their own and was "one screen away" — so its message named
+    // that screen. **D5 deleted that screen.** Copy that points at a remedy which no longer
+    // exists is worse than copy that offers none: it sends the writer looking for a control
+    // they will not find. So both now say the same thing, which blames nobody and promises
+    // nothing. The distinct CODE is still mapped, because an unmapped code falls through to
+    // the generic retryable failure and invites an infinite retry.
+    //
+    // The writer who turned AI off before D5 is genuinely stuck. That is a recorded
+    // residue, not something a sentence can fix.
+    ErrorCodes.aiDisabled || ErrorCodes.aiDisabledByUser => const AiErrorCopy(
+      title: 'Writing tools aren’t available',
+      message: 'They aren’t enabled for your account right now.',
       canRetry: false,
     ),
     ErrorCodes.aiFeatureDisabled => const AiErrorCopy(
       title: 'Not available yet',
-      message: 'This AI feature isn’t enabled for you yet.',
-      canRetry: false,
-    ),
-    // B5 (`platfrom/docs/45` §4.10). Same wall as [aiDisabled], completely different
-    // sentence: that one is an administrator's switch and the writer can only wait,
-    // this one is their own and is one screen away. Folding it into [aiDisabled] would
-    // tell a writer who turned AI off that it "isn't available on your account" — the
-    // right-shaped wall with the wrong remedy, which is the W4 defect (docs/48 §3.6).
-    ErrorCodes.aiDisabledByUser => const AiErrorCopy(
-      title: 'You turned AI off',
-      message:
-          'AI is off for your account. Turn it back on in Settings › AI. Your writing is unaffected.',
+      message: 'This tool isn’t enabled for you yet.',
       canRetry: false,
     ),
     // The AI module's own token cap and the monetization plan's cap are

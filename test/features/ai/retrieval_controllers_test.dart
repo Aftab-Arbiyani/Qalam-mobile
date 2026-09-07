@@ -42,84 +42,9 @@ void main() {
     },
   );
 
-  test(
-    'AskBookController streams deltas into an accumulated, cited answer',
-    () async {
-      final container = await buildTestContainer(
-        aiRepository: FakeAiRepository(
-          askStreamEvents: <AskStreamEvent>[
-            const AskStreamEvent(
-              type: AskStreamEventType.sources,
-              confidence: 0.8,
-              citations: <AskCitation>[
-                AskCitation(ref: 'n1', label: 'Aria', quote: 'brave'),
-              ],
-            ),
-            const AskStreamEvent(
-              type: AskStreamEventType.start,
-              conversationId: 'c1',
-            ),
-            const AskStreamEvent(type: AskStreamEventType.delta, text: 'Aria '),
-            const AskStreamEvent(
-              type: AskStreamEventType.delta,
-              text: 'is the hero.',
-            ),
-            const AskStreamEvent(
-              type: AskStreamEventType.done,
-              usage: AiTokenUsage(
-                inputTokens: 1,
-                outputTokens: 2,
-                totalTokens: 3,
-              ),
-            ),
-          ],
-        ),
-      );
-      addTearDown(container.dispose);
-      container.listen(askBookControllerProvider, (_, _) {});
-
-      await container
-          .read(askBookControllerProvider.notifier)
-          .ask(
-            const AskBookRequest(
-              storyId: 'piece-1',
-              question: 'who is aria?',
-              scope: AskScope.character,
-            ),
-          );
-
-      final AskBookState state = container.read(askBookControllerProvider);
-      expect(state.status, AskStatus.done);
-      expect(state.answer, 'Aria is the hero.');
-      expect(state.citations, hasLength(1));
-      expect(state.conversationId, 'c1');
-    },
-  );
-
-  test(
-    'AskBookController surfaces a stream error event as an error state',
-    () async {
-      final container = await buildTestContainer(
-        aiRepository: FakeAiRepository(
-          askStreamEvents: <AskStreamEvent>[
-            const AskStreamEvent(
-              type: AskStreamEventType.error,
-              code: 'AI_FEATURE_DISABLED',
-            ),
-          ],
-        ),
-      );
-      addTearDown(container.dispose);
-      container.listen(askBookControllerProvider, (_, _) {});
-
-      await container
-          .read(askBookControllerProvider.notifier)
-          .ask(const AskBookRequest(storyId: 'piece-1', question: 'x'));
-      final AskBookState state = container.read(askBookControllerProvider);
-      expect(state.status, AskStatus.error);
-      expect(state.errorCode, 'AI_FEATURE_DISABLED');
-    },
-  );
+  // Two `AskBookController` tests sat here — the streamed, cited answer and its
+  // AI_FEATURE_DISABLED refusal. **D5** deleted Ask My Book along with its route, its
+  // flag and its controller, so there is nothing left for them to drive.
 
   test(
     'SavedSearchesController.save records the search and updates state',

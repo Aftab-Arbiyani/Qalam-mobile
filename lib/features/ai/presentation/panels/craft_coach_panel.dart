@@ -1,7 +1,12 @@
-/// The Craft Coach panel (AF2) — a bottom sheet over the editor that runs a coaching
+/// **Manuscript feedback** (AF2) — a bottom sheet over the editor that runs a coaching
 /// lens over the chapter (or a selected scene) through the reused AF1 orchestrator and
 /// renders the structured [CoachReport] (score, strengths, weaknesses, suggestions,
-/// recommendations, sections). Coaching NEVER edits the document — it only reports.
+/// recommendations, sections). It NEVER edits the document — it only reports, which is
+/// exactly why **D5** kept it whole while deleting the generation actions next door:
+/// honest analysis is what this audience wants, and prose written for them is not.
+///
+/// The class, the wire feature id (`craft_coach`) and the prompt keys are unchanged —
+/// D5's rename is user-facing copy only (decision 10).
 library;
 
 import 'dart:async';
@@ -25,7 +30,7 @@ import '../support/ai_plans_link.dart';
 import '../widgets/ai_markdown.dart';
 import '../widgets/ai_writing_lock_card.dart';
 import '../widgets/coach_report_view.dart';
-import '../widgets/token_usage_line.dart';
+import '../widgets/model_disclosure_note.dart';
 
 class CraftCoachPanel extends ConsumerWidget {
   const CraftCoachPanel({required this.writingContext, super.key});
@@ -75,13 +80,13 @@ class CraftCoachPanel extends ConsumerWidget {
               Row(
                 children: <Widget>[
                   Icon(
-                    Icons.school_outlined,
+                    Icons.rate_review_outlined,
                     size: 20,
                     color: tokens.colors.accent,
                   ),
                   const SizedBox(width: QSpacing.s2),
                   Text(
-                    'Craft coach',
+                    'Manuscript feedback',
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                 ],
@@ -100,6 +105,7 @@ class CraftCoachPanel extends ConsumerWidget {
               ),
               Gap.v3,
               Flexible(child: _body(context, ref, state)),
+              const ModelDisclosureNote(),
             ],
           ),
         ),
@@ -110,7 +116,7 @@ class CraftCoachPanel extends ConsumerWidget {
   Widget _body(BuildContext context, WidgetRef ref, CraftCoachState state) {
     if (!writingContext.hasOperand) {
       return Text(
-        'Write some text first, then choose a coaching lens.',
+        'Write some text first, then choose a lens.',
         style: TextStyle(color: QTokens.of(context).colors.textSecondary),
       );
     }
@@ -163,11 +169,6 @@ class CraftCoachPanel extends ConsumerWidget {
               child: CoachReportView(report: state.report!),
             ),
           ),
-          TokenUsageLine(
-            usage: state.usage,
-            provider: state.provider,
-            model: state.model,
-          ),
           Gap.v2,
           _footerActions(context, ref),
         ],
@@ -182,11 +183,6 @@ class CraftCoachPanel extends ConsumerWidget {
             child: SingleChildScrollView(
               child: AiMarkdown(state.rawText ?? ''),
             ),
-          ),
-          TokenUsageLine(
-            usage: state.usage,
-            provider: state.provider,
-            model: state.model,
           ),
           Gap.v2,
           _footerActions(context, ref),

@@ -29,32 +29,20 @@ abstract final class Routes {
   static String writeDraftPath(String id) => '/write/$id';
   static String piecePreviewPath(String id) => '/write/$id/preview';
 
-  // AI surfaces (AF2). Full-screen, session-gated (the `/ai` prefix is protected).
-  // Editor-integrated AI is a bottom sheet, not a route; these are the management
-  // surfaces reachable from the editor overflow + settings.
+  // The `/ai` prefix. Session-gated, and much smaller since **D5**: the writing tools
+  // are bottom sheets over the editor, not routes, and the management surfaces they
+  // used to need — AI conversations, Prompt library, AI usage, Ask my book — are gone
+  // with the features themselves. What is left is Story Map.
+  //
+  // The paths keep the `/ai` prefix deliberately (D5 decision 10, copy only). Every
+  // deleted route now falls through to the unknown-route screen; none is redirected,
+  // because a bookmark to a feature that no longer exists should say so rather than
+  // land somewhere that looks like it worked.
   static const String ai = '/ai';
-  static const String aiConversations = '/ai/conversations';
-  static String aiConversationPath(String id) => '/ai/conversations/$id';
-  static const String promptLibrary = '/ai/prompts';
-
-  /// Carries the opening draft's local route id as a query param so a preset can be
-  /// handed to that draft's Writing Assistant (docs/48 §3.12) instead of only the
-  /// clipboard. Omitted when there is no draft in context (e.g. a bare deep link).
-  static String promptLibraryPath({String? routeId}) => routeId == null
-      ? promptLibrary
-      : Uri(
-          path: promptLibrary,
-          queryParameters: <String, String>{'routeId': routeId},
-        ).toString();
-  static const String aiUsage = '/ai/usage';
-
-  // AI Discovery / Search / Ask / Explorer (AF4). Full-screen, session-gated (`/ai`).
   static const String aiDiscovery = '/ai/discovery';
   static const String aiSearch = '/ai/search';
   static const String aiExplorer = '/ai/explorer';
   static String aiExplorerPath(String storyId) => '/ai/explorer/$storyId';
-  static const String aiAsk = '/ai/ask';
-  static String aiAskPath(String storyId) => '/ai/ask/$storyId';
 
   // Monetization (AF5). Full-screen, session-gated (the `/billing` prefix is
   // protected). Entered from Settings; deep-linkable for paywall/upsell.
@@ -108,11 +96,6 @@ abstract final class Routes {
   static const String settingsPrivacy = '/settings/privacy';
   static const String settingsNotifications = '/settings/notifications';
   static const String settingsStorage = '/settings/storage';
-
-  /// B5 (`platfrom/docs/45` §4.10) — the account's own "turn AI off" switch. Under
-  /// `/settings`, not `/ai`, because it is an ACCOUNT setting: it must stay reachable
-  /// when AI is off, which is precisely when a writer needs it.
-  static const String settingsAi = '/settings/ai';
 
   /// Safety — blocks, mutes and the viewer's account standing (AF6). Lives under
   /// `/settings` on both clients: it is account-scoped, not story-scoped, so it does

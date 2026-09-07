@@ -37,30 +37,30 @@ class AiWritingContext {
 
   /// The text a transform/continuation acts on: the selection if present, else the
   /// whole chapter.
-  String get operand => hasSelection ? selectionText.trim() : chapterText.trim();
+  String get operand =>
+      hasSelection ? selectionText.trim() : chapterText.trim();
 
   bool get hasOperand => operand.isNotEmpty;
 
   /// The metadata context request (always useful framing).
   AiContextRequest get metadataContext => AiContextRequest(
-        type: 'writing_metadata',
-        params: <String, dynamic>{
-          'title': title,
-          if (genre != null && genre!.isNotEmpty) 'genre': genre,
-          'language': language,
-          'wordCount': wordCount,
-          'tags': tags,
-        },
-      );
+    type: 'writing_metadata',
+    params: <String, dynamic>{
+      'title': title,
+      if (genre != null && genre!.isNotEmpty) 'genre': genre,
+      'language': language,
+      'wordCount': wordCount,
+      'tags': tags,
+    },
+  );
 
-  /// Context requests to attach. [includeSelection] adds the selection as a labelled
-  /// context block (used by the free-form "Ask AI", where the user's instruction is
-  /// the message and the selection is background) — quick actions send the operand as
-  /// the message instead, so they omit it.
-  List<AiContextRequest> contextRequests({bool includeSelection = false}) =>
-      <AiContextRequest>[
-        if (includeSelection && hasSelection)
-          AiContextRequest(type: 'selection', params: <String, dynamic>{'text': selectionText}),
-        metadataContext,
-      ];
+  /// Context requests to attach.
+  ///
+  /// Metadata only, since **D5**. The `selection` block existed for the free-form
+  /// "Ask AI", where the user's instruction was the message and the selection was
+  /// background; every surviving Polish action sends the operand *as* the message, so
+  /// attaching the selection again would duplicate it in the prompt.
+  List<AiContextRequest> contextRequests() => <AiContextRequest>[
+    metadataContext,
+  ];
 }

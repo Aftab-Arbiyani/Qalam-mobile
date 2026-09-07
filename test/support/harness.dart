@@ -48,8 +48,6 @@ import 'package:qalam_mobile/features/reading/domain/repositories/reading_reposi
 import 'package:qalam_mobile/features/reading/presentation/providers/reading_providers.dart';
 import 'package:qalam_mobile/features/search/domain/repositories/search_repository.dart';
 import 'package:qalam_mobile/features/search/presentation/providers/search_providers.dart';
-import 'package:qalam_mobile/features/settings/domain/repositories/user_settings_repository.dart';
-import 'package:qalam_mobile/features/settings/presentation/providers/settings_providers.dart';
 import 'package:qalam_mobile/features/writing/domain/repositories/piece_editor_repository.dart';
 import 'package:qalam_mobile/features/writing/presentation/providers/writing_providers.dart';
 import 'package:qalam_mobile/shared/discovery/discovery_providers.dart';
@@ -152,7 +150,6 @@ Future<Widget> buildTestApp({
   NotificationRepository? notificationRepository,
   NotificationPreferencesRepository? notificationPreferencesRepository,
   AiRepository? aiRepository,
-  UserSettingsRepository? userSettingsRepository,
   CollaborationRepository? collaborationRepository,
   PublishingRepository? publishingRepository,
   TrustRepository? trustRepository,
@@ -234,11 +231,6 @@ Future<Widget> buildTestApp({
         ),
       if (aiRepository != null)
         aiRepositoryProvider.overrideWithValue(aiRepository),
-      // B5 — the server-side preference bag (`GET/PATCH /settings`).
-      if (userSettingsRepository != null)
-        userSettingsRepositoryProvider.overrideWithValue(
-          userSettingsRepository,
-        ),
       if (collaborationRepository != null)
         collaborationRepositoryProvider.overrideWithValue(
           collaborationRepository,
@@ -341,7 +333,6 @@ Future<ProviderContainer> buildTestContainer({
   NotificationRepository? notificationRepository,
   NotificationPreferencesRepository? notificationPreferencesRepository,
   AiRepository? aiRepository,
-  UserSettingsRepository? userSettingsRepository,
   CollaborationRepository? collaborationRepository,
   PublishingRepository? publishingRepository,
   TrustRepository? trustRepository,
@@ -422,11 +413,6 @@ Future<ProviderContainer> buildTestContainer({
         ),
       if (aiRepository != null)
         aiRepositoryProvider.overrideWithValue(aiRepository),
-      // B5 — the server-side preference bag (`GET/PATCH /settings`).
-      if (userSettingsRepository != null)
-        userSettingsRepositoryProvider.overrideWithValue(
-          userSettingsRepository,
-        ),
       if (collaborationRepository != null)
         collaborationRepositoryProvider.overrideWithValue(
           collaborationRepository,

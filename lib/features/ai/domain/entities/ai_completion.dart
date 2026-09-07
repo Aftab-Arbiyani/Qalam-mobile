@@ -32,10 +32,16 @@ class AiContextRequest {
 
 /// A completion request. Reference a prompt template by key OR pass raw messages;
 /// the server assembles context + prompt. `params` are per-call overrides.
+///
+/// **D5** removed `conversationId`: B2 deleted the server's conversation layer, so
+/// completions are stateless. The field is still *accepted* on the wire (ignored)
+/// until Phase V contracts the DTO — but this client no longer sends it, and the
+/// response's own `conversationId` is now always null. Note the direction: it is the
+/// REQUEST half that goes first, because `forbidNonWhitelisted` is live and a field
+/// the server has stopped accepting is a 400, not a no-op.
 class AiCompletionRequest {
   const AiCompletionRequest({
     required this.feature,
-    this.conversationId,
     this.promptKey,
     this.promptVersion,
     this.promptVariables,
@@ -45,7 +51,6 @@ class AiCompletionRequest {
   });
 
   final String feature;
-  final String? conversationId;
   final String? promptKey;
   final int? promptVersion;
   final Json? promptVariables;
@@ -57,14 +62,17 @@ class AiCompletionRequest {
 
   Json toJson() => <String, dynamic>{
     'feature': feature,
-    if (conversationId != null) 'conversationId': conversationId,
     if (promptKey != null) 'promptKey': promptKey,
     if (promptVersion != null) 'promptVersion': promptVersion,
     if (promptVariables != null) 'promptVariables': promptVariables,
     if (messages != null)
-      'messages': messages!.map((AiMessage m) => m.toJson()).toList(growable: false),
+      'messages': messages!
+          .map((AiMessage m) => m.toJson())
+          .toList(growable: false),
     if (context != null && context!.isNotEmpty)
-      'context': context!.map((AiContextRequest c) => c.toJson()).toList(growable: false),
+      'context': context!
+          .map((AiContextRequest c) => c.toJson())
+          .toList(growable: false),
     if (params != null) 'params': params,
   };
 }

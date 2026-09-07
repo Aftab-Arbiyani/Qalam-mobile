@@ -28,7 +28,11 @@ enum AskScope {
   );
 }
 
-/// A structured view over the story knowledge graph (the Story Explorer tabs).
+/// A structured view over the story knowledge graph (the Story Map tabs).
+///
+/// The `map` view is labelled **"Overview"** since **D5**: the feature is now called
+/// Story Map, and a tab inside it cannot carry the same name as the thing that
+/// contains it. Its wire value is untouched.
 enum ExplorerView {
   characters('characters', 'Characters'),
   relationships('relationships', 'Relationships'),
@@ -37,7 +41,7 @@ enum ExplorerView {
   events('events', 'Events'),
   objects('objects', 'Objects'),
   concepts('concepts', 'Concepts'),
-  map('map', 'Story map');
+  map('map', 'Overview');
 
   const ExplorerView(this.wire, this.label);
 

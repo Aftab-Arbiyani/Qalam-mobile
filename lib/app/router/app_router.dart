@@ -18,12 +18,8 @@ import '../../core/di/providers.dart';
 import '../../core/error/failure.dart';
 import '../../core/session/onboarding_controller.dart';
 import '../../core/session/session_controller.dart';
-import '../../features/ai/presentation/screens/ai_conversation_screen.dart';
-import '../../features/ai/presentation/screens/ai_conversations_screen.dart';
+import '../../features/ai/domain/value_objects/story_map_seed.dart';
 import '../../features/ai/presentation/screens/ai_discovery_screen.dart';
-import '../../features/ai/presentation/screens/ai_usage_screen.dart';
-import '../../features/ai/presentation/screens/ask_book_screen.dart';
-import '../../features/ai/presentation/screens/prompt_library_screen.dart';
 import '../../features/ai/presentation/screens/semantic_search_screen.dart';
 import '../../features/ai/presentation/screens/story_explorer_screen.dart';
 import '../../features/analytics/presentation/screens/creator_analytics_screen.dart';
@@ -52,7 +48,6 @@ import '../../features/profile/profile.dart';
 import '../../features/reading/presentation/screens/appearance_settings_screen.dart';
 import '../../features/reading/presentation/screens/reading_screen.dart';
 import '../../features/search/search.dart';
-import '../../features/settings/presentation/screens/ai_settings_screen.dart';
 import '../../features/settings/presentation/screens/settings_hub_screen.dart';
 import '../../features/shell/presentation/pages/app_error_page.dart';
 import '../../features/shell/presentation/widgets/unknown_route_page.dart';
@@ -328,13 +323,6 @@ GoRouter goRouter(Ref ref) {
             _fade(state, const AppearanceSettingsScreen()),
       ),
       GoRoute(
-        path: Routes.settingsAi,
-        name: 'settingsAi',
-        parentNavigatorKey: _rootKey,
-        pageBuilder: (BuildContext context, GoRouterState state) =>
-            _fade(state, const AiSettingsScreen()),
-      ),
-      GoRoute(
         path: Routes.settingsPrivacy,
         name: 'settingsPrivacy',
         parentNavigatorKey: _rootKey,
@@ -446,46 +434,12 @@ GoRouter goRouter(Ref ref) {
         ],
       ),
 
-      // AI management surfaces (AF2) — full-screen, session-gated (`/ai` prefix).
-      // The in-editor assistant + coach are bottom sheets, not routes.
-      GoRoute(
-        path: Routes.aiConversations,
-        name: 'aiConversations',
-        parentNavigatorKey: _rootKey,
-        pageBuilder: (BuildContext context, GoRouterState state) =>
-            _fade(state, const AiConversationsScreen()),
-        routes: <RouteBase>[
-          GoRoute(
-            path: ':id',
-            name: 'aiConversation',
-            parentNavigatorKey: _rootKey,
-            pageBuilder: (BuildContext context, GoRouterState state) => _fade(
-              state,
-              AiConversationScreen(
-                conversationId: state.pathParameters['id'] ?? '',
-              ),
-            ),
-          ),
-        ],
-      ),
-      GoRoute(
-        path: Routes.promptLibrary,
-        name: 'promptLibrary',
-        parentNavigatorKey: _rootKey,
-        pageBuilder: (BuildContext context, GoRouterState state) => _fade(
-          state,
-          PromptLibraryScreen(routeId: state.uri.queryParameters['routeId']),
-        ),
-      ),
-      GoRoute(
-        path: Routes.aiUsage,
-        name: 'aiUsage',
-        parentNavigatorKey: _rootKey,
-        pageBuilder: (BuildContext context, GoRouterState state) =>
-            _fade(state, const AiUsageScreen()),
-      ),
-
-      // AI Discovery / Search / Ask / Explorer (AF4) — full-screen, session-gated.
+      // Retrieval + Story Map (AF3/AF4) — full-screen, session-gated.
+      //
+      // **D5** deleted five routes from this block and the one above it: AI
+      // conversations, one conversation, the Prompt Library, AI usage, and Ask my book.
+      // Nothing redirects — a bookmark to a removed feature reaches the unknown-route
+      // screen, which is the honest answer.
       GoRoute(
         path: Routes.aiDiscovery,
         name: 'aiDiscovery',
@@ -504,19 +458,21 @@ GoRouter goRouter(Ref ref) {
         path: '${Routes.aiExplorer}/:storyId',
         name: 'aiExplorer',
         parentNavigatorKey: _rootKey,
-        pageBuilder: (BuildContext context, GoRouterState state) => _fade(
-          state,
-          StoryExplorerScreen(storyId: state.pathParameters['storyId'] ?? ''),
-        ),
-      ),
-      GoRoute(
-        path: '${Routes.aiAsk}/:storyId',
-        name: 'aiAsk',
-        parentNavigatorKey: _rootKey,
-        pageBuilder: (BuildContext context, GoRouterState state) => _fade(
-          state,
-          AskBookScreen(storyId: state.pathParameters['storyId'] ?? ''),
-        ),
+        // `extra` carries the draft's text so "Map this story" has something to send —
+        // the endpoint takes the content rather than reading the saved piece, precisely
+        // so an unsaved draft can be mapped. A deep link has no `extra`, and the screen
+        // says so rather than offering an action that would fail.
+        pageBuilder: (BuildContext context, GoRouterState state) {
+          final Object? seed = state.extra;
+          return _fade(
+            state,
+            StoryExplorerScreen(
+              storyId: state.pathParameters['storyId'] ?? '',
+              content: seed is StoryMapSeed ? seed.content : null,
+              storyTitle: seed is StoryMapSeed ? seed.title : null,
+            ),
+          );
+        },
       ),
 
       // ── Monetization (AF5) — full-screen, session-gated (`/billing/*`). ───────

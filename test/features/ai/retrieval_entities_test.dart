@@ -221,31 +221,8 @@ void main() {
     });
   });
 
-  group('AskStreamEvent.fromJson', () {
-    test('maps the type field (sources/start/delta/done) and citations', () {
-      expect(
-        AskStreamEvent.fromJson(<String, dynamic>{
-          'type': 'sources',
-          'confidence': 0.7,
-          'citations': <dynamic>[
-            <String, dynamic>{'ref': 'n1', 'label': 'Aria', 'quote': 'brave'},
-          ],
-        }).type,
-        AskStreamEventType.sources,
-      );
-      expect(
-        AskStreamEvent.fromJson(<String, dynamic>{
-          'type': 'delta',
-          'text': 'hi',
-        }).text,
-        'hi',
-      );
-      expect(
-        AskStreamEvent.fromJson(<String, dynamic>{'type': 'mystery'}).type,
-        AskStreamEventType.unknown,
-      );
-    });
-  });
+  // `AskStreamEvent.fromJson` was pinned here. **D5** deleted Ask My Book (B2 removed
+  // the route), so the type it decoded is gone and there is nothing left to assert.
 
   group('RecommendationResponse + SavedSearch', () {
     test('recommendation items keep their reason + influencing entities', () {

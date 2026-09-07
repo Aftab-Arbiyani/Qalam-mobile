@@ -1,10 +1,15 @@
-/// The Writing Assistant session controller (AF2). Orchestrates one in-editor
-/// assistant interaction: it builds the completion request from a [WritingAction] +
+/// The Polish session controller (AF2). Orchestrates one in-editor Polish
+/// interaction: it builds the completion request from a [WritingAction] +
 /// [AiWritingContext], DELEGATES the token stream to the reused AF1
 /// [aiStreamControllerProvider] (no duplicated streaming/state), and — when the
 /// stream settles — packages the result into an immutable [AiSuggestion]. It never
 /// touches the document; applying a suggestion is the editor's job (docs/34, AF2).
 /// Global autoDispose (one open editor at a time, like the selection controller).
+///
+/// **D5** removed the two things that made a request stateful: the free-form
+/// instruction (there is no free-form action any more) and the `conversationId`
+/// binding (B2 deleted the server's conversation layer, and the field is accepted-
+/// and-ignored on the wire only until Phase V). Every completion is now standalone.
 library;
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -57,35 +62,31 @@ class AssistantSessionState {
 class AssistantSessionController extends _$AssistantSessionController {
   WritingAction? _lastAction;
   AiWritingContext? _lastContext;
-  String? _lastInstruction;
-  String? _lastConversationId;
 
   @override
-  AssistantSessionState build() => const AssistantSessionState();
+  AssistantSessionState build() {
+    // Hold the stream controller open for as long as a session exists.
+    //
+    // [runAction] only ever `read`s it, which mounts it without depending on it — and
+    // it is `autoDispose`, so with no listener it can be swept between starting the
+    // stream and the sheet's first rebuild (the only place that watches it). Its
+    // `onDispose` cancels the subscription, so neither an event nor `onDone` ever
+    // arrives: the run hangs in `streaming` forever with an empty buffer, and a second
+    // instance is mounted for the view. The window is invisible against a real network
+    // but wide open against a fake that answers in microtasks, which is how a widget
+    // test found it. Listening is the honest statement of the dependency — this
+    // controller does not merely read the stream, it needs it alive.
+    ref.listen(aiStreamControllerProvider, (_, _) {});
+    return const AssistantSessionState();
+  }
 
-  /// Run a writing action, streaming the result. For the free-form "Ask AI" action
-  /// pass [instruction] (the user's message); for quick actions the operand text is
-  /// the message and [instruction] is ignored.
-  ///
-  /// [conversationId] is sent only when the writer has opted into keeping history
-  /// (the panel's "Keep history" control). Omitted, the server answers and stores
-  /// nothing — `persist()` returns early without one (`ai-completion.service.ts:338`)
-  /// — which is why mobile's conversations list could never fill (docs/48 §3.12,
-  /// W8-1). Present, it appends this turn to that conversation.
-  Future<void> runAction(
-    WritingAction action,
-    AiWritingContext context, {
-    String? instruction,
-    String? conversationId,
-  }) async {
+  /// Run a Polish action, streaming the result. The operand text — the selection if
+  /// there is one, else the whole chapter — is the message.
+  Future<void> runAction(WritingAction action, AiWritingContext context) async {
     _lastAction = action;
     _lastContext = context;
-    _lastInstruction = instruction;
-    _lastConversationId = conversationId;
 
-    final String message = action.kind == AssistantActionKind.freeform
-        ? (instruction ?? '').trim()
-        : context.operand;
+    final String message = context.operand;
     if (message.isEmpty) {
       state = state.copyWith(
         phase: AssistantPhase.error,
@@ -99,15 +100,12 @@ class AssistantSessionController extends _$AssistantSessionController {
 
     final AiCompletionRequest request = AiCompletionRequest(
       feature: AiFeatureIds.writingAssistant,
-      conversationId: conversationId,
       promptKey: action.promptKey,
       promptVariables: action.promptVariables.isEmpty
           ? null
           : action.promptVariables,
       messages: <AiMessage>[AiMessage(role: 'user', content: message)],
-      context: context.contextRequests(
-        includeSelection: action.kind == AssistantActionKind.freeform,
-      ),
+      context: context.contextRequests(),
     );
 
     state = AssistantSessionState(
@@ -121,17 +119,12 @@ class AssistantSessionController extends _$AssistantSessionController {
     _finalize(action, context, message, streamState);
   }
 
-  /// Re-run the last action (Regenerate / Retry).
+  /// Re-run the last action ("Try again").
   Future<void> regenerate() async {
     final WritingAction? action = _lastAction;
     final AiWritingContext? context = _lastContext;
     if (action == null || context == null) return;
-    await runAction(
-      action,
-      context,
-      instruction: _lastInstruction,
-      conversationId: _lastConversationId,
-    );
+    await runAction(action, context);
   }
 
   /// Cancel the in-flight generation (aborts the request).
@@ -186,13 +179,14 @@ class AssistantSessionController extends _$AssistantSessionController {
           contextSnapshot: <String, dynamic>{
             'action': action.kind.name,
             if (action.aspect != null) 'aspect': action.aspect!.name,
-            if (action.tone != null) 'tone': action.tone!.name,
             'usedSelection': context.hasSelection,
             'language': context.language,
             if (context.genre != null) 'genre': context.genre,
           },
           content: content,
-          originalText: action.isContinuation ? '' : context.operand,
+          // Every surviving action transforms an operand, so there is always an original
+          // to diff against — `isContinuation` went with the generation actions (D5).
+          originalText: context.operand,
           placement: action.defaultPlacement(
             hasSelection: context.hasSelection,
           ),

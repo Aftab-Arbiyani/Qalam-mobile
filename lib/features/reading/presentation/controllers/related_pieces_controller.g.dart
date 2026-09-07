@@ -75,7 +75,7 @@ final class RelatedSuggestionsProvider
 }
 
 String _$relatedSuggestionsHash() =>
-    r'eaeceeda41600832985ce50a54e52e17cf12534c';
+    r'82cecc5db8dff4fafb3fe00594f296baf09a5bf6';
 
 final class RelatedSuggestionsFamily extends $Family
     with

@@ -46,25 +46,25 @@ abstract final class ApiPaths {
   static const String aiFeatures = '/ai/features';
   static const String aiModels = '/ai/models';
   static const String aiConfig = '/ai/config';
-  static const String aiUsageMe = '/ai/usage/me';
   static const String aiCompletions = '/ai/completions';
   static const String aiCompletionsStream = '/ai/completions/stream';
-  static const String aiConversations = '/ai/conversations';
-  static String aiConversationById(String id) => '/ai/conversations/$id';
-  static String aiConversationExport(String id) =>
-      '/ai/conversations/$id/export';
 
-  // AI discovery / search / recommendation (AF4). Additive `/ai/*` surface consumed by
-  // the discovery/search/ask/explorer/recommendation screens (docs 36).
+  // Retrieval / recommendation (AF4). The `/ai/*` prefix stays — **D5 renamed the
+  // copy, never the wire** (decision 10). Search and its suggestions are PUBLIC since
+  // B1; saved searches and recommendations still need a session.
   static const String aiSearch = '/ai/search';
   static const String aiSearchSuggestions = '/ai/search/suggestions';
   static const String aiSearchSaved = '/ai/search/saved';
   static String aiSearchSavedById(String id) => '/ai/search/saved/$id';
-  static const String aiAsk = '/ai/ask';
-  static const String aiAskStream = '/ai/ask/stream';
   static String aiExplorer(String storyId, String view) =>
       '/ai/explorer/$storyId/$view';
   static const String aiRecommendations = '/ai/recommendations';
+
+  // Story Map (AF3). The batch trigger D5 added: five analyses folded into the story's
+  // graph in one action, streamed as SSE. Note it is NOT under `/ai/*` — the graph is
+  // its own module, and the explorer read above is the one that reaches across.
+  static String storyMapStream(String storyId) =>
+      '/story-intelligence/$storyId/map/stream';
 
   // Monetization (AF5, Phase 2). Additive `/monetization/*` surface: entitlements
   // (the server-authoritative premium-access source of truth the client gates on),
@@ -240,10 +240,11 @@ abstract final class ApiPaths {
   static String notification(String id) => '/notifications/$id';
   static const String notificationPreferences = '/notification-preferences';
 
-  // The user_settings preference bag (`GET/PATCH /settings`). Distinct from
-  // `/notification-preferences` above, which is the E9 delivery-gating set: this one is
-  // the DB-only bag (theme, default visibility, and B5's per-account AI switch).
-  static const String userSettings = '/settings';
+  // `GET/PATCH /settings` — the user_settings preference bag — is NOT listed here any
+  // more. This client's only use of it was B5's per-account AI switch, and **D5**
+  // removed that screen: the column and its server-side check stay live and default to
+  // true (decision 8), there is simply no UI. A writer who turned AI off before D5 now
+  // has no way to turn it back on — recorded as a known residue, not fixed here.
 
   // Analytics (M9). Self-scoped creator + reader aggregates and the growth series.
   // `me` and `readers/me` are LIFETIME (no range param); the growth series is the

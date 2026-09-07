@@ -55,4 +55,4 @@ final class AppSyncProvider
   }
 }
 
-String _$appSyncHash() => r'c406e8fb6e9b7d2f64f4e96119ead8876117ead2';
+String _$appSyncHash() => r'91a15f84a480f7e25dc76ef53658f0c76e7af86e';

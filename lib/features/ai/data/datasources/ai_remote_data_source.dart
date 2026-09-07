@@ -1,8 +1,11 @@
-/// AI remote data source (AF1 + AF2) — the only place the AI endpoints + `ApiClient`
-/// are touched. Maps the streamed JSON maps to typed [AiStreamEvent]s and owns the
+/// AI remote data source (AF1 + AF2 + AF3) — the only place the AI endpoints +
+/// `ApiClient` are touched. Maps the streamed JSON maps to typed events and owns the
 /// [CancelToken] so cancelling the returned stream aborts the HTTP request (keeping
-/// Dio out of the presentation layer). AF2 adds the conversation + usage endpoints,
-/// reusing the same client (envelope unwrap, offline pre-check, error mapping).
+/// Dio out of the presentation layer).
+///
+/// **D5** removed the conversation and usage endpoints (deleted by B2) and Ask My Book,
+/// and added the Story Map batch trigger — the first client call that can actually
+/// spend an analysis.
 library;
 
 import 'dart:async';
@@ -12,16 +15,13 @@ import 'package:dio/dio.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/network/api_paths.dart';
 import '../../../../core/utils/typedefs.dart';
-import '../../../../shared/api/api_envelope.dart';
 import '../../domain/entities/ai_completion.dart';
-import '../../domain/entities/ai_conversation.dart';
 import '../../domain/entities/ai_feature_flag.dart';
 import '../../domain/entities/ai_stream_event.dart';
-import '../../domain/entities/ai_usage.dart';
-import '../../domain/entities/ask_answer.dart';
 import '../../domain/entities/retrieval.dart';
 import '../../domain/entities/saved_search.dart';
 import '../../domain/entities/story_graph.dart';
+import '../../domain/entities/story_map_event.dart';
 import '../../domain/value_objects/retrieval_requests.dart';
 
 class AiRemoteDataSource {
@@ -70,79 +70,7 @@ class AiRemoteDataSource {
     return controller.stream;
   }
 
-  Future<AiUsageSummary> usage({CancelToken? cancelToken}) => _api.get(
-    ApiPaths.aiUsageMe,
-    decode: AiUsageSummary.fromJson,
-    cancelToken: cancelToken,
-  );
-
-  // ── Conversations ────────────────────────────────────────────────────────────
-
-  /// [status] selects the shelf. The route filters server-side and defaults to `active`, so
-  /// archived conversations are reachable only by asking for them (`platfrom/docs/48` §3.21).
-  Future<CursorPage<AiConversationSummary>> listConversations({
-    String? cursor,
-    int? limit,
-    AiConversationStatus? status,
-    CancelToken? cancelToken,
-  }) => _api.getPage(
-    ApiPaths.aiConversations,
-    query: <String, dynamic>{
-      'cursor': cursor,
-      'limit': limit,
-      'status': status?.wire,
-    },
-    decodeItem: AiConversationSummary.fromJson,
-    cancelToken: cancelToken,
-  );
-
-  Future<AiConversationSummary> createConversation({
-    required String feature,
-    String? title,
-    CancelToken? cancelToken,
-  }) => _api.post(
-    ApiPaths.aiConversations,
-    body: <String, dynamic>{'feature': feature, 'title': ?title},
-    decode: AiConversationSummary.fromJson,
-    cancelToken: cancelToken,
-  );
-
-  Future<AiConversationDetail> getConversation(
-    String id, {
-    CancelToken? cancelToken,
-  }) => _api.get(
-    ApiPaths.aiConversationById(id),
-    decode: AiConversationDetail.fromJson,
-    cancelToken: cancelToken,
-  );
-
-  Future<AiConversationSummary> renameConversation(String id, String title) =>
-      _api.patch(
-        ApiPaths.aiConversationById(id),
-        body: <String, dynamic>{'title': title},
-        decode: AiConversationSummary.fromJson,
-      );
-
-  Future<AiConversationSummary> setConversationStatus(
-    String id,
-    AiConversationStatus status,
-  ) => _api.patch(
-    ApiPaths.aiConversationById(id),
-    body: <String, dynamic>{'status': status.wire},
-    decode: AiConversationSummary.fromJson,
-  );
-
-  Future<void> deleteConversation(String id) =>
-      _api.delete(ApiPaths.aiConversationById(id));
-
-  Future<Json> exportConversation(String id, {CancelToken? cancelToken}) =>
-      _api.get(
-        ApiPaths.aiConversationExport(id),
-        decode: (Json json) => json,
-        cancelToken: cancelToken,
-      );
-
-  // ── AF4 — discovery / search / ask / explorer / recommendations ───────────────
+  // ── AF4 — search + saved searches ─────────────────────────
 
   Future<SemanticSearchResponse> searchSemantic(
     SemanticSearchRequest request, {
@@ -188,30 +116,40 @@ class AiRemoteDataSource {
   Future<void> deleteSavedSearch(String id) =>
       _api.delete(ApiPaths.aiSearchSavedById(id));
 
-  Future<AskBookAnswer> ask(
-    AskBookRequest request, {
+  // ── AF3 — Story Map ─────────────────────────────────────────────────────────
+
+  Future<ExplorerViewResult> explorer(
+    String storyId,
+    String view, {
     CancelToken? cancelToken,
-  }) => _api.post(
-    ApiPaths.aiAsk,
-    body: request.toJson(),
-    decode: AskBookAnswer.fromJson,
+  }) => _api.get(
+    ApiPaths.aiExplorer(storyId, view),
+    decode: ExplorerViewResult.fromJson,
     cancelToken: cancelToken,
   );
 
-  /// Streamed Ask answer. Owns a [CancelToken]; cancelling the returned stream's
-  /// subscription aborts the request (Dio never reaches presentation). Same pattern as
-  /// [streamCompletion]; only the event type ([AskStreamEvent]) differs.
-  Stream<AskStreamEvent> streamAsk(AskBookRequest request) {
+  /// Streamed "Map this story". Owns a [CancelToken]; cancelling the returned stream's
+  /// subscription aborts the request. That abort is not merely tidy here: the server
+  /// watches the connection and stops running analyses when it closes, so a writer who
+  /// walks away stops paying for work they will never see.
+  Stream<StoryMapEvent> mapStory(
+    String storyId, {
+    required String content,
+    String? storyTitle,
+  }) {
     final CancelToken cancelToken = CancelToken();
-    final StreamController<AskStreamEvent> controller =
-        StreamController<AskStreamEvent>();
-    final StreamSubscription<AskStreamEvent> subscription = _api
+    final StreamController<StoryMapEvent> controller =
+        StreamController<StoryMapEvent>();
+    final StreamSubscription<StoryMapEvent> subscription = _api
         .streamSse(
-          ApiPaths.aiAskStream,
-          body: request.toJson(),
+          ApiPaths.storyMapStream(storyId),
+          body: <String, dynamic>{
+            'content': content,
+            'storyTitle': ?storyTitle,
+          },
           cancelToken: cancelToken,
         )
-        .map(AskStreamEvent.fromJson)
+        .map(StoryMapEvent.fromJson)
         .listen(
           controller.add,
           onError: controller.addError,
@@ -224,15 +162,7 @@ class AiRemoteDataSource {
     return controller.stream;
   }
 
-  Future<ExplorerViewResult> explorer(
-    String storyId,
-    String view, {
-    CancelToken? cancelToken,
-  }) => _api.get(
-    ApiPaths.aiExplorer(storyId, view),
-    decode: ExplorerViewResult.fromJson,
-    cancelToken: cancelToken,
-  );
+  // ── AF4 — recommendations ─────────────────────────
 
   Future<RecommendationResponse> recommendations(
     RecommendationQuery query, {

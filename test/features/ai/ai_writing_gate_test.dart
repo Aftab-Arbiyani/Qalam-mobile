@@ -31,6 +31,7 @@ import 'package:qalam_mobile/features/ai/presentation/controllers/craft_coach_co
 import 'package:qalam_mobile/features/ai/presentation/panels/craft_coach_panel.dart';
 import 'package:qalam_mobile/features/ai/presentation/support/ai_error_copy.dart';
 import 'package:qalam_mobile/features/ai/presentation/widgets/ai_writing_lock_card.dart';
+import 'package:qalam_mobile/features/ai/presentation/widgets/model_disclosure_note.dart';
 import 'package:qalam_mobile/features/monetization/domain/entities/entitlement.dart';
 import 'package:qalam_mobile/features/monetization/domain/entities/monetization_enums.dart';
 import 'package:qalam_mobile/features/monetization/presentation/providers/monetization_providers.dart';
@@ -137,7 +138,21 @@ void main() {
       expect(aiPremiumMapIsTotal(), isTrue);
     });
 
-    test('sells exactly the two AF2 surfaces behind ai_writing', () {
+    test('knows exactly three ids after D5', () {
+      // `ask_book` is gone with its feature; `semantic_search` and `recommendations` are
+      // gone because those surfaces no longer read a flag at all. That second removal is
+      // the one that mattered: mobile's `AiFeatures.isEnabled` answers FALSE for a flag it
+      // cannot find, so an id left here would have taken mobile's search dark the moment
+      // Phase V deletes the server row — while web, whose resolver treats a missing flag as
+      // available, carried on working.
+      expect(AiFeatureIds.all, <String>{
+        AiFeatureIds.writingAssistant,
+        AiFeatureIds.craftCoach,
+        AiFeatureIds.playground,
+      });
+    });
+
+    test('sells exactly the two writing tools behind ai_writing', () {
       expect(
         premiumCodeFor(AiFeatureIds.writingAssistant),
         PremiumFeature.aiWriting,
@@ -145,18 +160,12 @@ void main() {
       expect(premiumCodeFor(AiFeatureIds.craftCoach), PremiumFeature.aiWriting);
     });
 
-    test('leaves D4 codes and the playground UNGATED — scope was deferred', () {
-      // The scope regression test. Gating any of these would put a client-only wall in front of
-      // a route the server serves (docs/48 §5.2 consequence 1) and pre-empt D4.
-      for (final String id in <String>[
-        AiFeatureIds.askBook,
-        AiFeatureIds.semanticSearch,
-        AiFeatureIds.recommendations,
-        AiFeatureIds.playground,
-      ]) {
-        expect(premiumCodeFor(id), isNull, reason: '$id must not be gated');
-      }
-    });
+    test(
+      'leaves the playground UNGATED — it is infrastructure, not a product',
+      () {
+        expect(premiumCodeFor(AiFeatureIds.playground), isNull);
+      },
+    );
 
     test('answers null for an unknown id rather than throwing', () {
       // A server that has learned a feature this build has not must not crash a panel.
@@ -165,73 +174,82 @@ void main() {
     });
   });
 
-  group('the four remedies stay apart (docs/48 §3.6)', () {
-    test('each of the four ways AI can be off has its own title and remedy', () {
-      final AiErrorCopy platformOff = AiErrorCopy.forCode(
-        ErrorCodes.aiDisabled,
-      );
-      final AiErrorCopy selfOff = AiErrorCopy.forCode(
-        ErrorCodes.aiDisabledByUser,
-      );
+  group('the three remedies stay apart (docs/48 §3.6)', () {
+    test('each of the three ways a tool can be blocked has its own remedy', () {
+      final AiErrorCopy off = AiErrorCopy.forCode(ErrorCodes.aiDisabled);
       final AiErrorCopy quota = AiErrorCopy.forCode(ErrorCodes.quotaExceeded);
       final AiErrorCopy writing = AiErrorCopy.forCode(
         ErrorCodes.entitlementDenied,
         feature: AiFeatureIds.writingAssistant,
       );
 
-      final Set<String> titles = <String>{
-        platformOff.title,
-        selfOff.title,
-        quota.title,
-        writing.title,
-      };
-      expect(titles.length, 4);
+      expect(<String>{off.title, quota.title, writing.title}, hasLength(3));
 
-      // Only the writing one is resolvable by the writer through a plan; quota resolves itself,
-      // and the two "off" states are a switch (theirs or an admin's).
+      // Only the writing one is resolvable by the writer through a plan; quota resolves
+      // itself; "off" is a switch they do not hold.
       expect(writing.canUpgrade, isTrue);
       expect(quota.canUpgrade, isFalse);
-      expect(selfOff.canUpgrade, isFalse);
-      expect(platformOff.canUpgrade, isFalse);
-      // None of the four is retryable — retrying is never the remedy for any of them.
+      expect(off.canUpgrade, isFalse);
+      // None is retryable — retrying is never the remedy for any of them.
       expect(<bool>[
-        platformOff.canRetry,
-        selfOff.canRetry,
+        off.canRetry,
         quota.canRetry,
         writing.canRetry,
       ], everyElement(isFalse));
     });
 
-    test('the writing remedy names the tier and never the allowance', () {
-      const AiErrorCopy copy = AiErrorCopy.aiWritingLocked;
+    /// **D5 merged the two "off" states, and this pins the merge.**
+    ///
+    /// They were deliberately apart before, because their remedies differed: one was an
+    /// admin's switch, the other the writer's own and "one screen away". D5 deleted that
+    /// screen, so the second sentence became a direction to nowhere. The codes stay
+    /// distinct on the wire — an unmapped code falls through to the retryable generic and
+    /// invites an infinite retry — but the writer is told the same true thing either way.
+    test('the two off states now read identically, and point nowhere', () {
+      final AiErrorCopy platformOff = AiErrorCopy.forCode(
+        ErrorCodes.aiDisabled,
+      );
+      final AiErrorCopy selfOff = AiErrorCopy.forCode(
+        ErrorCodes.aiDisabledByUser,
+      );
 
-      expect(copy.title.toLowerCase(), contains('plus'));
-      expect(copy.message.toLowerCase(), contains('ai writing'));
-      // Free KEEPS its allowance (DECISION 2a), so claiming otherwise would be untrue as well
-      // as the wrong remedy — the writer can still use search and Ask my book.
-      expect(copy.message.toLowerCase(), isNot(contains('allowance')));
-      expect(copy.message.toLowerCase(), isNot(contains('resets')));
-      expect(copy.message.toLowerCase(), isNot(contains('settings')));
+      expect(selfOff.title, platformOff.title);
+      expect(selfOff.message, platformOff.message);
+      expect(selfOff.title, 'Writing tools aren’t available');
+      expect(selfOff.message.toLowerCase(), isNot(contains('settings')));
     });
 
-    test('an ENTITLEMENT_DENIED on an AF4 surface keeps the allowance copy', () {
-      // `ask_book`'s denial is an `ai_budget` denial, not a writing one, so it must not be
-      // reworded — and a caller that names no feature keeps the pre-D3 behaviour exactly.
-      final AiErrorCopy ask = AiErrorCopy.forCode(
-        ErrorCodes.entitlementDenied,
-        feature: AiFeatureIds.askBook,
-      );
+    test(
+      'the writing remedy names the tier and the tools, never the allowance',
+      () {
+        const AiErrorCopy copy = AiErrorCopy.aiWritingLocked;
+
+        expect(copy.title.toLowerCase(), contains('plus'));
+        expect(copy.title.toLowerCase(), contains('polish'));
+        // Free keeps search and its drafts, so claiming the plan has no allowance would be
+        // untrue as well as the wrong remedy.
+        expect(copy.message.toLowerCase(), isNot(contains('allowance')));
+        expect(copy.message.toLowerCase(), isNot(contains('resets')));
+        expect(copy.message.toLowerCase(), isNot(contains('settings')));
+        // D5's rename is copy, so the copy is where it has to hold.
+        expect(copy.title.toLowerCase(), isNot(contains('ai ')));
+        expect(copy.message.toLowerCase(), isNot(contains('ai ')));
+      },
+    );
+
+    test('a denial that names no feature keeps the generic paid-plan copy', () {
+      // A caller that names no feature keeps the pre-D3 behaviour exactly: the reading is
+      // "your plan does not include this", not "your writing tools are locked".
       final AiErrorCopy unnamed = AiErrorCopy.forCode(
         ErrorCodes.entitlementDenied,
       );
 
-      expect(ask.title, 'This needs a paid plan');
       expect(unnamed.title, 'This needs a paid plan');
-      expect(ask.title, isNot(AiErrorCopy.aiWritingLocked.title));
+      expect(unnamed.title, isNot(AiErrorCopy.aiWritingLocked.title));
     });
   });
 
-  group('the Craft Coach panel is gated (DECISION 1)', () {
+  group('the Manuscript feedback panel is gated (DECISION 1)', () {
     testWidgets('mounts a PremiumGate on ai_writing', (
       WidgetTester tester,
     ) async {
@@ -252,7 +270,9 @@ void main() {
       expect(find.text(AiErrorCopy.aiWritingLocked.title), findsOneWidget);
       expect(find.text('See plans'), findsOneWidget);
       // The panel's own chrome is gone too — the writer is not offered a lens they cannot run.
-      expect(find.text('Craft coach'), findsNothing);
+      expect(find.text('Manuscript feedback'), findsNothing);
+      // Including the disclosure: there is nothing to disclose when nothing can run.
+      expect(find.text(ModelDisclosureNote.text), findsNothing);
     });
 
     testWidgets('lets an ENTITLED writer straight through', (
@@ -261,7 +281,10 @@ void main() {
       await _pumpCoach(tester, writingAllowed: true);
 
       expect(find.byType(AiWritingLockCard), findsNothing);
-      expect(find.text('Craft coach'), findsOneWidget);
+      expect(find.text('Manuscript feedback'), findsOneWidget);
+      // D5 decision 9: one quiet line, and exactly one — a disclosure repeated per view
+      // reads as a warning rather than a fact.
+      expect(find.text(ModelDisclosureNote.text), findsOneWidget);
     });
 
     testWidgets('shows the writing lock, NOT the allowance lock', (
@@ -306,7 +329,11 @@ void main() {
         failedWith: ErrorCodes.quotaExceeded,
       );
 
-      expect(find.text('You’ve used your AI allowance'), findsOneWidget);
+      // The wording is still the generic allowance one; **M3** makes it name the tool
+      // ("You’ve used today’s feedback reports"), once the per-feature allowance
+      // vocabulary exists to name it with. What matters here is that D3's rewording did
+      // not swallow the neighbouring code — the remedy for this one is waiting.
+      expect(find.textContaining('allowance'), findsWidgets);
       expect(find.text(AiErrorCopy.aiWritingLocked.title), findsNothing);
     });
   });

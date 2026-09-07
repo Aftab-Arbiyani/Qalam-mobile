@@ -194,7 +194,7 @@ void main() {
     await tester.pumpWidget(app);
     await settleFrames(tester);
 
-    expect(find.text('Story Explorer isn’t available yet'), findsOneWidget);
+    expect(find.text('Story Map isn’t available yet'), findsOneWidget);
     expect(find.byType(PremiumGate), findsNothing);
     expect(find.text('Aria'), findsNothing);
   });

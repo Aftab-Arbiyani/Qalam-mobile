@@ -51,16 +51,11 @@ class SettingsHubScreen extends ConsumerWidget {
                 subtitle: 'Private account, what you show',
                 onTap: () => context.push(Routes.settingsPrivacy),
               ),
-              // B5 (`platfrom/docs/45` §4.10) — the account's own AI switch. Listed
-              // unconditionally, including when AI is off: this is the one screen that
-              // turns it back on, so gating it on AI being enabled would strand the
-              // remedy behind the state it fixes.
-              QSettingsTile(
-                icon: Icons.auto_awesome_outlined,
-                title: 'AI',
-                subtitle: 'Use AI on this account',
-                onTap: () => context.push(Routes.settingsAi),
-              ),
+              // **D5** removed the "AI" tile that sat here (B5's per-account switch).
+              // The column and the server's check stay live and default to true — there
+              // is simply no screen. Known residue: a writer who turned AI off before D5
+              // has no way to turn it back on, and the tools read as unavailable to them
+              // with no remedy offered.
               QSettingsTile(
                 icon: Icons.notifications_outlined,
                 title: 'Notifications',

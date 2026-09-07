@@ -27,8 +27,8 @@ import '../../../../shared/widgets/layout/connectivity_banner.dart';
 import '../../../../shared/widgets/states/q_error_view.dart';
 import '../../../ai/domain/entities/ai_feature_flag.dart';
 import '../../../ai/domain/value_objects/ai_feature_ids.dart';
+import '../../../ai/domain/value_objects/story_map_seed.dart';
 import '../../../ai/presentation/panels/craft_coach_panel.dart';
-import '../../../ai/presentation/panels/writing_assistant_panel.dart';
 import '../../../ai/presentation/providers/ai_providers.dart';
 import '../../../collaboration/collaboration.dart' show RestrictedBanner;
 import '../../domain/entities/draft_sync.dart';
@@ -172,8 +172,8 @@ class _EditorScreenState extends ConsumerState<EditorScreen>
               ),
               if (coachEnabled)
                 IconButton(
-                  icon: const Icon(Icons.school_outlined),
-                  tooltip: 'Craft coach',
+                  icon: const Icon(Icons.rate_review_outlined),
+                  tooltip: 'Manuscript feedback',
                   onPressed: () => unawaited(
                     CraftCoachPanel.show(
                       context,
@@ -230,32 +230,22 @@ class _EditorScreenState extends ConsumerState<EditorScreen>
     final bool aiOn = ref.watch(appConfigProvider).enableAi;
     final bool collabOn = ref.watch(appConfigProvider).enableCollaboration;
     final AiFeatures? aiFeatures = ref.watch(aiFeaturesProvider).asData?.value;
-    // `isEnabled` already ANDs the master switch, and since B5 that master value is
-    // itself "platform flag AND this writer's own switch" — so these three entries
-    // disappear for an opted-out writer with no change needed here.
-    final bool anyAi =
-        aiOn &&
-        ((aiFeatures?.isEnabled(AiFeatureIds.writingAssistant) ?? false) ||
-            (aiFeatures?.isEnabled(AiFeatureIds.craftCoach) ?? false));
-    // AF4's two story-scoped surfaces. Both take the SERVER piece id and are owner-scoped
-    // server-side, so like the AF6 group below they need `st.draft.isRemote` — a draft that
-    // has never synced has no story to explore or ask about.
+    // **Story Map** — AF4's one surviving story-scoped surface. It takes the SERVER piece
+    // id and is owner-scoped server-side, so like the AF6 group below it needs
+    // `st.draft.isRemote`: a draft that has never synced has no story to map.
     //
-    // The two gates differ because the two routes do: `GET /ai/explorer/:storyId/:view` is
-    // `ai.use` only (`story-explorer.controller.ts`) and renders straight from the graph with
-    // no LLM, while `POST /ai/ask` also requires `feature.ai.askBook`. Gating the explorer on
-    // askBook would hide a surface the server would have served.
-    // **B5 (`platfrom/docs/45` §4.10).** The Explorer route carries no feature flag, so
-    // this gate was `aiOn && isRemote` — the COMPILE-TIME switch and nothing from the
-    // server. A writer who turned AI off kept a "Story explorer" entry that 403s. The
-    // account's own switch is `aiFeatures.aiEnabled`, which is the master flag ANDed with
-    // it, so reading it here fixes both that and a stale compile-time-only master read.
-    // Still NOT gated on a neighbouring feature's flag — that would hide a surface the
-    // server would have served (the mistake called out at the top of this method).
-    final bool explorerOn =
+    // `GET /ai/explorer/:storyId/:view` carries no feature flag of its own, so this gate
+    // reads the ACCOUNT's master switch (`aiFeatures.aiEnabled`, which is the platform
+    // flag ANDed with the writer's own) rather than the compile-time constant alone —
+    // otherwise a writer who turned AI off keeps an entry whose every read 403s. It is
+    // still NOT gated on a neighbouring feature's flag: that would hide a surface the
+    // server would have served. An unresolved read leaves the entry in place.
+    //
+    // **D5** deleted the three entries that used to sit above this one — AI
+    // conversations, Prompt library, AI usage — and the "Ask my book" entry below it,
+    // along with the `anyAi`/`askOn` gates they needed.
+    final bool storyMapOn =
         aiOn && (aiFeatures?.aiEnabled ?? true) && st.draft.isRemote;
-    final bool askOn =
-        explorerOn && (aiFeatures?.isEnabled(AiFeatureIds.askBook) ?? false);
     return PopupMenuButton<String>(
       icon: const Icon(Icons.more_vert),
       onSelected: (String value) => _onMenu(value, st),
@@ -269,36 +259,15 @@ class _EditorScreenState extends ConsumerState<EditorScreen>
           value: 'delete',
           child: Text('Delete draft'),
         ),
-        if (anyAi) ...<PopupMenuEntry<String>>[
-          const PopupMenuDivider(),
-          const PopupMenuItem<String>(
-            value: 'ai_conversations',
-            child: Text('AI conversations'),
-          ),
-          const PopupMenuItem<String>(
-            value: 'ai_prompts',
-            child: Text('Prompt library'),
-          ),
-          const PopupMenuItem<String>(
-            value: 'ai_usage',
-            child: Text('AI usage'),
-          ),
-        ],
-        // Defect **W5-3** (`platfrom/docs/48` §3.9): both routes were registered and neither
-        // had a `push` site anywhere in `lib/`, so Story Explorer was deep-link-only and Ask My
-        // Book was reachable only *from* the Explorer — i.e. from a screen nobody could open.
-        // Third instance of R-1's class; same fix, same menu.
-        if (explorerOn) ...<PopupMenuEntry<String>>[
+        // Defect **W5-3** (`platfrom/docs/48` §3.9): the route was registered and had no
+        // `push` site anywhere in `lib/`, so Story Map was deep-link-only. Third instance
+        // of R-1's class; same fix, same menu.
+        if (storyMapOn) ...<PopupMenuEntry<String>>[
           const PopupMenuDivider(),
           const PopupMenuItem<String>(
             value: 'ai_explorer',
-            child: Text('Story explorer'),
+            child: Text('Story Map'),
           ),
-          if (askOn)
-            const PopupMenuItem<String>(
-              value: 'ai_ask',
-              child: Text('Ask my book'),
-            ),
         ],
         // Collaboration is story-scoped: the routes take the SERVER piece id
         // (`storyId === pieceId`) behind a `ParseUUIDPipe`, so a draft that has
@@ -450,16 +419,22 @@ class _EditorScreenState extends ConsumerState<EditorScreen>
           QSnackbar.show(context, message: 'Draft deleted');
           context.pop();
         }
-      case 'ai_conversations':
-        unawaited(context.push(Routes.aiConversations));
-      case 'ai_prompts':
-        unawaited(_openPromptLibrary());
-      case 'ai_usage':
-        unawaited(context.push(Routes.aiUsage));
       case 'ai_explorer':
-        unawaited(context.push(Routes.aiExplorerPath(_storyId(st))));
-      case 'ai_ask':
-        unawaited(context.push(Routes.aiAskPath(_storyId(st))));
+        // Carry the draft's text across. `POST /story-intelligence/:id/map/stream` takes
+        // the content rather than reading the saved piece — so a writer can map what is
+        // in front of them, saved or not — and this screen is the only place that has it.
+        unawaited(
+          context.push(
+            Routes.aiExplorerPath(_storyId(st)),
+            extra: StoryMapSeed(
+              content: DraftAiEditorTarget.build(
+                ref,
+                widget.draftId,
+              ).context.chapterText,
+              title: st.draft.title,
+            ),
+          ),
+        );
       case 'collaborators':
         unawaited(context.push(Routes.storyCollaboratorsPath(_storyId(st))));
       case 'collab_comments':
@@ -471,27 +446,7 @@ class _EditorScreenState extends ConsumerState<EditorScreen>
     }
   }
 
-  /// Push the Prompt Library carrying this draft's route id, then — if the writer
-  /// picked "Use in assistant" there (docs/48 §3.12) — open the Writing Assistant
-  /// pre-filled with the returned instruction. The library hands the instruction
-  /// back rather than opening the panel itself: it doesn't have an [AiEditorTarget]
-  /// to build one from, only this screen does.
-  Future<void> _openPromptLibrary() async {
-    final String? instruction = await context.push<String>(
-      Routes.promptLibraryPath(routeId: widget.draftId),
-    );
-    if (instruction == null || !mounted) return;
-    unawaited(
-      WritingAssistantPanel.show(
-        context,
-        target: DraftAiEditorTarget.build(ref, widget.draftId),
-        routeId: widget.draftId,
-        initialInstruction: instruction,
-      ),
-    );
-  }
-
-  /// The story id for the AF4 and AF6 routes. `storyId === pieceId` server-side, so this
+  /// The story id for the Story Map and AF6 routes. `storyId === pieceId` server-side, so this
   /// is the draft's **remoteId** — never `widget.draftId`, which is the local route id
   /// and would be rejected by the endpoints' `ParseUUIDPipe`. Only reachable when
   /// `st.draft.isRemote`, which is what gates the menu entries.

@@ -73,22 +73,35 @@ void main() {
     });
   });
 
-  group('AI_DISABLED_BY_USER copy', () {
-    test('points at settings, and not at a plan or a reset', () {
-      final AiErrorCopy copy = AiErrorCopy.forCode(ErrorCodes.aiDisabledByUser);
-
-      expect(copy.title, 'You turned AI off');
-      expect(copy.message, contains('Settings'));
-      // Its whole reason for existing: a remedy the writer owns.
-      expect(copy.canRetry, isFalse);
-      expect(copy.canUpgrade, isFalse);
-      expect(copy.message, isNot(contains('plan')));
-      expect(copy.message, isNot(contains('resets')));
-    });
-
-    test('is distinct from the platform switch and from the quota family', () {
+  /// **D5 changed what this group can assert, and the change is a real loss.**
+  ///
+  /// B5's whole point was that `AI_DISABLED_BY_USER` had a remedy the writer owned: a
+  /// switch one screen away, which the copy named. D5 deleted that screen. So the two
+  /// tests that pinned the distinct sentence are gone, replaced by one that pins the
+  /// merge — because the alternative was keeping copy that sends a writer looking for a
+  /// control that no longer exists, which is worse than saying less.
+  ///
+  /// The distinct CODE survives on the wire, and that still matters: an unmapped code
+  /// falls through to the generic retryable failure and invites an infinite retry.
+  group('AI_DISABLED_BY_USER copy (D5)', () {
+    test('reads the same as the platform switch, and points nowhere', () {
       final AiErrorCopy self = AiErrorCopy.forCode(ErrorCodes.aiDisabledByUser);
       final AiErrorCopy platform = AiErrorCopy.forCode(ErrorCodes.aiDisabled);
+
+      expect(self.title, 'Writing tools aren’t available');
+      expect(self.title, platform.title);
+      expect(self.message, platform.message);
+      // The remedy it used to name is gone; nothing replaces it, and the copy does not
+      // pretend otherwise.
+      expect(self.message, isNot(contains('Settings')));
+      expect(self.canRetry, isFalse);
+      expect(self.canUpgrade, isFalse);
+    });
+
+    test('stays distinct from the quota and plan walls', () {
+      // Three walls, three sentences. Collapsing THESE would still be the W4 defect
+      // (docs/48 §3.6) — their remedies genuinely differ.
+      final AiErrorCopy off = AiErrorCopy.forCode(ErrorCodes.aiDisabledByUser);
       final AiErrorCopy quota = AiErrorCopy.forCode(
         ErrorCodes.aiUsageLimitExceeded,
       );
@@ -96,15 +109,9 @@ void main() {
         ErrorCodes.entitlementDenied,
       );
 
-      // Four walls, four sentences. Collapsing any pair is the W4 defect (docs/48 §3.6).
-      expect(<String>{
-        self.title,
-        platform.title,
-        quota.title,
-        plan.title,
-      }, hasLength(4));
+      expect(<String>{off.title, quota.title, plan.title}, hasLength(3));
       expect(plan.canUpgrade, isTrue);
-      expect(self.canUpgrade, isFalse);
+      expect(off.canUpgrade, isFalse);
     });
 
     test('an unknown code is still the generic retryable failure', () {

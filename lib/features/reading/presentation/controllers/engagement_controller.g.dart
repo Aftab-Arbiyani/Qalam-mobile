@@ -51,7 +51,7 @@ final class EngagementControllerProvider
 }
 
 String _$engagementControllerHash() =>
-    r'5e18d270d6481cfeb5ea8d83454d679ee0ef002a';
+    r'd425f8ee805ab99d9a181c6b5b503d7f2a6f5827';
 
 final class EngagementControllerFamily extends $Family
     with

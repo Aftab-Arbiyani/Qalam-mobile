@@ -3,21 +3,23 @@
 ///
 /// **Two sources, deliberately in this order** (mirrors web's `use-related-pieces.ts`):
 ///
-/// 1. **The AF4 recommender** (`kind=related_stories&pieceId=…`) for a signed-in
-///    reader on a build with AI on and `feature.ai.recommendations` enabled. It
-///    seeds off the piece alone (tags + title, server-side) and explains each
-///    suggestion with a `reason`.
+/// 1. **The recommender** (`kind=related_stories&pieceId=…`) for a signed-in reader
+///    on a build with AI on. It seeds off the piece alone (tags + title,
+///    server-side) and explains each suggestion with a `reason`. **D5** dropped the
+///    `feature.ai.recommendations` hop that used to sit alongside those two: the
+///    surface is de-branded and no longer flag-gated, so being signed in is the
+///    whole condition.
 /// 2. **The tag search** otherwise — the ORIGINAL W1 behaviour, keyed by the
-///    piece's first tag, and what a signed-out reader still gets (every AF4 route
-///    needs auth + `ai.use`, and most reading-page traffic has neither).
+///    piece's first tag, and what a signed-out reader still gets (recommendations
+///    remain auth-only, and most reading-page traffic has no session).
 ///
 /// The fallback also catches the recommender coming back empty (nothing of
 /// `targetType == 'piece'`) or erroring, so the section degrades to the older,
 /// dumber answer instead of disappearing. The two sources are never queried in
 /// parallel: [relatedSuggestions] is a SYNCHRONOUS combinator that reads each
 /// upstream provider's already-reactive [AsyncValue] (config → session →
-/// feature flags → recommendation) via `ref.watch` — the same pattern already
-/// proven by `editor_screen.dart` / `formatting_toolbar.dart`'s AI gating — and
+/// recommendation) via `ref.watch` — the same pattern already proven by
+/// `editor_screen.dart` / `formatting_toolbar.dart`'s AI gating — and
 /// waits (returns `.loading()`, via [_stillPending]) rather than falling through
 /// early whenever one of those is still resolving. Falling through on "not
 /// resolved yet" would treat a reader who is a heartbeat from "authenticated" as
@@ -43,12 +45,9 @@ import '../../../../shared/domain/entities/author.dart';
 import '../../../../shared/domain/entities/piece_summary.dart';
 import '../../../../shared/domain/entities/taxonomy.dart';
 import '../../../../shared/domain/enums.dart';
-import '../../../ai/domain/entities/ai_feature_flag.dart';
 import '../../../ai/domain/entities/retrieval.dart';
-import '../../../ai/domain/value_objects/ai_feature_ids.dart';
 import '../../../ai/domain/value_objects/retrieval_vocab.dart';
 import '../../../ai/presentation/controllers/recommendations_controller.dart';
-import '../../../ai/presentation/providers/ai_providers.dart';
 import '../providers/reading_providers.dart';
 
 part 'related_pieces_controller.g.dart';
@@ -88,15 +87,13 @@ AsyncValue<List<RelatedSuggestion>> relatedSuggestions(
     return _tagSearchOrEmpty(ref, args);
   }
 
-  final AsyncValue<AiFeatures> features = ref.watch(aiFeaturesProvider);
-  if (_stillPending(features)) {
-    return const AsyncValue<List<RelatedSuggestion>>.loading();
-  }
-  if (!(features.asData?.value.isEnabled(AiFeatureIds.recommendations) ??
-      false)) {
-    return _tagSearchOrEmpty(ref, args);
-  }
-
+  // **D5 removed the feature-flag hop that used to sit here.** The chain is now
+  // config → session → recommender → tag fallback, and the session check above is
+  // what carries the weight: recommendations remain auth-only, so this is a *request*
+  // gate, not a render one. Firing the read for a signed-out reader would 401, and a
+  // 401 outside `/auth` is terminal to the api client — it would drop the session of
+  // someone browsing a public piece (`platfrom/docs/48` §3.25, the same defect web
+  // walked into when its flag came out).
   final AsyncValue<RecommendationResponse> recommended = ref.watch(
     recommendationsProvider((
       kind: RecommendationKind.relatedStories,

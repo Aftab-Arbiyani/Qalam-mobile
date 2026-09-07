@@ -1,10 +1,21 @@
-/// The floating Writing Assistant panel (AF2) — the in-editor AI surface, shown as a
-/// bottom sheet over the editor. It offers quick actions (continue/rewrite/expand/
-/// condense/simplify) plus Improve·{aspect}, Tone·{tone}, and a free-form "Ask AI"
-/// with the Prompt Library. It STREAMS the result (typing animation, cancel), then
-/// presents an immutable suggestion with Preview/Compare and Apply/Replace/Insert/
-/// Append/Copy/Save-as-draft/Discard/Undo — every write routing through the editor's
-/// own commands via [AiEditorTarget]. The AI never touches the document itself.
+/// **Polish** — the in-editor writing tool, shown as a bottom sheet over the editor.
+///
+/// This is what `writing_assistant_panel.dart` became at **D5** (owner, 2026-09-02).
+/// The mechanism is unchanged — it streams a suggestion through the AF1 orchestrator
+/// and never touches the document itself, every write routing through the editor's own
+/// commands via [AiEditorTarget] — but the *offer* is deliberately much smaller.
+///
+/// **What left, and why it is not a trim.** The panel used to offer Continue writing,
+/// Rewrite, Expand, a tone picker and a free-form "Ask AI" box: that is prose
+/// *generation*, and Qalam's audience — literary writers and poets — rejects being sold
+/// it. What survives are the three actions that work on text the writer has already
+/// written: Simplify, Condense, and Improve·{aspect}. The word "AI" appears nowhere a
+/// writer can see; what the tool actually does is stated once, plainly, in
+/// [ModelDisclosureNote] at the foot.
+///
+/// The Prompt Library and the "Keep history" conversation binding went with them
+/// (D5 removed the conversation layer server-side, B2), so this sheet holds no
+/// per-draft state and needs no `routeId`.
 library;
 
 import 'dart:async';
@@ -12,10 +23,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
-import '../../../../app/router/routes.dart';
-import '../../../../core/utils/result.dart';
 import '../../../../shared/theme/q_tokens.dart';
 import '../../../../shared/theme/tokens/spacing_tokens.dart';
 import '../../../../shared/widgets/buttons/q_button.dart';
@@ -24,93 +32,48 @@ import '../../../../shared/widgets/feedback/q_bottom_sheet.dart';
 import '../../../../shared/widgets/feedback/q_snackbar.dart';
 import '../../../monetization/domain/entities/monetization_enums.dart';
 import '../../../monetization/presentation/widgets/premium_gate.dart';
-import '../../domain/entities/ai_conversation.dart';
 import '../../domain/entities/ai_suggestion.dart';
 import '../../domain/value_objects/ai_feature_ids.dart';
-import '../../domain/value_objects/prompt_preset.dart';
 import '../../domain/value_objects/writing_action.dart';
 import '../controllers/ai_stream_controller.dart';
 import '../controllers/assistant_session_controller.dart';
-import '../controllers/prompt_library_controller.dart';
 import '../editor/ai_editor_target.dart';
-import '../providers/ai_providers.dart';
 import '../support/ai_error_copy.dart';
 import '../support/ai_plans_link.dart';
 import '../widgets/ai_markdown.dart';
 import '../widgets/ai_streaming_text.dart';
 import '../widgets/ai_writing_lock_card.dart';
+import '../widgets/model_disclosure_note.dart';
 import '../widgets/suggestion_diff_view.dart';
-import '../widgets/token_usage_line.dart';
 
-class WritingAssistantPanel extends ConsumerStatefulWidget {
-  const WritingAssistantPanel({
-    required this.target,
-    required this.routeId,
-    this.initialInstruction,
-    super.key,
-  });
+class PolishSheet extends ConsumerStatefulWidget {
+  const PolishSheet({required this.target, super.key});
 
   final AiEditorTarget target;
-
-  /// The draft's local route id — keys the on-device "Keep history" binding
-  /// (docs/48 §3.12, W8-1). Never the server piece id: the binding is a
-  /// per-editing-session device preference, not a server-scoped resource.
-  final String routeId;
-
-  /// Pre-fills the "Ask the assistant" field (e.g. a prompt-library preset
-  /// handed off from `PromptLibraryScreen`, docs/48 §3.12). Populated only —
-  /// never sent automatically; the writer still confirms with Send.
-  final String? initialInstruction;
 
   static Future<void> show(
     BuildContext context, {
     required AiEditorTarget target,
-    required String routeId,
-    String? initialInstruction,
   }) => QBottomSheet.show<void>(
     context,
-    builder: (_) => WritingAssistantPanel(
-      target: target,
-      routeId: routeId,
-      initialInstruction: initialInstruction,
-    ),
+    builder: (_) => PolishSheet(target: target),
   );
 
   @override
-  ConsumerState<WritingAssistantPanel> createState() =>
-      _WritingAssistantPanelState();
+  ConsumerState<PolishSheet> createState() => _PolishSheetState();
 }
 
-class _WritingAssistantPanelState extends ConsumerState<WritingAssistantPanel> {
-  final TextEditingController _ask = TextEditingController();
+class _PolishSheetState extends ConsumerState<PolishSheet> {
   bool _showDiff = false;
   AiApplyHandle? _applied;
-
-  /// The conversation this draft is currently bound to, or null — read from
-  /// the on-device store so "Keep history" survives closing and reopening
-  /// this sheet, not just this one open.
-  String? _conversationId;
-  bool _startingHistory = false;
 
   @override
   void initState() {
     super.initState();
-    if (widget.initialInstruction != null) {
-      _ask.text = widget.initialInstruction!;
-    }
-    _conversationId = ref
-        .read(promptLibraryStoreProvider)
-        .historyBinding(widget.routeId);
     // Fresh session per open.
     Future<void>.microtask(
       () => ref.read(assistantSessionControllerProvider.notifier).reset(),
     );
-  }
-
-  @override
-  void dispose() {
-    _ask.dispose();
-    super.dispose();
   }
 
   @override
@@ -123,10 +86,10 @@ class _WritingAssistantPanelState extends ConsumerState<WritingAssistantPanel> {
 
     return ConstrainedBox(
       constraints: BoxConstraints(maxHeight: screen.height * 0.82),
-      // D3: AI writing is a paid capability, so the whole panel body is withheld from a
-      // writer whose plan excludes it rather than letting them compose an instruction and
-      // lose it to a 402. The gate fails closed (see `PremiumGate`), and the server
-      // re-checks regardless — this is UX, never the security boundary.
+      // D3: Polish is a paid capability, so the whole sheet body is withheld from a writer
+      // whose plan excludes it rather than letting them pick an action and lose it to a 402.
+      // The gate fails closed (see `PremiumGate`), and the server re-checks regardless —
+      // this is UX, never the security boundary.
       child: PremiumGate(
         feature: PremiumFeature.aiWriting,
         locked: const AiWritingLockCard(),
@@ -143,11 +106,10 @@ class _WritingAssistantPanelState extends ConsumerState<WritingAssistantPanel> {
             children: <Widget>[
               _header(tokens),
               Gap.v2,
-              _contextChip(tokens),
-              Gap.v2,
-              _keepHistoryRow(),
+              _contextChip(),
               Gap.v3,
               Flexible(child: _body(session)),
+              const ModelDisclosureNote(),
             ],
           ),
         ),
@@ -157,13 +119,13 @@ class _WritingAssistantPanelState extends ConsumerState<WritingAssistantPanel> {
 
   Widget _header(QTokens tokens) => Row(
     children: <Widget>[
-      Icon(Icons.auto_awesome, size: 20, color: tokens.colors.accent),
+      Icon(Icons.brush_outlined, size: 20, color: tokens.colors.accent),
       const SizedBox(width: QSpacing.s2),
-      Text('Writing assistant', style: Theme.of(context).textTheme.titleMedium),
+      Text('Polish', style: Theme.of(context).textTheme.titleMedium),
     ],
   );
 
-  Widget _contextChip(QTokens tokens) {
+  Widget _contextChip() {
     final bool sel = widget.target.canReplaceSelection;
     final int words = widget.target.context.hasSelection
         ? widget.target.context.selectionText
@@ -191,6 +153,9 @@ class _WritingAssistantPanelState extends ConsumerState<WritingAssistantPanel> {
 
   // ── Actions view ───────────────────────────────────────────────────────────
 
+  /// Every action is one tap. There is no menu chip and no free-text field: the
+  /// eight [ImproveAspect]s are laid out flat rather than hidden behind "Improve…",
+  /// because with generation gone they are most of what the tool does.
   Widget _actionsView() {
     final QTokens tokens = QTokens.of(context);
     final bool hasOperand = widget.target.context.hasOperand;
@@ -210,188 +175,45 @@ class _WritingAssistantPanelState extends ConsumerState<WritingAssistantPanel> {
             spacing: QSpacing.s2,
             runSpacing: QSpacing.s2,
             children: <Widget>[
-              _quickAction(
-                'Continue',
-                Icons.arrow_forward,
-                AssistantActionKind.continueWriting,
-              ),
-              _quickAction(
-                'Rewrite',
-                Icons.autorenew,
-                AssistantActionKind.rewrite,
-              ),
-              _quickAction(
-                'Expand',
-                Icons.unfold_more,
-                AssistantActionKind.expand,
-              ),
-              _quickAction(
-                'Condense',
-                Icons.unfold_less,
-                AssistantActionKind.condense,
-              ),
-              _quickAction(
+              _action(
                 'Simplify',
                 Icons.spellcheck,
-                AssistantActionKind.simplify,
+                WritingAction.of(AssistantActionKind.simplify),
               ),
-              _menuChip('Improve…', Icons.tune, _pickImprove),
-              _menuChip('Tone…', Icons.palette_outlined, _pickTone),
+              _action(
+                'Condense',
+                Icons.unfold_less,
+                WritingAction.of(AssistantActionKind.condense),
+              ),
             ],
           ),
           Gap.v4,
-          _askField(),
-          Gap.v3,
-          _historyRow(),
+          Text('Improve', style: Theme.of(context).textTheme.labelLarge),
+          Gap.v2,
+          Wrap(
+            spacing: QSpacing.s2,
+            runSpacing: QSpacing.s2,
+            children: <Widget>[
+              for (final ImproveAspect aspect in ImproveAspect.values)
+                _action(
+                  aspect.label,
+                  Icons.tune,
+                  WritingAction.improve(aspect),
+                ),
+            ],
+          ),
         ],
       ),
     );
   }
 
-  /// The opt-in that makes this session survive it (W8-1).
-  ///
-  /// Without a bound conversation the server answers and stores nothing —
-  /// `persist()` returns early when no `conversationId` was sent
-  /// (`ai-completion.service.ts:338`). That is why mobile's conversations
-  /// screen could never fill (docs/48 §3.12), and why the screen needs this
-  /// control to be worth having: it is what causes a conversation to gain
-  /// messages from the in-editor assistant. Opt-in rather than automatic:
-  /// persisting every turn by default would quietly build a server-side
-  /// transcript of a writer's drafts.
-  Widget _keepHistoryRow() {
-    final QTokens tokens = QTokens.of(context);
-    final String? id = _conversationId;
-    if (id != null) {
-      return Row(
-        children: <Widget>[
-          Expanded(
-            child: Text(
-              'Keeping this session’s history.',
-              style: TextStyle(
-                color: tokens.colors.textSecondary,
-                fontSize: 12,
-              ),
-            ),
-          ),
-          TextButton(
-            onPressed: () => _viewConversation(id),
-            child: const Text('View'),
-          ),
-          TextButton(
-            onPressed: () => unawaited(_stopKeepingHistory()),
-            child: const Text('Stop keeping'),
-          ),
-        ],
-      );
-    }
-    return Row(
-      children: <Widget>[
-        Expanded(
-          child: Text(
-            'This session isn’t being saved.',
-            style: TextStyle(color: tokens.colors.textSecondary, fontSize: 12),
-          ),
-        ),
-        TextButton.icon(
-          onPressed: _startingHistory
-              ? null
-              : () => unawaited(_startKeepingHistory()),
-          icon: const Icon(Icons.history, size: 16),
-          label: const Text('Keep history'),
-        ),
-      ],
-    );
-  }
-
-  Widget _quickAction(String label, IconData icon, AssistantActionKind kind) =>
-      QChip(
-        label: label,
-        icon: icon,
-        onTap: widget.target.context.hasOperand
-            ? () => _run(WritingAction.of(kind))
-            : null,
-      );
-
-  Widget _menuChip(
-    String label,
-    IconData icon,
-    Future<void> Function() onTap,
-  ) => QChip(
+  Widget _action(String label, IconData icon, WritingAction action) => QChip(
     label: label,
     icon: icon,
-    onTap: widget.target.context.hasOperand ? () => unawaited(onTap()) : null,
+    onTap: widget.target.context.hasOperand ? () => _run(action) : null,
   );
 
-  Widget _askField() {
-    final QTokens tokens = QTokens.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Row(
-          children: <Widget>[
-            Text(
-              'Ask the assistant',
-              style: Theme.of(context).textTheme.labelLarge,
-            ),
-            const Spacer(),
-            TextButton.icon(
-              onPressed: () => unawaited(_openPromptLibrary()),
-              icon: const Icon(Icons.library_books_outlined, size: 16),
-              label: const Text('Prompts'),
-            ),
-          ],
-        ),
-        Gap.v1,
-        TextField(
-          controller: _ask,
-          minLines: 1,
-          maxLines: 4,
-          textInputAction: TextInputAction.newline,
-          decoration: InputDecoration(
-            hintText: 'e.g. Make this more vivid…',
-            filled: true,
-            fillColor: tokens.colors.bgRaised,
-            border: const OutlineInputBorder(),
-            suffixIcon: IconButton(
-              icon: Icon(Icons.send, color: tokens.colors.accent),
-              tooltip: 'Ask AI',
-              onPressed: _ask.text.trim().isEmpty ? null : _runFreeform,
-            ),
-          ),
-          onChanged: (_) => setState(() {}),
-          onSubmitted: (_) => _ask.text.trim().isEmpty ? null : _runFreeform(),
-        ),
-      ],
-    );
-  }
-
-  Widget _historyRow() {
-    final PromptLibraryState lib = ref.watch(promptLibraryControllerProvider);
-    if (lib.history.isEmpty) return const SizedBox.shrink();
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Text('Recent', style: Theme.of(context).textTheme.labelMedium),
-        Gap.v1,
-        Wrap(
-          spacing: QSpacing.s2,
-          runSpacing: QSpacing.s1,
-          children: <Widget>[
-            for (final String h in lib.history.take(4))
-              QChip(
-                label: h.length > 28 ? '${h.substring(0, 28)}…' : h,
-                onTap: () {
-                  _ask.text = h;
-                  setState(() {});
-                },
-              ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  // ── Streaming view ───────────────────────────────────────────────────────────
+  // ── Streaming view ─────────────────────────────────────────────────────────
 
   Widget _streamingView() {
     final AiStreamState stream = ref.watch(aiStreamControllerProvider);
@@ -467,11 +289,6 @@ class _WritingAssistantPanelState extends ConsumerState<WritingAssistantPanel> {
             ),
           ),
         ),
-        TokenUsageLine(
-          usage: suggestion.usage,
-          provider: suggestion.provider,
-          model: suggestion.model,
-        ),
         Gap.v3,
         _actionBar(suggestion),
       ],
@@ -524,7 +341,7 @@ class _WritingAssistantPanelState extends ConsumerState<WritingAssistantPanel> {
               () => unawaited(_saveDraft(suggestion)),
             ),
             _barChip(
-              'Regenerate',
+              'Try again',
               Icons.refresh,
               () => unawaited(
                 ref
@@ -542,7 +359,7 @@ class _WritingAssistantPanelState extends ConsumerState<WritingAssistantPanel> {
   Widget _barChip(String label, IconData icon, VoidCallback onTap) =>
       QChip(label: label, icon: icon, onTap: onTap);
 
-  // ── Applied / error views ────────────────────────────────────────────────────
+  // ── Applied / error views ──────────────────────────────────────────────────
 
   Widget _appliedView() {
     final QTokens tokens = QTokens.of(context);
@@ -593,8 +410,8 @@ class _WritingAssistantPanelState extends ConsumerState<WritingAssistantPanel> {
 
   Widget _errorView(String? code) {
     final QTokens tokens = QTokens.of(context);
-    // D3: naming the feature is what selects the AI-writing remedy over the allowance one
-    // when a 402 arrives mid-STREAM — the gate cannot cover that window.
+    // D3: naming the feature is what selects the Polish remedy over a generic one when a
+    // 402 or a 429 arrives mid-STREAM — the gate cannot cover that window.
     final AiErrorCopy copy = AiErrorCopy.forCode(
       code,
       feature: AiFeatureIds.writingAssistant,
@@ -671,160 +488,8 @@ class _WritingAssistantPanelState extends ConsumerState<WritingAssistantPanel> {
     unawaited(
       ref
           .read(assistantSessionControllerProvider.notifier)
-          .runAction(
-            action,
-            widget.target.context,
-            conversationId: _conversationId,
-          ),
+          .runAction(action, widget.target.context),
     );
-  }
-
-  void _runFreeform() {
-    final String instruction = _ask.text.trim();
-    if (instruction.isEmpty) return;
-    unawaited(
-      ref.read(promptLibraryControllerProvider.notifier).recordUse(instruction),
-    );
-    unawaited(
-      ref
-          .read(assistantSessionControllerProvider.notifier)
-          .runAction(
-            WritingAction.of(AssistantActionKind.freeform),
-            widget.target.context,
-            instruction: instruction,
-            conversationId: _conversationId,
-          ),
-    );
-  }
-
-  Future<void> _startKeepingHistory() async {
-    setState(() => _startingHistory = true);
-    final Result<AiConversationSummary> result = await ref
-        .read(aiRepositoryProvider)
-        .createConversation(feature: AiFeatureIds.writingAssistant);
-    if (!mounted) return;
-    setState(() => _startingHistory = false);
-    result.fold(
-      (AiConversationSummary created) {
-        unawaited(
-          ref
-              .read(promptLibraryStoreProvider)
-              .setHistoryBinding(widget.routeId, created.id),
-        );
-        setState(() => _conversationId = created.id);
-      },
-      (_) => QSnackbar.show(
-        context,
-        message: 'Couldn’t start keeping history.',
-        variant: QSnackbarVariant.danger,
-      ),
-    );
-  }
-
-  Future<void> _stopKeepingHistory() async {
-    await ref
-        .read(promptLibraryStoreProvider)
-        .setHistoryBinding(widget.routeId, null);
-    if (!mounted) return;
-    setState(() => _conversationId = null);
-  }
-
-  /// Close the sheet, then open the conversation. Mirrors [openPlansFromSheet]:
-  /// the router is captured **before** the pop, since the sheet's [BuildContext]
-  /// is defunct once its route is gone.
-  void _viewConversation(String conversationId) {
-    final GoRouter router = GoRouter.of(context);
-    Navigator.of(context).maybePop();
-    unawaited(router.push(Routes.aiConversationPath(conversationId)));
-  }
-
-  Future<void> _pickImprove() async {
-    final ImproveAspect? aspect = await _pickOption<ImproveAspect>(
-      title: 'Improve…',
-      options: ImproveAspect.values,
-      label: (ImproveAspect a) => a.label,
-    );
-    if (aspect != null) _run(WritingAction.improve(aspect));
-  }
-
-  Future<void> _pickTone() async {
-    final WritingTone? tone = await _pickOption<WritingTone>(
-      title: 'Adjust tone…',
-      options: WritingTone.values,
-      label: (WritingTone t) => t.label,
-    );
-    if (tone != null) _run(WritingAction.tone(tone));
-  }
-
-  Future<T?> _pickOption<T>({
-    required String title,
-    required List<T> options,
-    required String Function(T) label,
-  }) => QBottomSheet.show<T>(
-    context,
-    builder: (BuildContext sheetContext) => SafeArea(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(QSpacing.s4),
-            child: Text(
-              title,
-              style: Theme.of(sheetContext).textTheme.titleMedium,
-            ),
-          ),
-          for (final T option in options)
-            ListTile(
-              title: Text(label(option)),
-              onTap: () => Navigator.of(sheetContext).pop(option),
-            ),
-          Gap.v2,
-        ],
-      ),
-    ),
-  );
-
-  Future<void> _openPromptLibrary() async {
-    final PromptPreset? preset = await QBottomSheet.show<PromptPreset>(
-      context,
-      builder: (BuildContext sheetContext) {
-        final PromptLibraryState lib = ref.read(
-          promptLibraryControllerProvider,
-        );
-        return SafeArea(
-          child: ListView(
-            shrinkWrap: true,
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.all(QSpacing.s4),
-                child: Text(
-                  'Prompt library',
-                  style: Theme.of(sheetContext).textTheme.titleMedium,
-                ),
-              ),
-              for (final PromptPreset p in lib.presets)
-                ListTile(
-                  leading: Icon(
-                    p.isBuiltIn ? Icons.star_border : Icons.edit_note,
-                  ),
-                  title: Text(p.title),
-                  subtitle: Text(
-                    p.instruction,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  onTap: () => Navigator.of(sheetContext).pop(p),
-                ),
-            ],
-          ),
-        );
-      },
-    );
-    if (preset != null) {
-      _ask.text = preset.instruction;
-      setState(() {});
-    }
   }
 
   void _apply(AiSuggestion suggestion, AiSuggestionPlacement placement) {
@@ -852,7 +517,7 @@ class _WritingAssistantPanelState extends ConsumerState<WritingAssistantPanel> {
   void _undo() {
     _applied?.undo();
     setState(() => _applied = null);
-    QSnackbar.show(context, message: 'AI change undone.');
+    QSnackbar.show(context, message: 'Change undone.');
   }
 
   void _copy(String content) {
@@ -899,7 +564,7 @@ class _ThinkingIndicator extends StatelessWidget {
           ),
         ),
         const SizedBox(width: QSpacing.s2),
-        Text('Thinking…', style: TextStyle(color: tokens.colors.textSecondary)),
+        Text('Working…', style: TextStyle(color: tokens.colors.textSecondary)),
       ],
     );
   }

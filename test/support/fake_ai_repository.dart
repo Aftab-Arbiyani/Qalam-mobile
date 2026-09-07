@@ -1,58 +1,53 @@
-/// A configurable in-memory [AiRepository] for AF2 tests. Replays a fixed stream
-/// script, returns canned completions/usage/conversations, and records the requests
+/// A configurable in-memory [AiRepository] for AF2/AF3/AF4 tests. Replays fixed stream
+/// scripts, returns canned completions and retrieval results, and records the requests
 /// it received so tests can assert what the client sent (feature, promptKey, context).
+///
+/// **D5** cut the conversation, usage and Ask surfaces out of it, and added the Story
+/// Map run.
 library;
 
 import 'package:qalam_mobile/core/error/failure.dart';
 import 'package:qalam_mobile/core/utils/result.dart';
 import 'package:qalam_mobile/core/utils/typedefs.dart';
 import 'package:qalam_mobile/features/ai/ai.dart';
-import 'package:qalam_mobile/shared/api/api_envelope.dart';
 
 class FakeAiRepository implements AiRepository {
   FakeAiRepository({
     List<AiStreamEvent>? streamEvents,
     AiCompletionResult? completion,
     AiFeatures? features,
-    AiUsageSummary? usage,
-    List<AiConversationSummary>? conversations,
-    AiConversationDetail? detail,
     this.failure,
-    this.statusChangeFailure,
-    // AF4 canned responses.
+    // AF3 / AF4 canned responses.
+    List<StoryMapEvent>? mapEvents,
+    this.mapHold,
     SemanticSearchResponse? search,
     List<String>? suggestions,
     List<SavedSearch>? savedSearches,
-    AskBookAnswer? askAnswer,
-    List<AskStreamEvent>? askStreamEvents,
     ExplorerViewResult? explorer,
     RecommendationResponse? recommendations,
     this.recommendationsFailure,
   }) : streamEvents = streamEvents ?? const <AiStreamEvent>[],
        _completion = completion,
        _features = features,
-       _usage = usage,
-       _conversations = conversations ?? const <AiConversationSummary>[],
-       _detail = detail,
+       mapEvents = mapEvents ?? const <StoryMapEvent>[],
        _search = search,
        _suggestions = suggestions ?? const <String>[],
        _savedSearches = savedSearches ?? const <SavedSearch>[],
-       _askAnswer = askAnswer,
-       askStreamEvents = askStreamEvents ?? const <AskStreamEvent>[],
        _explorer = explorer,
        _recommendations = recommendations;
 
   final List<AiStreamEvent> streamEvents;
   final AiCompletionResult? _completion;
   final AiFeatures? _features;
-  final AiUsageSummary? _usage;
-  final List<AiConversationSummary> _conversations;
-  final AiConversationDetail? _detail;
+  final List<StoryMapEvent> mapEvents;
+
+  /// When set, [mapStory] waits on this after replaying [mapEvents] instead of closing.
+  /// A map run that drains in microtasks never paints its progress, so a test that wants
+  /// to observe a frame mid-run has to hold the stream open the way a real one is.
+  final Future<void>? mapHold;
   final SemanticSearchResponse? _search;
   final List<String> _suggestions;
   final List<SavedSearch> _savedSearches;
-  final AskBookAnswer? _askAnswer;
-  final List<AskStreamEvent> askStreamEvents;
   final ExplorerViewResult? _explorer;
   final RecommendationResponse? _recommendations;
 
@@ -65,20 +60,24 @@ class FakeAiRepository implements AiRepository {
   /// unaffected).
   final Failure? recommendationsFailure;
 
-  /// When set, ONLY [setConversationStatus] fails — so a test can load a shelf successfully and
-  /// then fail the archive, which is the case that decides whether the row is put back. Same
-  /// narrowly-scoped shape as [recommendationsFailure].
-  final Failure? statusChangeFailure;
-
   // Recorded inputs for assertions.
   AiCompletionRequest? lastCompletionRequest;
   AiCompletionRequest? lastStreamRequest;
   SemanticSearchRequest? lastSearchRequest;
-  AskBookRequest? lastAskRequest;
-  AskBookRequest? lastAskStreamRequest;
   RecommendationQuery? lastRecommendationQuery;
-  final List<String> deletedConversationIds = <String>[];
   final List<String> savedSearchNames = <String>[];
+
+  /// What the last "Map this story" run was asked to map. Recorded because the
+  /// endpoint takes the CONTENT, so a test can prove the editor's text reached it —
+  /// a run that sent the id and no text would 400, not merely under-deliver.
+  /// How many explorer view reads the fake served. A finished map run has to make the
+  /// screen refetch — a mapped story that still renders the pre-map graph is
+  /// indistinguishable from the hollow-graph defect D5's trigger exists to fix.
+  int explorerCallCount = 0;
+
+  String? lastMappedStoryId;
+  String? lastMappedContent;
+  String? lastMappedTitle;
 
   @override
   Future<Result<AiFeatures>> features() async => failure != null
@@ -113,114 +112,6 @@ class FakeAiRepository implements AiRepository {
       yield event;
     }
   }
-
-  @override
-  Future<Result<AiUsageSummary>> usage() async => failure != null
-      ? Err<AiUsageSummary>(failure!)
-      : Ok<AiUsageSummary>(
-          _usage ??
-              const AiUsageSummary(
-                daily: AiUsageWindow.zero,
-                monthly: AiUsageWindow.zero,
-                total: AiUsageWindow.zero,
-                byFeature: <AiFeatureUsage>[],
-              ),
-        );
-
-  /// The last `status` the list was asked for, and `null` when it was asked for none. Recorded so a
-  /// test can prove the shelf is a REQUEST parameter rather than a filter applied after the fact.
-  AiConversationStatus? lastListedStatus;
-  bool listedWithoutStatus = false;
-
-  @override
-  Future<Result<CursorPage<AiConversationSummary>>> listConversations({
-    String? cursor,
-    int? limit,
-    AiConversationStatus? status,
-  }) async {
-    lastListedStatus = status;
-    listedWithoutStatus = status == null;
-    if (failure != null) {
-      return Err<CursorPage<AiConversationSummary>>(failure!);
-    }
-    // Filtered here the way the route filters it: omitting the status means the route's own
-    // default, which is `active`. A fake that returned everything would let a client pass a test
-    // it fails in production — the shape of defect W8-2 in the first place.
-    final AiConversationStatus effective =
-        status ?? AiConversationStatus.active;
-    return Ok<CursorPage<AiConversationSummary>>(
-      CursorPage<AiConversationSummary>(
-        items: _conversations
-            .where((AiConversationSummary c) => c.status == effective)
-            .toList(growable: false),
-        meta: const CursorMeta(),
-      ),
-    );
-  }
-
-  @override
-  Future<Result<AiConversationSummary>> createConversation({
-    required String feature,
-    String? title,
-  }) async => failure != null
-      ? Err<AiConversationSummary>(failure!)
-      : Ok<AiConversationSummary>(
-          AiConversationSummary(
-            id: 'c-new',
-            title: title,
-            feature: feature,
-            status: AiConversationStatus.active,
-            messageCount: 0,
-            createdAt: DateTime(2026),
-            updatedAt: DateTime(2026),
-          ),
-        );
-
-  @override
-  Future<Result<AiConversationDetail>> getConversation(String id) async {
-    if (failure != null) return Err<AiConversationDetail>(failure!);
-    final AiConversationDetail? detail = _detail;
-    if (detail != null) return Ok<AiConversationDetail>(detail);
-    return const Err<AiConversationDetail>(
-      Failure.notFound(code: 'AI_CONVERSATION_NOT_FOUND'),
-    );
-  }
-
-  @override
-  Future<Result<AiConversationSummary>> renameConversation(
-    String id,
-    String title,
-  ) async => failure != null
-      ? Err<AiConversationSummary>(failure!)
-      : Ok<AiConversationSummary>(
-          _conversations
-              .firstWhere((AiConversationSummary c) => c.id == id)
-              .copyWith(title: title),
-        );
-
-  @override
-  Future<Result<AiConversationSummary>> setConversationStatus(
-    String id,
-    AiConversationStatus status,
-  ) async => (statusChangeFailure ?? failure) != null
-      ? Err<AiConversationSummary>(statusChangeFailure ?? failure!)
-      : Ok<AiConversationSummary>(
-          _conversations
-              .firstWhere((AiConversationSummary c) => c.id == id)
-              .copyWith(status: status),
-        );
-
-  @override
-  Future<Result<Unit>> deleteConversation(String id) async {
-    if (failure != null) return Err<Unit>(failure!);
-    deletedConversationIds.add(id);
-    return const Ok<Unit>(unit);
-  }
-
-  @override
-  Future<Result<Json>> exportConversation(String id) async => failure != null
-      ? Err<Json>(failure!)
-      : Ok<Json>(<String, dynamic>{'id': id, 'messages': <dynamic>[]});
 
   // ── AF4 ──────────────────────────────────────────────────────────────────────
 
@@ -289,53 +180,40 @@ class FakeAiRepository implements AiRepository {
       failure != null ? Err<Unit>(failure!) : const Ok<Unit>(unit);
 
   @override
-  Future<Result<AskBookAnswer>> ask(AskBookRequest request) async {
-    lastAskRequest = request;
-    if (failure != null) return Err<AskBookAnswer>(failure!);
-    return Ok<AskBookAnswer>(
-      _askAnswer ??
-          AskBookAnswer(
-            storyId: request.storyId,
-            scope: request.scope.wire,
-            answer: 'A grounded answer.',
-            citations: const <AskCitation>[],
-            confidence: 0.8,
-            usage: const AiTokenUsage(
-              inputTokens: 1,
-              outputTokens: 1,
-              totalTokens: 2,
-            ),
-            estimatedCostUsd: 0,
-            conversationId: null,
-          ),
-    );
-  }
-
-  @override
-  Stream<AskStreamEvent> streamAsk(AskBookRequest request) async* {
-    lastAskStreamRequest = request;
-    for (final AskStreamEvent event in askStreamEvents) {
-      yield event;
-    }
-  }
-
-  @override
   Future<Result<ExplorerViewResult>> explorer(
     String storyId,
     String view,
-  ) async => failure != null
-      ? Err<ExplorerViewResult>(failure!)
-      : Ok<ExplorerViewResult>(
-          _explorer ??
-              ExplorerViewResult(
-                storyId: storyId,
-                view: view,
-                nodes: const <StoryGraphNode>[],
-                edges: const <StoryGraphEdge>[],
-                nodeCount: 0,
-                edgeCount: 0,
-              ),
-        );
+  ) async {
+    explorerCallCount++;
+    return failure != null
+        ? Err<ExplorerViewResult>(failure!)
+        : Ok<ExplorerViewResult>(
+            _explorer ??
+                ExplorerViewResult(
+                  storyId: storyId,
+                  view: view,
+                  nodes: const <StoryGraphNode>[],
+                  edges: const <StoryGraphEdge>[],
+                  nodeCount: 0,
+                  edgeCount: 0,
+                ),
+          );
+  }
+
+  @override
+  Stream<StoryMapEvent> mapStory(
+    String storyId, {
+    required String content,
+    String? storyTitle,
+  }) async* {
+    lastMappedStoryId = storyId;
+    lastMappedContent = content;
+    lastMappedTitle = storyTitle;
+    for (final StoryMapEvent event in mapEvents) {
+      yield event;
+    }
+    if (mapHold != null) await mapHold;
+  }
 
   @override
   Future<Result<RecommendationResponse>> recommendations(

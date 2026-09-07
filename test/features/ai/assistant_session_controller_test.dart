@@ -1,3 +1,13 @@
+/// The Polish session controller (**D5**).
+///
+/// The two conversation tests that used to sit here are gone: D5 made completions
+/// stateless (B2 deleted the server's conversation layer), so there is no
+/// `conversationId` to bind, send, or resend. In their place is a stronger assertion —
+/// the request must carry NO conversation field at all. `forbidNonWhitelisted` is live
+/// on the backend, so once Phase V contracts the DTO a client still sending one gets a
+/// 400, not a quietly-ignored key.
+library;
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:qalam_mobile/features/ai/ai.dart';
@@ -46,7 +56,7 @@ void main() {
     await c
         .read(assistantSessionControllerProvider.notifier)
         .runAction(
-          WritingAction.of(AssistantActionKind.rewrite),
+          WritingAction.of(AssistantActionKind.condense),
           selectionContext,
         );
 
@@ -57,8 +67,8 @@ void main() {
     final AiSuggestion s = state.suggestion!;
     expect(s.content, 'The ancient house stood alone, weathered.');
     expect(s.sourceFeature, AiFeatureIds.writingAssistant);
-    expect(s.sourceLabel, 'Rewrite');
-    expect(s.promptKey, 'writing_assistant.rewrite');
+    expect(s.sourceLabel, 'Condense');
+    expect(s.promptKey, 'writing_assistant.condense');
     expect(s.placement, AiSuggestionPlacement.replaceSelection);
     expect(s.originalText, 'The old house stood alone.');
     expect(s.usage?.totalTokens, 16);
@@ -102,43 +112,7 @@ void main() {
     },
   );
 
-  test(
-    'sends conversationId only when the writer opted into keeping history (W8-1)',
-    () async {
-      final FakeAiRepository fake = FakeAiRepository(
-        streamEvents: const <AiStreamEvent>[
-          AiStreamEvent(type: AiStreamEventType.delta, text: 'x'),
-          AiStreamEvent(type: AiStreamEventType.done),
-        ],
-      );
-      final ProviderContainer c = ProviderContainer(
-        overrides: [aiRepositoryProvider.overrideWithValue(fake)],
-      );
-      addTearDown(c.dispose);
-
-      // Not kept: `ai-completion.service.ts:338` drops a turn with no
-      // conversationId, so the client must not invent one.
-      await c
-          .read(assistantSessionControllerProvider.notifier)
-          .runAction(
-            WritingAction.of(AssistantActionKind.rewrite),
-            selectionContext,
-          );
-      expect(fake.lastStreamRequest!.conversationId, isNull);
-
-      // Kept: the bound id rides along on the next turn.
-      await c
-          .read(assistantSessionControllerProvider.notifier)
-          .runAction(
-            WritingAction.of(AssistantActionKind.rewrite),
-            selectionContext,
-            conversationId: 'conv-1',
-          );
-      expect(fake.lastStreamRequest!.conversationId, 'conv-1');
-    },
-  );
-
-  test('regenerate resends the bound conversationId (W8-1)', () async {
+  test('the request carries no conversation binding at all (D5)', () async {
     final FakeAiRepository fake = FakeAiRepository(
       streamEvents: const <AiStreamEvent>[
         AiStreamEvent(type: AiStreamEventType.delta, text: 'x'),
@@ -153,13 +127,23 @@ void main() {
     await c
         .read(assistantSessionControllerProvider.notifier)
         .runAction(
-          WritingAction.of(AssistantActionKind.rewrite),
+          WritingAction.of(AssistantActionKind.simplify),
           selectionContext,
-          conversationId: 'conv-1',
         );
-    await c.read(assistantSessionControllerProvider.notifier).regenerate();
+    // Asserted on the SERIALIZED body, not on a Dart field: the field is gone from the
+    // request type, so only the wire can still tell us whether something re-adds it.
+    expect(
+      fake.lastStreamRequest!.toJson().containsKey('conversationId'),
+      isFalse,
+    );
 
-    expect(fake.lastStreamRequest!.conversationId, 'conv-1');
+    // "Try again" re-runs the same action, and adds nothing back.
+    await c.read(assistantSessionControllerProvider.notifier).regenerate();
+    expect(fake.lastStreamRequest!.promptKey, 'writing_assistant.simplify');
+    expect(
+      fake.lastStreamRequest!.toJson().containsKey('conversationId'),
+      isFalse,
+    );
   });
 
   test('a stream error surfaces the error code, no suggestion', () async {
@@ -173,7 +157,7 @@ void main() {
     await c
         .read(assistantSessionControllerProvider.notifier)
         .runAction(
-          WritingAction.of(AssistantActionKind.expand),
+          WritingAction.improve(ImproveAspect.grammar),
           selectionContext,
         );
 
