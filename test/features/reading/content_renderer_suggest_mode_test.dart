@@ -10,7 +10,7 @@ import 'package:umberleaf_mobile/shared/theme/app_theme.dart';
 /// `onBlockTap` are opt-in — the golden test (`content_renderer_golden_test.dart`)
 /// pins the null-params path unchanged; this file covers the non-null one.
 Widget _host(Widget child) => MaterialApp(
-  theme: buildQalamTheme(brightness: Brightness.light),
+  theme: buildUmberleafTheme(brightness: Brightness.light),
   home: Scaffold(body: child),
 );
 

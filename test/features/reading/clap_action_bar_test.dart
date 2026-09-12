@@ -70,7 +70,7 @@ ProviderContainer _container({
 Widget _wrap(ProviderContainer c) => UncontrolledProviderScope(
   container: c,
   child: MaterialApp(
-    theme: buildQalamTheme(brightness: Brightness.light),
+    theme: buildUmberleafTheme(brightness: Brightness.light),
     localizationsDelegates: AppLocalizations.localizationsDelegates,
     supportedLocales: AppLocalizations.supportedLocales,
     home: const Scaffold(

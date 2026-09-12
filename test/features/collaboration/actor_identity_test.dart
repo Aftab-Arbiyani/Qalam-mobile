@@ -107,7 +107,7 @@ Future<void> _pump(
         ...data.cast(),
       ],
       child: MaterialApp(
-        theme: buildQalamTheme(brightness: Brightness.light),
+        theme: buildUmberleafTheme(brightness: Brightness.light),
         home: child,
       ),
     ),

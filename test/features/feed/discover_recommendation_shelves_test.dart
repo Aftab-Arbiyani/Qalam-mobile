@@ -82,7 +82,7 @@ Future<FakeRetrievalRepository> _pumpDiscover(
       retrievalRepository: retrieval,
       sessionOverride: authed ? _AuthedSession.new : _AnonSession.new,
       child: MaterialApp(
-        theme: buildQalamTheme(brightness: Brightness.light),
+        theme: buildUmberleafTheme(brightness: Brightness.light),
         home: const DiscoverScreen(),
       ),
     );

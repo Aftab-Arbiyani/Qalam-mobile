@@ -41,7 +41,7 @@ void main() {
       UncontrolledProviderScope(
         container: c,
         child: MaterialApp(
-          theme: buildQalamTheme(brightness: Brightness.light),
+          theme: buildUmberleafTheme(brightness: Brightness.light),
           home: const Scaffold(
             body: BlockEditor(
               routeId: 'loc-1',
@@ -96,7 +96,7 @@ void main() {
       UncontrolledProviderScope(
         container: c,
         child: MaterialApp(
-          theme: buildQalamTheme(brightness: Brightness.light),
+          theme: buildUmberleafTheme(brightness: Brightness.light),
           home: const Scaffold(
             body: BlockEditor(
               routeId: 'loc-1',

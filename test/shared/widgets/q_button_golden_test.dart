@@ -9,7 +9,7 @@ void main() {
   testWidgets('QButton variants — light', (WidgetTester tester) async {
     await tester.pumpWidget(
       MaterialApp(
-        theme: buildQalamTheme(brightness: Brightness.light),
+        theme: buildUmberleafTheme(brightness: Brightness.light),
         home: const Scaffold(
           body: Center(
             child: Padding(

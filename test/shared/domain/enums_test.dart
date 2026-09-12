@@ -2,7 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:umberleaf_mobile/shared/domain/enums.dart';
 
 void main() {
-  group('enum wire values mirror @qalam/shared', () {
+  group('enum wire values mirror @umberleaf/shared', () {
     test('PieceStatus', () {
       expect(PieceStatus.published.wire, 'published');
       expect(PieceStatus.fromWire('archived'), PieceStatus.archived);

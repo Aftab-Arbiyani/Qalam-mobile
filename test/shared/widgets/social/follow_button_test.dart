@@ -49,7 +49,7 @@ ProviderContainer _container({required bool authed}) => ProviderContainer(
 Widget _wrap(ProviderContainer c, Widget child) => UncontrolledProviderScope(
   container: c,
   child: MaterialApp(
-    theme: buildQalamTheme(brightness: Brightness.light),
+    theme: buildUmberleafTheme(brightness: Brightness.light),
     localizationsDelegates: AppLocalizations.localizationsDelegates,
     supportedLocales: AppLocalizations.supportedLocales,
     home: Scaffold(body: Center(child: child)),

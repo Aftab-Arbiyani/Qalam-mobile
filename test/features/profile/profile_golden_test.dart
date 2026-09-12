@@ -31,7 +31,7 @@ Widget _scoped(Brightness brightness, Widget child) => ProviderScope(
   overrides: [appConfigProvider.overrideWithValue(testConfig)],
   child: MaterialApp(
     debugShowCheckedModeBanner: false,
-    theme: buildQalamTheme(brightness: brightness),
+    theme: buildUmberleafTheme(brightness: brightness),
     home: Scaffold(body: SizedBox(width: 380, child: child)),
   ),
 );

@@ -169,7 +169,7 @@ Future<void> _pumpEditor(
     UncontrolledProviderScope(
       container: container,
       child: MaterialApp.router(
-        theme: buildQalamTheme(brightness: Brightness.light),
+        theme: buildUmberleafTheme(brightness: Brightness.light),
         routerConfig: router,
       ),
     ),

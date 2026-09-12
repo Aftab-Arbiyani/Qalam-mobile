@@ -102,7 +102,7 @@ Widget _wrap(ProviderContainer container, Widget child) =>
     UncontrolledProviderScope(
       container: container,
       child: MaterialApp(
-        theme: buildQalamTheme(brightness: Brightness.light),
+        theme: buildUmberleafTheme(brightness: Brightness.light),
         home: child,
       ),
     );
@@ -328,7 +328,7 @@ void main() {
       ) async {
         await tester.pumpWidget(
           MaterialApp(
-            theme: buildQalamTheme(brightness: brightness),
+            theme: buildUmberleafTheme(brightness: brightness),
             home: Scaffold(body: SnapshotHistoryNotice(history: _history())),
           ),
         );
@@ -348,7 +348,7 @@ void main() {
         final SemanticsHandle handle = tester.ensureSemantics();
         await tester.pumpWidget(
           MaterialApp(
-            theme: buildQalamTheme(brightness: brightness),
+            theme: buildUmberleafTheme(brightness: brightness),
             home: Scaffold(body: SnapshotHistoryNotice(history: _history())),
           ),
         );
@@ -369,7 +369,7 @@ void main() {
         final SemanticsHandle handle = tester.ensureSemantics();
         await tester.pumpWidget(
           MaterialApp(
-            theme: buildQalamTheme(brightness: brightness),
+            theme: buildUmberleafTheme(brightness: brightness),
             home: Scaffold(body: SnapshotHistoryCount(history: _history())),
           ),
         );
@@ -390,7 +390,7 @@ void main() {
           );
           await tester.pumpWidget(
             MaterialApp(
-              theme: buildQalamTheme(brightness: brightness),
+              theme: buildUmberleafTheme(brightness: brightness),
               home: Scaffold(
                 body: Column(
                   children: <Widget>[

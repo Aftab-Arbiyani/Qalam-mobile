@@ -1,4 +1,4 @@
-# Static analysis for Qalam Mobile.
+# Static analysis for Umberleaf Mobile.
 # Strict language modes + flutter_lints + a curated rule set that enforces the
 # house style from docs/40 §44 and docs/16 (no dynamic at boundaries, const-first,
 # no print, ordered imports). Generated code is excluded.

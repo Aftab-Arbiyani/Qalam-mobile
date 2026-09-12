@@ -5,7 +5,7 @@ import 'package:umberleaf_mobile/shared/widgets/branding/q_brand_mark.dart';
 
 Widget _harness(Brightness brightness, Widget child) => MaterialApp(
   debugShowCheckedModeBanner: false,
-  theme: buildQalamTheme(brightness: brightness),
+  theme: buildUmberleafTheme(brightness: brightness),
   home: Scaffold(body: Center(child: child)),
 );
 

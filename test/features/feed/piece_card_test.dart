@@ -35,7 +35,7 @@ void main() {
         // exported for direct annotation).
         overrides: [appConfigProvider.overrideWithValue(testConfig)],
         child: MaterialApp(
-          theme: buildQalamTheme(brightness: Brightness.light),
+          theme: buildUmberleafTheme(brightness: Brightness.light),
           home: const Scaffold(body: PieceCard(piece: piece)),
         ),
       ),

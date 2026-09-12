@@ -56,7 +56,7 @@ Future<void> _pumpReader(
       readingRepository: reading,
       engagementRepository: FakeEngagementRepository(),
       child: MaterialApp(
-        theme: buildQalamTheme(brightness: Brightness.light),
+        theme: buildUmberleafTheme(brightness: Brightness.light),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         home: const ReadingScreen(pieceId: 'p1'),

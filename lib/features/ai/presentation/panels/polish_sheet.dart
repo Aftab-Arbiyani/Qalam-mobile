@@ -7,7 +7,7 @@
 ///
 /// **What left, and why it is not a trim.** The panel used to offer Continue writing,
 /// Rewrite, Expand, a tone picker and a free-form "Ask AI" box: that is prose
-/// *generation*, and Qalam's audience — literary writers and poets — rejects being sold
+/// *generation*, and Umberleaf's audience — literary writers and poets — rejects being sold
 /// it. What survives are the three actions that work on text the writer has already
 /// written: Simplify, Condense, and Improve·{aspect}. The word "AI" appears nowhere a
 /// writer can see; what the tool actually does is stated once, plainly, in

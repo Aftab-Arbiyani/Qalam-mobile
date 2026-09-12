@@ -1,4 +1,4 @@
-/// Monetization vocabulary (AF5) — a Dart mirror of `@qalam/shared` `monetization.ts`
+/// Monetization vocabulary (AF5) — a Dart mirror of `@umberleaf/shared` `monetization.ts`
 /// (wire strings the API returns/accepts). Clients branch on these stable values,
 /// never on message text. Server-authoritative: the client uses these to render a
 /// HINT (lock/trial/grace/expired) and always defers to a fresh server response.
@@ -156,7 +156,7 @@ abstract final class PromotionType {
   static const String freePeriod = 'free_period';
 }
 
-/// Coupon-code bounds, mirroring `@qalam/shared`'s `COUPON_CODE_MIN/MAX`.
+/// Coupon-code bounds, mirroring `@umberleaf/shared`'s `COUPON_CODE_MIN/MAX`.
 /// `ValidateCouponDto` enforces `@MaxLength(COUPON_CODE_MAX)`, so a longer code is a
 /// 400 rather than a "not valid" answer — the field caps input instead.
 const int couponCodeMin = 3;
@@ -164,7 +164,7 @@ const int couponCodeMax = 40;
 
 /// Normalize a coupon code for lookup — upper-case, trimmed.
 ///
-/// A Dart mirror of `normalizeCouponCode` in `@qalam/shared`. The server looks a coupon
+/// A Dart mirror of `normalizeCouponCode` in `@umberleaf/shared`. The server looks a coupon
 /// up by its normalized code, so sending `" summer24 "` verbatim finds nothing; the
 /// lookup is not case-insensitive on the client's behalf.
 String normalizeCouponCode(String code) => code.trim().toUpperCase();

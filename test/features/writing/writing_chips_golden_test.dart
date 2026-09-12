@@ -7,7 +7,7 @@ import 'package:umberleaf_mobile/shared/theme/app_theme.dart';
 
 Widget _harness(Brightness brightness) => MaterialApp(
   debugShowCheckedModeBanner: false,
-  theme: buildQalamTheme(brightness: brightness),
+  theme: buildUmberleafTheme(brightness: brightness),
   home: const Scaffold(
     body: Center(
       child: Padding(

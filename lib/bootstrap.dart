@@ -161,7 +161,7 @@ Future<void> _start() async {
         }),
         localNotificationServiceProvider.overrideWithValue(localNotifications),
       ],
-      child: const QalamApp(),
+      child: const UmberleafApp(),
     ),
   );
 }

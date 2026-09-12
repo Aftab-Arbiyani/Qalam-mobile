@@ -27,7 +27,7 @@ Future<void> _pump(
     app = await buildTestApp(
       profileRepository: repo,
       child: MaterialApp(
-        theme: buildQalamTheme(brightness: Brightness.light),
+        theme: buildUmberleafTheme(brightness: Brightness.light),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         home: screen,

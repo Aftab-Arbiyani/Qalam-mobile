@@ -4,7 +4,7 @@ import 'package:umberleaf_mobile/shared/theme/app_theme.dart';
 import 'package:umberleaf_mobile/shared/widgets/buttons/q_button.dart';
 
 Widget _host(Widget child) => MaterialApp(
-  theme: buildQalamTheme(brightness: Brightness.light),
+  theme: buildUmberleafTheme(brightness: Brightness.light),
   home: Scaffold(body: Center(child: child)),
 );
 

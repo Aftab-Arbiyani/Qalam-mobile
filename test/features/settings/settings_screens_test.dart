@@ -18,7 +18,7 @@ Future<void> _pump(WidgetTester tester, Widget screen) async {
     app = await buildTestApp(
       profileRepository: FakeProfileRepository(),
       child: MaterialApp(
-        theme: buildQalamTheme(brightness: Brightness.light),
+        theme: buildUmberleafTheme(brightness: Brightness.light),
         home: screen,
       ),
     );

@@ -118,7 +118,7 @@ Future<void> _pumpCoach(
           ),
       ],
       child: MaterialApp(
-        theme: buildQalamTheme(brightness: Brightness.light),
+        theme: buildUmberleafTheme(brightness: Brightness.light),
         home: const Scaffold(
           body: CraftCoachPanel(writingContext: _writingContext),
         ),

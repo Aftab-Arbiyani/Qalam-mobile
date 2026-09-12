@@ -16,7 +16,7 @@ Widget _scene(Brightness brightness) => ProviderScope(
   overrides: [appConfigProvider.overrideWithValue(testConfig)],
   child: MaterialApp(
     debugShowCheckedModeBanner: false,
-    theme: buildQalamTheme(brightness: brightness),
+    theme: buildUmberleafTheme(brightness: brightness),
     localizationsDelegates: AppLocalizations.localizationsDelegates,
     supportedLocales: AppLocalizations.supportedLocales,
     home: Scaffold(

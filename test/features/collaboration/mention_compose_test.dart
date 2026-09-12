@@ -155,7 +155,7 @@ Future<_RosterProfileRepository> _pump(
           ).overrideWith((_) async => thread),
       ],
       child: MaterialApp(
-        theme: buildQalamTheme(brightness: Brightness.light),
+        theme: buildUmberleafTheme(brightness: Brightness.light),
         home: const CollaborationCommentsScreen(storyId: kStoryId),
       ),
     ),

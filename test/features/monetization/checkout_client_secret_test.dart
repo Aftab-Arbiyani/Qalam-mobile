@@ -161,7 +161,7 @@ void main() {
               monetizationRepositoryProvider.overrideWithValue(repo),
             ],
             child: MaterialApp(
-              theme: buildQalamTheme(brightness: Brightness.light),
+              theme: buildUmberleafTheme(brightness: Brightness.light),
               home: const PlansScreen(),
             ),
           ),

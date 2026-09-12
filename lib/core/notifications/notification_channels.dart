@@ -1,5 +1,5 @@
 /// Android notification channels (docs/40 §33, docs/41 §37) — the calm, quiet
-/// channel set Qalam presents on. Channels are created once at initialization;
+/// channel set Umberleaf presents on. Channels are created once at initialization;
 /// each on-device notification declares which channel it belongs to. iOS has no
 /// channel concept, so these ids/names are Android-only but the catalogue is the
 /// single source of truth both platforms map onto.

@@ -13,7 +13,7 @@ import '../../support/harness.dart';
 
 Widget _host() => MaterialApp(
   debugShowCheckedModeBanner: false,
-  theme: buildQalamTheme(brightness: Brightness.light),
+  theme: buildUmberleafTheme(brightness: Brightness.light),
   localizationsDelegates: AppLocalizations.localizationsDelegates,
   supportedLocales: AppLocalizations.supportedLocales,
   home: const NotificationsScreen(),

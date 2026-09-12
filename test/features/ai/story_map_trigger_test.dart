@@ -71,7 +71,7 @@ const ExplorerViewResult _empty = ExplorerViewResult(
 const String _content = 'The cartographer folded the last map.';
 
 Widget _wrap(Widget home) => MaterialApp(
-  theme: buildQalamTheme(brightness: Brightness.light),
+  theme: buildUmberleafTheme(brightness: Brightness.light),
   localizationsDelegates: AppLocalizations.localizationsDelegates,
   supportedLocales: AppLocalizations.supportedLocales,
   home: home,

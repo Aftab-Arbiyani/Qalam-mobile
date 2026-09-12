@@ -5,7 +5,7 @@ import 'package:umberleaf_mobile/shared/theme/app_theme.dart';
 import 'package:umberleaf_mobile/shared/widgets/retrieval/retrieval_cards.dart';
 
 Widget _host(Widget child) => MaterialApp(
-  theme: buildQalamTheme(brightness: Brightness.light),
+  theme: buildUmberleafTheme(brightness: Brightness.light),
   home: Scaffold(body: SingleChildScrollView(child: child)),
 );
 

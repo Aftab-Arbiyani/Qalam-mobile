@@ -154,7 +154,7 @@ Future<FakeAiRepository> _pump(
         ),
       ],
       child: MaterialApp(
-        theme: buildQalamTheme(brightness: Brightness.light),
+        theme: buildUmberleafTheme(brightness: Brightness.light),
         home: Scaffold(body: PolishSheet(target: target ?? _FakeTarget())),
       ),
     ),

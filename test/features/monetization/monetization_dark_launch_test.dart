@@ -91,7 +91,7 @@ Future<void> _pumpDark(WidgetTester tester, Widget screen) async {
       // the element type has to be inferred (the same note the shared harness carries).
       overrides: [appConfigProvider.overrideWithValue(_off)],
       child: MaterialApp(
-        theme: buildQalamTheme(brightness: Brightness.light),
+        theme: buildUmberleafTheme(brightness: Brightness.light),
         home: screen,
       ),
     ),
@@ -121,7 +121,7 @@ Future<void> _pumpBillingHistory(
         subscriptionEventsProvider.overrideWith((_) async => events),
       ],
       child: MaterialApp(
-        theme: buildQalamTheme(brightness: Brightness.light),
+        theme: buildUmberleafTheme(brightness: Brightness.light),
         home: const BillingHistoryScreen(),
       ),
     ),

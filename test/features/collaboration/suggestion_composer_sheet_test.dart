@@ -35,7 +35,7 @@ Future<void> _pumpSheet(
     UncontrolledProviderScope(
       container: container,
       child: MaterialApp(
-        theme: buildQalamTheme(brightness: Brightness.light),
+        theme: buildUmberleafTheme(brightness: Brightness.light),
         home: Scaffold(
           body: Builder(
             builder: (BuildContext context) => ElevatedButton(

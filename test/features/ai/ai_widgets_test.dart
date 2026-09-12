@@ -6,7 +6,7 @@ import 'package:umberleaf_mobile/features/ai/presentation/widgets/coach_report_v
 import 'package:umberleaf_mobile/shared/theme/app_theme.dart';
 
 Widget _host(Widget child) => MaterialApp(
-      theme: buildQalamTheme(brightness: Brightness.light),
+      theme: buildUmberleafTheme(brightness: Brightness.light),
       home: Scaffold(body: SingleChildScrollView(child: child)),
     );
 

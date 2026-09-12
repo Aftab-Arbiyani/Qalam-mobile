@@ -73,7 +73,7 @@ Future<void> _pump(
         monetizationUsageProvider.overrideWith((_) async => summary),
       ],
       child: MaterialApp(
-        theme: buildQalamTheme(brightness: Brightness.light),
+        theme: buildUmberleafTheme(brightness: Brightness.light),
         home: const UsageDashboardScreen(),
       ),
     ),

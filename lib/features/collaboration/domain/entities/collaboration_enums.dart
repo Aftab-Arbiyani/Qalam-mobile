@@ -1,5 +1,5 @@
 /// Collaboration / Publishing / Trust vocabulary (AF6) — a Dart mirror of the
-/// `@qalam/shared` collaboration wire strings (values the API returns/accepts).
+/// `@umberleaf/shared` collaboration wire strings (values the API returns/accepts).
 /// Clients branch on these stable values, never on message text. Server-authoritative:
 /// the client uses them to render a HINT (role, lock, restricted state) and always
 /// defers to a fresh server response — the policy engine re-checks every action.

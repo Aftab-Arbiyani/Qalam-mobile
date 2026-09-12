@@ -1,4 +1,4 @@
-/// Product limits — a Dart mirror of `@qalam/shared` `limits.ts` and `regex.ts`.
+/// Product limits — a Dart mirror of `@umberleaf/shared` `limits.ts` and `regex.ts`.
 ///
 /// These are the SAME numbers the backend enforces. The client applies them for
 /// UX (instant validation feedback) only; the server is authoritative
@@ -16,7 +16,7 @@ abstract final class Limits {
 
   /// A collaboration comment on a story — AF6's private review, a different
   /// endpoint and a different (larger) cap: `MAX_COMMENT_BODY_LENGTH` in
-  /// `@qalam/shared` `collaboration.ts`, not the 2,000 above.
+  /// `@umberleaf/shared` `collaboration.ts`, not the 2,000 above.
   ///
   /// Enforced by `@MaxLength` on the **raw** body, where an @mention is the
   /// mentioned person's 36-character id rather than their handle — which is why the
@@ -24,7 +24,7 @@ abstract final class Limits {
   static const int storyCommentBodyMax = 5000;
 
   /// A proposed edit's original/suggested text — `MAX_SUGGESTION_LENGTH` in
-  /// `@qalam/shared` `collaboration.ts`, enforced via `@MaxLength` on both fields.
+  /// `@umberleaf/shared` `collaboration.ts`, enforced via `@MaxLength` on both fields.
   static const int storySuggestionMax = 10000;
 
   // Collections.
@@ -77,7 +77,7 @@ abstract final class Limits {
   static const int notificationUnreadDisplayCap = 99;
 }
 
-/// Shared validation regexes (mirror `@qalam/shared` `regex.ts`).
+/// Shared validation regexes (mirror `@umberleaf/shared` `regex.ts`).
 abstract final class Patterns {
   /// Usernames: permanent, URL-safe, ASCII-only, 3–30 chars.
   static final RegExp username = RegExp(r'^[a-z0-9_]{3,30}$');

@@ -1,6 +1,6 @@
 /// Material 3 theme construction (docs/41 §3).
 ///
-/// Two themes (light/dark) built entirely from Qalam tokens. Material's tonal
+/// Two themes (light/dark) built entirely from Umberleaf tokens. Material's tonal
 /// (surface-tint) elevation is suppressed — elevation is warm shadows in light,
 /// border+surface in dark. Inputs use STATIC labels (no floating). Dynamic color
 /// is plumbed but OFF by default (docs/41 §6): the brand palette always wins
@@ -14,7 +14,7 @@ import 'tokens/color_tokens.dart';
 import 'tokens/radius_tokens.dart';
 import 'tokens/typography_tokens.dart';
 
-ThemeData buildQalamTheme({
+ThemeData buildUmberleafTheme({
   required Brightness brightness,
   ColorScheme? dynamicScheme,
   bool useDynamicColor = false,

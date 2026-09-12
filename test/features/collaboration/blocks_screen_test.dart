@@ -90,7 +90,7 @@ Future<void> _pumpBlocks(
         trustSummaryProvider.overrideWith((_) async => trust),
       ],
       child: MaterialApp(
-        theme: buildQalamTheme(brightness: Brightness.light),
+        theme: buildUmberleafTheme(brightness: Brightness.light),
         home: const BlocksScreen(),
       ),
     ),
@@ -239,7 +239,7 @@ void main() {
         ProviderScope(
           overrides: [appConfigProvider.overrideWithValue(_collaborationOn)],
           child: MaterialApp.router(
-            theme: buildQalamTheme(brightness: Brightness.light),
+            theme: buildUmberleafTheme(brightness: Brightness.light),
             routerConfig: router,
           ),
         ),
@@ -262,7 +262,7 @@ void main() {
         ProviderScope(
           overrides: [appConfigProvider.overrideWithValue(testConfig)],
           child: MaterialApp(
-            theme: buildQalamTheme(brightness: Brightness.light),
+            theme: buildUmberleafTheme(brightness: Brightness.light),
             home: const SettingsHubScreen(),
           ),
         ),

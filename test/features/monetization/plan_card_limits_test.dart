@@ -83,7 +83,7 @@ Future<void> _pump(WidgetTester tester) async {
         ),
       ],
       child: MaterialApp(
-        theme: buildQalamTheme(brightness: Brightness.light),
+        theme: buildUmberleafTheme(brightness: Brightness.light),
         home: const PlansScreen(),
       ),
     ),

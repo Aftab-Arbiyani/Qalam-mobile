@@ -250,7 +250,7 @@ class _CodeBlock extends StatelessWidget {
     );
   }
 
-  /// A deliberately light generic highlighter (strings, comments, numbers) — Qalam is
+  /// A deliberately light generic highlighter (strings, comments, numbers) — Umberleaf is
   /// a prose platform, so code is rare; this reads as syntax-highlighted without a
   /// heavy tokenizer dependency.
   TextSpan _highlight(BuildContext context, String source) {

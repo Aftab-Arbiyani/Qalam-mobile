@@ -34,7 +34,7 @@ PieceContent _sample() => const PieceContent(<BlockNode>[
 ]);
 
 Widget _host(Widget child) => MaterialApp(
-  theme: buildQalamTheme(brightness: Brightness.light),
+  theme: buildUmberleafTheme(brightness: Brightness.light),
   home: Scaffold(
     body: Center(
       child: SizedBox(

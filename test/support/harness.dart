@@ -126,7 +126,7 @@ Future<ConnectivityService> buildFakeConnectivity({
   return service;
 }
 
-/// A `ProviderScope`-wrapped [QalamApp] (or [child]) with all bootstrapped
+/// A `ProviderScope`-wrapped [UmberleafApp] (or [child]) with all bootstrapped
 /// dependencies overridden by fakes. Opens throwaway Hive boxes in a temp dir.
 Future<Widget> buildTestApp({
   bool online = true,
@@ -274,7 +274,7 @@ Future<Widget> buildTestApp({
         ),
       ...extraOverrides,
     ].cast(),
-    child: child ?? const QalamApp(),
+    child: child ?? const UmberleafApp(),
   );
 }
 

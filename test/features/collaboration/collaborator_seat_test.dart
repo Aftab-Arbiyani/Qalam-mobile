@@ -96,7 +96,7 @@ Widget _wrap(ProviderContainer container, Widget child) =>
     UncontrolledProviderScope(
       container: container,
       child: MaterialApp(
-        theme: buildQalamTheme(brightness: Brightness.light),
+        theme: buildUmberleafTheme(brightness: Brightness.light),
         home: child,
       ),
     );
@@ -386,7 +386,7 @@ void main() {
       ) async {
         await tester.pumpWidget(
           MaterialApp(
-            theme: buildQalamTheme(brightness: brightness),
+            theme: buildUmberleafTheme(brightness: brightness),
             home: Scaffold(
               body: CollaboratorSeatNotice(
                 allowance: _seats(limit: 0, canInvite: false),
@@ -414,7 +414,7 @@ void main() {
         final SemanticsHandle handle = tester.ensureSemantics();
         await tester.pumpWidget(
           MaterialApp(
-            theme: buildQalamTheme(brightness: brightness),
+            theme: buildUmberleafTheme(brightness: brightness),
             home: Scaffold(
               body: CollaboratorSeatNotice(
                 allowance: _seats(limit: 0, canInvite: false),
@@ -439,7 +439,7 @@ void main() {
         final SemanticsHandle handle = tester.ensureSemantics();
         await tester.pumpWidget(
           MaterialApp(
-            theme: buildQalamTheme(brightness: brightness),
+            theme: buildUmberleafTheme(brightness: brightness),
             home: Scaffold(
               body: CollaboratorSeatNotice(
                 allowance: _seats(members: 3, canInvite: false),
@@ -458,7 +458,7 @@ void main() {
       ) async {
         await tester.pumpWidget(
           MaterialApp(
-            theme: buildQalamTheme(brightness: brightness),
+            theme: buildUmberleafTheme(brightness: brightness),
             home: Scaffold(
               body: CollaboratorSeatCount(allowance: _seats(members: 2)),
             ),

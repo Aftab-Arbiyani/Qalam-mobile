@@ -99,7 +99,7 @@ Future<void> _pumpDrafts(
         draftListControllerProvider.overrideWith(() => _FakeDraftList(drafts)),
       ],
       child: MaterialApp(
-        theme: buildQalamTheme(brightness: brightness),
+        theme: buildUmberleafTheme(brightness: brightness),
         home: const DraftsScreen(),
       ),
     ),

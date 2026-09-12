@@ -46,7 +46,7 @@ Future<void> _pump(WidgetTester tester, {required bool allow}) async {
         ),
       ],
       child: MaterialApp(
-        theme: buildQalamTheme(brightness: Brightness.light),
+        theme: buildUmberleafTheme(brightness: Brightness.light),
         home: const Scaffold(
           body: PremiumGate(
             feature: PremiumFeature.storyIntelligence,
@@ -91,7 +91,7 @@ void main() {
           ),
         ],
         child: MaterialApp(
-          theme: buildQalamTheme(brightness: Brightness.light),
+          theme: buildUmberleafTheme(brightness: Brightness.light),
           home: const Scaffold(
             body: PremiumGate(
               feature: PremiumFeature.storyIntelligence,
@@ -120,7 +120,7 @@ void main() {
           }),
         ],
         child: MaterialApp(
-          theme: buildQalamTheme(brightness: Brightness.light),
+          theme: buildUmberleafTheme(brightness: Brightness.light),
           home: const Scaffold(
             body: PremiumGate(
               feature: PremiumFeature.storyIntelligence,

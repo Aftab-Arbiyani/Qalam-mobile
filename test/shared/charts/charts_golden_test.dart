@@ -13,7 +13,7 @@ void main() {
   testWidgets('charts — line, bar, pie (light)', (WidgetTester tester) async {
     await tester.pumpWidget(
       MaterialApp(
-        theme: buildQalamTheme(brightness: Brightness.light),
+        theme: buildUmberleafTheme(brightness: Brightness.light),
         home: Scaffold(
           body: Center(
             child: SizedBox(

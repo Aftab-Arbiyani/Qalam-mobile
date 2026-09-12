@@ -35,7 +35,7 @@ Widget _wrap(ProviderContainer container, Widget child) =>
     UncontrolledProviderScope(
       container: container,
       child: MaterialApp(
-        theme: buildQalamTheme(brightness: Brightness.light),
+        theme: buildUmberleafTheme(brightness: Brightness.light),
         home: Scaffold(body: child),
       ),
     );
