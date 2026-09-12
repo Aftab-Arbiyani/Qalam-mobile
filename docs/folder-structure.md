@@ -1,6 +1,6 @@
 # Mobile Folder Structure Guide
 
-The Qalam Flutter app is **feature-first Clean Architecture** (governed by
+The Umberleaf Flutter app is **feature-first Clean Architecture** (governed by
 `docs/40_MobileArchitecture.md` §3–§7 in the monorepo). Code is organized by
 **product capability first**, then by clean-architecture **layer** within.
 
@@ -11,7 +11,7 @@ lib/
 ├── main.dart              # entry point → bootstrap()
 ├── bootstrap.dart         # composition root: async init + ProviderScope overrides
 ├── app/                   # app-wide composition (knows about all features)
-│   ├── app.dart           # QalamApp — MaterialApp.router + theme + l10n
+│   ├── app.dart           # UmberleafApp — MaterialApp.router + theme + l10n
 │   ├── observers/         # NavigatorObserver, ProviderObserver
 │   └── router/            # GoRouter, routes, guards
 ├── core/                  # cross-cutting infrastructure (no feature knowledge)
@@ -29,7 +29,7 @@ lib/
 │   └── utils/             # Result, jwt, typedefs
 ├── shared/                # reusable domain vocabulary + design system
 │   ├── api/               # envelope + pagination wire models
-│   ├── domain/            # enums, error codes, limits, permissions (mirror @qalam/shared)
+│   ├── domain/            # enums, error codes, limits, permissions (mirror @umberleaf/shared)
 │   ├── motion/            # reduced-motion helpers
 │   ├── theme/             # tokens/, QTokens extension, app_theme, theme controller
 │   └── widgets/           # the component catalog (Q-prefixed primitives)
@@ -62,6 +62,6 @@ they consume real endpoints.
 - **`app/` composes features; features never import `app/`.**
 - **The domain layer imports nothing outward** — no Flutter, Dio, Hive, or
   generated code.
-- **`packages/qalam_api` (generated DTOs, added in M2) is imported only by `data/`.**
+- **`packages/umberleaf_api` (generated DTOs, added in M2) is imported only by `data/`.**
 - **Deletion test:** `rm -rf features/<name>` + removing its route must leave the
   app compiling.

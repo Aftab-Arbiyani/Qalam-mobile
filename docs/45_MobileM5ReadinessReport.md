@@ -1,6 +1,6 @@
 # Mobile M5 — Profile & Settings — Readiness Report
 
-Epic **M5 (Profile & Settings)** for the Qalam Flutter client. Scope was strictly
+Epic **M5 (Profile & Settings)** for the Umberleaf Flutter client. Scope was strictly
 `mobile/`; the frozen `v1` backend, web, and admin were never modified. No mock
 APIs, no invented contracts — every network call maps to a real, verified
 `/api/v1` endpoint.

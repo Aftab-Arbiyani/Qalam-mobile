@@ -51,9 +51,9 @@
 	<true/>
 	<!-- Cover-image selection (M4 editor, image_picker). -->
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Qalam needs access to your photos so you can choose a cover image for your piece.</string>
+	<string>Umberleaf needs access to your photos so you can choose a cover image for your piece.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>Qalam needs access to your camera so you can take a cover photo for your piece.</string>
+	<string>Umberleaf needs access to your camera so you can take a cover photo for your piece.</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>

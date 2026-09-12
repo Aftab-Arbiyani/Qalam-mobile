@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ─────────────────────────────────────────────────────────────────────────────
-# Qalam — flavored release build (docs/40 §28, docs/46, docs/51 P7.1).
+# Umberleaf — flavored release build (docs/40 §28, docs/46, docs/51 P7.1).
 #
 # Builds a single flavor + artifact with the matching dart_defines file, Dart
 # obfuscation, and split debug symbols. This is the ONE bridge that ties a native
@@ -32,7 +32,7 @@
 # ── Store build notes ────────────────────────────────────────────────────────
 # Google Play (App Bundle):
 #   • Upload the .aab from the printed path to Play Console → Internal testing.
-#   • Complete the Data safety form: Qalam collects account data (email/profile)
+#   • Complete the Data safety form: Umberleaf collects account data (email/profile)
 #     and content the user creates; auth tokens live in Keystore-backed secure
 #     storage; no advertising ID; crash data only when a DSN is configured.
 #   • Play App Signing re-signs with the app key; you upload with the upload key.

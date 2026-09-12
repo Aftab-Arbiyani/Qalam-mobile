@@ -1,6 +1,6 @@
 # 41 — Mobile Design System (Flutter · Material 3)
 
-> **Qalam** (قلم / क़लم — "the pen") — the mobile visual & interaction system.
+> **Umberleaf** (an autumn leaf; a leaf is a page) — the mobile visual & interaction system.
 > This document is the **permanent source of truth** for how the Flutter app looks, moves, and
 > feels. Every mobile epic (**M1–M10**) MUST comply with it.
 >
@@ -15,7 +15,7 @@
 
 ## 0. How to read this document
 
-Qalam already has a mature web design system — "warm paper and ink," a premium writing sanctuary. The
+Umberleaf already has a mature web design system — "warm paper and ink," a premium writing sanctuary. The
 mobile app inherits it exactly: **same tokens, same voice, same two-scripts-one-dignity commitment.**
 What changes is the *substrate*: Material 3 instead of AntD + Tailwind, native gestures instead of
 hover, bottom navigation instead of a top bar, bottom sheets instead of desktop modals.
@@ -25,12 +25,12 @@ Three rules govern the translation:
 1. **Tokens are law.** Every color, size, spacing, radius, and duration comes from a token whose value
    is identical to the web `--q-*` token. No raw hex, no magic numbers, no ad-hoc durations.
 2. **Material 3 is the substrate, not the master.** We adopt M3's structure (ColorScheme, typography
-   roles, components) but **override** where M3 conflicts with the Qalam system (warm shadows, static
+   roles, components) but **override** where M3 conflicts with the Umberleaf system (warm shadows, static
    labels, 44px targets, Lucide icons, per-content directionality).
 3. **RTL / Nastaliq is day one.** Urdu (RTL) and Hindi (Devanagari) are first-class from the first
    widget — never a retrofit. Direction is derived *per content language*, independent of UI chrome.
 
-Every value below is quoted from the canonical Qalam tokens; keep them byte-identical to the web
+Every value below is quoted from the canonical Umberleaf tokens; keep them byte-identical to the web
 `packages/ui` tokens and ADR §7.
 
 ---
@@ -82,7 +82,7 @@ Every value below is quoted from the canonical Qalam tokens; keep them byte-iden
 
 ## 1. Design Philosophy
 
-Qalam is **"a premium writing sanctuary — warm paper and ink, not a content feed with a text box
+Umberleaf is **"a premium writing sanctuary — warm paper and ink, not a content feed with a text box
 bolted on."** Every design decision is judged by one question: *does this make the writing feel more
 important, or less?*
 
@@ -132,7 +132,7 @@ Translating the philosophy to a touch device:
 - **Motion is short and purposeful.** 150/250/400ms; entrances decelerate ("settling on paper"),
   exits accelerate; pages fade, never slide (a book doesn't slide).
 - **Respect the platform, keep the brand.** Native scroll physics, native keyboard behavior, native
-  back gesture — but Qalam's type, color, spacing, and voice throughout. Android and iOS are equal;
+  back gesture — but Umberleaf's type, color, spacing, and voice throughout. Android and iOS are equal;
   differences are limited to platform-idiomatic affordances (back gesture, share sheet, haptics).
 - **Immediate, honest feedback.** Optimistic for reversible taps (like/clap/bookmark/follow) with
   rollback; pending state for irreversible ones (publish); never a fake success.
@@ -143,43 +143,43 @@ Translating the philosophy to a touch device:
 
 ## 3. Material 3 Adaptation
 
-Qalam Mobile uses **Material 3** as its widget substrate and themes it entirely from Qalam tokens.
-Material 3 gives structure (ColorScheme, text theme, component anatomy, state layers); Qalam overrides
+Umberleaf Mobile uses **Material 3** as its widget substrate and themes it entirely from Umberleaf tokens.
+Material 3 gives structure (ColorScheme, text theme, component anatomy, state layers); Umberleaf overrides
 the parts where M3 defaults conflict with the sanctuary aesthetic.
 
 ### 3.1 What we adopt from M3
 
-- `ThemeData(useMaterial3: true)` with a `ColorScheme` derived from Qalam color tokens.
+- `ThemeData(useMaterial3: true)` with a `ColorScheme` derived from Umberleaf color tokens.
 - M3 component *anatomy and behavior* (ripples/state layers, focus, semantics, touch feedback).
-- M3 text-theme *roles* as a mapping target for the Qalam type scale.
+- M3 text-theme *roles* as a mapping target for the Umberleaf type scale.
 - M3 `NavigationBar`, `NavigationRail`, `BottomSheet`, `SnackBar`, `Dialog`, `Chip`, `Badge`,
-  `SearchBar` as bases — restyled to Qalam.
+  `SearchBar` as bases — restyled to Umberleaf.
 
 ### 3.2 What we override (the deliberate divergences)
 
-| M3 default | Qalam override | Why |
+| M3 default | Umberleaf override | Why |
 | --- | --- | --- |
 | Tonal (surface-tint) elevation | **Warm drop shadows in light; border + one surface step in dark** | ADR §7: warmth, and "borders over shadows in dark." Suppress surface-tint elevation. |
 | Floating input labels | **Static labels above the field** | Floating labels misbehave in RTL + Nastaliq (`docs/06` §7.2). |
-| 48px min touch target | **≥44px floor** (grow small controls to 44) | Qalam's documented minimum; still comfortable. |
-| Material Icons | **Lucide icons, 1.5px stroke, outline** | The Qalam icon set (`docs/07` §6). |
+| 48px min touch target | **≥44px floor** (grow small controls to 44) | Umberleaf's documented minimum; still comfortable. |
+| Material Icons | **Lucide icons, 1.5px stroke, outline** | The Umberleaf icon set (`docs/07` §6). |
 | Purple/dynamic default accent | **Single terracotta accent** (`--q-accent`) | One brand hue; no ad-hoc colors. |
 | Material motion (shared-axis slides) | **Fade / fade-rise; no page slides** | "A book doesn't slide." |
-| Pill/large default radii | **6 controls / 10 cards / 16 sheets** | Qalam radius scale. |
+| Pill/large default radii | **6 controls / 10 cards / 16 sheets** | Umberleaf radius scale. |
 | Device dynamic color (Material You) | **Off** — brand palette is fixed | See §6. |
 
 ### 3.3 Theme construction
 
-Two `ThemeData` objects (light, dark), each built from the Qalam token maps, plus a **`ThemeExtension`
+Two `ThemeData` objects (light, dark), each built from the Umberleaf token maps, plus a **`ThemeExtension`
 (`QTokens`)** carrying the tokens Material's `ColorScheme`/`TextTheme` cannot express: the semantic
 `-text`/`-bg` triplets, `accent-subtle`, `accent-contrast`, `border-strong`, warm shadow definitions,
 reading fonts, reading line-heights, and motion tokens. Widgets read tokens from `Theme.of(context)`
-(Material roles) and `Theme.of(context).extension<QTokens>()` (Qalam-specific tokens). **No widget
+(Material roles) and `Theme.of(context).extension<QTokens>()` (Umberleaf-specific tokens). **No widget
 hardcodes a value.**
 
 ### 3.4 ColorScheme mapping (roles → tokens)
 
-| M3 ColorScheme role | Qalam token |
+| M3 ColorScheme role | Umberleaf token |
 | --- | --- |
 | `primary` | `--q-accent` |
 | `onPrimary` | `--q-accent-contrast` |
@@ -194,7 +194,7 @@ hardcodes a value.**
 | `tertiary`/others | mapped from semantic tokens as needed (success/warning/info live in `QTokens`) |
 
 `ThemeData.scaffoldBackgroundColor = --q-bg-canvas`; `cardTheme`/`dialogTheme`/`bottomSheetTheme`
-restyled to Qalam radii + elevation model; `elevation` set to 0 with explicit Qalam shadows applied by
+restyled to Umberleaf radii + elevation model; `elevation` set to 0 with explicit Umberleaf shadows applied by
 component wrappers.
 
 ---
@@ -260,7 +260,7 @@ landscape the column is capped so it never exceeds the measure (§25–§26).
 
 ## 5. Color Tokens
 
-The full palette, light and dark, byte-identical to the canonical Qalam tokens (ADR §7). All values
+The full palette, light and dark, byte-identical to the canonical Umberleaf tokens (ADR §7). All values
 are exact hex. Widgets reference these via the ColorScheme mapping (§3.4) or the `QTokens` extension.
 
 ### 5.1 Neutral & accent
@@ -318,15 +318,15 @@ Scrim (dialogs/sheets backdrop): `rgba(19,17,16,0.55)` (the ink `#131110` at 55%
 
 ## 6. Dynamic Color Support
 
-**Decision: Material You device dynamic color is OFF.** Qalam has a single, deliberate brand hue
+**Decision: Material You device dynamic color is OFF.** Umberleaf has a single, deliberate brand hue
 (terracotta) and a warm-paper palette that is core to the "sanctuary" identity. Adopting the device
 wallpaper palette would break brand consistency, RTL/dark carefully-tuned contrast ratios, and the
 "one accent" rule.
 
-- The `ColorScheme` is **always** built from Qalam tokens (§5), never from
+- The `ColorScheme` is **always** built from Umberleaf tokens (§5), never from
   `ColorScheme.fromSeed(dynamic)`.
-- The only "dynamic" axis Qalam honors is **light/dark theme** (§21–§22) and the user's **reading-size**
-  preference — both Qalam-controlled, not OS-palette-derived.
+- The only "dynamic" axis Umberleaf honors is **light/dark theme** (§21–§22) and the user's **reading-size**
+  preference — both Umberleaf-controlled, not OS-palette-derived.
 - If a future product decision ever wants an optional dynamic-color mode, it would be an explicit,
   opt-in setting layered on top — never the default, and never on reading surfaces. Not in scope for
   M1–M10.
@@ -367,7 +367,7 @@ never M3 tonal surface-tint. Three levels; shadow color is the ink `rgba(36,33,2
 | `--q-shadow-2` | `0 2px 4px rgba(36,33,27,.05/.06), 0 4px 10–12px rgba(36,33,27,.08)` | 1px `--q-border` + surface `--q-bg-raised` | pressed/raised cards, popovers, dropdowns, snackbars |
 | `--q-shadow-3` | `0 4px 8px rgba(36,33,27,.06/.08), 0 12–16px 28–32px rgba(36,33,27,.12)` | 1px `--q-border-strong` + `--q-bg-raised` | dialogs, bottom sheets, command surfaces |
 
-**Implementation:** set Material component `elevation: 0` and apply the Qalam shadow via a
+**Implementation:** set Material component `elevation: 0` and apply the Umberleaf shadow via a
 `BoxShadow`/`DecoratedBox` wrapper in light; in dark, drop the shadow entirely and express elevation as
 a border + one surface step lighter. Never rely on M3's automatic tonal overlay. A dark-mode "elevated"
 surface is `--q-bg-surface` on `--q-bg-canvas` with a `--q-border` outline; a higher level steps to
@@ -400,7 +400,7 @@ values only — no intermediate radii.
   token around them.
 - Icon-beside-text gap = 8px (`--q-space-2`), using directional spacing.
 - **RTL flip:** directional icons (`arrow-*`, `chevron-*`, `corner-*`, list-indent, back) mirror in
-  RTL. **Never flip:** play/media controls, clocks, checkmarks, undo/redo, the Qalam wordmark, code.
+  RTL. **Never flip:** play/media controls, clocks, checkmarks, undo/redo, the Umberleaf wordmark, code.
 - Icon buttons meet the 44px hit target even when the glyph is 20px (padded).
 
 ---
@@ -426,7 +426,7 @@ are tokens.
   - **ghost** — text `--q-text-secondary`, no border; pressed fill `--q-bg-raised`, text primary.
   - **danger** — bg `--q-danger`, text `#FFFFFF` (light) / outline-until-confirm in dark.
 - **States:** loading (spinner replaces the leading icon; width locked; disabled; `Semantics(busy)`);
-  disabled (50% opacity, no hue shift); pressed (state layer + Qalam pressed color); focus (2px accent
+  disabled (50% opacity, no hue shift); pressed (state layer + Umberleaf pressed color); focus (2px accent
   ring, offset 2). Spinners appear **only** inside buttons — never on content.
 - Props: `iconPosition` start/end (logical), `block` (full-width), `size`, `variant`.
 
@@ -497,7 +497,7 @@ information — they are transient.
 - **Bottom `NavigationBar`**, 56px + safe-area inset, bg `--q-bg-canvas`, 1px `--q-border` top. **Five
   destinations: Feed · Search · Write · Notifications · Profile.**
 - The **Write** destination is **visually accented** (`--q-accent` icon) — it is the primary compose
-  CTA (Qalam has no separate FAB on phones; see §11.10).
+  CTA (Umberleaf has no separate FAB on phones; see §11.10).
 - Active destination: accent icon + label; inactive: `--q-text-secondary`. Notification destination
   shows a count badge capped "9+".
 - Selecting a destination switches the shell branch (keeps that tab's stack + scroll); re-tapping the
@@ -692,7 +692,7 @@ Gestures are additive affordances; every one has a visible tap equivalent (nothi
 ## 16. Pull To Refresh
 
 - Available on all primary lists (feed, discover, notifications, search results, profile pieces).
-- Uses a Qalam-styled refresh indicator (accent-colored, respects reduced motion → a simple accent
+- Uses a Umberleaf-styled refresh indicator (accent-colored, respects reduced motion → a simple accent
   progress, no bounce animation).
 - Pull-to-refresh **refetches the Live/Content tier** for that surface and reconciles the cursor list
   from page one (the accumulated list is replaced, not appended).
@@ -758,7 +758,7 @@ Accessibility is non-negotiable (WCAG 2.1 AA), inherited from the web and extend
 - **Contrast AA minimum.** The token contrast ratios are pre-verified (text-primary/canvas ~15:1;
   text-secondary ~5.4:1; accent link ~5.6:1; `text-muted` is large-only). Never place small text on a
   failing pairing.
-- **Touch targets ≥ 44×44** (Qalam floor; grow small controls with padding).
+- **Touch targets ≥ 44×44** (Umberleaf floor; grow small controls with padding).
 - **Focus / selection** visible for switch-access and external keyboards: 2px accent ring, offset 2.
 - **Semantics** on everything: buttons labeled; toggles report state (`Semantics(toggled/…)`); tabs are
   a tab list; the feed exposes list/busy semantics; progress bars report value; live regions
@@ -909,7 +909,7 @@ Mirrors the web form discipline (`docs/33`), translated to native inputs.
 - **Static labels** (no floating), inline hint/error below the field.
 - **Validate on blur first, then on change after the first error** (calm, not naggy) — the "onTouched"
   equivalent. Never validate on every keystroke from the start; never only on submit.
-- **Validation rules come from shared limits** (`qalam_shared`): password 10–128; username
+- **Validation rules come from shared limits** (`umberleaf_shared`): password 10–128; username
   `^[a-z0-9_]{3,30}$`; pen name 1–50; bio ≤500; title ≤200; subtitle ≤300; featured quote validated at
   280; ≤5 tags; comment 1–2000. Client validation is UX; the server is authoritative.
 - **Server errors map to fields** by `error.code` + `details[].field` (dot/bracket paths →
@@ -1106,7 +1106,7 @@ The writer analytics surface (`/me/stats`) — Ravi's honest-metrics need.
 
 ## 39. Admin-only Components
 
-**Not applicable to Qalam Mobile.** The mobile app is the **reader/writer surface only**. All
+**Not applicable to Umberleaf Mobile.** The mobile app is the **reader/writer surface only**. All
 admin/moderation functionality lives on the web `admin.qalam.*` app (AntD, offset pagination, RBAC on
 every `/admin/*` route). Mobile:
 
@@ -1132,7 +1132,7 @@ A screen/feature is design-complete only when all boxes are checked:
 - [ ] No raw colors / sizes / radii / durations — every value is a token (`QTokens`/ColorScheme).
 - [ ] Renders correctly in **light and dark**; dark uses border+surface elevation (no tonal overlay);
       accent buttons use ink-on-accent in dark.
-- [ ] Dynamic color is off; the Qalam palette is used.
+- [ ] Dynamic color is off; the Umberleaf palette is used.
 
 **Typography & i18n**
 - [ ] Correct type scale + weights; chrome uses `--q-font-ui`, reading uses the per-script reading

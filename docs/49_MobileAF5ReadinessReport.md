@@ -13,7 +13,7 @@
   trusts a local purchase.
 - **`lib/features/monetization/`** — clean-architecture slice:
   - domain: `entitlement`, `subscription`, `plan`, `usage_summary`, `credit`, `billing`,
-    `coupon_validation` entities + `monetization_enums` (Dart mirror of `@qalam/shared`).
+    `coupon_validation` entities + `monetization_enums` (Dart mirror of `@umberleaf/shared`).
   - data: `monetization_remote_data_source` (over the reused `ApiClient`), the
     `entitlement_cache_store` (Hive, offline-tolerant), `monetization_repository_impl`
     (wraps `guardResult`; caches the snapshot on each successful read).

@@ -34,7 +34,7 @@ env `UMBERLEAF_ENABLE_COLLABORATION`, default off), and `test/support/harness.da
 
 ## Highlights
 
-- **Wire vocab** mirrors `@qalam/shared` as `abstract final class` string holders
+- **Wire vocab** mirrors `@umberleaf/shared` as `abstract final class` string holders
   (`StoryRole`, `PolicyEffect`, `TrustStatus`, `ReviewState`, `RestrictionType`, …) — the
   client branches on wire strings, never on message text, and tolerates unknown values.
 - **Capabilities-driven UI.** `storyCapabilities(storyId)` reads `GET /stories/:id/capabilities`

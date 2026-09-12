@@ -20,7 +20,7 @@ Runner: **`flutter_test`** + **`mocktail`**. Tests mirror `lib/` under `test/`
 
 ## The harness (`test/support/harness.dart`)
 
-`buildTestApp({online, tokens})` returns a `ProviderScope`-wrapped `QalamApp` with
+`buildTestApp({online, tokens})` returns a `ProviderScope`-wrapped `UmberleafApp` with
 every platform-channel dependency faked:
 - secure storage → in-memory (`MockFlutterSecureStorage`),
 - connectivity → fixed status (`MockConnectivity`),
@@ -55,4 +55,4 @@ flutter test test/core       # a subtree
 - One behavior per test; no logic in tests.
 - Build fixtures with factories (add under `test/support/` as features land).
 - Mock the layer directly below the unit under test (notifiers mock repositories;
-  repositories mock data sources; data sources mock Dio / `qalam_api`).
+  repositories mock data sources; data sources mock Dio / `umberleaf_api`).

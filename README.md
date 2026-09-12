@@ -1,6 +1,6 @@
-# Qalam Mobile (Flutter)
+# Umberleaf Mobile (Flutter)
 
-The Qalam mobile client — a reader/writer app for the Hindi/Urdu writing sanctuary,
+The Umberleaf mobile client — a reader/writer app for the Hindi/Urdu writing sanctuary,
 consuming the **frozen `v1`** backend API. This is the **M1 foundation**
 (infrastructure only); business features arrive in M2–M10.
 

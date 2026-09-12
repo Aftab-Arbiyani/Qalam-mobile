@@ -18,7 +18,7 @@ data source → ApiClient → Dio (+ interceptors) → frozen v1 API
   arrays comma-joined, booleans literal), coalesces identical GETs
   (`RequestDeduplicator`), and short-circuits when offline.
 - **Data sources supply a decoder** (`Json → Entity`), so the network layer never
-  knows a DTO. In M2+, DTOs are generated from `openapi.json` (`packages/qalam_api`)
+  knows a DTO. In M2+, DTOs are generated from `openapi.json` (`packages/umberleaf_api`)
   and mapped to domain entities in `data/mappers/`.
 
 ## Interceptors (order matters — `dio_client.dart`)

@@ -1,5 +1,5 @@
 # ─────────────────────────────────────────────────────────────────────────────
-# Qalam — R8 / ProGuard keep rules (SEAM; NOT ACTIVE BY DEFAULT).
+# Umberleaf — R8 / ProGuard keep rules (SEAM; NOT ACTIVE BY DEFAULT).
 #
 # R8 code shrinking, obfuscation, and resource shrinking are intentionally OFF
 # (M10 decision — docs/46 §13, docs/51). Dart tree-shaking + `--obfuscate`

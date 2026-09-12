@@ -177,7 +177,7 @@ BUILD_NUMBER=<ci-number> tool/build_flavor.sh production appbundle
 ```
 
 - Upload the printed `.aab` to Play Console (Internal testing → Closed → Prod).
-- **Data safety form**: Qalam collects account data (email/profile) and
+- **Data safety form**: Umberleaf collects account data (email/profile) and
   user-created content; auth tokens live in Keystore-backed secure storage; no
   advertising id; crash diagnostics only when a DSN is configured.
 - Play App Signing re-signs with the app key; you upload with the upload key

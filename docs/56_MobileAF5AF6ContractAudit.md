@@ -74,7 +74,7 @@ Three follow-on defects were found during this pass and recorded: **C-13, C-14, 
 **C-13 is now FIXED on both clients** and the `extractPlainText` naming hazard is closed — §2.7.
 Web's accept invalidates `qk.pieces.all`; mobile's invalidates the piece read and the snapshot list;
 reject and withdraw deliberately still don't. The collaboration flattener is renamed `anchorText` and
-its divergence from `@qalam/utils` `extractPlainText` is pinned by a test that fails if either side
+its divergence from `@umberleaf/utils` `extractPlainText` is pinned by a test that fails if either side
 moves. **C-14 and C-15 remain open** — both web-only, neither touched.
 
 Verification: backend `jest` **942 / 133 suites**, `tsc` + `eslint` clean. Frontend `vitest`
@@ -1044,7 +1044,7 @@ credit-pack and restore flows are exercised code. Everything up to the store SDK
 > `RestoreResultDto` is exactly `{ restored, providerRef, expiresAt }`
 > (`dto/monetization-response.dto.ts:167-171`) — the shape the handler returns and the shape mobile's
 > `RestoreResult` reads. The wrong response class is gone; `RestorePurchasesDto` survives only as the
-> **request** body (`:362`). Swagger and `@qalam/api-types` therefore emit the true shape, which was
+> **request** body (`:362`). Swagger and `@umberleaf/api-types` therefore emit the true shape, which was
 > this entry's whole concern. Closed on the backend as `48` **W4-2**.
 
 `monetization.controller.ts:358-369` returns an inline `{ restored, providerRef, expiresAt }`, while
@@ -1052,7 +1052,7 @@ credit-pack and restore flows are exercised code. Everything up to the store SDK
 subscription, creditsGranted }` and is not referenced by the route. Mobile's `RestoreResult`
 (`billing.dart:137-140`) reads `restored` + `expiresAt` — i.e. **the client matches reality and the
 DTO class is the wrong one**. Flagged because the web port must generate from the controller, not
-from this class, and because Swagger/`@qalam/api-types` will emit the wrong shape. Fix: backend, ~6
+from this class, and because Swagger/`@umberleaf/api-types` will emit the wrong shape. Fix: backend, ~6
 lines.
 
 ---
@@ -1227,16 +1227,16 @@ on every rejection.
 
 ---
 
-#### The two-projection hazard · `anchorText` vs `@qalam/utils` `extractPlainText`
+#### The two-projection hazard · `anchorText` vs `@umberleaf/utils` `extractPlainText`
 
 Not a defect — a trap. The platform flattens a TipTap document to a string in two places and the two
 **already disagree**, measurably:
 
 ```
-{p:"first"}{p:"second"}  →  @qalam/utils: "first second" (12)   collaboration: "firstsecond" (11)
+{p:"first"}{p:"second"}  →  @umberleaf/utils: "first second" (12)   collaboration: "firstsecond" (11)
 ```
 
-`@qalam/utils` inserts `' '` between text nodes and collapses/trims (it feeds FTS, word count and
+`@umberleaf/utils` inserts `' '` between text nodes and collapses/trims (it feeds FTS, word count and
 reading time); the collaboration copy concatenates verbatim. Every block boundary shifts every later
 offset by one.
 
@@ -1252,7 +1252,7 @@ Closed by:
 1. **Renaming** the collaboration one to `anchorText`, with the comparison table and the reasoning in
    the file header.
 2. **One leaf predicate** (`isTextLeaf`, `type === 'text'` + string `text`) shared by the read and the
-   write, and matching `@qalam/utils`. Previously the read accepted any node carrying a string
+   write, and matching `@umberleaf/utils`. Previously the read accepted any node carrying a string
    `text`; had the read and the write ever disagreed about what counts as text, offsets and edits
    would have addressed different documents.
 3. **`content-text.divergence.spec.ts`** (6 tests) — imports both implementations and pins the

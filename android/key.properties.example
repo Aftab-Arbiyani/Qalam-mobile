@@ -3,7 +3,7 @@
 # commit real keystore paths, passwords, or the .jks/.keystore itself.
 #
 # Generate an upload keystore:
-#   keytool -genkey -v -keystore ~/qalam-upload.jks -keyalg RSA -keysize 2048 \
+#   keytool -genkey -v -keystore ~/umberleaf-upload.jks -keyalg RSA -keysize 2048 \
 #     -validity 10000 -alias upload
 #
 # When android/key.properties is absent, the release build falls back to debug
@@ -12,4 +12,4 @@
 storePassword=your-keystore-password
 keyPassword=your-key-password
 keyAlias=upload
-storeFile=/absolute/path/to/qalam-upload.jks
+storeFile=/absolute/path/to/umberleaf-upload.jks
