@@ -13,7 +13,7 @@ switching in release builds; the flavor is fixed at build time.
 
 Four environments, each a native build flavor + a `dart_defines/<flavor>.json`
 file. `AppFlavor` (`lib/core/config/app_flavor.dart`) is the typed enum; its
-`wire` string is the exact `QALAM_ENV` value in the JSON and the native flavor
+`wire` string is the exact `UMBERLEAF_ENV` value in the JSON and the native flavor
 name.
 
 | Flavor | `wire` | Android appId | iOS bundle id | Label | API URL |
@@ -38,10 +38,10 @@ runtime source of truth. Client flags only un-gate the routes/affordances.
 
 | Flag | dev | qa | staging | production |
 | --- | --- | --- | --- | --- |
-| `QALAM_ENABLE_PUSH` | on | off | off | off |
-| `QALAM_ENABLE_AI` | on | on | on | **off** |
-| `QALAM_ENABLE_MONETIZATION` | on | on | on | **off** |
-| `QALAM_ENABLE_COLLABORATION` | on | on | on | **off** |
+| `UMBERLEAF_ENABLE_PUSH` | on | off | off | off |
+| `UMBERLEAF_ENABLE_AI` | on | on | on | **off** |
+| `UMBERLEAF_ENABLE_MONETIZATION` | on | on | on | **off** |
+| `UMBERLEAF_ENABLE_COLLABORATION` | on | on | on | **off** |
 
 - **dev** is all-on for local exercise of every surface.
 - **qa/staging** enable the Phase-2 surfaces so they can be validated pre-prod;
@@ -58,7 +58,7 @@ Two independent mechanisms are joined by one build command:
 1. **Native flavor** (`--flavor <name>`) selects the Android product flavor /
    iOS scheme — it sets the application id, launcher label, and (on iOS) the
    xcconfig. It does **not** touch Dart-visible config.
-2. **`--dart-define-from-file=dart_defines/<name>.json`** injects the `QALAM_*`
+2. **`--dart-define-from-file=dart_defines/<name>.json`** injects the `UMBERLEAF_*`
    values that `AppConfig.fromEnvironment()` reads via `String.fromEnvironment` /
    `bool.fromEnvironment`. JSON `true`/`false` map to `bool.fromEnvironment`.
 
@@ -161,7 +161,7 @@ like `CrashReporter`, `PushMessagingService`, `CertificatePinning`).
 
 > DSNs and other per-environment secrets are **not committed** in
 > `dart_defines/*.json` (kept empty). CI injects them by appending an extra define,
-> e.g. `--dart-define=QALAM_SENTRY_DSN=<dsn>` (a later `--dart-define` overrides
+> e.g. `--dart-define=UMBERLEAF_SENTRY_DSN=<dsn>` (a later `--dart-define` overrides
 > the file value). See docs/40 §28.3.
 
 ---
@@ -200,7 +200,7 @@ BUILD_NUMBER=<ci-number> tool/build_flavor.sh production ipa
 - [ ] `android/key.properties` populated (release signing, not debug fallback).
 - [ ] Build with `tool/build_flavor.sh <flavor> <artifact>` (obfuscation on).
 - [ ] Archive `build/symbols/<flavor>` for crash de-obfuscation.
-- [ ] Crash DSN injected by CI (`--dart-define=QALAM_SENTRY_DSN=…`) if reporting on.
+- [ ] Crash DSN injected by CI (`--dart-define=UMBERLEAF_SENTRY_DSN=…`) if reporting on.
 - [ ] (Optional, needs device QA) enable R8 per `android/app/proguard-rules.pro`.
 
 ---
@@ -213,7 +213,7 @@ BUILD_NUMBER=<ci-number> tool/build_flavor.sh production ipa
 | `lib/core/config/remote_config.dart` | Remote-config seam (interface + Noop) |
 | `lib/core/di/providers.dart` | `remoteConfigProvider` (throws until overridden) |
 | `lib/bootstrap.dart` | `createRemoteConfig()` factory + init + override |
-| `dart_defines/{development,qa,staging,production}.json` | Per-flavor `QALAM_*` config |
+| `dart_defines/{development,qa,staging,production}.json` | Per-flavor `UMBERLEAF_*` config |
 | `android/app/build.gradle.kts` | `flavorDimensions` + `productFlavors` |
 | `android/app/src/main/AndroidManifest.xml` | Label → `${appName}` placeholder |
 | `android/app/proguard-rules.pro` | Staged R8 keep rules (minify still OFF) |

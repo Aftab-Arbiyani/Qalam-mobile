@@ -69,7 +69,7 @@ Verified against docs/40 §39 and docs/13.
 
 ## 5. Crash reporting configuration
 
-- **Seam:** `CrashReporter` interface + `NoopCrashReporter` (DSN-gated). Activated by setting `QALAM_SENTRY_DSN` and dropping in a `SentryCrashReporter` (add `sentry_flutter`, forward `recordError`/`addBreadcrumb`/`setUser`) — no call-site changes. Mirrors the FCM-push and pinning seams.
+- **Seam:** `CrashReporter` interface + `NoopCrashReporter` (DSN-gated). Activated by setting `UMBERLEAF_SENTRY_DSN` and dropping in a `SentryCrashReporter` (add `sentry_flutter`, forward `recordError`/`addBreadcrumb`/`setUser`) — no call-site changes. Mirrors the FCM-push and pinning seams.
 - **Error channels wired (`bootstrap.dart`):** `FlutterError.onError` (fatal), `PlatformDispatcher.instance.onError`, and a top-level `runZonedGuarded`. All forward to the console logger **and** the reporter.
 - **Breadcrumbs:** navigation transitions (route names only) + a bounded 50-entry trail; on a fatal error the Noop flushes the trail to the log for local/staging diagnosis.
 - **Metadata:** release = `env.fullVersion` (`version+build`), environment = flavor (`development/staging/production`), platform from `AppEnvironmentInfo`.
@@ -125,7 +125,7 @@ Audited against docs/28 + docs/41.
 - [x] Logging gated for production
 - [x] Accessibility + performance audits complete
 - [ ] **Store build (requires secrets, per environment):** populate `android/key.properties`, then:
-  `flutter build appbundle --release --dart-define=QALAM_ENV=production --dart-define=QALAM_API_URL=https://api.qalam.app --dart-define=QALAM_SENTRY_DSN=… --obfuscate --split-debug-info=build/symbols`
+  `flutter build appbundle --release --dart-define=UMBERLEAF_ENV=production --dart-define=UMBERLEAF_API_URL=https://api.qalam.app --dart-define=UMBERLEAF_SENTRY_DSN=… --obfuscate --split-debug-info=build/symbols`
 
 ## 11. Android release checklist
 

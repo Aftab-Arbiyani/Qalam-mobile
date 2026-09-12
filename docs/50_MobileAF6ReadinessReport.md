@@ -30,7 +30,7 @@ lib/features/collaboration/
 ```
 Plus edits to `lib/app/router/*` (routes + guarded `GoRoute`s), `lib/core/network/api_paths.dart`
 (the AF6 endpoint block), `lib/core/config/app_config.dart` (`enableCollaboration` flag,
-env `QALAM_ENABLE_COLLABORATION`, default off), and `test/support/harness.dart` (3 repo overrides).
+env `UMBERLEAF_ENABLE_COLLABORATION`, default off), and `test/support/harness.dart` (3 repo overrides).
 
 ## Highlights
 
@@ -63,7 +63,7 @@ env `QALAM_ENABLE_COLLABORATION`, default off), and `test/support/harness.dart` 
 
 ## Manual testing
 
-Enable with `--dart-define=QALAM_ENABLE_COLLABORATION=true`. From a piece the user owns:
+Enable with `--dart-define=UMBERLEAF_ENABLE_COLLABORATION=true`. From a piece the user owns:
 open **Collaborators** (invite by **handle** → the invitee sees it in **Invitations Inbox** →
 accept), **Comments** (inline thread + resolve), **Suggestions** (propose → owner accepts),
 **Publishing** (request review → approve → publish; snapshots + history). Sign in as a

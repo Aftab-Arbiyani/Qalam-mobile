@@ -27,25 +27,25 @@ class AppConfig {
   /// Build config from `--dart-define` keys. Defaults target local development.
   factory AppConfig.fromEnvironment() {
     const String env = String.fromEnvironment(
-      'QALAM_ENV',
+      'UMBERLEAF_ENV',
       defaultValue: 'development',
     );
     return AppConfig(
       flavor: AppFlavor.fromWire(env),
       apiUrl: const String.fromEnvironment(
-        'QALAM_API_URL',
+        'UMBERLEAF_API_URL',
         defaultValue: 'http://localhost:4000',
       ),
-      cdnUrl: const String.fromEnvironment('QALAM_CDN_URL'),
-      webUrl: const String.fromEnvironment('QALAM_WEB_URL'),
-      sentryDsn: const String.fromEnvironment('QALAM_SENTRY_DSN'),
-      enablePush: const bool.fromEnvironment('QALAM_ENABLE_PUSH'),
-      enableAi: const bool.fromEnvironment('QALAM_ENABLE_AI'),
+      cdnUrl: const String.fromEnvironment('UMBERLEAF_CDN_URL'),
+      webUrl: const String.fromEnvironment('UMBERLEAF_WEB_URL'),
+      sentryDsn: const String.fromEnvironment('UMBERLEAF_SENTRY_DSN'),
+      enablePush: const bool.fromEnvironment('UMBERLEAF_ENABLE_PUSH'),
+      enableAi: const bool.fromEnvironment('UMBERLEAF_ENABLE_AI'),
       enableMonetization: const bool.fromEnvironment(
-        'QALAM_ENABLE_MONETIZATION',
+        'UMBERLEAF_ENABLE_MONETIZATION',
       ),
       enableCollaboration: const bool.fromEnvironment(
-        'QALAM_ENABLE_COLLABORATION',
+        'UMBERLEAF_ENABLE_COLLABORATION',
       ),
     );
   }
@@ -120,14 +120,14 @@ class AppConfig {
         !(parsed.isScheme('http') || parsed.isScheme('https'))) {
       throw ArgumentError.value(
         apiUrl,
-        'QALAM_API_URL',
+        'UMBERLEAF_API_URL',
         'must be an absolute http(s) URL',
       );
     }
     if (cdnUrl.isNotEmpty && Uri.tryParse(cdnUrl)?.hasScheme != true) {
       throw ArgumentError.value(
         cdnUrl,
-        'QALAM_CDN_URL',
+        'UMBERLEAF_CDN_URL',
         'must be an absolute URL when set',
       );
     }

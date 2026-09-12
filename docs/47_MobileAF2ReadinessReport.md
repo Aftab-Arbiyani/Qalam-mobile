@@ -192,7 +192,7 @@ treats golden drift as environmental per commit `c5539ac`). `flutter build apk -
    upserts the AF2 prompts (`writing_assistant.*`, `craft_coach.*`) + the two flags.
 2. As an admin (`settings.manage`), enable `feature.ai.enabled`, `feature.ai.writingAssistant.enabled`,
    `feature.ai.craftCoach.enabled`.
-3. Build the app with `--dart-define=QALAM_ENABLE_AI=true`.
+3. Build the app with `--dart-define=UMBERLEAF_ENABLE_AI=true`.
 4. Open a draft → the ✨ button appears in the formatting toolbar. Select text → Rewrite →
    watch it stream → Compare (diff) → Apply → confirm the editor updated and shows "Applied";
    Undo → confirm it reverts. Try Insert below / Append / Copy / Save as draft.

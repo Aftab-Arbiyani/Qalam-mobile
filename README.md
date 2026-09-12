@@ -20,11 +20,11 @@ device_info_plus.
 flutter pub get
 dart run build_runner build            # generate freezed / json / riverpod
 flutter gen-l10n                        # generate localizations
-flutter run --dart-define=QALAM_API_URL=http://localhost:4000
+flutter run --dart-define=UMBERLEAF_API_URL=http://localhost:4000
 ```
 
-Config is injected via `--dart-define` (`QALAM_ENV`, `QALAM_API_URL`,
-`QALAM_CDN_URL`, `QALAM_SENTRY_DSN`, `QALAM_ENABLE_PUSH`). See
+Config is injected via `--dart-define` (`UMBERLEAF_ENV`, `UMBERLEAF_API_URL`,
+`UMBERLEAF_CDN_URL`, `UMBERLEAF_SENTRY_DSN`, `UMBERLEAF_ENABLE_PUSH`). See
 `lib/core/config/app_config.dart`.
 
 ## Quality gates

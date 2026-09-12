@@ -23,7 +23,7 @@
 #   Android release signing comes from android/key.properties (git-ignored); when
 #   absent the build falls back to debug signing (android/app/build.gradle.kts).
 #   The crash-reporting DSN is NOT committed in dart_defines/*.json — CI injects it
-#   by appending, e.g.:  --dart-define=QALAM_SENTRY_DSN=<dsn>  (later define wins).
+#   by appending, e.g.:  --dart-define=UMBERLEAF_SENTRY_DSN=<dsn>  (later define wins).
 #
 # Symbols:
 #   --split-debug-info writes an obfuscation map to build/symbols/<flavor>. ARCHIVE

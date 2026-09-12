@@ -1489,7 +1489,7 @@ rather than a debt.
 
 The manual-test list at docs/50 §"Manual testing" (lines 64-71) reads:
 
-> Enable with `--dart-define=QALAM_ENABLE_COLLABORATION=true`. From a piece the user owns: open
+> Enable with `--dart-define=UMBERLEAF_ENABLE_COLLABORATION=true`. From a piece the user owns: open
 > **Collaborators** (invite by **handle** → the invitee sees it in **Invitations Inbox** → accept),
 > **Comments** (inline thread + resolve), **Suggestions** (propose → owner accepts), **Publishing**
 > (request review → approve → publish; snapshots + history). Sign in as a restricted user to see
