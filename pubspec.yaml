@@ -88,21 +88,22 @@ flutter:
   generate: true
 
 # App launcher icons (dev-only tooling — not a runtime dependency). Generated from
-# the brand mark in assets/branding/ (the isolated qaf ق on warm terracotta). The
-# masters are path-based PNGs rasterized from the deterministic brand SVG, so the
-# icon is font-independent. Regenerate: `dart run flutter_launcher_icons`.
+# the brand mark in assets/branding/ (the Umberleaf leaf, variant D "Outline", as a
+# white stroke on warm terracotta). The masters are rasterized from the deterministic
+# brand SVG, so the icon is font-independent. Sync: `tool/branding/sync.sh`, then
+# regenerate: `dart run flutter_launcher_icons`.
 flutter_launcher_icons:
-  image_path: "assets/branding/qalam_icon.png"
+  image_path: "assets/branding/umberleaf_icon.png"
   android: true
   min_sdk_android: 21
   adaptive_icon_background: "#9E4B28"
-  adaptive_icon_foreground: "assets/branding/qalam_icon_foreground.png"
-  adaptive_icon_monochrome: "assets/branding/qalam_icon_foreground.png"
+  adaptive_icon_foreground: "assets/branding/umberleaf_icon_foreground.png"
+  adaptive_icon_monochrome: "assets/branding/umberleaf_icon_foreground.png"
   ios: true
   remove_alpha_ios: true
   background_color_ios: "#9E4B28"
   web:
     generate: true
-    image_path: "assets/branding/qalam_icon.png"
+    image_path: "assets/branding/umberleaf_icon.png"
     background_color: "#FAF7F1"
     theme_color: "#9E4B28"
