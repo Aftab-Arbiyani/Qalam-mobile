@@ -95,7 +95,7 @@ class NotificationTile extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 QAvatar(
-                  name: notification.actor?.displayName ?? 'Qalam',
+                  name: notification.actor?.displayName ?? 'Umberleaf',
                   imageUrl: avatarUrl,
                   size: 40,
                 ),

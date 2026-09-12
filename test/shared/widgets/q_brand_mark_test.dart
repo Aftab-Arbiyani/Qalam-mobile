@@ -15,7 +15,7 @@ void main() {
   ) async {
     await tester.pumpWidget(_harness(Brightness.light, const QBrandMark()));
     expect(find.byType(QBrandMark), findsOneWidget);
-    expect(find.bySemanticsLabel('Qalam'), findsOneWidget);
+    expect(find.bySemanticsLabel('Umberleaf'), findsOneWidget);
     expect(find.byType(CustomPaint), findsWidgets);
   });
 

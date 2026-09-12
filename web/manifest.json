@@ -1,11 +1,11 @@
 {
-    "name": "Qalam",
-    "short_name": "Qalam",
+    "name": "Umberleaf",
+    "short_name": "Umberleaf",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#FAF7F1",
     "theme_color": "#9E4B28",
-    "description": "Qalam — a premium creative-writing sanctuary (mobile client).",
+    "description": "Umberleaf — a premium creative-writing sanctuary (mobile client).",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

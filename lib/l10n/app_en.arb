@@ -1,7 +1,7 @@
 {
   "@@locale": "en",
 
-  "appTitle": "Qalam",
+  "appTitle": "Umberleaf",
   "@appTitle": { "description": "The application name." },
 
   "navFeed": "Feed",
@@ -60,7 +60,7 @@
   "onboardingNext": "Next",
   "onboardingGetStarted": "Get started",
   "onboardingWelcomeTitle": "A place for your words",
-  "onboardingWelcomeBody": "Qalam is a quiet writing sanctuary — warm paper and ink, for Hindi and Urdu writers first.",
+  "onboardingWelcomeBody": "Umberleaf is a quiet writing sanctuary — warm paper and ink, for Hindi and Urdu writers first.",
   "onboardingFeaturesTitle": "Read and write, beautifully",
   "onboardingFeaturesBody": "Follow writers you love, save what moves you, and publish prose that reads the way it should.",
   "onboardingPrivacyTitle": "Your words, your control",
@@ -98,7 +98,7 @@
   "actionHidePassword": "Hide password",
 
   "authRememberMe": "Keep me signed in",
-  "authNoAccount": "New to Qalam?",
+  "authNoAccount": "New to Umberleaf?",
   "authCreateOne": "Create an account",
   "authHaveAccount": "Already have an account?",
   "authSignInLink": "Sign in",
@@ -157,7 +157,7 @@
     "placeholders": { "email": { "type": "String" } }
   },
   "authVerifyGenericBody": "We sent a verification link to your email. Open it to confirm your account.",
-  "authVerifyWhyBody": "You can keep using Qalam — some actions need a verified email.",
+  "authVerifyWhyBody": "You can keep using Umberleaf — some actions need a verified email.",
   "authResentBody": "Sent. Check your inbox again.",
 
   "accountSignedInAs": "Signed in as @{username}",

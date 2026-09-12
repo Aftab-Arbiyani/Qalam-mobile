@@ -7,7 +7,7 @@ import 'package:umberleaf_mobile/core/observability/release_diagnostics.dart';
 
 void main() {
   const AppEnvironmentInfo env = AppEnvironmentInfo(
-    appName: 'Qalam',
+    appName: 'Umberleaf',
     version: '1.2.0',
     buildNumber: '42',
     platform: 'android',

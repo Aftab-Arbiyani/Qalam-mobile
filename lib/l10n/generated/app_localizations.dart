@@ -97,7 +97,7 @@ abstract class AppLocalizations {
   /// The application name.
   ///
   /// In en, this message translates to:
-  /// **'Qalam'**
+  /// **'Umberleaf'**
   String get appTitle;
 
   /// No description provided for @navFeed.
@@ -355,7 +355,7 @@ abstract class AppLocalizations {
   /// No description provided for @onboardingWelcomeBody.
   ///
   /// In en, this message translates to:
-  /// **'Qalam is a quiet writing sanctuary — warm paper and ink, for Hindi and Urdu writers first.'**
+  /// **'Umberleaf is a quiet writing sanctuary — warm paper and ink, for Hindi and Urdu writers first.'**
   String get onboardingWelcomeBody;
 
   /// No description provided for @onboardingFeaturesTitle.
@@ -553,7 +553,7 @@ abstract class AppLocalizations {
   /// No description provided for @authNoAccount.
   ///
   /// In en, this message translates to:
-  /// **'New to Qalam?'**
+  /// **'New to Umberleaf?'**
   String get authNoAccount;
 
   /// No description provided for @authCreateOne.
@@ -751,7 +751,7 @@ abstract class AppLocalizations {
   /// No description provided for @authVerifyWhyBody.
   ///
   /// In en, this message translates to:
-  /// **'You can keep using Qalam — some actions need a verified email.'**
+  /// **'You can keep using Umberleaf — some actions need a verified email.'**
   String get authVerifyWhyBody;
 
   /// No description provided for @authResentBody.

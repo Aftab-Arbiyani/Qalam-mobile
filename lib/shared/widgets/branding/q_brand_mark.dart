@@ -25,7 +25,7 @@ class QBrandMark extends StatelessWidget {
     this.size = 40,
     this.tile = true,
     this.glyphColor,
-    this.semanticLabel = 'Qalam',
+    this.semanticLabel = 'Umberleaf',
     super.key,
   });
 
@@ -38,7 +38,7 @@ class QBrandMark extends StatelessWidget {
   /// Glyph fill. Defaults to white on a tile, or the theme accent when untiled.
   final Color? glyphColor;
 
-  /// Screen-reader label; pass `null` where the mark sits beside the "Qalam"
+  /// Screen-reader label; pass `null` where the mark sits beside the "Umberleaf"
   /// wordmark (splash / app bar) so the name isn't announced twice.
   final String? semanticLabel;
 

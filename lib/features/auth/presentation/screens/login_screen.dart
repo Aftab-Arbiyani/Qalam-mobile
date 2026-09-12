@@ -131,8 +131,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         Gap.v5,
         SocialAuthButtons(onSuccess: _goHome),
         Gap.v5,
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+        // Wrap, not Row: the prompt and the action are sized by their text, so a
+        // single line only ever fit by luck. It overflowed the moment the brand
+        // name got longer, and a large text scale or a wordier locale would have
+        // done the same. Wrapping to a second line keeps both strings whole —
+        // truncating either one loses the only route to registration.
+        Wrap(
+          alignment: WrapAlignment.center,
+          crossAxisAlignment: WrapCrossAlignment.center,
           children: <Widget>[
             Text(
               l10n.authNoAccount,

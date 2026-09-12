@@ -32,7 +32,7 @@ class AppEnvironmentInfo {
   String get fullVersion => '$version+$buildNumber';
 
   static const AppEnvironmentInfo unknown = AppEnvironmentInfo(
-    appName: 'Qalam',
+    appName: 'Umberleaf',
     version: '0.0.0',
     buildNumber: '0',
     platform: 'unknown',
@@ -75,7 +75,7 @@ Future<AppEnvironmentInfo> resolveAppEnvironmentInfo() async {
   }
 
   return AppEnvironmentInfo(
-    appName: pkg.appName.isEmpty ? 'Qalam' : pkg.appName,
+    appName: pkg.appName.isEmpty ? 'Umberleaf' : pkg.appName,
     version: pkg.version,
     buildNumber: pkg.buildNumber,
     platform: platform,
