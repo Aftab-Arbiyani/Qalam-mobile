@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/features/collaboration/presentation/mention_text.dart';
-import 'package:qalam_mobile/shared/domain/limits.dart';
+import 'package:umberleaf_mobile/features/collaboration/presentation/mention_text.dart';
+import 'package:umberleaf_mobile/shared/domain/limits.dart';
 
 /// The display↔raw translation P-2 rests on (`platfrom/docs/48` §5.1).
 ///

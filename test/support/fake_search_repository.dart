@@ -2,19 +2,19 @@
 /// with no network. Every surface can be seeded independently; defaults are empty.
 library;
 
-import 'package:qalam_mobile/core/utils/result.dart';
-import 'package:qalam_mobile/core/utils/typedefs.dart';
-import 'package:qalam_mobile/features/search/domain/entities/autocomplete_result.dart';
-import 'package:qalam_mobile/features/search/domain/entities/recent_search.dart';
-import 'package:qalam_mobile/features/search/domain/entities/trending_searches.dart';
-import 'package:qalam_mobile/features/search/domain/repositories/search_repository.dart';
-import 'package:qalam_mobile/features/search/domain/value_objects/search_filters.dart';
-import 'package:qalam_mobile/shared/api/api_envelope.dart';
-import 'package:qalam_mobile/shared/domain/entities/piece_summary.dart';
-import 'package:qalam_mobile/shared/domain/entities/trend_item.dart';
-import 'package:qalam_mobile/shared/domain/entities/writer_summary.dart';
-import 'package:qalam_mobile/shared/domain/enums.dart';
-import 'package:qalam_mobile/shared/pagination/cached_page.dart';
+import 'package:umberleaf_mobile/core/utils/result.dart';
+import 'package:umberleaf_mobile/core/utils/typedefs.dart';
+import 'package:umberleaf_mobile/features/search/domain/entities/autocomplete_result.dart';
+import 'package:umberleaf_mobile/features/search/domain/entities/recent_search.dart';
+import 'package:umberleaf_mobile/features/search/domain/entities/trending_searches.dart';
+import 'package:umberleaf_mobile/features/search/domain/repositories/search_repository.dart';
+import 'package:umberleaf_mobile/features/search/domain/value_objects/search_filters.dart';
+import 'package:umberleaf_mobile/shared/api/api_envelope.dart';
+import 'package:umberleaf_mobile/shared/domain/entities/piece_summary.dart';
+import 'package:umberleaf_mobile/shared/domain/entities/trend_item.dart';
+import 'package:umberleaf_mobile/shared/domain/entities/writer_summary.dart';
+import 'package:umberleaf_mobile/shared/domain/enums.dart';
+import 'package:umberleaf_mobile/shared/pagination/cached_page.dart';
 
 class FakeSearchRepository implements SearchRepository {
   FakeSearchRepository({

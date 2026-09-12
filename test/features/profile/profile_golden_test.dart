@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/core/di/providers.dart';
-import 'package:qalam_mobile/features/profile/domain/entities/profile.dart';
-import 'package:qalam_mobile/features/profile/domain/entities/profile_counts.dart';
-import 'package:qalam_mobile/features/profile/domain/entities/viewer_relation.dart';
-import 'package:qalam_mobile/features/profile/presentation/widgets/profile_header.dart';
-import 'package:qalam_mobile/features/profile/presentation/widgets/profile_stats_row.dart';
-import 'package:qalam_mobile/shared/domain/entities/taxonomy.dart';
-import 'package:qalam_mobile/shared/theme/app_theme.dart';
+import 'package:umberleaf_mobile/core/di/providers.dart';
+import 'package:umberleaf_mobile/features/profile/domain/entities/profile.dart';
+import 'package:umberleaf_mobile/features/profile/domain/entities/profile_counts.dart';
+import 'package:umberleaf_mobile/features/profile/domain/entities/viewer_relation.dart';
+import 'package:umberleaf_mobile/features/profile/presentation/widgets/profile_header.dart';
+import 'package:umberleaf_mobile/features/profile/presentation/widgets/profile_stats_row.dart';
+import 'package:umberleaf_mobile/shared/domain/entities/taxonomy.dart';
+import 'package:umberleaf_mobile/shared/theme/app_theme.dart';
 
 import '../../support/harness.dart';
 

@@ -2,9 +2,9 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive_ce/hive.dart';
-import 'package:qalam_mobile/features/search/data/datasources/search_recents_store.dart';
-import 'package:qalam_mobile/features/search/domain/entities/recent_search.dart';
-import 'package:qalam_mobile/shared/domain/enums.dart';
+import 'package:umberleaf_mobile/features/search/data/datasources/search_recents_store.dart';
+import 'package:umberleaf_mobile/features/search/domain/entities/recent_search.dart';
+import 'package:umberleaf_mobile/shared/domain/enums.dart';
 
 RecentSearch _entry(String q, {SearchType type = SearchType.all, int day = 1}) =>
     RecentSearch(query: q, searchType: type, searchedAt: DateTime.utc(2026, 1, day));

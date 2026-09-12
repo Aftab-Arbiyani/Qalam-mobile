@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/core/di/providers.dart';
-import 'package:qalam_mobile/core/session/onboarding_controller.dart';
+import 'package:umberleaf_mobile/core/di/providers.dart';
+import 'package:umberleaf_mobile/core/session/onboarding_controller.dart';
 
 import '../../support/harness.dart';
 

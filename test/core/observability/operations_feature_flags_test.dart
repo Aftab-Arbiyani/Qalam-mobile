@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/core/config/app_config.dart';
-import 'package:qalam_mobile/core/config/app_flavor.dart';
-import 'package:qalam_mobile/core/config/remote_config.dart';
-import 'package:qalam_mobile/core/observability/operations_feature_flags.dart';
+import 'package:umberleaf_mobile/core/config/app_config.dart';
+import 'package:umberleaf_mobile/core/config/app_flavor.dart';
+import 'package:umberleaf_mobile/core/config/remote_config.dart';
+import 'package:umberleaf_mobile/core/observability/operations_feature_flags.dart';
 
 /// A remote config that returns fixed values for named keys (else the fallback).
 class _StubRemoteConfig implements RemoteConfigService {

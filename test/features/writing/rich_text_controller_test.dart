@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/features/writing/domain/editor/marked_text.dart';
-import 'package:qalam_mobile/features/writing/presentation/editor/rich_text_controller.dart';
+import 'package:umberleaf_mobile/features/writing/domain/editor/marked_text.dart';
+import 'package:umberleaf_mobile/features/writing/presentation/editor/rich_text_controller.dart';
 
 void main() {
   Future<BuildContext> pumpContext(WidgetTester tester) async {

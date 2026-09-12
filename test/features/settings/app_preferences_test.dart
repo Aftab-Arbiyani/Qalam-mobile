@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/core/di/providers.dart';
-import 'package:qalam_mobile/shared/preferences/app_preferences_controllers.dart';
-import 'package:qalam_mobile/shared/preferences/default_feed.dart';
+import 'package:umberleaf_mobile/core/di/providers.dart';
+import 'package:umberleaf_mobile/shared/preferences/app_preferences_controllers.dart';
+import 'package:umberleaf_mobile/shared/preferences/default_feed.dart';
 
 import '../../support/harness.dart';
 

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/features/reading/domain/content_parser.dart';
-import 'package:qalam_mobile/features/reading/domain/entities/content_node.dart';
-import 'package:qalam_mobile/features/reading/presentation/widgets/content_renderer.dart';
-import 'package:qalam_mobile/shared/domain/enums.dart';
-import 'package:qalam_mobile/shared/theme/app_theme.dart';
+import 'package:umberleaf_mobile/features/reading/domain/content_parser.dart';
+import 'package:umberleaf_mobile/features/reading/domain/entities/content_node.dart';
+import 'package:umberleaf_mobile/features/reading/presentation/widgets/content_renderer.dart';
+import 'package:umberleaf_mobile/shared/domain/enums.dart';
+import 'package:umberleaf_mobile/shared/theme/app_theme.dart';
 
 /// The "propose an edit" tap-target path (docs/48 §3.22a). `blockAnchors` +
 /// `onBlockTap` are opt-in — the golden test (`content_renderer_golden_test.dart`)

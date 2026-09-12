@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/features/auth/presentation/controllers/auth_validators.dart';
-import 'package:qalam_mobile/features/auth/presentation/controllers/field_state.dart';
+import 'package:umberleaf_mobile/features/auth/presentation/controllers/auth_validators.dart';
+import 'package:umberleaf_mobile/features/auth/presentation/controllers/field_state.dart';
 
 void main() {
   group('AuthValidators.email', () {

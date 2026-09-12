@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/features/notifications/domain/entities/unread_count.dart';
-import 'package:qalam_mobile/features/notifications/presentation/controllers/unread_count_controller.dart';
+import 'package:umberleaf_mobile/features/notifications/domain/entities/unread_count.dart';
+import 'package:umberleaf_mobile/features/notifications/presentation/controllers/unread_count_controller.dart';
 
 import '../../support/fake_notifications.dart';
 import '../../support/harness.dart';

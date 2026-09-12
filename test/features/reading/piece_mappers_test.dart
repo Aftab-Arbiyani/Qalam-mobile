@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/features/reading/data/mappers/piece_mappers.dart';
-import 'package:qalam_mobile/features/reading/domain/entities/piece_detail.dart';
-import 'package:qalam_mobile/features/reading/domain/entities/piece_engagement.dart';
-import 'package:qalam_mobile/features/reading/domain/entities/writer_profile.dart';
-import 'package:qalam_mobile/shared/domain/enums.dart';
+import 'package:umberleaf_mobile/features/reading/data/mappers/piece_mappers.dart';
+import 'package:umberleaf_mobile/features/reading/domain/entities/piece_detail.dart';
+import 'package:umberleaf_mobile/features/reading/domain/entities/piece_engagement.dart';
+import 'package:umberleaf_mobile/features/reading/domain/entities/writer_profile.dart';
+import 'package:umberleaf_mobile/shared/domain/enums.dart';
 
 void main() {
   test('pieceDetailFromJson maps content, taxonomy, minimal author', () {

@@ -21,8 +21,8 @@ library;
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/features/collaboration/domain/entities/collaboration_enums.dart';
-import 'package:qalam_mobile/features/collaboration/domain/entities/policy_capability.dart';
+import 'package:umberleaf_mobile/features/collaboration/domain/entities/collaboration_enums.dart';
+import 'package:umberleaf_mobile/features/collaboration/domain/entities/policy_capability.dart';
 
 /// The real `CapabilitiesDto` payload for an owner, as `collaboration.mappers.ts`
 /// (`toCapabilityDtos`) emits it: an array, each element carrying its own `action`.

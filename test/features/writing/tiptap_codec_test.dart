@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/features/writing/domain/editor/editor_block.dart';
-import 'package:qalam_mobile/features/writing/domain/editor/editor_document.dart';
-import 'package:qalam_mobile/features/writing/domain/editor/marked_text.dart';
-import 'package:qalam_mobile/features/writing/domain/editor/tiptap_codec.dart';
+import 'package:umberleaf_mobile/features/writing/domain/editor/editor_block.dart';
+import 'package:umberleaf_mobile/features/writing/domain/editor/editor_document.dart';
+import 'package:umberleaf_mobile/features/writing/domain/editor/marked_text.dart';
+import 'package:umberleaf_mobile/features/writing/domain/editor/tiptap_codec.dart';
 
 void main() {
   group('tiptap_codec round-trip', () {

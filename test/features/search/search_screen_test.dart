@@ -8,11 +8,11 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/features/search/domain/entities/autocomplete_result.dart';
-import 'package:qalam_mobile/features/search/domain/entities/trending_searches.dart';
-import 'package:qalam_mobile/features/search/search.dart';
-import 'package:qalam_mobile/shared/retrieval/domain/retrieval.dart';
-import 'package:qalam_mobile/shared/widgets/inputs/q_search_field.dart';
+import 'package:umberleaf_mobile/features/search/domain/entities/autocomplete_result.dart';
+import 'package:umberleaf_mobile/features/search/domain/entities/trending_searches.dart';
+import 'package:umberleaf_mobile/features/search/search.dart';
+import 'package:umberleaf_mobile/shared/retrieval/domain/retrieval.dart';
+import 'package:umberleaf_mobile/shared/widgets/inputs/q_search_field.dart';
 
 import '../../support/fake_feed_repository.dart';
 import '../../support/fake_retrieval_repository.dart';

@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/core/observability/network_diagnostics.dart';
+import 'package:umberleaf_mobile/core/observability/network_diagnostics.dart';
 
 void main() {
   NoopNetworkDiagnostics build() => NoopNetworkDiagnostics(maxSamples: 3);

@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/core/observability/performance_monitor.dart';
+import 'package:umberleaf_mobile/core/observability/performance_monitor.dart';
 
 void main() {
   test('NoopPerformanceMonitor is disabled and initializes without throwing', () async {

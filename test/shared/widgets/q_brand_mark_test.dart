@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/shared/theme/app_theme.dart';
-import 'package:qalam_mobile/shared/widgets/branding/q_brand_mark.dart';
+import 'package:umberleaf_mobile/shared/theme/app_theme.dart';
+import 'package:umberleaf_mobile/shared/widgets/branding/q_brand_mark.dart';
 
 Widget _harness(Brightness brightness, Widget child) => MaterialApp(
   debugShowCheckedModeBanner: false,

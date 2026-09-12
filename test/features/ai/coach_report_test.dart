@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/features/ai/domain/value_objects/coach_report.dart';
+import 'package:umberleaf_mobile/features/ai/domain/value_objects/coach_report.dart';
 
 void main() {
   group('CoachReport.tryParse', () {

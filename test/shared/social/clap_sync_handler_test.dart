@@ -8,10 +8,10 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/core/sync/sync_handler.dart';
-import 'package:qalam_mobile/core/sync/sync_operation.dart';
-import 'package:qalam_mobile/shared/domain/limits.dart';
-import 'package:qalam_mobile/shared/social/data/sync/clap_sync_handler.dart';
+import 'package:umberleaf_mobile/core/sync/sync_handler.dart';
+import 'package:umberleaf_mobile/core/sync/sync_operation.dart';
+import 'package:umberleaf_mobile/shared/domain/limits.dart';
+import 'package:umberleaf_mobile/shared/social/data/sync/clap_sync_handler.dart';
 
 import '../../support/fake_reading_repository.dart';
 

@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/features/search/domain/value_objects/search_filters.dart';
-import 'package:qalam_mobile/shared/domain/enums.dart';
+import 'package:umberleaf_mobile/features/search/domain/value_objects/search_filters.dart';
+import 'package:umberleaf_mobile/shared/domain/enums.dart';
 
 void main() {
   group('SearchFilters', () {

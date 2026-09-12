@@ -10,7 +10,7 @@ library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/features/ai/ai.dart';
+import 'package:umberleaf_mobile/features/ai/ai.dart';
 
 import '../../support/fake_ai_repository.dart';
 

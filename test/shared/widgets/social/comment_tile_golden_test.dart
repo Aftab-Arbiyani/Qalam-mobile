@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/core/di/providers.dart';
-import 'package:qalam_mobile/l10n/generated/app_localizations.dart';
-import 'package:qalam_mobile/shared/social/domain/entities/comment.dart';
-import 'package:qalam_mobile/shared/theme/app_theme.dart';
-import 'package:qalam_mobile/shared/widgets/social/comment_tile.dart';
+import 'package:umberleaf_mobile/core/di/providers.dart';
+import 'package:umberleaf_mobile/l10n/generated/app_localizations.dart';
+import 'package:umberleaf_mobile/shared/social/domain/entities/comment.dart';
+import 'package:umberleaf_mobile/shared/theme/app_theme.dart';
+import 'package:umberleaf_mobile/shared/widgets/social/comment_tile.dart';
 
 import '../../../support/harness.dart';
 

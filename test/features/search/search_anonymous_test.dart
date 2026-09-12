@@ -19,12 +19,12 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/core/session/session_controller.dart';
-import 'package:qalam_mobile/core/session/session_state.dart';
-import 'package:qalam_mobile/features/ai/presentation/providers/ai_providers.dart';
-import 'package:qalam_mobile/features/search/search.dart';
-import 'package:qalam_mobile/shared/retrieval/domain/retrieval.dart';
-import 'package:qalam_mobile/shared/widgets/inputs/q_search_field.dart';
+import 'package:umberleaf_mobile/core/session/session_controller.dart';
+import 'package:umberleaf_mobile/core/session/session_state.dart';
+import 'package:umberleaf_mobile/features/ai/presentation/providers/ai_providers.dart';
+import 'package:umberleaf_mobile/features/search/search.dart';
+import 'package:umberleaf_mobile/shared/retrieval/domain/retrieval.dart';
+import 'package:umberleaf_mobile/shared/widgets/inputs/q_search_field.dart';
 
 import '../../support/fake_feed_repository.dart';
 import '../../support/fake_retrieval_repository.dart';

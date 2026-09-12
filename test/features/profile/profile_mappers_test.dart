@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/core/utils/typedefs.dart';
-import 'package:qalam_mobile/features/profile/data/mappers/profile_mappers.dart';
-import 'package:qalam_mobile/features/profile/domain/entities/profile.dart';
-import 'package:qalam_mobile/features/profile/domain/entities/profile_piece.dart';
-import 'package:qalam_mobile/features/profile/domain/value_objects/profile_edit.dart';
+import 'package:umberleaf_mobile/core/utils/typedefs.dart';
+import 'package:umberleaf_mobile/features/profile/data/mappers/profile_mappers.dart';
+import 'package:umberleaf_mobile/features/profile/domain/entities/profile.dart';
+import 'package:umberleaf_mobile/features/profile/domain/entities/profile_piece.dart';
+import 'package:umberleaf_mobile/features/profile/domain/value_objects/profile_edit.dart';
 
 void main() {
   group('profileFromJson', () {

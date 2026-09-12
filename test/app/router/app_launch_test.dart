@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/features/auth/presentation/screens/login_screen.dart';
-import 'package:qalam_mobile/features/feed/presentation/screens/feed_screen.dart';
-import 'package:qalam_mobile/features/onboarding/presentation/screens/onboarding_screen.dart';
-import 'package:qalam_mobile/features/search/search.dart';
+import 'package:umberleaf_mobile/features/auth/presentation/screens/login_screen.dart';
+import 'package:umberleaf_mobile/features/feed/presentation/screens/feed_screen.dart';
+import 'package:umberleaf_mobile/features/onboarding/presentation/screens/onboarding_screen.dart';
+import 'package:umberleaf_mobile/features/search/search.dart';
 
 import '../../support/fake_feed_repository.dart';
 import '../../support/fake_search_repository.dart';

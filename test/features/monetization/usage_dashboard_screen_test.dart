@@ -15,14 +15,14 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/core/config/app_config.dart';
-import 'package:qalam_mobile/core/config/app_flavor.dart';
-import 'package:qalam_mobile/core/di/providers.dart';
-import 'package:qalam_mobile/core/utils/typedefs.dart';
-import 'package:qalam_mobile/features/monetization/domain/entities/usage_summary.dart';
-import 'package:qalam_mobile/features/monetization/presentation/providers/monetization_providers.dart';
-import 'package:qalam_mobile/features/monetization/presentation/screens/usage_dashboard_screen.dart';
-import 'package:qalam_mobile/shared/theme/app_theme.dart';
+import 'package:umberleaf_mobile/core/config/app_config.dart';
+import 'package:umberleaf_mobile/core/config/app_flavor.dart';
+import 'package:umberleaf_mobile/core/di/providers.dart';
+import 'package:umberleaf_mobile/core/utils/typedefs.dart';
+import 'package:umberleaf_mobile/features/monetization/domain/entities/usage_summary.dart';
+import 'package:umberleaf_mobile/features/monetization/presentation/providers/monetization_providers.dart';
+import 'package:umberleaf_mobile/features/monetization/presentation/screens/usage_dashboard_screen.dart';
+import 'package:umberleaf_mobile/shared/theme/app_theme.dart';
 
 const AppConfig _monetizationOn = AppConfig(
   flavor: AppFlavor.development,

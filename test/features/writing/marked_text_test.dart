@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/features/writing/domain/editor/marked_text.dart';
+import 'package:umberleaf_mobile/features/writing/domain/editor/marked_text.dart';
 
 void main() {
   group('MarkedText.toggleMark', () {

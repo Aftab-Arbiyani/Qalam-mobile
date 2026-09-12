@@ -2,13 +2,13 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:qalam_mobile/core/di/providers.dart';
-import 'package:qalam_mobile/core/security/token_store.dart';
-import 'package:qalam_mobile/core/session/current_user.dart';
-import 'package:qalam_mobile/core/session/current_user_controller.dart';
-import 'package:qalam_mobile/core/session/session_controller.dart';
-import 'package:qalam_mobile/core/session/session_state.dart';
-import 'package:qalam_mobile/shared/domain/enums.dart';
+import 'package:umberleaf_mobile/core/di/providers.dart';
+import 'package:umberleaf_mobile/core/security/token_store.dart';
+import 'package:umberleaf_mobile/core/session/current_user.dart';
+import 'package:umberleaf_mobile/core/session/current_user_controller.dart';
+import 'package:umberleaf_mobile/core/session/session_controller.dart';
+import 'package:umberleaf_mobile/core/session/session_state.dart';
+import 'package:umberleaf_mobile/shared/domain/enums.dart';
 
 import '../../support/harness.dart';
 

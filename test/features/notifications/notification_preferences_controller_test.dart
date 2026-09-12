@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/features/notifications/domain/entities/notification_preferences.dart';
-import 'package:qalam_mobile/features/notifications/presentation/controllers/notification_preferences_controller.dart';
+import 'package:umberleaf_mobile/features/notifications/domain/entities/notification_preferences.dart';
+import 'package:umberleaf_mobile/features/notifications/presentation/controllers/notification_preferences_controller.dart';
 
 import '../../support/fake_notifications.dart';
 import '../../support/harness.dart';

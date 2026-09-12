@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/shared/domain/enums.dart';
+import 'package:umberleaf_mobile/shared/domain/enums.dart';
 
 void main() {
   group('enum wire values mirror @qalam/shared', () {

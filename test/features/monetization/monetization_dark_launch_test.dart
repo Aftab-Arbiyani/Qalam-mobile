@@ -15,20 +15,20 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/core/config/app_config.dart';
-import 'package:qalam_mobile/core/config/app_flavor.dart';
-import 'package:qalam_mobile/core/di/providers.dart';
-import 'package:qalam_mobile/features/monetization/domain/entities/billing.dart';
-import 'package:qalam_mobile/features/monetization/domain/entities/monetization_enums.dart';
-import 'package:qalam_mobile/features/monetization/domain/entities/subscription.dart';
-import 'package:qalam_mobile/features/monetization/presentation/domain_labels.dart';
-import 'package:qalam_mobile/features/monetization/presentation/providers/monetization_providers.dart';
-import 'package:qalam_mobile/features/monetization/presentation/screens/billing_history_screen.dart';
-import 'package:qalam_mobile/features/monetization/presentation/screens/plans_screen.dart';
-import 'package:qalam_mobile/features/monetization/presentation/screens/subscription_screen.dart';
-import 'package:qalam_mobile/features/monetization/presentation/screens/usage_dashboard_screen.dart';
-import 'package:qalam_mobile/features/monetization/presentation/widgets/monetization_off_screen.dart';
-import 'package:qalam_mobile/shared/theme/app_theme.dart';
+import 'package:umberleaf_mobile/core/config/app_config.dart';
+import 'package:umberleaf_mobile/core/config/app_flavor.dart';
+import 'package:umberleaf_mobile/core/di/providers.dart';
+import 'package:umberleaf_mobile/features/monetization/domain/entities/billing.dart';
+import 'package:umberleaf_mobile/features/monetization/domain/entities/monetization_enums.dart';
+import 'package:umberleaf_mobile/features/monetization/domain/entities/subscription.dart';
+import 'package:umberleaf_mobile/features/monetization/presentation/domain_labels.dart';
+import 'package:umberleaf_mobile/features/monetization/presentation/providers/monetization_providers.dart';
+import 'package:umberleaf_mobile/features/monetization/presentation/screens/billing_history_screen.dart';
+import 'package:umberleaf_mobile/features/monetization/presentation/screens/plans_screen.dart';
+import 'package:umberleaf_mobile/features/monetization/presentation/screens/subscription_screen.dart';
+import 'package:umberleaf_mobile/features/monetization/presentation/screens/usage_dashboard_screen.dart';
+import 'package:umberleaf_mobile/features/monetization/presentation/widgets/monetization_off_screen.dart';
+import 'package:umberleaf_mobile/shared/theme/app_theme.dart';
 
 const AppConfig _off = AppConfig(
   flavor: AppFlavor.development,

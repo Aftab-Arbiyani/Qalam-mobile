@@ -1,13 +1,13 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:qalam_mobile/core/error/api_exception.dart';
-import 'package:qalam_mobile/core/utils/result.dart';
-import 'package:qalam_mobile/features/monetization/data/datasources/monetization_remote_data_source.dart';
-import 'package:qalam_mobile/features/monetization/data/local/entitlement_cache_store.dart';
-import 'package:qalam_mobile/features/monetization/data/repositories/monetization_repository_impl.dart';
-import 'package:qalam_mobile/features/monetization/domain/entities/entitlement.dart';
-import 'package:qalam_mobile/features/monetization/domain/entities/monetization_enums.dart';
-import 'package:qalam_mobile/shared/domain/error_codes.dart';
+import 'package:umberleaf_mobile/core/error/api_exception.dart';
+import 'package:umberleaf_mobile/core/utils/result.dart';
+import 'package:umberleaf_mobile/features/monetization/data/datasources/monetization_remote_data_source.dart';
+import 'package:umberleaf_mobile/features/monetization/data/local/entitlement_cache_store.dart';
+import 'package:umberleaf_mobile/features/monetization/data/repositories/monetization_repository_impl.dart';
+import 'package:umberleaf_mobile/features/monetization/domain/entities/entitlement.dart';
+import 'package:umberleaf_mobile/features/monetization/domain/entities/monetization_enums.dart';
+import 'package:umberleaf_mobile/shared/domain/error_codes.dart';
 
 class _MockRemote extends Mock implements MonetizationRemoteDataSource {}
 

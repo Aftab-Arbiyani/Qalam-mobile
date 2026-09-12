@@ -13,11 +13,11 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/features/monetization/domain/entities/entitlement.dart';
-import 'package:qalam_mobile/features/monetization/domain/entities/monetization_enums.dart';
-import 'package:qalam_mobile/features/monetization/presentation/providers/monetization_providers.dart';
-import 'package:qalam_mobile/features/monetization/presentation/widgets/premium_gate.dart';
-import 'package:qalam_mobile/shared/theme/app_theme.dart';
+import 'package:umberleaf_mobile/features/monetization/domain/entities/entitlement.dart';
+import 'package:umberleaf_mobile/features/monetization/domain/entities/monetization_enums.dart';
+import 'package:umberleaf_mobile/features/monetization/presentation/providers/monetization_providers.dart';
+import 'package:umberleaf_mobile/features/monetization/presentation/widgets/premium_gate.dart';
+import 'package:umberleaf_mobile/shared/theme/app_theme.dart';
 
 EntitlementSnapshot _snapshot({required bool allowBudget}) =>
     EntitlementSnapshot(

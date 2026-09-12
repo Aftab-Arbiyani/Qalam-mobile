@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/core/reading_history/reading_history_controller.dart';
-import 'package:qalam_mobile/core/reading_history/reading_history_entry.dart';
-import 'package:qalam_mobile/shared/domain/enums.dart';
+import 'package:umberleaf_mobile/core/reading_history/reading_history_controller.dart';
+import 'package:umberleaf_mobile/core/reading_history/reading_history_entry.dart';
+import 'package:umberleaf_mobile/shared/domain/enums.dart';
 
 import '../../support/harness.dart';
 
