@@ -182,7 +182,7 @@ Future<Widget> buildTestApp({
   /// going through the full monetization-repository plumbing.
   EntitlementSnapshot? entitlementSnapshot,
 }) async {
-  final Directory dir = await Directory.systemTemp.createTemp('qalam_test');
+  final Directory dir = await Directory.systemTemp.createTemp('umberleaf_test');
   Hive.init(dir.path);
   final String suffix = dir.path.hashCode.toRadixString(16);
   final Box<dynamic> cache = await Hive.openBox<dynamic>('cache_$suffix');
@@ -396,7 +396,7 @@ Future<ProviderContainer> buildTestContainer({
   /// repository fake it does not otherwise care about.
   EntitlementSnapshot? entitlementSnapshot,
 }) async {
-  final Directory dir = await Directory.systemTemp.createTemp('qalam_test_c');
+  final Directory dir = await Directory.systemTemp.createTemp('umberleaf_test_c');
   Hive.init(dir.path);
   final String suffix = dir.path.hashCode.toRadixString(16);
   final Box<dynamic> cache = await Hive.openBox<dynamic>('cache_$suffix');

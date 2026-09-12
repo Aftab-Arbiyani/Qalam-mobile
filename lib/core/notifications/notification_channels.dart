@@ -15,21 +15,21 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 enum NotificationChannelKind {
   /// Social activity — follows, comments, likes, mentions, responses.
   social(
-    id: 'qalam_social',
+    id: 'umberleaf_social',
     name: 'Activity',
     description: 'Follows, comments, reactions, and mentions.',
   ),
 
   /// System announcements + account/moderation updates.
   system(
-    id: 'qalam_system',
+    id: 'umberleaf_system',
     name: 'Announcements',
     description: 'Service announcements and account updates.',
   ),
 
   /// Opt-in scheduled reminders (the Phase-2 writing/reading-reminder seam).
   reminders(
-    id: 'qalam_reminders',
+    id: 'umberleaf_reminders',
     name: 'Reminders',
     description: 'Gentle writing and reading reminders you opt into.',
   );

@@ -15,7 +15,7 @@ void main() {
   late SearchRecentsStore store;
 
   setUp(() async {
-    dir = await Directory.systemTemp.createTemp('qalam_recents');
+    dir = await Directory.systemTemp.createTemp('umberleaf_recents');
     Hive.init(dir.path);
     box = await Hive.openBox<dynamic>('prefs_${dir.path.hashCode}');
     store = SearchRecentsStore(box);

@@ -41,7 +41,7 @@ void main() {
   late DraftSyncEngine engine;
 
   setUp(() async {
-    dir = await Directory.systemTemp.createTemp('qalam_sync_test');
+    dir = await Directory.systemTemp.createTemp('umberleaf_sync_test');
     Hive.init(dir.path);
     box = await Hive.openBox<dynamic>('drafts_${dir.path.hashCode}');
     store = DraftLocalDataSource(box);

@@ -21,7 +21,7 @@ void main() {
 
   setUpAll(() async {
     Hive.init(
-      '${Directory.systemTemp.path}/qalam_af4_stores_${DateTime.now().microsecondsSinceEpoch}',
+      '${Directory.systemTemp.path}/umberleaf_af4_stores_${DateTime.now().microsecondsSinceEpoch}',
     );
   });
 

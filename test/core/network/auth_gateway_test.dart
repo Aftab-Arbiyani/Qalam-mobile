@@ -31,8 +31,8 @@ void main() {
     refreshClient = MockDio();
     tokenStore = TokenStore(
       buildFakeSecureStorage(<String, String>{
-        'qalam.refresh_token': 'rt_old',
-        'qalam.access_token': 'at_old',
+        'umberleaf.refresh_token': 'rt_old',
+        'umberleaf.access_token': 'at_old',
       }),
     );
     gateway = AuthGateway(

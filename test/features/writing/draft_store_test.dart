@@ -25,7 +25,7 @@ void main() {
   late DraftLocalDataSource store;
 
   setUp(() async {
-    dir = await Directory.systemTemp.createTemp('qalam_drafts_test');
+    dir = await Directory.systemTemp.createTemp('umberleaf_drafts_test');
     Hive.init(dir.path);
     box = await Hive.openBox<dynamic>('drafts_${dir.path.hashCode}');
     store = DraftLocalDataSource(box);

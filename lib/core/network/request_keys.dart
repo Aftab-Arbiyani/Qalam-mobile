@@ -8,11 +8,11 @@ library;
 import 'package:dio/dio.dart';
 
 abstract final class RequestKeys {
-  static const String isRetry = 'qalam.is_retry';
-  static const String retryCount = 'qalam.retry_count';
-  static const String skipRetry = 'qalam.skip_retry';
-  static const String skipAuthRefresh = 'qalam.skip_auth_refresh';
-  static const String idempotencyKey = 'qalam.idempotency_key';
+  static const String isRetry = 'umberleaf.is_retry';
+  static const String retryCount = 'umberleaf.retry_count';
+  static const String skipRetry = 'umberleaf.skip_retry';
+  static const String skipAuthRefresh = 'umberleaf.skip_auth_refresh';
+  static const String idempotencyKey = 'umberleaf.idempotency_key';
 }
 
 extension RequestFlags on RequestOptions {

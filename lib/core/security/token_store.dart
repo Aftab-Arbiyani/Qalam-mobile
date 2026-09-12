@@ -13,8 +13,8 @@ class TokenStore {
 
   final SecureStorage _storage;
 
-  static const String _kAccess = 'qalam.access_token';
-  static const String _kRefresh = 'qalam.refresh_token';
+  static const String _kAccess = 'umberleaf.access_token';
+  static const String _kRefresh = 'umberleaf.refresh_token';
 
   String? _accessCache;
 

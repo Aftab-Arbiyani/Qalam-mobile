@@ -50,8 +50,8 @@ void main() {
       final MockDio dio = MockDio();
       final ProviderContainer container = await buildTestContainer(
         tokens: <String, String>{
-          'qalam.refresh_token': 'rt',
-          'qalam.access_token': fakeJwt(),
+          'umberleaf.refresh_token': 'rt',
+          'umberleaf.access_token': fakeJwt(),
         },
         refreshClient: dio,
       );
@@ -73,8 +73,8 @@ void main() {
       ).thenAnswer((_) async => _refreshOk());
       final ProviderContainer container = await buildTestContainer(
         tokens: <String, String>{
-          'qalam.refresh_token': 'rt',
-          'qalam.access_token': fakeJwt(),
+          'umberleaf.refresh_token': 'rt',
+          'umberleaf.access_token': fakeJwt(),
         },
         rememberMe: true,
         refreshClient: dio,
@@ -105,8 +105,8 @@ void main() {
       );
       final ProviderContainer container = await buildTestContainer(
         tokens: <String, String>{
-          'qalam.refresh_token': 'rt',
-          'qalam.access_token': fakeJwt(),
+          'umberleaf.refresh_token': 'rt',
+          'umberleaf.access_token': fakeJwt(),
         },
         rememberMe: true,
         refreshClient: dio,

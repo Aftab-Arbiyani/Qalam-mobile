@@ -11,7 +11,7 @@ void main() {
   late HiveCacheStore store;
 
   setUp(() async {
-    dir = await Directory.systemTemp.createTemp('qalam_cache_test');
+    dir = await Directory.systemTemp.createTemp('umberleaf_cache_test');
     Hive.init(dir.path);
     box = await Hive.openBox<dynamic>(
       'cache_${dir.path.hashCode.toRadixString(16)}',
