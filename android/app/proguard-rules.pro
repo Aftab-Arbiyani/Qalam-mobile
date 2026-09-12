@@ -68,4 +68,4 @@
 -dontwarn com.google.firebase.**
 
 # ── Application entry points (keep so R8 never renames the launcher activity) ──
--keep class com.qalam.qalam_mobile.** { *; }
+-keep class com.umberleaf.umberleaf_mobile.** { *; }

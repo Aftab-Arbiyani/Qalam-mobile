@@ -23,7 +23,7 @@ class StoreProduct {
     required this.isSubscription,
   });
 
-  /// Store product id (e.g. `com.qalam.pro.monthly`, `com.qalam.credits.5000`).
+  /// Store product id (e.g. `com.umberleaf.pro.monthly`, `com.umberleaf.credits.5000`).
   final String id;
   final String title;
   final String description;

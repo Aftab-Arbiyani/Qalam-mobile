@@ -20,7 +20,7 @@ val keystoreProperties = Properties().apply {
 val hasReleaseSigning = keystorePropertiesFile.exists()
 
 android {
-    namespace = "com.qalam.qalam_mobile"
+    namespace = "com.umberleaf.umberleaf_mobile"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -33,7 +33,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.qalam.qalam_mobile"
+        applicationId = "com.umberleaf.umberleaf_mobile"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
@@ -92,23 +92,26 @@ android {
         create("development") {
             dimension = "env"
             applicationIdSuffix = ".dev"
-            manifestPlaceholders["appName"] = "Qalam Dev"
+            manifestPlaceholders["appName"] = "Umberleaf Dev"
         }
         create("qa") {
             dimension = "env"
             applicationIdSuffix = ".qa"
-            manifestPlaceholders["appName"] = "Qalam QA"
+            manifestPlaceholders["appName"] = "Umberleaf QA"
         }
         create("staging") {
             dimension = "env"
             applicationIdSuffix = ".staging"
-            manifestPlaceholders["appName"] = "Qalam Staging"
+            manifestPlaceholders["appName"] = "Umberleaf Staging"
         }
         create("production") {
             dimension = "env"
             // No applicationIdSuffix — production is the canonical
-            // com.qalam.qalam_mobile id that the Play listing is tied to.
-            manifestPlaceholders["appName"] = "Qalam"
+            // com.umberleaf.umberleaf_mobile id. Nothing has been published yet, so
+            // this id is still free to change; the FIRST upload to Play Console
+            // claims it permanently, internal testing tracks included, and no
+            // later rename is possible. Change it before that upload or never.
+            manifestPlaceholders["appName"] = "Umberleaf"
         }
     }
 }

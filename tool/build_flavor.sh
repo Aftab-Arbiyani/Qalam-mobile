@@ -40,7 +40,7 @@
 #   • Build the ipa, then upload via Xcode Organizer or `xcrun altool`/Transporter.
 #   • Complete App Privacy: contact info (email), user content, identifiers (user
 #     id), and diagnostics (crash data, only when a DSN is configured).
-#   • Production uses bundle id com.qalam.qalam_mobile (ios/Flutter/flavors).
+#   • Production uses bundle id com.umberleaf.umberleaf_mobile (ios/Flutter/flavors).
 # ─────────────────────────────────────────────────────────────────────────────
 set -euo pipefail
 

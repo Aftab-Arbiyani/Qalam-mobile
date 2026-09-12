@@ -18,10 +18,10 @@ name.
 
 | Flavor | `wire` | Android appId | iOS bundle id | Label | API URL |
 | --- | --- | --- | --- | --- | --- |
-| `development` | `development` | `com.qalam.qalam_mobile.dev` | `com.qalam.qalam_mobile.dev` | Qalam Dev | `http://localhost:4000` |
-| `qa` | `qa` | `com.qalam.qalam_mobile.qa` | `com.qalam.qalam_mobile.qa` | Qalam QA | `https://qa-api.qalam.app` |
-| `staging` | `staging` | `com.qalam.qalam_mobile.staging` | `com.qalam.qalam_mobile.staging` | Qalam Staging | `https://staging-api.qalam.app` |
-| `production` | `production` | `com.qalam.qalam_mobile` | `com.qalam.qalam_mobile` | Qalam | `https://api.qalam.app` |
+| `development` | `development` | `com.umberleaf.umberleaf_mobile.dev` | `com.umberleaf.umberleaf_mobile.dev` | Umberleaf Dev | `http://localhost:4000` |
+| `qa` | `qa` | `com.umberleaf.umberleaf_mobile.qa` | `com.umberleaf.umberleaf_mobile.qa` | Umberleaf QA | `https://qa-api.qalam.app` |
+| `staging` | `staging` | `com.umberleaf.umberleaf_mobile.staging` | `com.umberleaf.umberleaf_mobile.staging` | Umberleaf Staging | `https://staging-api.qalam.app` |
+| `production` | `production` | `com.umberleaf.umberleaf_mobile` | `com.umberleaf.umberleaf_mobile` | Umberleaf | `https://api.qalam.app` |
 
 The distinct application ids let all four flavors install side by side on one
 device. **Production carries the canonical id (no suffix)** — it is the Play /
@@ -192,7 +192,7 @@ BUILD_NUMBER=<ci-number> tool/build_flavor.sh production ipa
 - Upload via Xcode Organizer or Transporter/`xcrun altool`.
 - **App Privacy**: contact info (email), user content, identifiers (user id),
   diagnostics (crash data, only when a DSN is configured).
-- Production bundle id `com.qalam.qalam_mobile` (`ios/Flutter/flavors/Production.xcconfig`).
+- Production bundle id `com.umberleaf.umberleaf_mobile` (`ios/Flutter/flavors/Production.xcconfig`).
 
 ### Per-release checklist
 

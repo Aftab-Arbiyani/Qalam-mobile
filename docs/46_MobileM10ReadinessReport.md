@@ -130,7 +130,7 @@ Audited against docs/28 + docs/41.
 ## 11. Android release checklist
 
 - [ ] Copy `android/key.properties.example` → `android/key.properties`; generate an upload keystore; fill values (git-ignored).
-- [ ] Confirm `applicationId = com.qalam.qalam_mobile`, bump `version:` in `pubspec.yaml`.
+- [ ] Confirm `applicationId = com.umberleaf.umberleaf_mobile`, bump `version:` in `pubspec.yaml`.
 - [ ] Build App Bundle with `--obfuscate --split-debug-info` (above); archive the `build/symbols` for de-obfuscating stack traces.
 - [ ] (Optional, needs device QA) enable R8/`isMinifyEnabled` + `isShrinkResources` with a curated `proguard-rules.pro`.
 - [ ] Play Console: data-safety form, permissions (INTERNET only; no runtime-dangerous perms unless push added), target-API compliance, store listing assets.

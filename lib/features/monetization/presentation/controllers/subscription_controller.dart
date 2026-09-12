@@ -131,6 +131,6 @@ class SubscriptionController extends _$SubscriptionController {
   bool _isStore(String provider) =>
       provider == PaymentProvider.appleAppStore || provider == PaymentProvider.googlePlay;
 
-  /// Map a plan+interval to a store product id (convention `com.qalam.<tier>.<interval>`).
-  String _storeProductId(String tier, String interval) => 'com.qalam.$tier.$interval';
+  /// Map a plan+interval to a store product id (convention `com.umberleaf.<tier>.<interval>`).
+  String _storeProductId(String tier, String interval) => 'com.umberleaf.$tier.$interval';
 }
