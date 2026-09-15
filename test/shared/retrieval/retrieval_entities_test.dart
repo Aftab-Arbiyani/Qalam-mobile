@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/shared/retrieval/domain/retrieval.dart';
-import 'package:qalam_mobile/shared/retrieval/domain/saved_search.dart';
+import 'package:umberleaf_mobile/shared/retrieval/domain/retrieval.dart';
+import 'package:umberleaf_mobile/shared/retrieval/domain/saved_search.dart';
 
 void main() {
   group('SemanticSearchResponse.fromJson', () {

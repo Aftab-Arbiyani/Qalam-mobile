@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/core/error/api_exception.dart';
-import 'package:qalam_mobile/core/error/error_mapper.dart';
-import 'package:qalam_mobile/core/error/failure.dart';
-import 'package:qalam_mobile/shared/domain/error_codes.dart';
+import 'package:umberleaf_mobile/core/error/api_exception.dart';
+import 'package:umberleaf_mobile/core/error/error_mapper.dart';
+import 'package:umberleaf_mobile/core/error/failure.dart';
+import 'package:umberleaf_mobile/shared/domain/error_codes.dart';
 
 void main() {
   group('mapApiExceptionToFailure', () {

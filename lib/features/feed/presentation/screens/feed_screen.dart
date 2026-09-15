@@ -65,7 +65,7 @@ class _FeedScreenState extends ConsumerState<FeedScreen>
     final QTokens tokens = QTokens.of(context);
     return QScaffold(
       appBar: QAppBar(
-        title: 'Qalam',
+        title: 'Umberleaf',
         leading: const Center(child: QBrandMark(size: 28, semanticLabel: null)),
         actions: <Widget>[
           IconButton(

@@ -1,11 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/core/error/failure.dart';
-import 'package:qalam_mobile/core/sync/sync_providers.dart';
-import 'package:qalam_mobile/features/notifications/domain/entities/app_notification.dart';
-import 'package:qalam_mobile/features/notifications/domain/value_objects/notification_filter.dart';
-import 'package:qalam_mobile/features/notifications/presentation/controllers/notifications_controller.dart';
-import 'package:qalam_mobile/shared/domain/enums.dart';
+import 'package:umberleaf_mobile/core/error/failure.dart';
+import 'package:umberleaf_mobile/core/sync/sync_providers.dart';
+import 'package:umberleaf_mobile/features/notifications/domain/entities/app_notification.dart';
+import 'package:umberleaf_mobile/features/notifications/domain/value_objects/notification_filter.dart';
+import 'package:umberleaf_mobile/features/notifications/presentation/controllers/notifications_controller.dart';
+import 'package:umberleaf_mobile/shared/domain/enums.dart';
 
 import '../../support/fake_notifications.dart';
 import '../../support/harness.dart';

@@ -17,8 +17,8 @@ import '../shared/theme/theme_mode_controller.dart';
 import 'router/app_router.dart';
 import 'sync_bootstrap.dart';
 
-class QalamApp extends ConsumerWidget {
-  const QalamApp({super.key});
+class UmberleafApp extends ConsumerWidget {
+  const UmberleafApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -45,11 +45,11 @@ class QalamApp extends ConsumerWidget {
           debugShowCheckedModeBanner: false,
           routerConfig: router,
           themeMode: themeMode,
-          theme: buildQalamTheme(
+          theme: buildUmberleafTheme(
             brightness: Brightness.light,
             dynamicScheme: lightDynamic,
           ),
-          darkTheme: buildQalamTheme(
+          darkTheme: buildUmberleafTheme(
             brightness: Brightness.dark,
             dynamicScheme: darkDynamic,
           ),

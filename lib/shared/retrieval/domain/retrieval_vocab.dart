@@ -1,4 +1,4 @@
-/// Retrieval vocabulary (mirrors the backend `@qalam/shared` retrieval enums —
+/// Retrieval vocabulary (mirrors the backend `@umberleaf/shared` retrieval enums —
 /// docs 36). Plain Dart enums with a `wire` value + `fromWire` (forward-compatible:
 /// an unknown wire string maps to a safe default). These are IDENTIFIERS the client
 /// sends/receives; no business logic lives here — the backend Retrieval Platform owns

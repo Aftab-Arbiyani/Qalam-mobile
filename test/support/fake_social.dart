@@ -2,20 +2,20 @@
 /// exposes seedable lists and a `failNext` toggle to exercise rollback paths.
 library;
 
-import 'package:qalam_mobile/core/error/failure.dart';
-import 'package:qalam_mobile/core/utils/result.dart';
-import 'package:qalam_mobile/core/utils/typedefs.dart';
-import 'package:qalam_mobile/shared/api/api_envelope.dart';
-import 'package:qalam_mobile/shared/domain/enums.dart';
-import 'package:qalam_mobile/shared/pagination/cached_page.dart';
-import 'package:qalam_mobile/shared/social/domain/collection_repository.dart';
-import 'package:qalam_mobile/shared/social/domain/comment_repository.dart';
-import 'package:qalam_mobile/shared/social/domain/entities/collection.dart';
-import 'package:qalam_mobile/shared/social/domain/entities/comment.dart';
-import 'package:qalam_mobile/shared/social/domain/entities/follow_user.dart';
-import 'package:qalam_mobile/shared/social/domain/entities/response_item.dart';
-import 'package:qalam_mobile/shared/social/domain/follow_repository.dart';
-import 'package:qalam_mobile/shared/social/domain/response_repository.dart';
+import 'package:umberleaf_mobile/core/error/failure.dart';
+import 'package:umberleaf_mobile/core/utils/result.dart';
+import 'package:umberleaf_mobile/core/utils/typedefs.dart';
+import 'package:umberleaf_mobile/shared/api/api_envelope.dart';
+import 'package:umberleaf_mobile/shared/domain/enums.dart';
+import 'package:umberleaf_mobile/shared/pagination/cached_page.dart';
+import 'package:umberleaf_mobile/shared/social/domain/collection_repository.dart';
+import 'package:umberleaf_mobile/shared/social/domain/comment_repository.dart';
+import 'package:umberleaf_mobile/shared/social/domain/entities/collection.dart';
+import 'package:umberleaf_mobile/shared/social/domain/entities/comment.dart';
+import 'package:umberleaf_mobile/shared/social/domain/entities/follow_user.dart';
+import 'package:umberleaf_mobile/shared/social/domain/entities/response_item.dart';
+import 'package:umberleaf_mobile/shared/social/domain/follow_repository.dart';
+import 'package:umberleaf_mobile/shared/social/domain/response_repository.dart';
 
 CachedPage<T> fakeCachedPage<T>(List<T> items) => CachedPage<T>(
   page: CursorPage<T>(items: items, meta: const CursorMeta()),

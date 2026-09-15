@@ -1,6 +1,6 @@
 /// The dark-launch state for a monetization surface (AF5).
 ///
-/// **`QALAM_ENABLE_MONETIZATION` used to gate exactly one thing on mobile: whether the
+/// **`UMBERLEAF_ENABLE_MONETIZATION` used to gate exactly one thing on mobile: whether the
 /// Premium section appeared in the settings hub.** The `/billing/*` routes are registered
 /// unconditionally, so every screen behind them stayed deep-linkable in a dark build and
 /// rendered normally — issuing live `/monetization/*` requests for a platform the build

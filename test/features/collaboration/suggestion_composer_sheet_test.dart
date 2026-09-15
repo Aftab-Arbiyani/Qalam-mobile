@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:qalam_mobile/core/error/failure.dart';
-import 'package:qalam_mobile/core/utils/result.dart';
-import 'package:qalam_mobile/features/collaboration/domain/entities/collaboration_enums.dart';
-import 'package:qalam_mobile/features/collaboration/domain/entities/edit_suggestion.dart';
-import 'package:qalam_mobile/features/collaboration/domain/entities/text_anchor.dart';
-import 'package:qalam_mobile/features/collaboration/domain/repositories/collaboration_repository.dart';
-import 'package:qalam_mobile/features/collaboration/presentation/widgets/suggestion_composer_sheet.dart';
-import 'package:qalam_mobile/shared/domain/error_codes.dart';
-import 'package:qalam_mobile/shared/theme/app_theme.dart';
+import 'package:umberleaf_mobile/core/error/failure.dart';
+import 'package:umberleaf_mobile/core/utils/result.dart';
+import 'package:umberleaf_mobile/features/collaboration/domain/entities/collaboration_enums.dart';
+import 'package:umberleaf_mobile/features/collaboration/domain/entities/edit_suggestion.dart';
+import 'package:umberleaf_mobile/features/collaboration/domain/entities/text_anchor.dart';
+import 'package:umberleaf_mobile/features/collaboration/domain/repositories/collaboration_repository.dart';
+import 'package:umberleaf_mobile/features/collaboration/presentation/widgets/suggestion_composer_sheet.dart';
+import 'package:umberleaf_mobile/shared/domain/error_codes.dart';
+import 'package:umberleaf_mobile/shared/theme/app_theme.dart';
 
 import '../../support/harness.dart';
 
@@ -35,7 +35,7 @@ Future<void> _pumpSheet(
     UncontrolledProviderScope(
       container: container,
       child: MaterialApp(
-        theme: buildQalamTheme(brightness: Brightness.light),
+        theme: buildUmberleafTheme(brightness: Brightness.light),
         home: Scaffold(
           body: Builder(
             builder: (BuildContext context) => ElevatedButton(

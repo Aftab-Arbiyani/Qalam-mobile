@@ -38,7 +38,7 @@ abstract final class QFontFamilies {
   static const List<String> readingFallback = <String>['Noto Serif Devanagari'];
 }
 
-/// The Material [TextTheme] built from the scale, mapping M3 roles → Qalam roles.
+/// The Material [TextTheme] built from the scale, mapping M3 roles → Umberleaf roles.
 TextTheme buildTextTheme({required Color primary, required Color secondary}) {
   TextStyle style(
     double size,

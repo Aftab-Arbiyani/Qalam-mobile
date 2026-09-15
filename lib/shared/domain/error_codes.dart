@@ -1,4 +1,4 @@
-/// Error-code catalogue — a Dart mirror of `@qalam/shared` `error-codes.ts`
+/// Error-code catalogue — a Dart mirror of `@umberleaf/shared` `error-codes.ts`
 /// (the frozen `v1` `error.code` half of the envelope). Clients branch on these
 /// stable strings, NEVER on `error.message` (docs/40 §21).
 ///

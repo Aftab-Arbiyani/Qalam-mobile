@@ -15,8 +15,8 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/features/monetization/domain/entities/usage_summary.dart';
-import 'package:qalam_mobile/features/monetization/presentation/allowance_labels.dart';
+import 'package:umberleaf_mobile/features/monetization/domain/entities/usage_summary.dart';
+import 'package:umberleaf_mobile/features/monetization/presentation/allowance_labels.dart';
 
 FeatureAllowance _allowance({
   String key = 'polishActionsPerDay',

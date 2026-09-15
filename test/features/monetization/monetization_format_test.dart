@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/features/monetization/domain/entities/monetization_enums.dart';
-import 'package:qalam_mobile/features/monetization/presentation/monetization_format.dart';
+import 'package:umberleaf_mobile/features/monetization/domain/entities/monetization_enums.dart';
+import 'package:umberleaf_mobile/features/monetization/presentation/monetization_format.dart';
 
 void main() {
   group('formatMoney', () {

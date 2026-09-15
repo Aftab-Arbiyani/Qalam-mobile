@@ -1,5 +1,5 @@
 /// Wire → entity mappers for auth (docs/40 §18). The "DTO" here is the raw
-/// envelope `data` map: this repo has no generated `qalam_api` client (an M1
+/// envelope `data` map: this repo has no generated `umberleaf_api` client (an M1
 /// decision), so — exactly as `core/network` decodes every other payload — the
 /// data layer parses the wire map straight into domain entities via these pure
 /// functions. All wire fields are camelCase (confirmed against the frozen backend).

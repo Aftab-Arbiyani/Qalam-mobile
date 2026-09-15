@@ -9,8 +9,8 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/features/ai/domain/entities/ai_suggestion.dart';
-import 'package:qalam_mobile/features/ai/domain/value_objects/writing_action.dart';
+import 'package:umberleaf_mobile/features/ai/domain/entities/ai_suggestion.dart';
+import 'package:umberleaf_mobile/features/ai/domain/value_objects/writing_action.dart';
 
 void main() {
   group(

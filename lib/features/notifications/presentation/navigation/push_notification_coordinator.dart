@@ -72,7 +72,7 @@ class PushNotificationCoordinator {
   }
 
   Future<void> _presentForeground(PushMessage message) async {
-    final String title = message.data['title'] ?? 'Qalam';
+    final String title = message.data['title'] ?? 'Umberleaf';
     final String body = message.data['body'] ?? '';
     await _local.show(
       LocalNotification(

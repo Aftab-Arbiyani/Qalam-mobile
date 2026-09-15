@@ -4,12 +4,12 @@
 /// the network (docs/40 §38.4 — mock the boundary you own).
 library;
 
-import 'package:qalam_mobile/core/error/failure.dart';
-import 'package:qalam_mobile/core/session/current_user.dart';
-import 'package:qalam_mobile/core/utils/result.dart';
-import 'package:qalam_mobile/core/utils/typedefs.dart';
-import 'package:qalam_mobile/features/auth/domain/entities/auth_result.dart';
-import 'package:qalam_mobile/features/auth/domain/repositories/auth_repository.dart';
+import 'package:umberleaf_mobile/core/error/failure.dart';
+import 'package:umberleaf_mobile/core/session/current_user.dart';
+import 'package:umberleaf_mobile/core/utils/result.dart';
+import 'package:umberleaf_mobile/core/utils/typedefs.dart';
+import 'package:umberleaf_mobile/features/auth/domain/entities/auth_result.dart';
+import 'package:umberleaf_mobile/features/auth/domain/repositories/auth_repository.dart';
 
 const CurrentUser kFakeUser = CurrentUser(
   id: 'user-1',

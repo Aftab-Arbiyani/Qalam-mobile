@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ─────────────────────────────────────────────────────────────────────────────
-# Qalam — flavored release build (docs/40 §28, docs/46, docs/51 P7.1).
+# Umberleaf — flavored release build (docs/40 §28, docs/46, docs/51 P7.1).
 #
 # Builds a single flavor + artifact with the matching dart_defines file, Dart
 # obfuscation, and split debug symbols. This is the ONE bridge that ties a native
@@ -23,7 +23,7 @@
 #   Android release signing comes from android/key.properties (git-ignored); when
 #   absent the build falls back to debug signing (android/app/build.gradle.kts).
 #   The crash-reporting DSN is NOT committed in dart_defines/*.json — CI injects it
-#   by appending, e.g.:  --dart-define=QALAM_SENTRY_DSN=<dsn>  (later define wins).
+#   by appending, e.g.:  --dart-define=UMBERLEAF_SENTRY_DSN=<dsn>  (later define wins).
 #
 # Symbols:
 #   --split-debug-info writes an obfuscation map to build/symbols/<flavor>. ARCHIVE
@@ -32,7 +32,7 @@
 # ── Store build notes ────────────────────────────────────────────────────────
 # Google Play (App Bundle):
 #   • Upload the .aab from the printed path to Play Console → Internal testing.
-#   • Complete the Data safety form: Qalam collects account data (email/profile)
+#   • Complete the Data safety form: Umberleaf collects account data (email/profile)
 #     and content the user creates; auth tokens live in Keystore-backed secure
 #     storage; no advertising ID; crash data only when a DSN is configured.
 #   • Play App Signing re-signs with the app key; you upload with the upload key.
@@ -40,7 +40,7 @@
 #   • Build the ipa, then upload via Xcode Organizer or `xcrun altool`/Transporter.
 #   • Complete App Privacy: contact info (email), user content, identifiers (user
 #     id), and diagnostics (crash data, only when a DSN is configured).
-#   • Production uses bundle id com.qalam.qalam_mobile (ios/Flutter/flavors).
+#   • Production uses bundle id com.umberleaf.umberleaf_mobile (ios/Flutter/flavors).
 # ─────────────────────────────────────────────────────────────────────────────
 set -euo pipefail
 

@@ -9,24 +9,24 @@ import 'package:hive_ce_flutter/hive_flutter.dart';
 
 abstract final class HiveBoxes {
   /// Read mirror of server state (feed pages, pieces, profiles, …).
-  static const String cache = 'qalam_cache';
+  static const String cache = 'umberleaf_cache';
 
   /// Non-secret device preferences (theme mode, reading size, remember-me).
-  static const String prefs = 'qalam_prefs';
+  static const String prefs = 'umberleaf_prefs';
 
   /// Local reading history + last-read positions (docs/40 §23, §25). Device
   /// reading data — NOT disposable TTL cache, so it is not cleared on a cache
   /// schema bump; entries that fail to parse are skipped by the store instead.
-  static const String reading = 'qalam_reading';
+  static const String reading = 'umberleaf_reading';
 
   /// Offline drafts + their sync queue (M4, docs/40 §23, §42). Unsynced user
   /// WORK — the most precious local data — so, like [reading], it is NEVER wiped
   /// on a cache-schema bump; unparseable records are skipped, not fatal.
-  static const String drafts = 'qalam_drafts';
+  static const String drafts = 'umberleaf_drafts';
 
   /// Bump when the cached value shapes change so boxes are cleared, not migrated.
   static const int schemaVersion = 1;
-  static const String _schemaKey = 'qalam.cache_schema_version';
+  static const String _schemaKey = 'umberleaf.cache_schema_version';
 }
 
 /// Initializes Hive and opens the app's boxes. Called once in `bootstrap`.

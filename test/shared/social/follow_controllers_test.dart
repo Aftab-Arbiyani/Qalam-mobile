@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/shared/pagination/paged_list_state.dart';
-import 'package:qalam_mobile/shared/social/domain/entities/follow_user.dart';
-import 'package:qalam_mobile/shared/social/presentation/controllers/follow_controllers.dart';
+import 'package:umberleaf_mobile/shared/pagination/paged_list_state.dart';
+import 'package:umberleaf_mobile/shared/social/domain/entities/follow_user.dart';
+import 'package:umberleaf_mobile/shared/social/presentation/controllers/follow_controllers.dart';
 
 import '../../support/fake_social.dart';
 import '../../support/harness.dart';

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/features/writing/domain/entities/draft_sync.dart';
-import 'package:qalam_mobile/features/writing/presentation/widgets/draft_status_chips.dart';
-import 'package:qalam_mobile/shared/domain/enums.dart';
-import 'package:qalam_mobile/shared/theme/app_theme.dart';
+import 'package:umberleaf_mobile/features/writing/domain/entities/draft_sync.dart';
+import 'package:umberleaf_mobile/features/writing/presentation/widgets/draft_status_chips.dart';
+import 'package:umberleaf_mobile/shared/domain/enums.dart';
+import 'package:umberleaf_mobile/shared/theme/app_theme.dart';
 
 Widget _harness(Brightness brightness) => MaterialApp(
   debugShowCheckedModeBanner: false,
-  theme: buildQalamTheme(brightness: brightness),
+  theme: buildUmberleafTheme(brightness: brightness),
   home: const Scaffold(
     body: Center(
       child: Padding(

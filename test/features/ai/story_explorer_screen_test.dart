@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/core/config/app_config.dart';
-import 'package:qalam_mobile/core/config/app_flavor.dart';
-import 'package:qalam_mobile/features/ai/ai.dart';
-import 'package:qalam_mobile/features/monetization/domain/entities/entitlement.dart';
-import 'package:qalam_mobile/features/monetization/domain/entities/monetization_enums.dart';
-import 'package:qalam_mobile/features/monetization/presentation/widgets/premium_gate.dart';
-import 'package:qalam_mobile/l10n/generated/app_localizations.dart';
-import 'package:qalam_mobile/shared/theme/app_theme.dart';
+import 'package:umberleaf_mobile/core/config/app_config.dart';
+import 'package:umberleaf_mobile/core/config/app_flavor.dart';
+import 'package:umberleaf_mobile/features/ai/ai.dart';
+import 'package:umberleaf_mobile/features/monetization/domain/entities/entitlement.dart';
+import 'package:umberleaf_mobile/features/monetization/domain/entities/monetization_enums.dart';
+import 'package:umberleaf_mobile/features/monetization/presentation/widgets/premium_gate.dart';
+import 'package:umberleaf_mobile/l10n/generated/app_localizations.dart';
+import 'package:umberleaf_mobile/shared/theme/app_theme.dart';
 
 import '../../support/fake_ai_repository.dart';
 import '../../support/harness.dart';
 
 Widget _wrap(Widget home) => MaterialApp(
-  theme: buildQalamTheme(brightness: Brightness.light),
+  theme: buildUmberleafTheme(brightness: Brightness.light),
   localizationsDelegates: AppLocalizations.localizationsDelegates,
   supportedLocales: AppLocalizations.supportedLocales,
   home: home,

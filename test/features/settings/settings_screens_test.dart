@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/features/auth/presentation/screens/change_password_screen.dart';
-import 'package:qalam_mobile/features/profile/presentation/screens/profile_edit_screen.dart';
-import 'package:qalam_mobile/features/reading/presentation/screens/appearance_settings_screen.dart';
-import 'package:qalam_mobile/features/settings/presentation/screens/settings_hub_screen.dart';
-import 'package:qalam_mobile/shared/theme/app_theme.dart';
+import 'package:umberleaf_mobile/features/auth/presentation/screens/change_password_screen.dart';
+import 'package:umberleaf_mobile/features/profile/presentation/screens/profile_edit_screen.dart';
+import 'package:umberleaf_mobile/features/reading/presentation/screens/appearance_settings_screen.dart';
+import 'package:umberleaf_mobile/features/settings/presentation/screens/settings_hub_screen.dart';
+import 'package:umberleaf_mobile/shared/theme/app_theme.dart';
 
 import '../../support/fake_profile_repository.dart';
 import '../../support/harness.dart';
@@ -18,7 +18,7 @@ Future<void> _pump(WidgetTester tester, Widget screen) async {
     app = await buildTestApp(
       profileRepository: FakeProfileRepository(),
       child: MaterialApp(
-        theme: buildQalamTheme(brightness: Brightness.light),
+        theme: buildUmberleafTheme(brightness: Brightness.light),
         home: screen,
       ),
     );

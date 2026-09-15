@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/shared/theme/app_theme.dart';
-import 'package:qalam_mobile/shared/widgets/branding/q_brand_mark.dart';
+import 'package:umberleaf_mobile/shared/theme/app_theme.dart';
+import 'package:umberleaf_mobile/shared/widgets/branding/q_brand_mark.dart';
 
 Widget _harness(Brightness brightness, Widget child) => MaterialApp(
   debugShowCheckedModeBanner: false,
-  theme: buildQalamTheme(brightness: brightness),
+  theme: buildUmberleafTheme(brightness: brightness),
   home: Scaffold(body: Center(child: child)),
 );
 
@@ -15,7 +15,7 @@ void main() {
   ) async {
     await tester.pumpWidget(_harness(Brightness.light, const QBrandMark()));
     expect(find.byType(QBrandMark), findsOneWidget);
-    expect(find.bySemanticsLabel('Qalam'), findsOneWidget);
+    expect(find.bySemanticsLabel('Umberleaf'), findsOneWidget);
     expect(find.byType(CustomPaint), findsWidgets);
   });
 

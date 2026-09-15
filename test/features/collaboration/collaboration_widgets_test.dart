@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:qalam_mobile/core/utils/result.dart';
-import 'package:qalam_mobile/features/collaboration/domain/entities/collaboration_enums.dart';
-import 'package:qalam_mobile/features/collaboration/domain/entities/policy_capability.dart';
-import 'package:qalam_mobile/features/collaboration/domain/entities/trust_summary.dart';
-import 'package:qalam_mobile/features/collaboration/domain/repositories/collaboration_repository.dart';
-import 'package:qalam_mobile/features/collaboration/domain/repositories/trust_repository.dart';
-import 'package:qalam_mobile/features/collaboration/presentation/screens/restricted_state_screen.dart';
-import 'package:qalam_mobile/features/collaboration/presentation/widgets/capability_gate.dart';
-import 'package:qalam_mobile/shared/theme/app_theme.dart';
+import 'package:umberleaf_mobile/core/utils/result.dart';
+import 'package:umberleaf_mobile/features/collaboration/domain/entities/collaboration_enums.dart';
+import 'package:umberleaf_mobile/features/collaboration/domain/entities/policy_capability.dart';
+import 'package:umberleaf_mobile/features/collaboration/domain/entities/trust_summary.dart';
+import 'package:umberleaf_mobile/features/collaboration/domain/repositories/collaboration_repository.dart';
+import 'package:umberleaf_mobile/features/collaboration/domain/repositories/trust_repository.dart';
+import 'package:umberleaf_mobile/features/collaboration/presentation/screens/restricted_state_screen.dart';
+import 'package:umberleaf_mobile/features/collaboration/presentation/widgets/capability_gate.dart';
+import 'package:umberleaf_mobile/shared/theme/app_theme.dart';
 
 import '../../support/harness.dart';
 
@@ -35,7 +35,7 @@ Widget _wrap(ProviderContainer container, Widget child) =>
     UncontrolledProviderScope(
       container: container,
       child: MaterialApp(
-        theme: buildQalamTheme(brightness: Brightness.light),
+        theme: buildUmberleafTheme(brightness: Brightness.light),
         home: Scaffold(body: child),
       ),
     );

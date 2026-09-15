@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/core/session/app_launch.dart';
-import 'package:qalam_mobile/core/session/session_state.dart';
-import 'package:qalam_mobile/shared/domain/enums.dart';
+import 'package:umberleaf_mobile/core/session/app_launch.dart';
+import 'package:umberleaf_mobile/core/session/session_state.dart';
+import 'package:umberleaf_mobile/shared/domain/enums.dart';
 
 void main() {
   group('resolveLaunchPhase', () {

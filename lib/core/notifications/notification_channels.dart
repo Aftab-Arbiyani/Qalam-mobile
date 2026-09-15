@@ -1,5 +1,5 @@
 /// Android notification channels (docs/40 §33, docs/41 §37) — the calm, quiet
-/// channel set Qalam presents on. Channels are created once at initialization;
+/// channel set Umberleaf presents on. Channels are created once at initialization;
 /// each on-device notification declares which channel it belongs to. iOS has no
 /// channel concept, so these ids/names are Android-only but the catalogue is the
 /// single source of truth both platforms map onto.
@@ -15,21 +15,21 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 enum NotificationChannelKind {
   /// Social activity — follows, comments, likes, mentions, responses.
   social(
-    id: 'qalam_social',
+    id: 'umberleaf_social',
     name: 'Activity',
     description: 'Follows, comments, reactions, and mentions.',
   ),
 
   /// System announcements + account/moderation updates.
   system(
-    id: 'qalam_system',
+    id: 'umberleaf_system',
     name: 'Announcements',
     description: 'Service announcements and account updates.',
   ),
 
   /// Opt-in scheduled reminders (the Phase-2 writing/reading-reminder seam).
   reminders(
-    id: 'qalam_reminders',
+    id: 'umberleaf_reminders',
     name: 'Reminders',
     description: 'Gentle writing and reading reminders you opt into.',
   );

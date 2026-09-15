@@ -15,12 +15,12 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/core/session/session_controller.dart';
-import 'package:qalam_mobile/core/session/session_state.dart';
-import 'package:qalam_mobile/features/feed/presentation/screens/discover_screen.dart';
-import 'package:qalam_mobile/shared/domain/enums.dart';
-import 'package:qalam_mobile/shared/retrieval/domain/retrieval.dart';
-import 'package:qalam_mobile/shared/theme/app_theme.dart';
+import 'package:umberleaf_mobile/core/session/session_controller.dart';
+import 'package:umberleaf_mobile/core/session/session_state.dart';
+import 'package:umberleaf_mobile/features/feed/presentation/screens/discover_screen.dart';
+import 'package:umberleaf_mobile/shared/domain/enums.dart';
+import 'package:umberleaf_mobile/shared/retrieval/domain/retrieval.dart';
+import 'package:umberleaf_mobile/shared/theme/app_theme.dart';
 
 import '../../support/fake_retrieval_repository.dart';
 import '../../support/harness.dart';
@@ -82,7 +82,7 @@ Future<FakeRetrievalRepository> _pumpDiscover(
       retrievalRepository: retrieval,
       sessionOverride: authed ? _AuthedSession.new : _AnonSession.new,
       child: MaterialApp(
-        theme: buildQalamTheme(brightness: Brightness.light),
+        theme: buildUmberleafTheme(brightness: Brightness.light),
         home: const DiscoverScreen(),
       ),
     );

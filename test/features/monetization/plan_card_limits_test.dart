@@ -14,15 +14,15 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/core/config/app_config.dart';
-import 'package:qalam_mobile/core/config/app_flavor.dart';
-import 'package:qalam_mobile/core/di/providers.dart';
-import 'package:qalam_mobile/features/monetization/domain/entities/entitlement.dart';
-import 'package:qalam_mobile/features/monetization/domain/entities/monetization_enums.dart';
-import 'package:qalam_mobile/features/monetization/domain/entities/plan.dart';
-import 'package:qalam_mobile/features/monetization/presentation/providers/monetization_providers.dart';
-import 'package:qalam_mobile/features/monetization/presentation/screens/plans_screen.dart';
-import 'package:qalam_mobile/shared/theme/app_theme.dart';
+import 'package:umberleaf_mobile/core/config/app_config.dart';
+import 'package:umberleaf_mobile/core/config/app_flavor.dart';
+import 'package:umberleaf_mobile/core/di/providers.dart';
+import 'package:umberleaf_mobile/features/monetization/domain/entities/entitlement.dart';
+import 'package:umberleaf_mobile/features/monetization/domain/entities/monetization_enums.dart';
+import 'package:umberleaf_mobile/features/monetization/domain/entities/plan.dart';
+import 'package:umberleaf_mobile/features/monetization/presentation/providers/monetization_providers.dart';
+import 'package:umberleaf_mobile/features/monetization/presentation/screens/plans_screen.dart';
+import 'package:umberleaf_mobile/shared/theme/app_theme.dart';
 
 const AppConfig _monetizationOn = AppConfig(
   flavor: AppFlavor.development,
@@ -83,7 +83,7 @@ Future<void> _pump(WidgetTester tester) async {
         ),
       ],
       child: MaterialApp(
-        theme: buildQalamTheme(brightness: Brightness.light),
+        theme: buildUmberleafTheme(brightness: Brightness.light),
         home: const PlansScreen(),
       ),
     ),

@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/features/auth/presentation/screens/login_screen.dart';
-import 'package:qalam_mobile/features/onboarding/presentation/screens/onboarding_screen.dart';
+import 'package:umberleaf_mobile/features/auth/presentation/screens/login_screen.dart';
+import 'package:umberleaf_mobile/features/onboarding/presentation/screens/onboarding_screen.dart';
 
 import '../../support/harness.dart';
 

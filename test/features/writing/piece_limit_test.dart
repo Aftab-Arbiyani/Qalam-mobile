@@ -15,20 +15,20 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/core/config/app_config.dart';
-import 'package:qalam_mobile/core/config/app_flavor.dart';
-import 'package:qalam_mobile/core/di/providers.dart';
-import 'package:qalam_mobile/features/writing/data/mappers/piece_write_mappers.dart';
-import 'package:qalam_mobile/features/writing/domain/entities/draft_summary.dart';
-import 'package:qalam_mobile/features/writing/domain/entities/draft_sync.dart';
-import 'package:qalam_mobile/features/writing/domain/entities/piece_allowance.dart';
-import 'package:qalam_mobile/features/writing/presentation/controllers/draft_list_controller.dart';
-import 'package:qalam_mobile/features/writing/presentation/providers/writing_providers.dart';
-import 'package:qalam_mobile/features/writing/presentation/screens/drafts_screen.dart';
-import 'package:qalam_mobile/features/writing/presentation/support/piece_limit_copy.dart';
-import 'package:qalam_mobile/features/writing/presentation/widgets/piece_limit_notice.dart';
-import 'package:qalam_mobile/shared/domain/error_codes.dart';
-import 'package:qalam_mobile/shared/theme/app_theme.dart';
+import 'package:umberleaf_mobile/core/config/app_config.dart';
+import 'package:umberleaf_mobile/core/config/app_flavor.dart';
+import 'package:umberleaf_mobile/core/di/providers.dart';
+import 'package:umberleaf_mobile/features/writing/data/mappers/piece_write_mappers.dart';
+import 'package:umberleaf_mobile/features/writing/domain/entities/draft_summary.dart';
+import 'package:umberleaf_mobile/features/writing/domain/entities/draft_sync.dart';
+import 'package:umberleaf_mobile/features/writing/domain/entities/piece_allowance.dart';
+import 'package:umberleaf_mobile/features/writing/presentation/controllers/draft_list_controller.dart';
+import 'package:umberleaf_mobile/features/writing/presentation/providers/writing_providers.dart';
+import 'package:umberleaf_mobile/features/writing/presentation/screens/drafts_screen.dart';
+import 'package:umberleaf_mobile/features/writing/presentation/support/piece_limit_copy.dart';
+import 'package:umberleaf_mobile/features/writing/presentation/widgets/piece_limit_notice.dart';
+import 'package:umberleaf_mobile/shared/domain/error_codes.dart';
+import 'package:umberleaf_mobile/shared/theme/app_theme.dart';
 
 const AppConfig _config = AppConfig(
   flavor: AppFlavor.development,
@@ -99,7 +99,7 @@ Future<void> _pumpDrafts(
         draftListControllerProvider.overrideWith(() => _FakeDraftList(drafts)),
       ],
       child: MaterialApp(
-        theme: buildQalamTheme(brightness: brightness),
+        theme: buildUmberleafTheme(brightness: brightness),
         home: const DraftsScreen(),
       ),
     ),

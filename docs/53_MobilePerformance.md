@@ -1,6 +1,6 @@
 # 53 — Mobile Performance (P7.3)
 
-> **Qalam Mobile** — the Flutter client's contribution to the Performance &
+> **Umberleaf Mobile** — the Flutter client's contribution to the Performance &
 > Scalability phase (P7.3). Companion to the backend
 > **[platfrom/docs/43 — Performance & Scalability Platform](../../platfrom/docs/43_PerformanceScalabilityPlatform.md)**,
 > which owns the server-side platform and the canonical budget catalogue.

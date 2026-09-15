@@ -1,10 +1,10 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:qalam_mobile/core/config/app_flavor.dart';
-import 'package:qalam_mobile/core/logging/app_logger.dart';
-import 'package:qalam_mobile/core/network/auth_gateway.dart';
-import 'package:qalam_mobile/core/security/token_store.dart';
+import 'package:umberleaf_mobile/core/config/app_flavor.dart';
+import 'package:umberleaf_mobile/core/logging/app_logger.dart';
+import 'package:umberleaf_mobile/core/network/auth_gateway.dart';
+import 'package:umberleaf_mobile/core/security/token_store.dart';
 
 import '../../support/harness.dart';
 
@@ -31,8 +31,8 @@ void main() {
     refreshClient = MockDio();
     tokenStore = TokenStore(
       buildFakeSecureStorage(<String, String>{
-        'qalam.refresh_token': 'rt_old',
-        'qalam.access_token': 'at_old',
+        'umberleaf.refresh_token': 'rt_old',
+        'umberleaf.access_token': 'at_old',
       }),
     );
     gateway = AuthGateway(

@@ -8,10 +8,10 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/features/ai/domain/entities/ai_feature_flag.dart';
-import 'package:qalam_mobile/features/ai/domain/value_objects/ai_feature_ids.dart';
-import 'package:qalam_mobile/features/ai/presentation/support/ai_error_copy.dart';
-import 'package:qalam_mobile/shared/domain/error_codes.dart';
+import 'package:umberleaf_mobile/features/ai/domain/entities/ai_feature_flag.dart';
+import 'package:umberleaf_mobile/features/ai/domain/value_objects/ai_feature_ids.dart';
+import 'package:umberleaf_mobile/features/ai/presentation/support/ai_error_copy.dart';
+import 'package:umberleaf_mobile/shared/domain/error_codes.dart';
 
 AiFeatures _decode({
   required bool aiEnabled,

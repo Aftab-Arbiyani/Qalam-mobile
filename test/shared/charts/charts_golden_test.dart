@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/shared/charts/bar_chart.dart';
-import 'package:qalam_mobile/shared/charts/chart_primitives.dart';
-import 'package:qalam_mobile/shared/charts/line_chart.dart';
-import 'package:qalam_mobile/shared/charts/pie_chart.dart';
-import 'package:qalam_mobile/shared/theme/app_theme.dart';
-import 'package:qalam_mobile/shared/theme/q_tokens.dart';
+import 'package:umberleaf_mobile/shared/charts/bar_chart.dart';
+import 'package:umberleaf_mobile/shared/charts/chart_primitives.dart';
+import 'package:umberleaf_mobile/shared/charts/line_chart.dart';
+import 'package:umberleaf_mobile/shared/charts/pie_chart.dart';
+import 'package:umberleaf_mobile/shared/theme/app_theme.dart';
+import 'package:umberleaf_mobile/shared/theme/q_tokens.dart';
 
 /// Golden test (docs/40 §38.2) for the analytics chart primitives. Regenerate with
 /// `--update-goldens`.
@@ -13,7 +13,7 @@ void main() {
   testWidgets('charts — line, bar, pie (light)', (WidgetTester tester) async {
     await tester.pumpWidget(
       MaterialApp(
-        theme: buildQalamTheme(brightness: Brightness.light),
+        theme: buildUmberleafTheme(brightness: Brightness.light),
         home: Scaffold(
           body: Center(
             child: SizedBox(

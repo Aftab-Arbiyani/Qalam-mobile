@@ -143,7 +143,7 @@ state (`story_explorer_screen_test`). The shared `FakeAiRepository` gained AF4 c
 
 1. Run the AF4 backend (`platfrom`, `docs/36` §15) with a provider key; enable
    `feature.ai.enabled` + `feature.ai.semanticSearch|recommendations|askBook.enabled`.
-2. Build the app with AI on: `flutter run --dart-define=QALAM_ENABLE_AI=true` (else the AF4
+2. Build the app with AI on: `flutter run --dart-define=UMBERLEAF_ENABLE_AI=true` (else the AF4
    surfaces show a calm "AI is off" state).
 3. Open **AI conversations → Discover with AI** (or deep-link `/ai/discovery`). Confirm the
    recommendation shelves populate and cards show a "why" reason.

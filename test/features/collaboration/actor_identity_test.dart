@@ -17,38 +17,38 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:qalam_mobile/core/config/app_config.dart';
-import 'package:qalam_mobile/core/config/app_flavor.dart';
-import 'package:qalam_mobile/core/di/providers.dart';
-import 'package:qalam_mobile/core/error/failure.dart';
-import 'package:qalam_mobile/core/utils/result.dart';
-import 'package:qalam_mobile/features/collaboration/domain/entities/block_entry.dart';
-import 'package:qalam_mobile/features/collaboration/domain/entities/collaboration_comment.dart';
-import 'package:qalam_mobile/features/collaboration/domain/entities/collaboration_enums.dart';
-import 'package:qalam_mobile/features/collaboration/domain/entities/edit_suggestion.dart';
-import 'package:qalam_mobile/features/collaboration/domain/entities/policy_capability.dart';
-import 'package:qalam_mobile/features/collaboration/domain/entities/presence_entry.dart';
-import 'package:qalam_mobile/features/collaboration/domain/entities/publication_event.dart';
-import 'package:qalam_mobile/features/collaboration/domain/entities/review_session.dart';
-import 'package:qalam_mobile/features/collaboration/domain/entities/story_invitation.dart';
-import 'package:qalam_mobile/features/collaboration/domain/entities/story_member.dart';
-import 'package:qalam_mobile/features/collaboration/domain/entities/story_snapshot.dart';
-import 'package:qalam_mobile/features/collaboration/domain/entities/story_snapshot_history.dart';
-import 'package:qalam_mobile/features/collaboration/domain/entities/trust_summary.dart';
-import 'package:qalam_mobile/features/collaboration/domain/repositories/publishing_repository.dart';
-import 'package:qalam_mobile/features/collaboration/presentation/providers/collaboration_providers.dart';
-import 'package:qalam_mobile/features/collaboration/presentation/screens/blocks_screen.dart';
-import 'package:qalam_mobile/features/collaboration/presentation/screens/collaborators_screen.dart';
-import 'package:qalam_mobile/features/collaboration/presentation/screens/comments_screen.dart';
-import 'package:qalam_mobile/features/collaboration/presentation/screens/invitations_inbox_screen.dart';
-import 'package:qalam_mobile/features/collaboration/presentation/screens/publishing_workflow_screen.dart';
-import 'package:qalam_mobile/features/collaboration/presentation/screens/suggestions_screen.dart';
-import 'package:qalam_mobile/features/profile/domain/entities/profile.dart';
-import 'package:qalam_mobile/features/profile/presentation/controllers/actor_profile_controller.dart';
-import 'package:qalam_mobile/features/profile/presentation/providers/profile_providers.dart';
-import 'package:qalam_mobile/shared/api/api_envelope.dart';
-import 'package:qalam_mobile/shared/domain/error_codes.dart';
-import 'package:qalam_mobile/shared/theme/app_theme.dart';
+import 'package:umberleaf_mobile/core/config/app_config.dart';
+import 'package:umberleaf_mobile/core/config/app_flavor.dart';
+import 'package:umberleaf_mobile/core/di/providers.dart';
+import 'package:umberleaf_mobile/core/error/failure.dart';
+import 'package:umberleaf_mobile/core/utils/result.dart';
+import 'package:umberleaf_mobile/features/collaboration/domain/entities/block_entry.dart';
+import 'package:umberleaf_mobile/features/collaboration/domain/entities/collaboration_comment.dart';
+import 'package:umberleaf_mobile/features/collaboration/domain/entities/collaboration_enums.dart';
+import 'package:umberleaf_mobile/features/collaboration/domain/entities/edit_suggestion.dart';
+import 'package:umberleaf_mobile/features/collaboration/domain/entities/policy_capability.dart';
+import 'package:umberleaf_mobile/features/collaboration/domain/entities/presence_entry.dart';
+import 'package:umberleaf_mobile/features/collaboration/domain/entities/publication_event.dart';
+import 'package:umberleaf_mobile/features/collaboration/domain/entities/review_session.dart';
+import 'package:umberleaf_mobile/features/collaboration/domain/entities/story_invitation.dart';
+import 'package:umberleaf_mobile/features/collaboration/domain/entities/story_member.dart';
+import 'package:umberleaf_mobile/features/collaboration/domain/entities/story_snapshot.dart';
+import 'package:umberleaf_mobile/features/collaboration/domain/entities/story_snapshot_history.dart';
+import 'package:umberleaf_mobile/features/collaboration/domain/entities/trust_summary.dart';
+import 'package:umberleaf_mobile/features/collaboration/domain/repositories/publishing_repository.dart';
+import 'package:umberleaf_mobile/features/collaboration/presentation/providers/collaboration_providers.dart';
+import 'package:umberleaf_mobile/features/collaboration/presentation/screens/blocks_screen.dart';
+import 'package:umberleaf_mobile/features/collaboration/presentation/screens/collaborators_screen.dart';
+import 'package:umberleaf_mobile/features/collaboration/presentation/screens/comments_screen.dart';
+import 'package:umberleaf_mobile/features/collaboration/presentation/screens/invitations_inbox_screen.dart';
+import 'package:umberleaf_mobile/features/collaboration/presentation/screens/publishing_workflow_screen.dart';
+import 'package:umberleaf_mobile/features/collaboration/presentation/screens/suggestions_screen.dart';
+import 'package:umberleaf_mobile/features/profile/domain/entities/profile.dart';
+import 'package:umberleaf_mobile/features/profile/presentation/controllers/actor_profile_controller.dart';
+import 'package:umberleaf_mobile/features/profile/presentation/providers/profile_providers.dart';
+import 'package:umberleaf_mobile/shared/api/api_envelope.dart';
+import 'package:umberleaf_mobile/shared/domain/error_codes.dart';
+import 'package:umberleaf_mobile/shared/theme/app_theme.dart';
 
 import '../../support/fake_profile_repository.dart';
 
@@ -107,7 +107,7 @@ Future<void> _pump(
         ...data.cast(),
       ],
       child: MaterialApp(
-        theme: buildQalamTheme(brightness: Brightness.light),
+        theme: buildUmberleafTheme(brightness: Brightness.light),
         home: child,
       ),
     ),

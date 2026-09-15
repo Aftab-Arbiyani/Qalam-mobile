@@ -11,17 +11,17 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive_ce/hive.dart';
-import 'package:qalam_mobile/features/ai/data/local/explorer_cache_store.dart';
-import 'package:qalam_mobile/features/ai/domain/entities/story_graph.dart';
-import 'package:qalam_mobile/shared/retrieval/data/saved_searches_store.dart';
-import 'package:qalam_mobile/shared/retrieval/domain/saved_search.dart';
+import 'package:umberleaf_mobile/features/ai/data/local/explorer_cache_store.dart';
+import 'package:umberleaf_mobile/features/ai/domain/entities/story_graph.dart';
+import 'package:umberleaf_mobile/shared/retrieval/data/saved_searches_store.dart';
+import 'package:umberleaf_mobile/shared/retrieval/domain/saved_search.dart';
 
 void main() {
   late Box<dynamic> box;
 
   setUpAll(() async {
     Hive.init(
-      '${Directory.systemTemp.path}/qalam_af4_stores_${DateTime.now().microsecondsSinceEpoch}',
+      '${Directory.systemTemp.path}/umberleaf_af4_stores_${DateTime.now().microsecondsSinceEpoch}',
     );
   });
 

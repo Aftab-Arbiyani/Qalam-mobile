@@ -23,20 +23,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:qalam_mobile/core/config/app_config.dart';
-import 'package:qalam_mobile/core/config/app_flavor.dart';
-import 'package:qalam_mobile/core/utils/result.dart';
-import 'package:qalam_mobile/features/collaboration/domain/entities/collaboration_enums.dart';
-import 'package:qalam_mobile/features/collaboration/domain/entities/policy_capability.dart';
-import 'package:qalam_mobile/features/collaboration/domain/entities/publication_event.dart';
-import 'package:qalam_mobile/features/collaboration/domain/entities/review_session.dart';
-import 'package:qalam_mobile/features/collaboration/domain/entities/story_snapshot.dart';
-import 'package:qalam_mobile/features/collaboration/domain/entities/story_snapshot_history.dart';
-import 'package:qalam_mobile/features/collaboration/domain/repositories/collaboration_repository.dart';
-import 'package:qalam_mobile/features/collaboration/domain/repositories/publishing_repository.dart';
-import 'package:qalam_mobile/features/collaboration/presentation/screens/publishing_workflow_screen.dart';
-import 'package:qalam_mobile/features/collaboration/presentation/widgets/snapshot_history_notice.dart';
-import 'package:qalam_mobile/shared/theme/app_theme.dart';
+import 'package:umberleaf_mobile/core/config/app_config.dart';
+import 'package:umberleaf_mobile/core/config/app_flavor.dart';
+import 'package:umberleaf_mobile/core/utils/result.dart';
+import 'package:umberleaf_mobile/features/collaboration/domain/entities/collaboration_enums.dart';
+import 'package:umberleaf_mobile/features/collaboration/domain/entities/policy_capability.dart';
+import 'package:umberleaf_mobile/features/collaboration/domain/entities/publication_event.dart';
+import 'package:umberleaf_mobile/features/collaboration/domain/entities/review_session.dart';
+import 'package:umberleaf_mobile/features/collaboration/domain/entities/story_snapshot.dart';
+import 'package:umberleaf_mobile/features/collaboration/domain/entities/story_snapshot_history.dart';
+import 'package:umberleaf_mobile/features/collaboration/domain/repositories/collaboration_repository.dart';
+import 'package:umberleaf_mobile/features/collaboration/domain/repositories/publishing_repository.dart';
+import 'package:umberleaf_mobile/features/collaboration/presentation/screens/publishing_workflow_screen.dart';
+import 'package:umberleaf_mobile/features/collaboration/presentation/widgets/snapshot_history_notice.dart';
+import 'package:umberleaf_mobile/shared/theme/app_theme.dart';
 
 import '../../support/harness.dart';
 
@@ -102,7 +102,7 @@ Widget _wrap(ProviderContainer container, Widget child) =>
     UncontrolledProviderScope(
       container: container,
       child: MaterialApp(
-        theme: buildQalamTheme(brightness: Brightness.light),
+        theme: buildUmberleafTheme(brightness: Brightness.light),
         home: child,
       ),
     );
@@ -328,7 +328,7 @@ void main() {
       ) async {
         await tester.pumpWidget(
           MaterialApp(
-            theme: buildQalamTheme(brightness: brightness),
+            theme: buildUmberleafTheme(brightness: brightness),
             home: Scaffold(body: SnapshotHistoryNotice(history: _history())),
           ),
         );
@@ -348,7 +348,7 @@ void main() {
         final SemanticsHandle handle = tester.ensureSemantics();
         await tester.pumpWidget(
           MaterialApp(
-            theme: buildQalamTheme(brightness: brightness),
+            theme: buildUmberleafTheme(brightness: brightness),
             home: Scaffold(body: SnapshotHistoryNotice(history: _history())),
           ),
         );
@@ -369,7 +369,7 @@ void main() {
         final SemanticsHandle handle = tester.ensureSemantics();
         await tester.pumpWidget(
           MaterialApp(
-            theme: buildQalamTheme(brightness: brightness),
+            theme: buildUmberleafTheme(brightness: brightness),
             home: Scaffold(body: SnapshotHistoryCount(history: _history())),
           ),
         );
@@ -390,7 +390,7 @@ void main() {
           );
           await tester.pumpWidget(
             MaterialApp(
-              theme: buildQalamTheme(brightness: brightness),
+              theme: buildUmberleafTheme(brightness: brightness),
               home: Scaffold(
                 body: Column(
                   children: <Widget>[

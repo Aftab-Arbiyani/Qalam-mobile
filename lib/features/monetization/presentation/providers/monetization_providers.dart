@@ -51,7 +51,7 @@ StoreBillingGateway storeBillingGateway(Ref ref) =>
 /// then to the free-tier default, so gating always resolves (server re-checks anyway).
 ///
 /// **A dark build answers the free-tier default without asking.** With
-/// `QALAM_ENABLE_MONETIZATION` down there is no premium surface to gate and no plan to
+/// `UMBERLEAF_ENABLE_MONETIZATION` down there is no premium surface to gate and no plan to
 /// report, so issuing the request would spend a round trip on an answer nothing reads —
 /// the same reasoning behind web's `enabled: isMonetizationEnabled()` (W4). The default
 /// denies every feature, which is the correct reading of "monetization is off" for a

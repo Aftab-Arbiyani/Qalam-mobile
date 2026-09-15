@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/core/di/providers.dart';
-import 'package:qalam_mobile/features/search/presentation/widgets/search_result_tiles.dart';
-import 'package:qalam_mobile/l10n/generated/app_localizations.dart';
-import 'package:qalam_mobile/shared/domain/entities/trend_item.dart';
-import 'package:qalam_mobile/shared/domain/entities/writer_summary.dart';
-import 'package:qalam_mobile/shared/domain/enums.dart';
-import 'package:qalam_mobile/shared/theme/app_theme.dart';
+import 'package:umberleaf_mobile/core/di/providers.dart';
+import 'package:umberleaf_mobile/features/search/presentation/widgets/search_result_tiles.dart';
+import 'package:umberleaf_mobile/l10n/generated/app_localizations.dart';
+import 'package:umberleaf_mobile/shared/domain/entities/trend_item.dart';
+import 'package:umberleaf_mobile/shared/domain/entities/writer_summary.dart';
+import 'package:umberleaf_mobile/shared/domain/enums.dart';
+import 'package:umberleaf_mobile/shared/theme/app_theme.dart';
 
 import '../../support/harness.dart';
 
@@ -15,7 +15,7 @@ Widget _scene(Brightness brightness) => ProviderScope(
   overrides: [appConfigProvider.overrideWithValue(testConfig)],
   child: MaterialApp(
     debugShowCheckedModeBanner: false,
-    theme: buildQalamTheme(brightness: brightness),
+    theme: buildUmberleafTheme(brightness: brightness),
     localizationsDelegates: AppLocalizations.localizationsDelegates,
     supportedLocales: AppLocalizations.supportedLocales,
     home: Scaffold(

@@ -2,8 +2,8 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive_ce/hive.dart';
-import 'package:qalam_mobile/core/sync/sync_operation.dart';
-import 'package:qalam_mobile/core/sync/sync_outbox_store.dart';
+import 'package:umberleaf_mobile/core/sync/sync_operation.dart';
+import 'package:umberleaf_mobile/core/sync/sync_outbox_store.dart';
 
 SyncOperation makeOp(String type, String key, {DateTime? at}) => SyncOperation(
   id: '$type-$key-${at?.millisecondsSinceEpoch ?? 0}',

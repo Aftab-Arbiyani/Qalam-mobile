@@ -1,10 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/core/reading_history/reading_history_entry.dart';
-import 'package:qalam_mobile/features/analytics/domain/entities/growth_series.dart';
-import 'package:qalam_mobile/features/analytics/domain/entities/reader_analytics.dart';
-import 'package:qalam_mobile/features/analytics/domain/value_objects/analytics_range.dart';
-import 'package:qalam_mobile/features/analytics/domain/value_objects/reading_insights.dart';
-import 'package:qalam_mobile/features/analytics/presentation/analytics_format.dart';
+import 'package:umberleaf_mobile/core/reading_history/reading_history_entry.dart';
+import 'package:umberleaf_mobile/features/analytics/domain/entities/growth_series.dart';
+import 'package:umberleaf_mobile/features/analytics/domain/entities/reader_analytics.dart';
+import 'package:umberleaf_mobile/features/analytics/domain/value_objects/analytics_range.dart';
+import 'package:umberleaf_mobile/features/analytics/domain/value_objects/reading_insights.dart';
+import 'package:umberleaf_mobile/features/analytics/presentation/analytics_format.dart';
 
 void main() {
   group('AnalyticsRange → growth query', () {

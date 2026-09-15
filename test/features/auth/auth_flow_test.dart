@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/features/auth/presentation/screens/login_screen.dart';
-import 'package:qalam_mobile/features/profile/presentation/screens/my_profile_screen.dart';
+import 'package:umberleaf_mobile/features/auth/presentation/screens/login_screen.dart';
+import 'package:umberleaf_mobile/features/profile/presentation/screens/my_profile_screen.dart';
 
 import '../../support/fake_auth_repository.dart';
 import '../../support/harness.dart';

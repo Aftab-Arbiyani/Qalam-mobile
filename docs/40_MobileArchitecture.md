@@ -1,6 +1,6 @@
 # 40 — Mobile Architecture (Flutter)
 
-> **Qalam** (قلم / क़लम — "the pen") — the mobile client architecture handbook.
+> **Umberleaf** (an autumn leaf; a leaf is a page) — the mobile client architecture handbook.
 > This document is the **permanent source of truth** for every Flutter implementation
 > decision. Every mobile epic (**M1–M10**) MUST comply with it. Where it conflicts with a
 > whim, this document and the master ADR (`docs/00_ArchitectureDecisions.md`) win.
@@ -23,7 +23,7 @@ Three hard anchors constrain everything below:
 1. **Backend `v1` is frozen** (`docs/25_BackendFreeze.md`, effective 2026-07-09). All work is
    **additive-only**. 19 controllers · 102 OpenAPI paths · 69 error codes · 26 permissions ·
    11 rate-limit tiers. A breaking change is a `/api/v2`, never a mutation of `v1`.
-2. **One contract, three consumers** (ADR §2). Web + Admin generate `@qalam/api-types` from
+2. **One contract, three consumers** (ADR §2). Web + Admin generate `@umberleaf/api-types` from
    `openapi.json`; **Flutter generates Dart models from the same `openapi.json`** via
    `openapi-generator` (`dart-dio`). The wire shape is not ours to define — it is generated.
 3. **The API was mobile-shaped from day one** (roadmap Phase 3, ADR §3): refresh-token-in-body
@@ -90,7 +90,7 @@ Three hard anchors constrain everything below:
 
 ## 1. Mobile Architecture Overview
 
-Qalam Mobile is a **native Flutter application for Android and iOS**, treated as equal first-class
+Umberleaf Mobile is a **native Flutter application for Android and iOS**, treated as equal first-class
 targets. It is a **reader-and-writer client** — the same product surface as the React reader web
 app (feed, reading, writing, profiles, social, search, notifications, writer analytics), **not**
 the admin surface. Admin/moderation lives only on the web `admin.qalam.*` origin and is out of scope
@@ -139,7 +139,7 @@ snappiness, and always defers final authority to the server response.
 ┌───────────────────────────────▼───────────────────────────────────────┐
 │  CORE (cross-cutting): Dio client + interceptors · secure storage ·     │
 │  Hive setup · env/config · router · logging · error model · DI roots ·  │
-│  design system (see docs/41) · shared domain vocabulary (qalam_shared)  │
+│  design system (see docs/41) · shared domain vocabulary (umberleaf_shared)  │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -203,7 +203,8 @@ The repo is a single Flutter application package plus internal Dart packages for
 vocabulary and the generated API client.
 
 ```
-qalam_mobile/                         # the separate Flutter repository
+qalam-mobile/                         # the separate Flutter repository (dir name unchanged;
+#                                       the Dart package inside is `umberleaf_mobile`)
 ├── pubspec.yaml
 ├── analysis_options.yaml             # strict lints (see §44)
 ├── build.yaml                        # freezed / json_serializable / riverpod_generator config
@@ -213,8 +214,8 @@ qalam_mobile/                         # the separate Flutter repository
 ├── tool/
 │   └── generate_api.sh               # openapi-generator (dart-dio) invocation, pinned version
 ├── packages/
-│   ├── qalam_api/                    # GENERATED dart-dio client + DTO models (do not hand-edit)
-│   └── qalam_shared/                 # hand-mirrored @qalam/shared vocabulary (enums, codes, limits)
+│   ├── umberleaf_api/                    # GENERATED dart-dio client + DTO models (do not hand-edit)
+│   └── umberleaf_shared/                 # hand-mirrored @umberleaf/shared vocabulary (enums, codes, limits)
 ├── lib/
 │   ├── main.dart                     # thin: runApp(ProviderScope(...)) after bootstrap
 │   ├── bootstrap.dart                # env load, Hive init, error zone, DI overrides
@@ -261,8 +262,8 @@ qalam_mobile/                         # the separate Flutter repository
   features.
 - `app/` is the only place that knows about *all* features (it composes the router). Features never
   import `app/`.
-- `packages/qalam_api` is **generated output**: never hand-edited; regenerated whenever a new
-  `openapi.json` lands. `packages/qalam_shared` is **hand-maintained** to mirror `@qalam/shared`
+- `packages/umberleaf_api` is **generated output**: never hand-edited; regenerated whenever a new
+  `openapi.json` lands. `packages/umberleaf_shared` is **hand-maintained** to mirror `@umberleaf/shared`
   (there is no cross-language codegen for it) and is kept byte-identical in value.
 
 ---
@@ -280,10 +281,10 @@ features/<name>/
 │   ├── value_objects/      # small typed wrappers (Cursor, Slug, Username) where useful
 │   └── usecases/           # one class per meaningful operation (optional per §20)
 ├── data/                   # implements the domain, talks to the wire & cache
-│   ├── dtos/               # thin wrappers / re-exports of generated qalam_api models (if needed)
+│   ├── dtos/               # thin wrappers / re-exports of generated umberleaf_api models (if needed)
 │   ├── mappers/            # DTO ⇄ entity translation (the only place both types are known)
 │   ├── datasources/
-│   │   ├── <name>_remote_data_source.dart   # uses qalam_api / Dio
+│   │   ├── <name>_remote_data_source.dart   # uses umberleaf_api / Dio
 │   │   └── <name>_local_data_source.dart    # uses Hive (cache)
 │   └── repositories/       # concrete repository implementations
 ├── presentation/
@@ -314,7 +315,7 @@ feature behaves the same on both:
 | `features/<name>/hooks/*` | `presentation/providers/*` (Riverpod) | Server-state hooks → repository-backed providers. |
 | `features/<name>/stores/*` (Zustand, client-state) | `presentation/providers/*` (UI-state notifiers) | Client-only UI state. |
 | `features/<name>/components|pages/*` | `presentation/widgets|screens/*` | Same split. |
-| `features/<name>/schemas/*` (Zod) | `presentation/controllers` + `qalam_shared` limits | Form validation reusing shared constants. |
+| `features/<name>/schemas/*` (Zod) | `presentation/controllers` + `umberleaf_shared` limits | Form validation reusing shared constants. |
 | `features/<name>/types/*` | `domain/entities/*` | Domain entities. |
 | `lib/query-keys.ts` | cache keys in `local_data_source` + provider families | See §25. |
 | `lib/api-client.ts` | `core/network` (Dio + interceptors) | Single choke point. |
@@ -338,7 +339,7 @@ A precise contract for what each layer may and may not do. Reviewers block on vi
 system error/empty/loading widget; format entities for display (via `core/utils` or design-system
 formatters).
 
-**Must not:** import Dio, Hive, `flutter_secure_storage`, `qalam_api`, or any DTO/mapper; branch on
+**Must not:** import Dio, Hive, `flutter_secure_storage`, `umberleaf_api`, or any DTO/mapper; branch on
 HTTP status codes or `error.code` directly (that mapping lives in `core/error`); contain business
 rules; perform I/O; construct repositories directly (they arrive via providers).
 
@@ -352,7 +353,7 @@ async server state (loading/error/data) via `AsyncValue`.
 (or import them from `core/error`); define use cases; hold pure business logic that is genuinely
 client-side (e.g. computing a clap batch delta clamped to 50 before sending).
 
-**Must not:** import Flutter (`package:flutter/*`), Dio, Hive, `qalam_api`, `json_serializable`
+**Must not:** import Flutter (`package:flutter/*`), Dio, Hive, `umberleaf_api`, `json_serializable`
 annotations that require code-gen tied to the wire, or anything with I/O. The domain is a **pure Dart
 library** — it could be published standalone.
 
@@ -360,7 +361,7 @@ library** — it could be published standalone.
 
 ### 5.3 Data layer
 
-**May:** import `qalam_api` (generated), Dio, Hive, `core/network`, `core/storage`; unwrap the API
+**May:** import `umberleaf_api` (generated), Dio, Hive, `core/network`, `core/storage`; unwrap the API
 envelope; translate DTOs to entities via mappers; implement caching; catch Dio/transport exceptions
 and translate them to domain `Failure`s.
 
@@ -398,7 +399,7 @@ features/feed/
 │   ├── mappers/
 │   │   └── feed_item_mapper.dart       # PieceSummaryDto → FeedItem
 │   ├── datasources/
-│   │   ├── feed_remote_data_source.dart # GET /feed/{tab} via qalam_api, reads meta.pagination
+│   │   ├── feed_remote_data_source.dart # GET /feed/{tab} via umberleaf_api, reads meta.pagination
 │   │   └── feed_local_data_source.dart  # Hive box: cache first page per (tab,filters)
 │   └── repositories/
 │       └── feed_repository_impl.dart    # cache-then-network; maps failures
@@ -441,7 +442,7 @@ The rules that keep the graph acyclic and the features independent. These are en
 3. **Features never import other features.** Not their widgets, not their providers, not their data.
    The only legal cross-feature coupling:
    - **Shared entities** that are genuinely cross-cutting (e.g. a `PieceRef`, an `Author` summary)
-     live in a small shared domain module (`core/domain` or `qalam_shared` types), imported by both.
+     live in a small shared domain module (`core/domain` or `umberleaf_shared` types), imported by both.
    - **Navigation** between features goes through the router by route name (§10) — feature A pushes
      a route owned by feature B; it does not import B's screen widget.
    - **Cross-feature reactions to events** (e.g. "a follow happened, refresh the following feed") go
@@ -449,7 +450,7 @@ The rules that keep the graph acyclic and the features independent. These are en
 4. **`app/` composes features; features never import `app/`.**
 5. **`core/` and `design_system/` may be imported by any feature** (data/presentation respectively);
    they never import a feature.
-6. **`qalam_api` is imported only by `data/` layers and `core/network`.** Never by domain,
+6. **`umberleaf_api` is imported only by `data/` layers and `core/network`.** Never by domain,
    presentation, or another package.
 7. **No circular dependencies, ever.** If two features need each other, the shared piece is wrong-
    placed and must move down. The import graph is a DAG rooted at `main.dart`.
@@ -585,7 +586,7 @@ runApp(
       hiveRegistrarProvider.overrideWithValue(openedHive),
       // ... other bootstrapped infra
     ],
-    child: const QalamApp(),
+    child: const UmberleafApp(),
   ),
 )
 ```
@@ -720,7 +721,7 @@ completed. Only once the session resolves to `authenticated` or `anonymous` does
 The JWT carries `role` (`user | moderator | admin | super_admin`) and nothing sensitive. The client
 decodes it **as a UX hint only** — to show/hide affordances — and derives capabilities from the
 shared permission mapping (`DEFAULT_ROLE_PERMISSIONS` + `permissionSatisfies`, mirrored in
-`qalam_shared`). **The server is always authoritative**: every mutation is re-checked server-side and
+`umberleaf_shared`). **The server is always authoritative**: every mutation is re-checked server-side and
 may return `AUTH_PERMISSION_DENIED` (403) or `FORBIDDEN` regardless of what the client rendered.
 
 Because the mobile app is the *reader/writer* surface, it needs almost none of this: a standard
@@ -748,7 +749,7 @@ scheme mirrors the web URL contract so a single link works across web and mobile
 - **Universal Links (iOS) / App Links (Android)** map `https://app.qalam.example/<path>` to the
   in-app route of the same path. GoRouter's path table (§10.2) is the resolver; there is no separate
   deep-link parser — the router *is* the parser.
-- A **custom scheme** (`qalam://`) is registered as a fallback for internal use (push payloads),
+- A **custom scheme** (`umberleaf://`) is registered as a fallback for internal use (push payloads),
   but public shareable links are always `https` universal links.
 - Deep links respect guards: a link to an auth-only route while signed out redirects through
   `/auth/login?returnTo=<path>` and lands the user on the target after login.
@@ -787,13 +788,13 @@ carry denormalized render fields (piece id/slug, actor username), so the deep li
 ## 13. Dio Networking Layer
 
 `core/network` is the **single choke point** for all HTTP — the mobile equivalent of the web's
-`lib/api-client.ts`. No feature ever constructs a Dio call or touches the generated `qalam_api`
+`lib/api-client.ts`. No feature ever constructs a Dio call or touches the generated `umberleaf_api`
 client directly except inside its `data/datasources`.
 
 ### 13.1 The Dio instance
 
 One configured Dio, provided as a `keepAlive` provider, used both directly by data sources and as the
-transport the generated `qalam_api` client is built on. Base config:
+transport the generated `umberleaf_api` client is built on. Base config:
 
 - `baseUrl` = `{apiUrl}/api/v1` from `AppConfig` (§28).
 - `connectTimeout` / `receiveTimeout` / `sendTimeout` = **20s** (matches the web's
@@ -865,7 +866,7 @@ Mirror the web's `buildQueryString`:
 - **Send only declared params** — the backend rejects unknown query params
   (`forbidNonWhitelisted`), so never send speculative keys.
 - Enum-valued params (`tab`, `type`, `status`, `sort`, `kind`, `period`) use the exact wire strings
-  from `qalam_shared` enums.
+  from `umberleaf_shared` enums.
 
 ### 13.7 Pagination on the wire (byte-for-byte)
 
@@ -1078,7 +1079,7 @@ Each feature's data layer has up to two data sources behind the repository.
 
 ### 17.1 Remote data source
 
-- The **only** place `qalam_api` (generated client) or a raw Dio call is used.
+- The **only** place `umberleaf_api` (generated client) or a raw Dio call is used.
 - Exposes typed methods per endpoint (`fetchFeed(tab, query, cursor)`, `getPiece(id)`,
   `clap(pieceId, count)`), returning **DTOs** (generated) or already-mapped entities depending on the
   feature's mapper placement.
@@ -1110,11 +1111,11 @@ via `dart-dio`). This is how the hard rule "never duplicate backend DTOs" is hon
 ### 18.1 The layers of type
 
 ```
-openapi.json  ──(openapi-generator dart-dio)──▶  qalam_api DTOs  ──(mapper)──▶  domain Entities
+openapi.json  ──(openapi-generator dart-dio)──▶  umberleaf_api DTOs  ──(mapper)──▶  domain Entities
    (frozen v1)                                    (generated)                    (freezed, ours)
 ```
 
-- **Generated DTOs** live in `packages/qalam_api`. They mirror the wire exactly, including nullability
+- **Generated DTOs** live in `packages/umberleaf_api`. They mirror the wire exactly, including nullability
   and additive fields. They are regenerated when a new spec lands and are never edited by hand.
 - **Domain entities** live in each feature's `domain/entities`. They are our stable, ergonomic value
   objects — often a *subset* or *reshaping* of a DTO (e.g. collapsing `author` DTO fields into an
@@ -1130,7 +1131,7 @@ openapi.json  ──(openapi-generator dart-dio)──▶  qalam_api DTOs  ─�
    the app does not consume is simply not mapped; it never errors.
 2. **Timestamps** cross the wire as ISO-8601 UTC strings; mappers parse to `DateTime` in UTC and the
    presentation localizes for display. Never send/store local time.
-3. **Enums** map to the mirrored `qalam_shared` enums by exact wire string; an unknown enum value maps
+3. **Enums** map to the mirrored `umberleaf_shared` enums by exact wire string; an unknown enum value maps
    to a safe default or an explicit `unknown` member (never crash) — again for additive tolerance.
 4. **Image keys** (`avatarKey`, `coverImageKey`) are kept as keys in the entity; the CDN URL is built
    at render time via `core/media` (§35). The entity does not store a full URL.
@@ -1149,7 +1150,7 @@ direction, reading-time formatting) in one place, and gives value equality for R
 
 Domain entities are **immutable value objects** (`freezed`) that mirror the backend's *read-facing*
 domain. They are the vocabulary the presentation and use-case layers speak. They mirror
-`docs/04_DatabaseDesign.md`'s API-exposed shape and the `@qalam/shared` enums.
+`docs/04_DatabaseDesign.md`'s API-exposed shape and the `@umberleaf/shared` enums.
 
 ### 19.1 The core entities (and their key fields)
 
@@ -1169,10 +1170,10 @@ domain. They are the vocabulary the presentation and use-case layers speak. They
 | **AnalyticsDaily / Dashboard** | `views`, `reads`, `readSeconds`, `completions`, `shares`, `likes`, `claps`, `followersGained`, `breakdowns` | writer dashboard source |
 | **CollectionRef / ReadingListRef** | ids + titles + counts | curation (later M-track) |
 
-### 19.2 Enums (mirror `@qalam/shared` exactly — the wire is authoritative)
+### 19.2 Enums (mirror `@umberleaf/shared` exactly — the wire is authoritative)
 
-`qalam_shared` mirrors these **by exact wire string** (Dart enums or sealed constants). Where the DB
-design doc and the shipped `@qalam/shared` differ, **`@qalam/shared` wins** (it is the codegen source
+`umberleaf_shared` mirrors these **by exact wire string** (Dart enums or sealed constants). Where the DB
+design doc and the shipped `@umberleaf/shared` differ, **`@umberleaf/shared` wins** (it is the codegen source
 and what the API returns):
 
 - `PieceStatus`: `draft | scheduled | published | archived`
@@ -1194,7 +1195,7 @@ and what the API returns):
 
 ### 19.3 Domain invariants encoded client-side (for UX only)
 
-Mirrored in `qalam_shared` limits; the **server enforces authoritatively**:
+Mirrored in `umberleaf_shared` limits; the **server enforces authoritatively**:
 
 - Username permanent, `^[a-z0-9_]{3,30}$`, 3–30 chars → never render an edit path.
 - One pen name (1–50 chars). One language per piece (required at publish).
@@ -1353,7 +1354,7 @@ repositories implement; nowhere else interprets HTTP.
 `API_MALFORMED_RESPONSE`, `API_UNEXPECTED_ERROR`. These are produced by the network layer for non-
 enveloped transport failures and map to `NetworkFailure`/`UnexpectedFailure`.
 
-### 22.4 Full server error-code catalogue (authoritative — mirror in `qalam_shared`)
+### 22.4 Full server error-code catalogue (authoritative — mirror in `umberleaf_shared`)
 
 Auth: `AUTH_INVALID_CREDENTIALS`, `AUTH_TOKEN_EXPIRED`, `AUTH_TOKEN_INVALID`, `AUTH_REFRESH_REUSED`,
 `AUTH_SESSION_REVOKED`, `AUTH_EMAIL_TAKEN`, `AUTH_EMAIL_UNVERIFIED`, `AUTH_VERIFICATION_INVALID`,
@@ -1380,7 +1381,7 @@ Cross-cutting: `RATE_LIMITED`, `VALIDATION_FAILED`, `UNAUTHORIZED`, `FORBIDDEN`,
 `AUTH_PERMISSION_DENIED`, `NOT_FOUND`, `CONFLICT`, `INTERNAL_SERVER_ERROR`.
 
 > The mobile app only *acts* on the subset relevant to reader/writer flows; the rest are mapped to
-> generic failures. The list is kept complete in `qalam_shared` so a new additive code is a one-line
+> generic failures. The list is kept complete in `umberleaf_shared` so a new additive code is a one-line
 > addition, never a breaking surprise.
 
 ---
@@ -1391,7 +1392,7 @@ Cross-cutting: `RATE_LIMITED`, `VALIDATION_FAILED`, `UNAUTHORIZED`, `FORBIDDEN`,
 future product re-decision. The mobile app therefore implements **offline as graceful degradation of
 reads**, not as an offline writing store.
 
-### 23.1 What "offline" means for Qalam Mobile
+### 23.1 What "offline" means for Umberleaf Mobile
 
 - **Cached reads work offline.** Anything previously fetched (feed pages, opened pieces, profiles,
   notifications) is served from the Hive cache when the network is unavailable, clearly marked stale.
@@ -1720,7 +1721,7 @@ service + a notifications-provider source. Until then, `enablePush` stays off.
 ## 33. Local Notification Architecture
 
 Local (on-device) notifications via `flutter_local_notifications`, behind a `core/notifications`
-service interface. Uses in Qalam:
+service interface. Uses in Umberleaf:
 
 - **Foreground presentation** of an incoming push (Phase 2) as a local banner when the app is open.
 - **Scheduled reminders** — e.g. a reminder that a scheduled piece is about to publish, or a gentle
@@ -1863,7 +1864,7 @@ e2e), `mocktail`/`mockito` for fakes.
 | **Repositories** | unit with faked remote+local sources; cache-then-network, offline, invalidation | every branch |
 | **Notifiers / providers** | `ProviderContainer` with overridden repos; loading/data/error, optimistic rollback | behavior |
 | **Error mapping** (status/code → Failure) | unit, table-driven | every mapped code |
-| **`qalam_shared`** (mirrored constants/enums) | unit — values match the backend | exact-value assertions |
+| **`umberleaf_shared`** (mirrored constants/enums) | unit — values match the backend | exact-value assertions |
 | **Guards / router redirects** | unit — auth/guest/verified, returnTo safety | every branch |
 
 ### 38.2 Widget & golden tests
@@ -1885,7 +1886,7 @@ publish; offline read from cache.
 
 AAA (Arrange–Act–Assert), one behavior per test, no logic in tests. Factories in `test/factories/`
 build valid-by-default entities/DTOs; no shared mutable fixtures. Mock at the boundary you own
-(notifiers mock repositories; repositories mock data sources; data sources mock Dio/`qalam_api`).
+(notifiers mock repositories; repositories mock data sources; data sources mock Dio/`umberleaf_api`).
 Time/uuid/random are injected (never call `DateTime.now()` directly in testable code) so tests are
 deterministic.
 
@@ -2030,14 +2031,14 @@ A PR is merge-ready only if every box is checked (the mobile Definition of Done)
 **Architecture & layering**
 - [ ] Feature-first structure respected; new code in the right feature + layer.
 - [ ] No feature imports another feature; no `app/` import from a feature; domain imports nothing
-      outward (no Flutter/Dio/Hive/`qalam_api`).
+      outward (no Flutter/Dio/Hive/`umberleaf_api`).
 - [ ] No I/O or business logic in widgets; no Dio/DTO/status-code branching in presentation.
-- [ ] Repository not bypassed; data source is the only place `qalam_api`/Dio/Hive is touched.
+- [ ] Repository not bypassed; data source is the only place `umberleaf_api`/Dio/Hive is touched.
 - [ ] No singleton / service locator; all wiring is Riverpod; correct `autoDispose`/`keepAlive`.
 
 **Contract fidelity**
 - [ ] DTOs are generated, not hand-written; mappers ignore unknown fields; timestamps UTC.
-- [ ] Enums/limits/error-codes match `qalam_shared` (which matches `@qalam/shared`) exactly.
+- [ ] Enums/limits/error-codes match `umberleaf_shared` (which matches `@umberleaf/shared`) exactly.
 - [ ] Cursor pagination reads `meta.pagination`; only declared query params sent; booleans literal;
       arrays comma-joined.
 - [ ] `X-Client: mobile` on requests; publish carries `Idempotency-Key`; only publish is retriable.
@@ -2060,7 +2061,7 @@ A PR is merge-ready only if every box is checked (the mobile Definition of Done)
 **Quality**
 - [ ] `flutter analyze` + `dart format` clean; no `dynamic`; no non-null `!` in production code.
 - [ ] Tests added per §38 with coverage floor; deterministic (injected time/uuid).
-- [ ] `openapi.json` regenerated if the spec changed; `qalam_api` diff reviewed.
+- [ ] `openapi.json` regenerated if the spec changed; `umberleaf_api` diff reviewed.
 - [ ] Conventional commit (scope `mobile`); self-reviewed.
 
 ---
@@ -2107,7 +2108,7 @@ Hard constraints. Violations are review-blockers, not preferences.
   module before their phase — build the *seam* (documented) and stop.
 - **Cache is disposable debt-free.** Never migrate a cache schema; bump the version and clear. Do not
   accumulate cache-migration logic.
-- **Generated code is not debt to refactor.** Do not hand-tune `qalam_api`; if it is wrong, fix the
+- **Generated code is not debt to refactor.** Do not hand-tune `umberleaf_api`; if it is wrong, fix the
   spec/generator config and regenerate.
 - **Debt has an owner and a trigger.** Each debt item names when it must be paid (e.g. "before M6,"
   "when `GET /pieces/by-slug` ships"). Debt without a trigger is deleted or done.
@@ -2125,7 +2126,7 @@ directly to the task's acceptance criteria.
 | --- | --- |
 | **Supports all planned mobile epics (M1–M10)** | The layering + networking + auth + design system in §1–§42 cover every M-track surface in §47; each epic is "a new feature module + routes," no architecture change. |
 | **Compatible with the completed backend** | Consumes frozen `v1` byte-for-byte: envelope, `meta.pagination`, 69 error codes, cursor pagination, `X-Client: mobile` body-refresh, idempotent publish, multipart uploads, UTC timestamps, exact enum wire strings. DTOs generated from the same `openapi.json`. |
-| **Compatible with the completed React app** | Same feature boundaries, same route vocabulary, same query-key/cache-invalidation model, same auth/refresh contract, same optimistic/staleness discipline, same shared `@qalam/shared` vocabulary — so behavior matches across clients. |
+| **Compatible with the completed React app** | Same feature boundaries, same route vocabulary, same query-key/cache-invalidation model, same auth/refresh contract, same optimistic/staleness discipline, same shared `@umberleaf/shared` vocabulary — so behavior matches across clients. |
 | **Compatible with the completed Admin app** | Mobile is the reader/writer surface only; admin remains web-only. Mobile never touches `/admin/*`; PBAC gating is a UX hint with the server authoritative, so no admin capability leaks and no conflict arises. |
 | **Future AI requires no refactor** | §40 — additive `features/ai` + additive endpoints + flag; the `ai` queue seam already exists server-side. |
 | **Future payments require no refactor** | §41 — additive `features/payments` + `core/billing` interface + additive endpoints; entitlement gating reuses the PBAC pattern; Apple login is the ready auth seam. |
@@ -2134,7 +2135,7 @@ directly to the task's acceptance criteria.
 
 **Standing quality gates for every PR:** `flutter analyze`/`format` clean; tests green with coverage
 floors (§38); golden tests incl. RTL/Nastaliq pass; both themes and both directions verified on
-touched screens; conventional commit (scope `mobile`); `qalam_api` regenerated if the spec changed.
+touched screens; conventional commit (scope `mobile`); `umberleaf_api` regenerated if the spec changed.
 
 ---
 
@@ -2153,7 +2154,7 @@ module(s) + routes.
 
 | Epic | Name | Scope | Depends on | Key surfaces / endpoints |
 | --- | --- | --- | --- | --- |
-| **M1** | Foundation & App Shell | Repo, flavors/config, DI (Riverpod), Dio + interceptors, envelope/error model, `qalam_api` codegen, `qalam_shared` mirror, Hive + secure storage, GoRouter shell + guards skeleton, design-system token layer + theming (light/dark, RTL scaffolding), logging, connectivity. **No product feature yet.** | — | `core/*`, `design_system/*`, health check against API |
+| **M1** | Foundation & App Shell | Repo, flavors/config, DI (Riverpod), Dio + interceptors, envelope/error model, `umberleaf_api` codegen, `umberleaf_shared` mirror, Hive + secure storage, GoRouter shell + guards skeleton, design-system token layer + theming (light/dark, RTL scaffolding), logging, connectivity. **No product feature yet.** | — | `core/*`, `design_system/*`, health check against API |
 | **M2** | Auth & Session | Login, register (permanent username, one-time confirm), Google OAuth (PKCE), email verification state, forgot/reset password, boot silent-restore, single-flight refresh, logout/logout-all, session notifier + guards live. | M1 | `/auth/*` |
 | **M3** | Profiles & Follow Graph | Own + others' profiles (`/@handle`), edit profile (pen name, bio, links, avatar/cover upload), follow/unfollow, private-account follow requests, followers/following lists. | M2 | `/me`, `/users/:username`, follows, `/profile/avatar|cover` |
 | **M4** | Feed & Discovery | Home feed (Following/Latest/Trending tabs), Discover (writers/pieces/tags/genres/languages), filters, cursor infinite scroll, cache-then-network, pull-to-refresh. | M3 | `/feed/*`, `/discover/*` |

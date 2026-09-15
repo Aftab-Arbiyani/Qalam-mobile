@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/features/reading/domain/entities/piece_detail.dart';
-import 'package:qalam_mobile/features/reading/domain/entities/piece_engagement.dart';
-import 'package:qalam_mobile/features/reading/presentation/screens/reading_screen.dart';
-import 'package:qalam_mobile/l10n/generated/app_localizations.dart';
-import 'package:qalam_mobile/shared/domain/entities/author.dart';
-import 'package:qalam_mobile/shared/domain/entities/taxonomy.dart';
-import 'package:qalam_mobile/shared/theme/app_theme.dart';
+import 'package:umberleaf_mobile/features/reading/domain/entities/piece_detail.dart';
+import 'package:umberleaf_mobile/features/reading/domain/entities/piece_engagement.dart';
+import 'package:umberleaf_mobile/features/reading/presentation/screens/reading_screen.dart';
+import 'package:umberleaf_mobile/l10n/generated/app_localizations.dart';
+import 'package:umberleaf_mobile/shared/domain/entities/author.dart';
+import 'package:umberleaf_mobile/shared/domain/entities/taxonomy.dart';
+import 'package:umberleaf_mobile/shared/theme/app_theme.dart';
 
 import '../../support/fake_reading_repository.dart';
 import '../../support/harness.dart';
@@ -46,7 +46,7 @@ void main() {
         readingRepository: reading,
         engagementRepository: FakeEngagementRepository(),
         child: MaterialApp(
-          theme: buildQalamTheme(brightness: Brightness.light),
+          theme: buildUmberleafTheme(brightness: Brightness.light),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           home: const ReadingScreen(pieceId: 'p1'),

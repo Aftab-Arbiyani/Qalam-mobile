@@ -2,13 +2,13 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:qalam_mobile/core/di/providers.dart';
-import 'package:qalam_mobile/core/security/token_store.dart';
-import 'package:qalam_mobile/core/session/current_user.dart';
-import 'package:qalam_mobile/core/session/current_user_controller.dart';
-import 'package:qalam_mobile/core/session/session_controller.dart';
-import 'package:qalam_mobile/core/session/session_state.dart';
-import 'package:qalam_mobile/shared/domain/enums.dart';
+import 'package:umberleaf_mobile/core/di/providers.dart';
+import 'package:umberleaf_mobile/core/security/token_store.dart';
+import 'package:umberleaf_mobile/core/session/current_user.dart';
+import 'package:umberleaf_mobile/core/session/current_user_controller.dart';
+import 'package:umberleaf_mobile/core/session/session_controller.dart';
+import 'package:umberleaf_mobile/core/session/session_state.dart';
+import 'package:umberleaf_mobile/shared/domain/enums.dart';
 
 import '../../support/harness.dart';
 
@@ -50,8 +50,8 @@ void main() {
       final MockDio dio = MockDio();
       final ProviderContainer container = await buildTestContainer(
         tokens: <String, String>{
-          'qalam.refresh_token': 'rt',
-          'qalam.access_token': fakeJwt(),
+          'umberleaf.refresh_token': 'rt',
+          'umberleaf.access_token': fakeJwt(),
         },
         refreshClient: dio,
       );
@@ -73,8 +73,8 @@ void main() {
       ).thenAnswer((_) async => _refreshOk());
       final ProviderContainer container = await buildTestContainer(
         tokens: <String, String>{
-          'qalam.refresh_token': 'rt',
-          'qalam.access_token': fakeJwt(),
+          'umberleaf.refresh_token': 'rt',
+          'umberleaf.access_token': fakeJwt(),
         },
         rememberMe: true,
         refreshClient: dio,
@@ -105,8 +105,8 @@ void main() {
       );
       final ProviderContainer container = await buildTestContainer(
         tokens: <String, String>{
-          'qalam.refresh_token': 'rt',
-          'qalam.access_token': fakeJwt(),
+          'umberleaf.refresh_token': 'rt',
+          'umberleaf.access_token': fakeJwt(),
         },
         rememberMe: true,
         refreshClient: dio,

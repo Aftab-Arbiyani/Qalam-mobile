@@ -2,8 +2,8 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive_ce/hive.dart';
-import 'package:qalam_mobile/core/storage/cache_policy.dart';
-import 'package:qalam_mobile/core/storage/cache_store.dart';
+import 'package:umberleaf_mobile/core/storage/cache_policy.dart';
+import 'package:umberleaf_mobile/core/storage/cache_store.dart';
 
 void main() {
   late Directory dir;
@@ -11,7 +11,7 @@ void main() {
   late HiveCacheStore store;
 
   setUp(() async {
-    dir = await Directory.systemTemp.createTemp('qalam_cache_test');
+    dir = await Directory.systemTemp.createTemp('umberleaf_cache_test');
     Hive.init(dir.path);
     box = await Hive.openBox<dynamic>(
       'cache_${dir.path.hashCode.toRadixString(16)}',

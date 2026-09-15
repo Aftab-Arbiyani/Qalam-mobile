@@ -15,23 +15,23 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/core/config/app_config.dart';
-import 'package:qalam_mobile/core/config/app_flavor.dart';
-import 'package:qalam_mobile/core/di/providers.dart';
-import 'package:qalam_mobile/features/ai/domain/entities/ai_completion.dart';
-import 'package:qalam_mobile/features/ai/domain/entities/ai_stream_event.dart';
-import 'package:qalam_mobile/features/ai/domain/entities/ai_suggestion.dart';
-import 'package:qalam_mobile/features/ai/domain/value_objects/ai_writing_context.dart';
-import 'package:qalam_mobile/features/ai/presentation/editor/ai_editor_target.dart';
-import 'package:qalam_mobile/features/ai/presentation/panels/polish_sheet.dart';
-import 'package:qalam_mobile/features/ai/presentation/providers/ai_providers.dart';
-import 'package:qalam_mobile/features/ai/presentation/support/ai_error_copy.dart';
-import 'package:qalam_mobile/features/ai/presentation/widgets/ai_writing_lock_card.dart';
-import 'package:qalam_mobile/features/ai/presentation/widgets/model_disclosure_note.dart';
-import 'package:qalam_mobile/features/monetization/domain/entities/entitlement.dart';
-import 'package:qalam_mobile/features/monetization/domain/entities/monetization_enums.dart';
-import 'package:qalam_mobile/features/monetization/presentation/providers/monetization_providers.dart';
-import 'package:qalam_mobile/shared/theme/app_theme.dart';
+import 'package:umberleaf_mobile/core/config/app_config.dart';
+import 'package:umberleaf_mobile/core/config/app_flavor.dart';
+import 'package:umberleaf_mobile/core/di/providers.dart';
+import 'package:umberleaf_mobile/features/ai/domain/entities/ai_completion.dart';
+import 'package:umberleaf_mobile/features/ai/domain/entities/ai_stream_event.dart';
+import 'package:umberleaf_mobile/features/ai/domain/entities/ai_suggestion.dart';
+import 'package:umberleaf_mobile/features/ai/domain/value_objects/ai_writing_context.dart';
+import 'package:umberleaf_mobile/features/ai/presentation/editor/ai_editor_target.dart';
+import 'package:umberleaf_mobile/features/ai/presentation/panels/polish_sheet.dart';
+import 'package:umberleaf_mobile/features/ai/presentation/providers/ai_providers.dart';
+import 'package:umberleaf_mobile/features/ai/presentation/support/ai_error_copy.dart';
+import 'package:umberleaf_mobile/features/ai/presentation/widgets/ai_writing_lock_card.dart';
+import 'package:umberleaf_mobile/features/ai/presentation/widgets/model_disclosure_note.dart';
+import 'package:umberleaf_mobile/features/monetization/domain/entities/entitlement.dart';
+import 'package:umberleaf_mobile/features/monetization/domain/entities/monetization_enums.dart';
+import 'package:umberleaf_mobile/features/monetization/presentation/providers/monetization_providers.dart';
+import 'package:umberleaf_mobile/shared/theme/app_theme.dart';
 
 import '../../support/fake_ai_repository.dart';
 import '../../support/harness.dart';
@@ -154,7 +154,7 @@ Future<FakeAiRepository> _pump(
         ),
       ],
       child: MaterialApp(
-        theme: buildQalamTheme(brightness: Brightness.light),
+        theme: buildUmberleafTheme(brightness: Brightness.light),
         home: Scaffold(body: PolishSheet(target: target ?? _FakeTarget())),
       ),
     ),

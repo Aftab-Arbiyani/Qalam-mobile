@@ -1,31 +1,40 @@
-/// The Qalam brand mark (docs/41 §3) — the isolated Arabic letter qaf (ق) that is
-/// also the app launcher icon. Painted from a baked vector [Path] (see
-/// [buildQalamGlyphPath]) so it renders identically on every platform with no
-/// bundled font and no `flutter_svg` dependency, crisp at any size.
+/// The Umberleaf brand mark (docs/41 §3) — variant D "Outline": a single leaf
+/// drawn as one continuous white stroke, which is also the app launcher icon.
+/// Painted from a baked vector [Path] (see [buildUmberleafGlyphPath]) so it
+/// renders identically on every platform with no bundled font and no
+/// `flutter_svg` dependency, crisp at any size.
 ///
 /// Two forms:
-/// - tiled (default) — the full icon: white ق on the warm terracotta rounded tile,
-///   for splash / launcher-parity surfaces;
-/// - untiled ([tile] = false) — just the ق in [glyphColor] (defaults to the theme
-///   accent), for inline use on the paper canvas (e.g. an app-bar lockup).
+/// - tiled (default) — the full icon: white leaf on the warm terracotta rounded
+///   tile, for splash / launcher-parity surfaces;
+/// - untiled ([tile] = false) — just the leaf in [glyphColor] (defaults to the
+///   theme accent), for inline use on the paper canvas (e.g. an app-bar lockup).
+///
+/// **The leaf is a STROKE, not a fill — that is load-bearing.** The path is three
+/// centerline contours (a closed silhouette, the midrib, the stem). Painting it
+/// with [PaintingStyle.fill] would flood the silhouette into a solid blob and
+/// implicitly close and fill the two open lines as well. The previous mark (the
+/// Arabic letter qaf) was a filled outline, so this is the one real behavioural
+/// change in the swap.
 library;
 
 import 'package:flutter/material.dart';
 
 import '../../theme/q_tokens.dart';
-import 'qalam_glyph_path.dart';
+import 'umberleaf_glyph_path.dart';
 
 /// The brand terracotta. A logo is theme-invariant, so the tile color is fixed
 /// (it mirrors the light-theme accent, docs/41 §3.2) rather than following the
-/// active theme.
-const Color kQalamBrandTerracotta = Color(0xFF9E4B28);
+/// active theme. Value unchanged by the rebrand: the colour is the part of the
+/// identity that survived the rename.
+const Color kUmberleafBrandTerracotta = Color(0xFF9E4B28);
 
 class QBrandMark extends StatelessWidget {
   const QBrandMark({
     this.size = 40,
     this.tile = true,
     this.glyphColor,
-    this.semanticLabel = 'Qalam',
+    this.semanticLabel = 'Umberleaf',
     super.key,
   });
 
@@ -35,10 +44,11 @@ class QBrandMark extends StatelessWidget {
   /// Whether to paint the terracotta rounded tile behind the glyph.
   final bool tile;
 
-  /// Glyph fill. Defaults to white on a tile, or the theme accent when untiled.
+  /// Glyph stroke colour. Defaults to white on a tile, or the theme accent when
+  /// untiled.
   final Color? glyphColor;
 
-  /// Screen-reader label; pass `null` where the mark sits beside the "Qalam"
+  /// Screen-reader label; pass `null` where the mark sits beside the "Umberleaf"
   /// wordmark (splash / app bar) so the name isn't announced twice.
   final String? semanticLabel;
 
@@ -64,26 +74,39 @@ class _QBrandMarkPainter extends CustomPainter {
   final bool tile;
   final Color glyphColor;
 
-  /// The glyph outline is authored once in a 1000×1000 box; reused across paints.
-  static final Path _glyph = buildQalamGlyphPath();
+  /// The glyph centerlines are authored once in a 1000×1000 box; reused across
+  /// paints.
+  static final Path _glyph = buildUmberleafGlyphPath();
 
   @override
   void paint(Canvas canvas, Size size) {
     if (tile) {
-      final double radius = size.width * 112 / 512; // match the launcher tile
+      // 112/512 == 224/1024, the master tile's own corner radius, so the painted
+      // mark and the generated launcher PNG round identically.
+      final double radius = size.width * 112 / 512;
       canvas.drawRRect(
         RRect.fromRectAndRadius(Offset.zero & size, Radius.circular(radius)),
         Paint()
-          ..color = kQalamBrandTerracotta
+          ..color = kUmberleafBrandTerracotta
           ..isAntiAlias = true,
       );
     }
     canvas.save();
-    canvas.scale(size.width / kQalamGlyphBox);
+    canvas.scale(size.width / kUmberleafGlyphBox);
     canvas.drawPath(
       _glyph,
       Paint()
         ..color = glyphColor
+        ..style = PaintingStyle.stroke
+        // Stroke width is given in design-space units. `canvas.scale` above
+        // scales the stroke along with the geometry, so the rendered width is
+        // `kUmberleafStrokeWidth * size / kUmberleafGlyphBox` — exactly the
+        // formula the generator documents, obtained by transform rather than by
+        // arithmetic. Do not pre-divide it here as well, or the stroke scales
+        // quadratically and vanishes.
+        ..strokeWidth = kUmberleafStrokeWidth
+        ..strokeCap = StrokeCap.round
+        ..strokeJoin = StrokeJoin.round
         ..isAntiAlias = true,
     );
     canvas.restore();

@@ -1,6 +1,6 @@
 # 43 — Mobile Readiness Report (Epic M3: Home Feed & Reading Experience)
 
-> **Scope:** M3 — the complete **Home Feed** and **Reading Experience** for Qalam Mobile,
+> **Scope:** M3 — the complete **Home Feed** and **Reading Experience** for Umberleaf Mobile,
 > built additively on the M1 foundation and M2 auth. Governing docs:
 > `docs/40_MobileArchitecture.md`, `docs/41_MobileDesignSystem.md`. Backend `v1` is frozen;
 > this epic only *consumes* existing endpoints — no API was invented or mocked.

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/core/di/providers.dart';
-import 'package:qalam_mobile/shared/domain/entities/author.dart';
-import 'package:qalam_mobile/shared/domain/entities/piece_summary.dart';
-import 'package:qalam_mobile/shared/domain/entities/taxonomy.dart';
-import 'package:qalam_mobile/shared/domain/enums.dart';
-import 'package:qalam_mobile/shared/theme/app_theme.dart';
-import 'package:qalam_mobile/shared/widgets/content/piece_card.dart';
+import 'package:umberleaf_mobile/core/di/providers.dart';
+import 'package:umberleaf_mobile/shared/domain/entities/author.dart';
+import 'package:umberleaf_mobile/shared/domain/entities/piece_summary.dart';
+import 'package:umberleaf_mobile/shared/domain/entities/taxonomy.dart';
+import 'package:umberleaf_mobile/shared/domain/enums.dart';
+import 'package:umberleaf_mobile/shared/theme/app_theme.dart';
+import 'package:umberleaf_mobile/shared/widgets/content/piece_card.dart';
 
 import '../../support/harness.dart';
 
@@ -35,7 +35,7 @@ void main() {
         // exported for direct annotation).
         overrides: [appConfigProvider.overrideWithValue(testConfig)],
         child: MaterialApp(
-          theme: buildQalamTheme(brightness: Brightness.light),
+          theme: buildUmberleafTheme(brightness: Brightness.light),
           home: const Scaffold(body: PieceCard(piece: piece)),
         ),
       ),

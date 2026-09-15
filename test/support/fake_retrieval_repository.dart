@@ -8,13 +8,13 @@
 /// authenticated read onto a public page (`platfrom/docs/48` §3.25).
 library;
 
-import 'package:qalam_mobile/core/error/failure.dart';
-import 'package:qalam_mobile/core/utils/result.dart';
-import 'package:qalam_mobile/core/utils/typedefs.dart';
-import 'package:qalam_mobile/shared/retrieval/domain/retrieval.dart';
-import 'package:qalam_mobile/shared/retrieval/domain/retrieval_repository.dart';
-import 'package:qalam_mobile/shared/retrieval/domain/retrieval_requests.dart';
-import 'package:qalam_mobile/shared/retrieval/domain/saved_search.dart';
+import 'package:umberleaf_mobile/core/error/failure.dart';
+import 'package:umberleaf_mobile/core/utils/result.dart';
+import 'package:umberleaf_mobile/core/utils/typedefs.dart';
+import 'package:umberleaf_mobile/shared/retrieval/domain/retrieval.dart';
+import 'package:umberleaf_mobile/shared/retrieval/domain/retrieval_repository.dart';
+import 'package:umberleaf_mobile/shared/retrieval/domain/retrieval_requests.dart';
+import 'package:umberleaf_mobile/shared/retrieval/domain/saved_search.dart';
 
 const RetrievalResponseMeta _emptyMeta = RetrievalResponseMeta(
   sources: <String>[],

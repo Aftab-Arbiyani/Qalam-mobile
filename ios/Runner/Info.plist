@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Qalam</string>
+	<string>Umberleaf</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -15,7 +15,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>qalam_mobile</string>
+	<string>umberleaf_mobile</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -51,9 +51,9 @@
 	<true/>
 	<!-- Cover-image selection (M4 editor, image_picker). -->
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Qalam needs access to your photos so you can choose a cover image for your piece.</string>
+	<string>Umberleaf needs access to your photos so you can choose a cover image for your piece.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>Qalam needs access to your camera so you can take a cover photo for your piece.</string>
+	<string>Umberleaf needs access to your camera so you can take a cover photo for your piece.</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>

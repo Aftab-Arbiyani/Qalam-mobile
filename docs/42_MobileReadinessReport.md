@@ -36,7 +36,7 @@ mobile/
 │   │   └── utils/      result · jwt · typedefs
 │   ├── shared/
 │   │   ├── api/        api_envelope (error payload, cursor/offset meta, CursorPage)
-│   │   ├── domain/     enums · error_codes · limits · permissions  (mirror @qalam/shared)
+│   │   ├── domain/     enums · error_codes · limits · permissions  (mirror @umberleaf/shared)
 │   │   ├── motion/     motion
 │   │   ├── theme/      tokens/(color, typography, spacing, radius, elevation, motion)
 │   │   │               · q_tokens · app_theme · theme_mode_controller
@@ -112,7 +112,7 @@ generated from `openapi.json` in M2 (never hand-written).
 
 ## 7. Theme architecture
 
-Material 3 built entirely from Qalam tokens (`app_theme.dart`), with tonal elevation
+Material 3 built entirely from Umberleaf tokens (`app_theme.dart`), with tonal elevation
 suppressed (warm shadows in light, border+surface in dark), static input labels, and
 the `QTokens` `ThemeExtension` carrying the non-Material palette + shadows. Light +
 dark themes; `themeMode` persisted (System default). Dynamic color is plumbed via

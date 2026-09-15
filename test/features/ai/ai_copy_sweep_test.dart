@@ -18,10 +18,10 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/features/ai/domain/value_objects/ai_feature_ids.dart';
-import 'package:qalam_mobile/features/ai/presentation/support/ai_error_copy.dart';
-import 'package:qalam_mobile/features/ai/presentation/widgets/model_disclosure_note.dart';
-import 'package:qalam_mobile/shared/domain/error_codes.dart';
+import 'package:umberleaf_mobile/features/ai/domain/value_objects/ai_feature_ids.dart';
+import 'package:umberleaf_mobile/features/ai/presentation/support/ai_error_copy.dart';
+import 'package:umberleaf_mobile/features/ai/presentation/widgets/model_disclosure_note.dart';
+import 'package:umberleaf_mobile/shared/domain/error_codes.dart';
 
 /// Every code `AiErrorCopy` maps, plus the unknown-code fallback.
 const List<String> _codes = <String>[

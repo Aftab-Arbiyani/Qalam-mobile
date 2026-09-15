@@ -13,7 +13,7 @@
 ///   wired; the native authorization launch is a documented seam
 ///   (`SocialSignInService`, inert by default) — see §14.4 / §39.2 / §45. Apple is
 ///   a Phase-2 seam (`SocialProvider.apple.isAvailable == false`).
-/// - This repo has no generated `qalam_api` client (an M1 decision), so the data
+/// - This repo has no generated `umberleaf_api` client (an M1 decision), so the data
 ///   layer maps the raw envelope `data` straight to entities — consistent with how
 ///   `core/network` decodes every payload; no hand-duplicated DTO classes.
 library;

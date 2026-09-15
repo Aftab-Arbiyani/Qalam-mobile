@@ -1,4 +1,4 @@
-/// PBAC vocabulary — a Dart mirror of `@qalam/shared` `permissions.ts`.
+/// PBAC vocabulary — a Dart mirror of `@umberleaf/shared` `permissions.ts`.
 ///
 /// The client resolves a user's effective permissions from the JWT `role` claim
 /// (via [defaultRolePermissions]) and uses [permissionSatisfies] purely to gate

@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/features/reading/domain/content_parser.dart';
-import 'package:qalam_mobile/features/reading/domain/entities/content_node.dart';
+import 'package:umberleaf_mobile/features/reading/domain/content_parser.dart';
+import 'package:umberleaf_mobile/features/reading/domain/entities/content_node.dart';
 
 void main() {
   group('parsePieceContent', () {

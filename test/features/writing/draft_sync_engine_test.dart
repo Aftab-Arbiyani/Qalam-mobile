@@ -2,13 +2,13 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive_ce/hive.dart';
-import 'package:qalam_mobile/core/config/app_flavor.dart';
-import 'package:qalam_mobile/core/logging/app_logger.dart';
-import 'package:qalam_mobile/features/writing/data/datasources/draft_local_data_source.dart';
-import 'package:qalam_mobile/features/writing/data/sync/draft_sync_engine.dart';
-import 'package:qalam_mobile/features/writing/domain/entities/draft.dart';
-import 'package:qalam_mobile/features/writing/domain/entities/draft_sync.dart';
-import 'package:qalam_mobile/shared/domain/enums.dart';
+import 'package:umberleaf_mobile/core/config/app_flavor.dart';
+import 'package:umberleaf_mobile/core/logging/app_logger.dart';
+import 'package:umberleaf_mobile/features/writing/data/datasources/draft_local_data_source.dart';
+import 'package:umberleaf_mobile/features/writing/data/sync/draft_sync_engine.dart';
+import 'package:umberleaf_mobile/features/writing/domain/entities/draft.dart';
+import 'package:umberleaf_mobile/features/writing/domain/entities/draft_sync.dart';
+import 'package:umberleaf_mobile/shared/domain/enums.dart';
 
 import '../../support/fake_writing.dart';
 import '../../support/harness.dart';
@@ -41,7 +41,7 @@ void main() {
   late DraftSyncEngine engine;
 
   setUp(() async {
-    dir = await Directory.systemTemp.createTemp('qalam_sync_test');
+    dir = await Directory.systemTemp.createTemp('umberleaf_sync_test');
     Hive.init(dir.path);
     box = await Hive.openBox<dynamic>('drafts_${dir.path.hashCode}');
     store = DraftLocalDataSource(box);

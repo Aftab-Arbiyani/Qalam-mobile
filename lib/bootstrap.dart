@@ -136,7 +136,7 @@ Future<void> _start() async {
 
   startupWatch.stop();
   logger.i(
-    'Qalam ${env.fullVersion} · ${config.flavor.name} · ${env.platform}'
+    'Umberleaf ${env.fullVersion} · ${config.flavor.name} · ${env.platform}'
     ' · crash-reporting=${crashReporter.isEnabled}'
     ' · bootstrapMs=${startupWatch.elapsedMilliseconds}',
   );
@@ -161,7 +161,7 @@ Future<void> _start() async {
         }),
         localNotificationServiceProvider.overrideWithValue(localNotifications),
       ],
-      child: const QalamApp(),
+      child: const UmberleafApp(),
     ),
   );
 }

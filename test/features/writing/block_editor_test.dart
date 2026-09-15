@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/core/di/providers.dart';
-import 'package:qalam_mobile/features/writing/domain/entities/draft.dart';
-import 'package:qalam_mobile/features/writing/presentation/controllers/current_draft_controller.dart';
-import 'package:qalam_mobile/features/writing/presentation/editor/block_editor.dart';
-import 'package:qalam_mobile/features/writing/presentation/providers/writing_providers.dart';
-import 'package:qalam_mobile/shared/domain/enums.dart';
-import 'package:qalam_mobile/shared/theme/app_theme.dart';
+import 'package:umberleaf_mobile/core/di/providers.dart';
+import 'package:umberleaf_mobile/features/writing/domain/entities/draft.dart';
+import 'package:umberleaf_mobile/features/writing/presentation/controllers/current_draft_controller.dart';
+import 'package:umberleaf_mobile/features/writing/presentation/editor/block_editor.dart';
+import 'package:umberleaf_mobile/features/writing/presentation/providers/writing_providers.dart';
+import 'package:umberleaf_mobile/shared/domain/enums.dart';
+import 'package:umberleaf_mobile/shared/theme/app_theme.dart';
 
 import '../../support/fake_writing.dart';
 import '../../support/harness.dart';
@@ -41,7 +41,7 @@ void main() {
       UncontrolledProviderScope(
         container: c,
         child: MaterialApp(
-          theme: buildQalamTheme(brightness: Brightness.light),
+          theme: buildUmberleafTheme(brightness: Brightness.light),
           home: const Scaffold(
             body: BlockEditor(
               routeId: 'loc-1',
@@ -96,7 +96,7 @@ void main() {
       UncontrolledProviderScope(
         container: c,
         child: MaterialApp(
-          theme: buildQalamTheme(brightness: Brightness.light),
+          theme: buildUmberleafTheme(brightness: Brightness.light),
           home: const Scaffold(
             body: BlockEditor(
               routeId: 'loc-1',

@@ -1,5 +1,5 @@
 /// Pure, client-side auth validators (docs/40 §19.3, docs/41 §29). These mirror
-/// the shared `@qalam/shared` limits/regexes for instant UX feedback ONLY — the
+/// the shared `@umberleaf/shared` limits/regexes for instant UX feedback ONLY — the
 /// server is authoritative and re-validates everything. They return a typed
 /// [AuthFieldError] (or null) so they are trivially unit-testable and free of any
 /// localization / widget dependency.

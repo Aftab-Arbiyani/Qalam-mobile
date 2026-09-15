@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/features/notifications/domain/entities/app_notification.dart';
-import 'package:qalam_mobile/features/notifications/presentation/navigation/notification_deep_link.dart';
-import 'package:qalam_mobile/shared/domain/enums.dart';
+import 'package:umberleaf_mobile/features/notifications/domain/entities/app_notification.dart';
+import 'package:umberleaf_mobile/features/notifications/presentation/navigation/notification_deep_link.dart';
+import 'package:umberleaf_mobile/shared/domain/enums.dart';
 
 import '../../support/fake_notifications.dart';
 

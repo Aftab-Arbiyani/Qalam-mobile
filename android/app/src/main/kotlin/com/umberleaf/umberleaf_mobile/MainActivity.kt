@@ -1,4 +1,4 @@
-package com.qalam.qalam_mobile
+package com.umberleaf.umberleaf_mobile
 
 import io.flutter.embedding.android.FlutterActivity
 

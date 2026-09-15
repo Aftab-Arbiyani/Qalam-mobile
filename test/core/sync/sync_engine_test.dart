@@ -3,16 +3,16 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive_ce/hive.dart';
-import 'package:qalam_mobile/core/config/app_flavor.dart';
-import 'package:qalam_mobile/core/connectivity/connectivity_service.dart';
-import 'package:qalam_mobile/core/error/failure.dart';
-import 'package:qalam_mobile/core/logging/app_logger.dart';
-import 'package:qalam_mobile/core/sync/sync_engine.dart';
-import 'package:qalam_mobile/core/sync/sync_handler.dart';
-import 'package:qalam_mobile/core/sync/sync_history.dart';
-import 'package:qalam_mobile/core/sync/sync_operation.dart';
-import 'package:qalam_mobile/core/sync/sync_outbox_store.dart';
-import 'package:qalam_mobile/core/sync/sync_status.dart';
+import 'package:umberleaf_mobile/core/config/app_flavor.dart';
+import 'package:umberleaf_mobile/core/connectivity/connectivity_service.dart';
+import 'package:umberleaf_mobile/core/error/failure.dart';
+import 'package:umberleaf_mobile/core/logging/app_logger.dart';
+import 'package:umberleaf_mobile/core/sync/sync_engine.dart';
+import 'package:umberleaf_mobile/core/sync/sync_handler.dart';
+import 'package:umberleaf_mobile/core/sync/sync_history.dart';
+import 'package:umberleaf_mobile/core/sync/sync_operation.dart';
+import 'package:umberleaf_mobile/core/sync/sync_outbox_store.dart';
+import 'package:umberleaf_mobile/core/sync/sync_status.dart';
 
 /// A connectivity double with a controllable online flag + status stream.
 class FakeConnectivity implements ConnectivityService {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/shared/theme/app_theme.dart';
-import 'package:qalam_mobile/shared/widgets/buttons/q_button.dart';
+import 'package:umberleaf_mobile/shared/theme/app_theme.dart';
+import 'package:umberleaf_mobile/shared/widgets/buttons/q_button.dart';
 
 /// Golden test (docs/40 §38.2). Deterministic in the test environment (the test
 /// runner substitutes a fixed font). Regenerate with `--update-goldens`.
@@ -9,7 +9,7 @@ void main() {
   testWidgets('QButton variants — light', (WidgetTester tester) async {
     await tester.pumpWidget(
       MaterialApp(
-        theme: buildQalamTheme(brightness: Brightness.light),
+        theme: buildUmberleafTheme(brightness: Brightness.light),
         home: const Scaffold(
           body: Center(
             child: Padding(

@@ -1,4 +1,4 @@
-/// `QTokens` — the [ThemeExtension] carrying Qalam tokens that Material's
+/// `QTokens` — the [ThemeExtension] carrying Umberleaf tokens that Material's
 /// `ColorScheme`/`TextTheme` cannot express (docs/41 §3.3): the full semantic
 /// palette (`-text`/`-bg` triplets, accent variants, strong border) and the warm
 /// elevation shadows. Widgets read it via `QTokens.of(context)`.

@@ -67,7 +67,7 @@ abstract final class ErrorMessages {
         offline
             ? _byCode[ErrorCodes.apiOffline]!
             : (
-                title: "Can't reach Qalam.",
+                title: "Can't reach Umberleaf.",
                 body: 'Please check your connection and try again.',
               ),
       AuthFailure() => (

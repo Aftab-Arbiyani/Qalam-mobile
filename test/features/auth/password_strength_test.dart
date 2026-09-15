@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/features/auth/domain/value_objects/password_strength.dart';
+import 'package:umberleaf_mobile/features/auth/domain/value_objects/password_strength.dart';
 
 void main() {
   group('estimatePasswordStrength', () {

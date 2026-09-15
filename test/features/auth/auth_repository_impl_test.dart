@@ -1,13 +1,13 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:qalam_mobile/core/error/api_exception.dart';
-import 'package:qalam_mobile/core/error/failure.dart';
-import 'package:qalam_mobile/core/session/current_user.dart';
-import 'package:qalam_mobile/core/utils/result.dart';
-import 'package:qalam_mobile/features/auth/data/datasources/auth_remote_data_source.dart';
-import 'package:qalam_mobile/features/auth/data/repositories/auth_repository_impl.dart';
-import 'package:qalam_mobile/features/auth/domain/entities/auth_result.dart';
-import 'package:qalam_mobile/shared/domain/error_codes.dart';
+import 'package:umberleaf_mobile/core/error/api_exception.dart';
+import 'package:umberleaf_mobile/core/error/failure.dart';
+import 'package:umberleaf_mobile/core/session/current_user.dart';
+import 'package:umberleaf_mobile/core/utils/result.dart';
+import 'package:umberleaf_mobile/features/auth/data/datasources/auth_remote_data_source.dart';
+import 'package:umberleaf_mobile/features/auth/data/repositories/auth_repository_impl.dart';
+import 'package:umberleaf_mobile/features/auth/domain/entities/auth_result.dart';
+import 'package:umberleaf_mobile/shared/domain/error_codes.dart';
 
 class MockRemote extends Mock implements AuthRemoteDataSource {}
 

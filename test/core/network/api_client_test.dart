@@ -1,10 +1,10 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:qalam_mobile/core/error/api_exception.dart';
-import 'package:qalam_mobile/core/network/api_client.dart';
-import 'package:qalam_mobile/shared/api/api_envelope.dart';
-import 'package:qalam_mobile/shared/domain/error_codes.dart';
+import 'package:umberleaf_mobile/core/error/api_exception.dart';
+import 'package:umberleaf_mobile/core/network/api_client.dart';
+import 'package:umberleaf_mobile/shared/api/api_envelope.dart';
+import 'package:umberleaf_mobile/shared/domain/error_codes.dart';
 
 import '../../support/harness.dart';
 

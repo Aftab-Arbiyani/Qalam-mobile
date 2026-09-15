@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/features/ai/domain/entities/ai_suggestion.dart';
+import 'package:umberleaf_mobile/features/ai/domain/entities/ai_suggestion.dart';
 
 void main() {
   group('SuggestionDiff.compute', () {

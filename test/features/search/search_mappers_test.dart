@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/features/search/data/mappers/search_mappers.dart';
-import 'package:qalam_mobile/features/search/domain/entities/autocomplete_result.dart';
-import 'package:qalam_mobile/features/search/domain/entities/recent_search.dart';
-import 'package:qalam_mobile/features/search/domain/entities/trending_searches.dart';
-import 'package:qalam_mobile/shared/domain/enums.dart';
+import 'package:umberleaf_mobile/features/search/data/mappers/search_mappers.dart';
+import 'package:umberleaf_mobile/features/search/domain/entities/autocomplete_result.dart';
+import 'package:umberleaf_mobile/features/search/domain/entities/recent_search.dart';
+import 'package:umberleaf_mobile/features/search/domain/entities/trending_searches.dart';
+import 'package:umberleaf_mobile/shared/domain/enums.dart';
 
 void main() {
   // `globalSearchFromJson` was pinned here. **D5** removed the grouped `GET /search`

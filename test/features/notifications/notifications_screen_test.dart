@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/features/notifications/domain/entities/app_notification.dart';
-import 'package:qalam_mobile/features/notifications/presentation/screens/notifications_screen.dart';
-import 'package:qalam_mobile/features/notifications/presentation/widgets/notification_tile.dart';
-import 'package:qalam_mobile/l10n/generated/app_localizations.dart';
-import 'package:qalam_mobile/shared/domain/enums.dart';
-import 'package:qalam_mobile/shared/theme/app_theme.dart';
-import 'package:qalam_mobile/shared/widgets/states/q_empty_state.dart';
+import 'package:umberleaf_mobile/features/notifications/domain/entities/app_notification.dart';
+import 'package:umberleaf_mobile/features/notifications/presentation/screens/notifications_screen.dart';
+import 'package:umberleaf_mobile/features/notifications/presentation/widgets/notification_tile.dart';
+import 'package:umberleaf_mobile/l10n/generated/app_localizations.dart';
+import 'package:umberleaf_mobile/shared/domain/enums.dart';
+import 'package:umberleaf_mobile/shared/theme/app_theme.dart';
+import 'package:umberleaf_mobile/shared/widgets/states/q_empty_state.dart';
 
 import '../../support/fake_notifications.dart';
 import '../../support/harness.dart';
 
 Widget _host() => MaterialApp(
   debugShowCheckedModeBanner: false,
-  theme: buildQalamTheme(brightness: Brightness.light),
+  theme: buildUmberleafTheme(brightness: Brightness.light),
   localizationsDelegates: AppLocalizations.localizationsDelegates,
   supportedLocales: AppLocalizations.supportedLocales,
   home: const NotificationsScreen(),

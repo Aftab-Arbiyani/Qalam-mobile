@@ -1,6 +1,6 @@
 /// Result + recommendation cards (docs 36 / docs 41). Each renders a structured domain
 /// object with its grounding — summary, why-surfaced reason, ranking, evidence, related
-/// entities — using Qalam tokens/components. Tapping opens the result; related chips
+/// entities — using Umberleaf tokens/components. Tapping opens the result; related chips
 /// navigate to linked entities. The client only renders; the backend ranks.
 ///
 /// **D5** swapped the sparkle beside a recommendation's reason for a lightbulb. The

@@ -1,13 +1,13 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/core/config/app_environment_info.dart';
-import 'package:qalam_mobile/core/config/app_flavor.dart';
-import 'package:qalam_mobile/core/logging/app_logger.dart';
-import 'package:qalam_mobile/core/observability/crash_reporter.dart';
-import 'package:qalam_mobile/core/observability/release_diagnostics.dart';
+import 'package:umberleaf_mobile/core/config/app_environment_info.dart';
+import 'package:umberleaf_mobile/core/config/app_flavor.dart';
+import 'package:umberleaf_mobile/core/logging/app_logger.dart';
+import 'package:umberleaf_mobile/core/observability/crash_reporter.dart';
+import 'package:umberleaf_mobile/core/observability/release_diagnostics.dart';
 
 void main() {
   const AppEnvironmentInfo env = AppEnvironmentInfo(
-    appName: 'Qalam',
+    appName: 'Umberleaf',
     version: '1.2.0',
     buildNumber: '42',
     platform: 'android',

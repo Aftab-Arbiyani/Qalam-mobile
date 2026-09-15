@@ -7,7 +7,7 @@
 library;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/features/ai/domain/entities/story_graph.dart';
+import 'package:umberleaf_mobile/features/ai/domain/entities/story_graph.dart';
 
 void main() {
   group('ExplorerViewResult.fromJson + round-trip', () {

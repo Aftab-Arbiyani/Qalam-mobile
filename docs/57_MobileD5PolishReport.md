@@ -8,7 +8,7 @@
 
 ## 1. What the decision was, in one paragraph
 
-Qalam's audience — literary writers and poets — rejects being *sold* a machine, rejects prose
+Umberleaf's audience — literary writers and poets — rejects being *sold* a machine, rejects prose
 generation, and rejects the suspicion that their unpublished work is being used without their
 knowing. The app led with "AI": on the editor toolbar, on plan cards, on a "Discover with AI" hub, in
 settings, and in a usage meter denominated in tokens. **D5 removes the surface, not the platform.**
@@ -208,7 +208,7 @@ Run the **development** flavor against a backend with `AI_STUB_ENABLED=true AI_D
 | | |
 | --- | --- |
 | **F3** | The E2E suite is rewritten but has **never run against a browser**, and six visual baselines need a CI re-mint. A dispatch cancels a live push run — check `gh run list` first. |
-| **V** | Vocabulary contract: the deprecated enum values, `@qalam/api-types` shapes and inert wire fields, in one coordinated PR. Mobile's half is small — it is already off all of them. |
+| **V** | Vocabulary contract: the deprecated enum values, `@umberleaf/api-types` shapes and inert wire fields, in one coordinated PR. Mobile's half is small — it is already off all of them. |
 | **C** | DB contract: drop `ai_conversations`, `ai_messages`, `credit_wallets`, `credit_transactions`. |
 
 Wire compatibility until V is deliberate. `forbidNonWhitelisted` is live, so a field removed from a

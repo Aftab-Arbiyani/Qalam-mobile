@@ -9,7 +9,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appTitle => 'Qalam';
+  String get appTitle => 'Umberleaf';
 
   @override
   String get navFeed => 'Feed';
@@ -144,7 +144,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onboardingWelcomeBody =>
-      'Qalam is a quiet writing sanctuary — warm paper and ink, for Hindi and Urdu writers first.';
+      'Umberleaf is a quiet writing sanctuary — warm paper and ink, for Hindi and Urdu writers first.';
 
   @override
   String get onboardingFeaturesTitle => 'Read and write, beautifully';
@@ -246,7 +246,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get authRememberMe => 'Keep me signed in';
 
   @override
-  String get authNoAccount => 'New to Qalam?';
+  String get authNoAccount => 'New to Umberleaf?';
 
   @override
   String get authCreateOne => 'Create an account';
@@ -359,7 +359,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get authVerifyWhyBody =>
-      'You can keep using Qalam — some actions need a verified email.';
+      'You can keep using Umberleaf — some actions need a verified email.';
 
   @override
   String get authResentBody => 'Sent. Check your inbox again.';

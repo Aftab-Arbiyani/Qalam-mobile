@@ -1,12 +1,12 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:qalam_mobile/core/sync/sync_operation.dart';
-import 'package:qalam_mobile/features/notifications/data/sync/notification_sync_handler.dart';
-import 'package:qalam_mobile/features/notifications/domain/repositories/notification_repository.dart';
-import 'package:qalam_mobile/features/profile/data/sync/profile_sync_handler.dart';
-import 'package:qalam_mobile/features/profile/domain/repositories/profile_repository.dart';
-import 'package:qalam_mobile/features/profile/domain/value_objects/profile_edit.dart';
-import 'package:qalam_mobile/shared/social/data/sync/social_sync_handler.dart';
+import 'package:umberleaf_mobile/core/sync/sync_operation.dart';
+import 'package:umberleaf_mobile/features/notifications/data/sync/notification_sync_handler.dart';
+import 'package:umberleaf_mobile/features/notifications/domain/repositories/notification_repository.dart';
+import 'package:umberleaf_mobile/features/profile/data/sync/profile_sync_handler.dart';
+import 'package:umberleaf_mobile/features/profile/domain/repositories/profile_repository.dart';
+import 'package:umberleaf_mobile/features/profile/domain/value_objects/profile_edit.dart';
+import 'package:umberleaf_mobile/shared/social/data/sync/social_sync_handler.dart';
 
 class _MockNotifRepo extends Mock implements NotificationRepository {}
 

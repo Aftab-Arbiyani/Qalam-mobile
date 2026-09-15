@@ -1,4 +1,4 @@
-/// Domain enums — a faithful Dart mirror of `@qalam/shared` `enums.ts`.
+/// Domain enums — a faithful Dart mirror of `@umberleaf/shared` `enums.ts`.
 ///
 /// The wire value (`wire`) is the exact string the frozen `v1` API returns and
 /// accepts; it is the single source of truth. `fromWire` is tolerant of unknown

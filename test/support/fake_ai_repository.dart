@@ -9,9 +9,9 @@
 /// `AiRepository`.
 library;
 
-import 'package:qalam_mobile/core/error/failure.dart';
-import 'package:qalam_mobile/core/utils/result.dart';
-import 'package:qalam_mobile/features/ai/ai.dart';
+import 'package:umberleaf_mobile/core/error/failure.dart';
+import 'package:umberleaf_mobile/core/utils/result.dart';
+import 'package:umberleaf_mobile/features/ai/ai.dart';
 
 class FakeAiRepository implements AiRepository {
   FakeAiRepository({

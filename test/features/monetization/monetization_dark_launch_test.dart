@@ -1,7 +1,7 @@
 /// Regression guard for defect **M5-4** (`platfrom/docs/48` §3.7) and the fourth-tab
 /// wiring **M5-6**.
 ///
-/// `QALAM_ENABLE_MONETIZATION` used to gate exactly one thing on mobile: whether the
+/// `UMBERLEAF_ENABLE_MONETIZATION` used to gate exactly one thing on mobile: whether the
 /// Premium section appeared in the settings hub. The `/billing/*` routes are registered
 /// unconditionally, so every screen behind them stayed deep-linkable in a dark build and
 /// rendered normally — issuing live `/monetization/*` requests for a platform the build
@@ -15,20 +15,20 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:qalam_mobile/core/config/app_config.dart';
-import 'package:qalam_mobile/core/config/app_flavor.dart';
-import 'package:qalam_mobile/core/di/providers.dart';
-import 'package:qalam_mobile/features/monetization/domain/entities/billing.dart';
-import 'package:qalam_mobile/features/monetization/domain/entities/monetization_enums.dart';
-import 'package:qalam_mobile/features/monetization/domain/entities/subscription.dart';
-import 'package:qalam_mobile/features/monetization/presentation/domain_labels.dart';
-import 'package:qalam_mobile/features/monetization/presentation/providers/monetization_providers.dart';
-import 'package:qalam_mobile/features/monetization/presentation/screens/billing_history_screen.dart';
-import 'package:qalam_mobile/features/monetization/presentation/screens/plans_screen.dart';
-import 'package:qalam_mobile/features/monetization/presentation/screens/subscription_screen.dart';
-import 'package:qalam_mobile/features/monetization/presentation/screens/usage_dashboard_screen.dart';
-import 'package:qalam_mobile/features/monetization/presentation/widgets/monetization_off_screen.dart';
-import 'package:qalam_mobile/shared/theme/app_theme.dart';
+import 'package:umberleaf_mobile/core/config/app_config.dart';
+import 'package:umberleaf_mobile/core/config/app_flavor.dart';
+import 'package:umberleaf_mobile/core/di/providers.dart';
+import 'package:umberleaf_mobile/features/monetization/domain/entities/billing.dart';
+import 'package:umberleaf_mobile/features/monetization/domain/entities/monetization_enums.dart';
+import 'package:umberleaf_mobile/features/monetization/domain/entities/subscription.dart';
+import 'package:umberleaf_mobile/features/monetization/presentation/domain_labels.dart';
+import 'package:umberleaf_mobile/features/monetization/presentation/providers/monetization_providers.dart';
+import 'package:umberleaf_mobile/features/monetization/presentation/screens/billing_history_screen.dart';
+import 'package:umberleaf_mobile/features/monetization/presentation/screens/plans_screen.dart';
+import 'package:umberleaf_mobile/features/monetization/presentation/screens/subscription_screen.dart';
+import 'package:umberleaf_mobile/features/monetization/presentation/screens/usage_dashboard_screen.dart';
+import 'package:umberleaf_mobile/features/monetization/presentation/widgets/monetization_off_screen.dart';
+import 'package:umberleaf_mobile/shared/theme/app_theme.dart';
 
 const AppConfig _off = AppConfig(
   flavor: AppFlavor.development,
@@ -91,7 +91,7 @@ Future<void> _pumpDark(WidgetTester tester, Widget screen) async {
       // the element type has to be inferred (the same note the shared harness carries).
       overrides: [appConfigProvider.overrideWithValue(_off)],
       child: MaterialApp(
-        theme: buildQalamTheme(brightness: Brightness.light),
+        theme: buildUmberleafTheme(brightness: Brightness.light),
         home: screen,
       ),
     ),
@@ -121,7 +121,7 @@ Future<void> _pumpBillingHistory(
         subscriptionEventsProvider.overrideWith((_) async => events),
       ],
       child: MaterialApp(
-        theme: buildQalamTheme(brightness: Brightness.light),
+        theme: buildUmberleafTheme(brightness: Brightness.light),
         home: const BillingHistoryScreen(),
       ),
     ),

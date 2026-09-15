@@ -225,7 +225,7 @@ introduce the impl; only the screens that opt in call `enable()`/`disable()`.
 Ordered by risk-reduction per unit of effort. None of these change M1 behaviour until
 performed.
 
-1. **Transport** — confirm every `dart_defines/*.json` `QALAM_API_URL` is `https://`
+1. **Transport** — confirm every `dart_defines/*.json` `UMBERLEAF_API_URL` is `https://`
    (docs/51 §1 flags the placeholder hosts). Android: keep `usesCleartextTraffic`
    **unset/false** (default) so no cleartext egress is possible; add a
    `networkSecurityConfig` if pinning is activated (§3).
