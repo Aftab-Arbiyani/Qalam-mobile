@@ -453,6 +453,9 @@ class _EditorScreenState extends ConsumerState<EditorScreen>
   String _storyId(EditorState st) => st.draft.remoteId ?? '';
 
   Future<void> _openPublish(EditorState st) async {
+    // Read BEFORE the sheet: a piece that was already published stays published, so
+    // the post-hoc status cannot tell an update apart from a first publish.
+    final bool wasPublished = st.draft.isPublished;
     final bool? done = await QBottomSheet.show<bool>(
       context,
       builder: (_) => PublishSheet(routeId: widget.draftId),
@@ -466,7 +469,11 @@ class _EditorScreenState extends ConsumerState<EditorScreen>
       final bool scheduled = cur?.draft.status == PieceStatus.scheduled;
       QSnackbar.show(
         context,
-        message: scheduled ? 'Scheduled' : 'Published',
+        message: wasPublished
+            ? 'Saved'
+            : scheduled
+            ? 'Scheduled'
+            : 'Published',
         variant: QSnackbarVariant.success,
       );
       context.pop();

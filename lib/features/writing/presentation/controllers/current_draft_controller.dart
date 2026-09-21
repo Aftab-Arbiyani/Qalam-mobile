@@ -232,7 +232,9 @@ class CurrentDraftController extends _$CurrentDraftController {
 
   /// Insert [paragraphs] as new paragraph blocks after [afterId] ("Insert below").
   void insertParagraphsAfter(String afterId, List<String> paragraphs) =>
-      _editDocument((EditorDocument doc) => doc.insertParagraphsAfter(afterId, paragraphs));
+      _editDocument(
+        (EditorDocument doc) => doc.insertParagraphsAfter(afterId, paragraphs),
+      );
 
   /// Append [paragraphs] as new paragraph blocks at the end ("Append").
   void appendParagraphs(List<String> paragraphs) =>
@@ -264,6 +266,20 @@ class CurrentDraftController extends _$CurrentDraftController {
   /// offline it stays queued and publishes on reconnect (docs/40 §42).
   Future<void> publish() =>
       _queueIntent(DraftIntent.publish, status: PieceStatus.published);
+
+  /// Queue a save for an ALREADY-PUBLISHED piece — what the sheet confirms when there is
+  /// no transition left to make. Pushes the content and metadata through the same update
+  /// path and awaits it, so the action reflects its outcome exactly as publish does.
+  ///
+  /// It must NOT go through [publish]: publishing is one-way, and the server answers a
+  /// second `POST /pieces/:id/publish` with 409 `PIECE_ALREADY_PUBLISHED` — which landed
+  /// AFTER the update had already succeeded, marking a saved draft `failed`. A published
+  /// piece stays editable through `PATCH /pieces/:id`, and the edit is live on landing.
+  Future<void> saveChanges() {
+    final EditorState? cur = state.asData?.value;
+    if (cur == null) return Future<void>.value();
+    return _queueIntent(DraftIntent.save, status: cur.draft.status);
+  }
 
   /// Queue a scheduled publish for [at].
   Future<void> schedule(DateTime at) => _queueIntent(

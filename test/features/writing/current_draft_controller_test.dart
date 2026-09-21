@@ -112,6 +112,33 @@ void main() {
     },
   );
 
+  // Regression: the sheet confirmed a publish even on a published piece. The update
+  // landed and `POST /publish` then answered 409 PIECE_ALREADY_PUBLISHED, so a saved
+  // edit came back `failed`.
+  test(
+    'saveChanges on a published piece updates without re-publishing',
+    () async {
+      final ProviderContainer c = await container();
+      await c.read(currentDraftControllerProvider('loc-1').future);
+      final CurrentDraftController notifier = c.read(
+        currentDraftControllerProvider('loc-1').notifier,
+      );
+      await notifier.publish();
+      final int updatesAfterPublish = repo.updateCalls;
+
+      notifier.setTitle('Edited after publishing');
+      await notifier.saveChanges();
+
+      final Draft stored = c.read(draftLocalDataSourceProvider).read('loc-1')!;
+      expect(repo.publishCalls, 1); // not published a second time
+      expect(repo.scheduleCalls, 0);
+      expect(repo.updateCalls, updatesAfterPublish + 1);
+      expect(stored.title, 'Edited after publishing');
+      expect(stored.status, PieceStatus.published);
+      expect(stored.syncState, DraftSyncState.synced);
+    },
+  );
+
   test('saveNow flushes the live document into the local store', () async {
     final ProviderContainer c = await container();
     await c.read(currentDraftControllerProvider('loc-1').future);

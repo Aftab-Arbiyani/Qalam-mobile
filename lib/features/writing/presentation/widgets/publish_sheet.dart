@@ -3,6 +3,11 @@
 /// rule), and offers Publish-now or Schedule-for-later. It only collects intent and
 /// calls [CurrentDraftController]; the actual publish/schedule queues through the
 /// sync engine (works offline). Returns true if an action was taken.
+///
+/// On an ALREADY-PUBLISHED piece it is a plain save sheet: no publish, no schedule.
+/// Both are one-way transitions the server rejects with 409 `PIECE_ALREADY_PUBLISHED`
+/// (after the content update has already landed), so the confirm queues an ordinary
+/// save instead — a published piece stays editable through `PATCH /pieces/:id`.
 library;
 
 // Hide Material's Visibility widget — this file uses the domain `Visibility` enum.
@@ -41,6 +46,7 @@ class _PublishSheetState extends ConsumerState<PublishSheet> {
         ?.value;
     if (st == null) return const SizedBox.shrink();
     final DraftValidation validation = st.validation;
+    final bool isPublished = st.draft.isPublished;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(
@@ -53,17 +59,25 @@ class _PublishSheetState extends ConsumerState<PublishSheet> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text(
-            validation.canPublish ? 'Ready to publish?' : 'Before you publish',
-            style: theme.textTheme.titleLarge,
-          ),
+          Text(switch ((isPublished, validation.canPublish)) {
+            (true, true) => 'Save changes?',
+            (true, false) => 'Before you save',
+            (false, true) => 'Ready to publish?',
+            (false, false) => 'Before you publish',
+          }, style: theme.textTheme.titleLarge),
           Gap.v4,
           if (!validation.canPublish)
-            _MissingList(validation: validation, tokens: tokens)
+            _MissingList(
+              validation: validation,
+              tokens: tokens,
+              lead: isPublished
+                  ? 'Add these before saving:'
+                  : 'Add these before publishing:',
+            )
           else ...<Widget>[
             _VisibilityNote(visibility: st.draft.visibility, tokens: tokens),
             Gap.v4,
-            if (_scheduledAt != null)
+            if (_scheduledAt != null && !isPublished)
               Padding(
                 padding: const EdgeInsets.only(bottom: QSpacing.s3),
                 child: Row(
@@ -84,14 +98,18 @@ class _PublishSheetState extends ConsumerState<PublishSheet> {
                 ),
               ),
             QButton(
-              label: _scheduledAt == null ? 'Publish now' : 'Schedule',
+              label: isPublished
+                  ? 'Save changes'
+                  : _scheduledAt == null
+                  ? 'Publish now'
+                  : 'Schedule',
               variant: QButtonVariant.primary,
               block: true,
               loading: _busy,
               onPressed: _busy ? null : _confirm,
             ),
             Gap.v2,
-            if (_scheduledAt == null)
+            if (_scheduledAt == null && !isPublished)
               QButton(
                 label: 'Schedule for later',
                 variant: QButtonVariant.ghost,
@@ -142,8 +160,18 @@ class _PublishSheetState extends ConsumerState<PublishSheet> {
     final CurrentDraftController notifier = ref.read(
       currentDraftControllerProvider(widget.routeId).notifier,
     );
+    final bool isPublished =
+        ref
+            .read(currentDraftControllerProvider(widget.routeId))
+            .asData
+            ?.value
+            .draft
+            .isPublished ??
+        false;
     final DateTime? at = _scheduledAt;
-    if (at == null) {
+    if (isPublished) {
+      await notifier.saveChanges();
+    } else if (at == null) {
       await notifier.publish();
     } else {
       await notifier.schedule(at);
@@ -153,19 +181,21 @@ class _PublishSheetState extends ConsumerState<PublishSheet> {
 }
 
 class _MissingList extends StatelessWidget {
-  const _MissingList({required this.validation, required this.tokens});
+  const _MissingList({
+    required this.validation,
+    required this.tokens,
+    required this.lead,
+  });
   final DraftValidation validation;
   final QTokens tokens;
+  final String lead;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Text(
-          'Add these before publishing:',
-          style: TextStyle(color: tokens.colors.textSecondary),
-        ),
+        Text(lead, style: TextStyle(color: tokens.colors.textSecondary)),
         Gap.v3,
         for (final PublishRequirement r in validation.missing)
           Padding(
